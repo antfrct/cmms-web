@@ -13,9 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
 <style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}</style>
 </helmet>
-<div style="display:grid;grid-template-columns:232px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
-  <div style="position:relative;min-height:0"><dc-import name="Sidebar" active="planning" style="position:absolute;inset:0" hint-size="232px,100%"></dc-import></div>
+  <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="planning" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
   <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:14px" data-screen-label="Planning">
     <header style="flex:none;display:flex;align-items:flex-end;gap:16px">
@@ -266,7 +266,7 @@ class Component extends DCLogic {
     const day = Math.round((new Date(y, mo - 1, dd) - BASE) / 864e5), start = hh + mm / 60;
     const ev = { id: 'e' + seq++, day, start, dur: +f.dur, asset: f.asset, title: f.title, who: f.who, type: f.type, prio: f.prio, fresh: true };
     this.setState(s => ({ events: [...s.events, ev], drawer: s.another ? s.drawer : null, form: s.another ? { ...s.form, title: '', desc: '' } : s.form }));
-    this.flash(`WO-13399${20 + seq} scheduled · ${DAYS[((day % 7) + 7) % 7]} ${hm(start)}`);
+    this.flash(`"${f.asset} — ${f.title}" scheduled · ${DAYS[((day % 7) + 7) % 7]} ${hm(start)}`);
   }
   renderVals() {
     const s = this.state, f = s.form;

@@ -13,9 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
 <style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}</style>
 </helmet>
-<div style="display:grid;grid-template-columns:232px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
-  <div style="position:relative;min-height:0"><dc-import name="Sidebar" active="teams" style="position:absolute;inset:0" hint-size="232px,100%"></dc-import></div>
+  <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="teams" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
   <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Teams and users">
     <header style="flex:none;display:flex;align-items:flex-end;gap:16px">
@@ -104,24 +104,68 @@
 
     <sc-if value="{{ isRoles }}">
       <section style="flex:none;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #EEF0F3">
-          <span style="font-weight:600;font-size:14px">Default permissions by role</span>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #EEF0F3;min-height:58px">
+          <span style="font-weight:600;font-size:14px">Permissions by role</span>
           <span style="height:22px;display:inline-flex;align-items:center;padding:0 8px;border-radius:11px;background:#FEF3E2;color:#B54708;font-size:12px;font-weight:600">Proposal · to be validated</span>
-          <div style="margin-left:auto;display:flex;gap:14px;font-size:12px;color:#475467">
-            <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined';color:#0B6B4A">check_circle</span>Full</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined';color:#2456B8">edit</span>Create &amp; edit</span>
-            <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined';color:#667085">visibility</span>View</span>
+          <sc-if value="{{ noChanges }}" hint-placeholder-val="{{ true }}">
+            <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#667085"><span style="font:16px/1 'Material Symbols Outlined'">touch_app</span>Click any cell to change access</span>
+          </sc-if>
+          <sc-if value="{{ hasChanges }}">
+            <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12.5px;color:#B54708;font-weight:500"><span style="width:7px;height:7px;border-radius:50%;background:#F79009"></span>{{ changeLabel }}</span>
+            <button onClick="{{ discard }}" style="height:32px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Discard</button>
+            <button onClick="{{ saveMx }}" style="height:32px;padding:0 14px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Save changes</button>
+          </sc-if>
+        </div>
+        <div>
+          <div>
+            <div style="display:grid;grid-template-columns:{{ mxCols }};align-items:stretch;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
+              <span style="display:flex;align-items:center;padding:0 16px">Module</span>
+              <sc-for list="{{ roleCols }}" as="r">
+                <div style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 6px;border-left:1px solid #F2F4F7">
+                  <sc-if value="{{ r.editable }}">
+                    <input value="{{ r.name }}" onInput="{{ r.rename }}" title="Rename role" style="width:100%;height:26px;padding:0 6px;border:1px solid transparent;border-radius:4px;background:transparent;font:600 12px 'IBM Plex Sans',sans-serif;color:#1E2430;text-align:center;outline:none" style-hover="border-color:#D0D5DD;background:#fff" style-focus="border-color:#C00018;background:#fff" />
+                  </sc-if>
+                  <sc-if value="{{ r.fixed }}"><span style="display:flex;align-items:center;gap:4px;height:26px;color:#1E2430">{{ r.name }}<sc-if value="{{ r.locked }}"><span title="System role — always full access" style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">lock</span></sc-if></span></sc-if>
+                  <span style="font-weight:400;font-size:11px;color:#98A2B3">{{ r.users }}</span>
+                  <sc-if value="{{ r.removable }}"><button onClick="{{ r.remove }}" title="Remove role" style="position:absolute;top:4px;right:4px;width:20px;height:20px;padding:0;display:grid;place-items:center;background:transparent;border:0;border-radius:4px;color:#98A2B3;cursor:pointer" style-hover="background:#FEF3F2;color:#B42318"><span style="font:15px/1 'Material Symbols Outlined'">close</span></button></sc-if>
+                </div>
+              </sc-for>
+              <div style="display:flex;align-items:center;justify-content:center;border-left:1px solid #F2F4F7;padding:8px">
+                <button onClick="{{ addRole }}" style="height:30px;display:flex;align-items:center;gap:4px;padding:0 10px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:600 12px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;white-space:nowrap" style-hover="border-color:#C00018;color:#C00018"><span style="font:16px/1 'Material Symbols Outlined'">add</span>Add role</button>
+              </div>
+            </div>
+            <sc-for list="{{ matrix }}" as="m">
+              <div style="display:grid;grid-template-columns:{{ mxCols }};align-items:center;min-height:46px;border-bottom:1px solid #F2F4F7">
+                <span style="padding:0 16px;font-weight:500">{{ m.module }}</span>
+                <sc-for list="{{ m.cells }}" as="c">
+                  <div style="position:relative;display:grid;place-items:center;height:100%;border-left:1px solid #F7F8FA">
+                    <button onClick="{{ c.open }}" title="{{ c.title }}" style="position:relative;height:28px;display:flex;align-items:center;gap:5px;padding:0 10px 0 8px;background:{{ c.bg }};border:1px solid {{ c.border }};border-radius:14px;font:500 12px 'IBM Plex Sans',sans-serif;color:{{ c.fg }};cursor:{{ c.cursor }}" style-hover="border-color:#98A2B3">
+                      <span style="font:16px/1 'Material Symbols Outlined'">{{ c.icon }}</span>{{ c.label }}
+                      <sc-if value="{{ c.changed }}"><span style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#F79009;border:2px solid #fff"></span></sc-if>
+                    </button>
+                    <sc-if value="{{ c.menuOpen }}">
+                      <div style="position:absolute;left:50%;top:{{ c.menuTop }};transform:translateX(-50%);z-index:40;width:220px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14);padding:6px;text-align:left">
+                        <sc-for list="{{ c.options }}" as="o">
+                          <button onClick="{{ o.pick }}" style="width:100%;display:flex;align-items:flex-start;gap:10px;padding:7px 8px;background:{{ o.bg }};border:0;border-radius:6px;text-align:left;cursor:pointer;font-family:inherit" style-hover="background:#F2F4F7">
+                            <span style="font:18px/1 'Material Symbols Outlined';color:{{ o.color }}">{{ o.icon }}</span>
+                            <span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600;font-size:13px;color:#1E2430">{{ o.label }}</span><span style="font-size:11.5px;color:#667085">{{ o.desc }}</span></span>
+                            <sc-if value="{{ o.on }}"><span style="font:16px/1 'Material Symbols Outlined';color:#C00018">check</span></sc-if>
+                          </button>
+                        </sc-for>
+                        <div style="height:1px;background:#EEF0F3;margin:4px"></div>
+                        <button onClick="{{ c.applyRow }}" style="width:100%;height:30px;display:flex;align-items:center;gap:8px;padding:0 8px;background:transparent;border:0;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#475467;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:16px/1 'Material Symbols Outlined'">keyboard_double_arrow_down</span>Apply to all modules for this role</button>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+                <span></span>
+              </div>
+            </sc-for>
           </div>
         </div>
-        <div style="display:grid;grid-template-columns:minmax(180px,1.2fr) repeat(5,minmax(110px,1fr));align-items:center;min-height:44px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
-          <span>Module</span><sc-for list="{{ roleNames }}" as="r"><span style="text-align:center">{{ r }}</span></sc-for>
+        <div style="display:flex;align-items:center;gap:16px;padding:10px 16px;font-size:12px;color:#475467;flex-wrap:wrap">
+          <sc-for list="{{ legend }}" as="l"><span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined';color:{{ l.color }}">{{ l.icon }}</span><b style="font-weight:600">{{ l.label }}</b><span style="color:#667085">{{ l.desc }}</span></span></sc-for>
         </div>
-        <sc-for list="{{ matrix }}" as="m">
-          <div style="display:grid;grid-template-columns:minmax(180px,1.2fr) repeat(5,minmax(110px,1fr));align-items:center;height:44px;padding-left:16px;border-bottom:1px solid #F2F4F7">
-            <span style="font-weight:500">{{ m.module }}</span>
-            <sc-for list="{{ m.cells }}" as="c"><span title="{{ c.title }}" style="display:grid;place-items:center;font:18px/1 'Material Symbols Outlined';color:{{ c.color }}">{{ c.icon }}</span></sc-for>
-          </div>
-        </sc-for>
       </section>
     </sc-if>
     <sc-if value="{{ menuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:30"></div></sc-if>
@@ -195,12 +239,47 @@ const SEED = [
 const ST = { Active: ['#E6F4EE', '#0B6B4A'], Invited: ['#EAF1FD', '#2456B8'], Deactivated: ['#EEF1F4', '#475467'] };
 const MODS = ['Assets', 'Work orders', 'Maintenance plans & checklists', 'Planning', 'Spare parts', 'Documents', 'Teams & users', 'Administration'];
 const MX = [['F', 'F', 'V', 'V', 'V'], ['F', 'F', 'F', 'E', 'E'], ['F', 'F', 'E', 'V', '-'], ['F', 'F', 'F', 'V', '-'], ['F', 'F', 'V', 'E', '-'], ['F', 'F', 'E', 'E', 'V'], ['F', 'E', 'V', '-', '-'], ['F', '-', '-', '-', '-']];
-const CELL = { F: ['check_circle', '#0B6B4A', 'Full access'], E: ['edit', '#2456B8', 'Create & edit'], V: ['visibility', '#667085', 'View only'], '-': ['remove', '#D0D5DD', 'No access'] };
+const CELL = { F: ['check_circle', '#0B6B4A', 'Full', '#E6F4EE', 'Create, edit, delete, configure'], E: ['edit', '#2456B8', 'Edit', '#EAF1FD', 'Create and edit, no delete'], V: ['visibility', '#475467', 'View', '#F2F4F7', 'Read only'], '-': ['block', '#98A2B3', 'None', '#fff', 'Module hidden'] };
+const CODES = ['F', 'E', 'V', '-'];
+const initRoles = () => ROLES.map(([name], i) => ({ id: 'r' + i, name, locked: i === 0, custom: false }));
+const initMx = () => MX.map(r => [...r]);
+let rid = 20;
 const ini = n => n.split(' ').map(x => x[0]).join('').slice(0, 2).toUpperCase();
 let uid = 50;
 class Component extends DCLogic {
-  state = { tab: this.props.tab ?? 'users', rows: SEED, q: '', role: '', team: '', status: '', menu: null, drawer: false, f: { role: 'Technician', sites: ['Thourotte'] }, errors: {}, toast: null };
+  state = { roles: initRoles(), mx: initMx(), saved: { roles: initRoles(), mx: initMx() }, cell: null, tab: this.props.tab ?? 'users', rows: SEED, q: '', role: '', team: '', status: '', menu: null, drawer: false, f: { role: 'Technician', sites: ['Thourotte'] }, errors: {}, toast: null };
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
+  rolesVals() {
+    const s = this.state, saved = s.saved;
+    const setCell = (ri, mi, code) => this.setState(z => ({ mx: z.mx.map((row, i) => i === mi ? row.map((c, j) => j === ri ? code : c) : row), cell: null }));
+    let changes = 0;
+    const matrix = MODS.map((module, mi) => ({ module, cells: s.roles.map((r, ri) => {
+      const code = s.mx[mi][ri], [icon, fg, label, bg] = CELL[code], key = mi + '-' + ri;
+      const savedRi = saved.roles.findIndex(x => x.id === r.id), changed = savedRi < 0 || saved.mx[mi][savedRi] !== code;
+      if (changed && savedRi >= 0) changes++;
+      return { icon, fg, label, bg, border: code === '-' ? '#E4E7EC' : bg, hoverBorder: r.locked ? (code === '-' ? '#E4E7EC' : bg) : '#98A2B3', cursor: r.locked ? 'not-allowed' : 'pointer', changed: changed && savedRi >= 0,
+        title: r.locked ? 'System role — always full access' : `${r.name} · ${module}: ${CELL[code][4]}`,
+        menuOpen: s.cell === key, menuTop: mi > MODS.length - 4 ? '-218px' : '34px',
+        open: e => { e.stopPropagation(); if (r.locked) return; this.setState({ cell: s.cell === key ? null : key, menu: null }); },
+        options: CODES.map(c => ({ icon: CELL[c][0], color: CELL[c][1], label: CELL[c][2] === 'None' ? 'No access' : CELL[c][2] + ' access', desc: CELL[c][4], on: c === code, bg: c === code ? '#FBF7F7' : 'transparent', pick: e => { e.stopPropagation(); setCell(ri, mi, c); } })),
+        applyRow: e => { e.stopPropagation(); this.setState(z => ({ mx: z.mx.map(row => row.map((c, j) => j === ri ? code : c)), cell: null })); } };
+    }) }));
+    const added = s.roles.filter(r => !saved.roles.some(x => x.id === r.id)).length + saved.roles.filter(r => !s.roles.some(x => x.id === r.id)).length;
+    const renamed = s.roles.filter(r => { const o = saved.roles.find(x => x.id === r.id); return o && o.name !== r.name; }).length;
+    const total = changes + added + renamed;
+    return {
+      matrix, mxCols: `minmax(210px,1.3fr) repeat(${s.roles.length},minmax(100px,1fr)) 120px`,
+      roleCols: s.roles.map((r, ri) => ({ name: r.name, editable: !r.locked, fixed: r.locked, locked: r.locked, removable: r.custom,
+        users: r.custom ? 'New role' : (n => `${n} user${n === 1 ? '' : 's'}`)(s.rows.filter(u => u.role === r.name).length),
+        rename: e => { const v = e.target.value; this.setState(z => ({ roles: z.roles.map(x => x.id === r.id ? { ...x, name: v } : x) })); },
+        remove: () => this.setState(z => ({ roles: z.roles.filter(x => x.id !== r.id), mx: z.mx.map(row => row.filter((_, j) => j !== ri)) })) })),
+      addRole: () => this.setState(z => { const src = z.roles.findIndex(x => x.name === 'Technician'); return { roles: [...z.roles, { id: 'r' + rid++, name: 'New role', locked: false, custom: true }], mx: z.mx.map(row => [...row, row[src >= 0 ? src : row.length - 1]]) }; }),
+      hasChanges: total > 0, noChanges: total === 0, changeLabel: `${total} unsaved change${total > 1 ? 's' : ''}`,
+      discard: () => this.setState(z => ({ roles: z.saved.roles.map(r => ({ ...r })), mx: z.saved.mx.map(r => [...r]), cell: null })),
+      saveMx: () => { this.setState(z => ({ saved: { roles: z.roles.map(r => ({ ...r, custom: false })), mx: z.mx.map(r => [...r]) }, roles: z.roles.map(r => ({ ...r, custom: false })) })); this.flash('Permissions saved · applied at next sign-in'); },
+      legend: CODES.map(c => ({ icon: CELL[c][0], color: CELL[c][1], label: CELL[c][2], desc: CELL[c][4] })),
+    };
+  }
   renderVals() {
     const s = this.state, q = s.q.toLowerCase(), f = s.f;
     const list = s.rows.filter(u => (!q || (u.name + u.email).toLowerCase().includes(q)) && (!s.role || u.role === s.role) && (!s.team || u.team === s.team) && (!s.status || u.status === s.status));
@@ -225,8 +304,8 @@ class Component extends DCLogic {
       primaryAction: () => s.tab === 'teams' ? this.flash('Team creation form') : this.setState({ drawer: true, f: { role: 'Technician', sites: ['Thourotte'] }, errors: {} }),
       users, q: s.q, setQ: e => this.setState({ q: e.target.value }), userCount: `${list.length} users`,
       selects: [sel('role', 'All roles', ROLES.map(r => r[0])), sel('team', 'All teams', TEAMS.map(t => t[0])), sel('status', 'Any status', Object.keys(ST))],
-      teams, roleNames: ROLES.map(r => r[0]), matrix: MODS.map((module, i) => ({ module, cells: MX[i].map(c => ({ icon: CELL[c][0], color: CELL[c][1], title: CELL[c][2] })) })),
-      menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }),
+      teams, ...this.rolesVals(),
+      menuOpen: !!s.menu || !!s.cell, closeMenus: () => this.setState({ menu: null, cell: null }),
       drawerOpen: s.drawer, closeDrawer: () => this.setState({ drawer: false }), f,
       on: Object.fromEntries(['email', 'first', 'last', 'team'].map(k => [k, e => { const v = e.target.value; this.setState(z => ({ f: { ...z.f, [k]: v }, errors: { ...z.errors, [k]: 0 } })); }])),
       err: { email: s.errors.email ? '#F04438' : '#D0D5DD', first: s.errors.first ? '#F04438' : '#D0D5DD', last: s.errors.last ? '#F04438' : '#D0D5DD' }, emailErr: !!emailBad,

@@ -13,9 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
 <style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}</style>
 </helmet>
-<div style="display:grid;grid-template-columns:232px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
-  <div style="position:relative;min-height:0"><dc-import name="Sidebar" active="parts" style="position:absolute;inset:0" hint-size="232px,100%"></dc-import></div>
+  <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="parts" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
   <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Spare parts">
     <header style="flex:none;display:flex;align-items:flex-end;gap:8px">
@@ -53,7 +53,11 @@
         </sc-for>
         <sc-if value="{{ hasFilters }}"><button onClick="{{ resetFilters }}" style="height:34px;padding:0 8px;background:transparent;border:0;font:600 13px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">Reset</button></sc-if>
         <span style="margin-left:auto;color:#667085;font-size:12.5px">{{ countLabel }}</span>
+        <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
+          <sc-for list="{{ views }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.select }}" title="{{ v.label }}" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 10px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">{{ v.icon }}</span>{{ v.label }}</button></sc-for>
+        </div>
       </div>
+      <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
       <div style="display:grid;grid-template-columns:minmax(240px,2fr) 120px 150px 190px 118px 90px minmax(120px,1fr) 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
         <span>Part</span><span>Category</span><span>Location</span><span>Stock</span><span>Status</span><span style="text-align:right;padding-right:16px">Unit cost</span><span>Supplier</span><span></span>
       </div>
@@ -86,6 +90,42 @@
           </span>
         </div>
       </sc-for>
+      </sc-if>
+      <sc-if value="{{ isCatalog }}">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px;padding:16px">
+          <sc-for list="{{ rows }}" as="r">
+            <div onClick="{{ r.open }}" style="display:flex;flex-direction:column;background:#fff;border:1px solid {{ r.cardBorder }};border-radius:10px;overflow:hidden;cursor:pointer;transition:box-shadow .15s,border-color .15s" style-hover="border-color:#C4CAD4;box-shadow:0 8px 24px rgba(16,24,40,.08)">
+              <div style="position:relative;height:152px;background:repeating-linear-gradient(135deg,#F6F7F9 0 7px,#EEF0F3 7px 14px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px">
+                <span style="font:40px/1 'Material Symbols Outlined';color:#C4CAD4">{{ r.icon }}</span>
+                <span style="font:10.5px 'IBM Plex Mono',monospace;color:#98A2B3">part photo</span>
+                <span style="position:absolute;left:10px;top:10px;display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600;background:{{ r.sbg }};color:{{ r.sfg }};box-shadow:0 0 0 2px #fff"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ r.status }}</span>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:10px;padding:12px 14px 14px">
+                <div style="display:flex;flex-direction:column;gap:3px">
+                  <span style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#98A2B3">{{ r.cat }}</span>
+                  <span style="font-weight:600;font-size:14px;line-height:1.35;text-wrap:pretty;min-height:38px">{{ r.name }}</span>
+                  <span style="font:11.5px 'IBM Plex Mono',monospace;color:#667085">{{ r.ref }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;align-items:baseline;gap:6px">
+                    <span style="font-size:20px;line-height:24px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ r.qtyColor }}">{{ r.avail }}</span>
+                    <span style="font-size:12px;color:#667085">{{ r.unit }} available</span>
+                    <span style="margin-left:auto;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">{{ r.cost }}</span>
+                  </div>
+                  <span style="position:relative;height:5px;border-radius:3px;background:#EEF0F3"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ r.barW }};border-radius:3px;background:{{ r.barColor }}"></span><span style="position:absolute;left:{{ r.minX }};top:-2px;width:1.5px;height:9px;background:#667085"></span></span>
+                  <span style="display:flex;align-items:center;gap:4px;font-size:12px;color:#667085"><span style="font:14px/1 'Material Symbols Outlined'">location_on</span>{{ r.store }} · <span style="font-family:'IBM Plex Mono',monospace">{{ r.bin }}</span></span>
+                </div>
+                <sc-if value="{{ r.needsReorder }}">
+                  <button onClick="{{ r.reorder }}" style="margin-top:auto;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:1px solid #F1A7A7;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer" style-hover="background:#FEF6F6"><span style="font:17px/1 'Material Symbols Outlined'">shopping_cart</span>Request reorder</button>
+                </sc-if>
+                <sc-if value="{{ r.canReserve }}">
+                  <button onClick="{{ r.reserve }}" style="margin-top:auto;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:17px/1 'Material Symbols Outlined';color:#667085">bookmark_add</span>Reserve for a work order</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
       <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;color:#667085">No parts match these filters.</div></sc-if>
       <div style="display:flex;align-items:center;padding:10px 14px;color:#667085;font-size:12.5px">{{ rangeLabel }}</div>
     </section>
@@ -193,7 +233,7 @@
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;filter&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;low&quot;,&quot;out&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;filter&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;low&quot;,&quot;out&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;list&quot;,&quot;catalog&quot;],&quot;default&quot;:&quot;list&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const CATS = { Bearings: 'settings', Belts: 'conveyor_belt', Filters: 'filter_alt', Sensors: 'sensors', Seals: 'radio_button_unchecked', Lubricants: 'water_drop', Electrical: 'bolt', Drives: 'memory' };
 const STORES = ['Main store', 'Float Line store', 'Workshop store'];
 const SEED = [
@@ -211,7 +251,7 @@ const SEED = [
 const st = p => p.qty === 0 ? ['Out of stock', '#FDECEC', '#B42318', '#D92D20'] : p.qty < p.min ? ['Low stock', '#FEF3E2', '#B54708', '#F79009'] : ['In stock', '#E6F4EE', '#0B6B4A', '#12A06E'];
 const eur = n => '€' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 class Component extends DCLogic {
-  state = { rows: SEED, q: '', cat: '', store: '', kpi: this.props.filter ?? '', menu: null, detail: null, form: null, f: {}, errors: {}, adj: 'out', adjQty: '1', adjReason: 'Consumed on work order', toast: null };
+  state = { rows: SEED, q: new URLSearchParams(window.location.search).get('q') || '', view: this.props.view ?? 'list', cat: '', store: '', kpi: this.props.filter ?? '', menu: null, detail: null, form: null, f: {}, errors: {}, adj: 'out', adjQty: '1', adjReason: 'Consumed on work order', toast: null };
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   renderVals() {
     const s = this.state, q = s.q.toLowerCase();
@@ -222,7 +262,8 @@ class Component extends DCLogic {
       && (!s.kpi || (s.kpi === 'low' ? p.qty > 0 && p.qty < p.min : p.qty === 0)));
     const rows = list.map((p, i) => {
       const [status, sbg, sfg, dot] = st(p), mo = s.menu === p.ref, scale = p.max * 1.1;
-      return { ...p, icon: CATS[p.cat], status, sbg, sfg, cost: eur(p.cost), qtyColor: p.qty === 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430',
+      return { ...p, icon: CATS[p.cat], status, sbg, sfg, cost: eur(p.cost), avail: Math.max(0, p.qty - p.reserved), needsReorder: p.qty < p.min, canReserve: p.qty >= p.min, cardBorder: s.detail === p.ref ? '#C00018' : '#E4E7EC',
+        reserve: e => { e.stopPropagation(); window.location.href = 'Work Orders.dc.html?new=1'; }, qtyColor: p.qty === 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430',
         barW: Math.min(100, p.qty / scale * 100) + '%', minX: (p.min / scale * 100) + '%', barColor: dot, bg: s.detail === p.ref ? '#FBF7F7' : '#fff',
         open: e => { e.stopPropagation(); this.setState({ detail: p.ref, menu: null, adjQty: '1' }); },
         menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > list.length - 4 && list.length > 5 ? '-172px' : '34px',
@@ -240,9 +281,9 @@ class Component extends DCLogic {
         stats: [['On hand', dp.qty, dp.qty === 0 ? '#B42318' : '#1E2430'], ['Reserved', dp.reserved, '#1E2430'], ['Available', Math.max(0, dp.qty - dp.reserved), '#1E2430'], ['Min / max', `${dp.min} / ${dp.max}`, '#475467']].map(([k, v, color]) => ({ k, v, color })),
         details: [['Storeroom', `${dp.store} · ${dp.bin}`], ['Unit', dp.unit], ['Unit cost', eur(dp.cost)], ['Stock value', eur(dp.cost * dp.qty)], ['Supplier', dp.supplier], ['Lead time', '5 business days']].map(([k, v]) => ({ k, v })),
         moves: (dp.moves || []).concat([
-          ['remove', 'Consumed', 'WO-1339875 · Conveyor Line 3 · S. Martin', '−2', 'Today', '#B42318'],
+          ['remove', 'Consumed', 'Conveyor Line 3 — Sensor check · S. Martin', '−2', 'Today', '#B42318'],
           ['add', 'Received', 'PO-44821 · ' + dp.supplier, '+20', 'Sep 18', '#0B6B4A'],
-          ['remove', 'Consumed', 'WO-1339832 · Hydraulic Press · M. Dupont', '−1', 'Sep 14', '#B42318'],
+          ['remove', 'Consumed', 'Hydraulic Press — Oil leak · M. Dupont', '−1', 'Sep 14', '#B42318'],
           ['tune', 'Inventory adjustment', 'Cycle count · P. Leroy', '+1', 'Sep 2', '#475467'],
         ]).slice(0, 5).map(([icon, label, sub, qty, when, color]) => ({ icon, label, sub, qty, when, color })) };
     }
@@ -250,7 +291,8 @@ class Component extends DCLogic {
     const fld = (k, label, kind, x = {}) => ({ label, req: !!x.req, span: x.full ? '1 / -1' : 'auto', isText: kind !== 'select', isSelect: kind === 'select', type: kind === 'number' ? 'number' : 'text', value: f[k] ?? '', ph: x.ph || '', options: x.options || [], border: E(k),
       onInput: e => { const v = e.target.value; this.setState(z => ({ f: { ...z.f, [k]: v }, errors: { ...z.errors, [k]: 0 } })); } });
     return {
-      kpis, rows, empty: !rows.length, selects: [sel('cat', 'All categories', Object.keys(CATS)), sel('store', 'All storerooms', STORES)],
+      kpis, rows, empty: !rows.length, isList: s.view !== 'catalog', isCatalog: s.view === 'catalog',
+      views: [['list', 'List', 'table_rows'], ['catalog', 'Catalog', 'grid_view']].map(([k, label, icon]) => { const on = (s.view === 'catalog') === (k === 'catalog'); return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) }; }), selects: [sel('cat', 'All categories', Object.keys(CATS)), sel('store', 'All storerooms', STORES)],
       q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters: !!(q || s.cat || s.store || s.kpi), resetFilters: () => this.setState({ q: '', cat: '', store: '', kpi: '' }),
       countLabel: `${s.q || s.cat || s.store || s.kpi ? list.length : '1,940'} parts`, rangeLabel: `Showing 1–${list.length} of ${s.q || s.cat || s.store || s.kpi ? list.length : '1,940'}`,
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }), doExport: () => this.flash('Exporting stock list…'),

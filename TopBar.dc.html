@@ -7,18 +7,53 @@
 </head>
 <body>
 <x-dc>
-<div style="height:56px;background:#34050D;display:flex;align-items:center;gap:16px;padding:0 20px 0 0;color:#fff;font-family:'IBM Plex Sans',system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.06)">
-  <a href="Home.dc.html" style="width:232px;flex:none;display:flex;align-items:center;gap:10px;padding-left:20px;box-sizing:border-box;color:#fff;text-decoration:none">
-    <span style="font:26px/1 'Material Symbols Outlined';color:#fff">settings</span>
-    <span style="font-weight:700;font-size:18px;letter-spacing:.02em">CMMS</span><span style="font-weight:400;font-size:11px;letter-spacing:.14em;opacity:.7;margin-left:-4px;margin-top:4px">WEB</span>
+<div style="position:relative;z-index:80;height:56px;background:#34050D;display:flex;align-items:center;gap:16px;padding:0 20px 0 0;color:#fff;font-family:'IBM Plex Sans',system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.06)">
+  <a href="Home.dc.html" style="width:{{ logoW }};flex:none;display:flex;align-items:center;gap:10px;padding-left:20px;box-sizing:border-box;color:#fff;text-decoration:none;overflow:hidden;transition:width .18s ease">
+    <span style="font:26px/1 'Material Symbols Outlined';color:#fff;flex:none">settings</span>
+    <sc-if value="{{ showWordmark }}" hint-placeholder-val="{{ true }}"><span style="font-weight:700;font-size:18px;letter-spacing:.02em">CMMS</span><span style="font-weight:400;font-size:11px;letter-spacing:.14em;opacity:.7;margin-left:-4px;margin-top:4px">WEB</span></sc-if>
   </a>
-  <label style="flex:1;max-width:520px;height:36px;display:flex;align-items:center;gap:10px;padding:0 10px 0 12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:8px;cursor:text">
-    <span style="font:20px/1 'Material Symbols Outlined';opacity:.7">search</span>
-    <input placeholder="Search equipment, parts, work orders…" style="flex:1;min-width:0;background:transparent;border:0;outline:none;color:#fff;font:13px 'IBM Plex Sans',sans-serif" />
-    <span style="font:11px 'IBM Plex Mono',monospace;padding:2px 6px;border:1px solid rgba(255,255,255,.2);border-radius:4px;opacity:.6">/</span>
-  </label>
+
+  <div style="position:relative;flex:1;max-width:600px">
+    <label style="height:38px;display:flex;align-items:center;gap:10px;padding:0 8px 0 12px;background:#fff;border:1px solid {{ searchBorder }};box-shadow:{{ searchRing }};border-radius:8px;cursor:text">
+      <span style="font:20px/1 'Material Symbols Outlined';color:#667085">search</span>
+      <input ref="{{ inputRef }}" value="{{ q }}" onInput="{{ onInput }}" onFocus="{{ onFocus }}" onBlur="{{ onBlur }}" onKeyDown="{{ onKey }}" placeholder="Search assets, work orders, parts, documents…" style="flex:1;min-width:0;background:transparent;border:0;outline:none;color:#1E2430;font:14px 'IBM Plex Sans',sans-serif" />
+      <sc-if value="{{ hasQuery }}"><button onMouseDown="{{ clear }}" title="Clear" style="width:24px;height:24px;display:grid;place-items:center;padding:0;background:#F2F4F7;border:0;border-radius:12px;color:#667085;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">close</span></button></sc-if>
+      <span style="font:500 11px 'IBM Plex Mono',monospace;padding:2px 6px;border:1px solid #D0D5DD;border-radius:4px;color:#667085">/</span>
+    </label>
+
+    <sc-if value="{{ open }}">
+      <div onMouseDown="{{ keepFocus }}" style="position:absolute;top:44px;left:0;width:max(100%,560px);background:#fff;border:1px solid #E4E7EC;border-radius:10px;box-shadow:0 16px 40px rgba(16,24,40,.2);color:#1E2430;overflow:hidden;font-size:13px">
+        <div style="max-height:440px;overflow:auto;padding:6px">
+          <sc-if value="{{ showRecent }}">
+            <div style="padding:8px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#98A2B3">Recent</div>
+          </sc-if>
+          <sc-for list="{{ groups }}" as="g">
+            <div style="display:flex;align-items:center;gap:6px;padding:10px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#98A2B3"><span>{{ g.label }}</span><span style="font-weight:500;letter-spacing:0">{{ g.count }}</span><a href="{{ g.href }}" style="margin-left:auto;font-size:11.5px;letter-spacing:0;text-transform:none;font-weight:600">{{ g.more }}</a></div>
+            <sc-for list="{{ g.items }}" as="r">
+              <a href="{{ r.href }}" onMouseEnter="{{ r.hover }}" style="height:38px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px;background:{{ r.bg }};color:#1E2430;text-decoration:none">
+                <span style="width:26px;height:26px;flex:none;border-radius:6px;background:{{ r.iconBg }};color:{{ r.iconFg }};display:grid;place-items:center;font:16px/1 'Material Symbols Outlined'">{{ r.icon }}</span>
+                <span style="flex:1 1 auto;min-width:45%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.pre }}<b style="font-weight:700;color:#C00018">{{ r.hit }}</b>{{ r.post }}</span>
+                <span style="flex:0 1 auto;min-width:0;font-size:12px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.meta }}</span>
+                <span style="flex:none;width:18px;font:16px/1 'Material Symbols Outlined';color:{{ r.enterColor }}">keyboard_return</span>
+              </a>
+            </sc-for>
+          </sc-for>
+          <sc-if value="{{ noResults }}">
+            <div style="padding:28px 16px;text-align:center;color:#667085">No results for “{{ q }}”<div style="font-size:12px;color:#98A2B3;margin-top:4px">Try an asset name, a part reference or a location.</div></div>
+          </sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:8px 12px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:11.5px;color:#667085">
+          <span style="display:flex;align-items:center;gap:4px"><span style="font:500 10.5px 'IBM Plex Mono',monospace;padding:1px 5px;border:1px solid #D0D5DD;border-radius:4px;background:#fff">↑↓</span>Navigate</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="font:500 10.5px 'IBM Plex Mono',monospace;padding:1px 5px;border:1px solid #D0D5DD;border-radius:4px;background:#fff">↵</span>Open</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="font:500 10.5px 'IBM Plex Mono',monospace;padding:1px 5px;border:1px solid #D0D5DD;border-radius:4px;background:#fff">esc</span>Close</span>
+          <span style="margin-left:auto">{{ totalLabel }}</span>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
   <div style="flex:1"></div>
-  <button style="height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;background:transparent;border:0;border-radius:6px;color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:rgba(255,255,255,.08)">
+  <button style="height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;background:transparent;border:0;border-radius:6px;color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:rgba(255,255,255,.08)">
     <span style="font:20px/1 'Material Symbols Outlined';opacity:.8">factory</span>Thourotte Plant<span style="font:18px/1 'Material Symbols Outlined';opacity:.6">expand_more</span>
   </button>
   <div style="width:1px;height:24px;background:rgba(255,255,255,.12)"></div>
@@ -27,23 +62,90 @@
       <span style="font:22px/1 'Material Symbols Outlined'">notifications</span>
       <span style="position:absolute;top:4px;right:3px;min-width:16px;height:16px;padding:0 4px;box-sizing:border-box;border-radius:8px;background:#C00018;border:2px solid #34050D;font:600 9px/12px 'IBM Plex Sans',sans-serif;color:#fff;text-align:center">12</span>
     </button>
-    <button title="Help &amp; support" style="width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#fff;cursor:pointer" style-hover="background:rgba(255,255,255,.08)">
-      <span style="font:22px/1 'Material Symbols Outlined'">help</span>
-    </button>
+    <button title="Help &amp; support" style="width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#fff;cursor:pointer" style-hover="background:rgba(255,255,255,.08)"><span style="font:22px/1 'Material Symbols Outlined'">help</span></button>
   </div>
   <button style="height:40px;display:flex;align-items:center;gap:10px;padding:0 8px 0 4px;background:transparent;border:0;border-radius:8px;color:#fff;cursor:pointer;text-align:left" style-hover="background:rgba(255,255,255,.08)">
     <span style="width:30px;height:30px;border-radius:50%;background:#7A1E2C;display:grid;place-items:center;font:600 12px 'IBM Plex Sans',sans-serif">GD</span>
     <span style="display:flex;flex-direction:column;gap:1px">
-      <span style="font:600 13px/1.2 'IBM Plex Sans',sans-serif">Gaudéric Durand</span>
-      <span style="font:400 11px/1.2 'IBM Plex Sans',sans-serif;opacity:.65">{{ role }}</span>
+      <span style="font:600 13px/1.2 'IBM Plex Sans',sans-serif;white-space:nowrap">Gaudéric Durand</span>
+      <span style="font:400 11px/1.2 'IBM Plex Sans',sans-serif;opacity:.65;white-space:nowrap">{{ role }}</span>
     </span>
     <span style="font:18px/1 'Material Symbols Outlined';opacity:.6">expand_more</span>
   </button>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:56},&quot;role&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Maintenance Manager&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:520},&quot;role&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Maintenance Manager&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const KEY = 'cmms.nav.collapsed';
+const CAT = {
+  asset: ['Assets', 'precision_manufacturing', '#E6F4EE', '#0B6B4A', 'Assets.dc.html'],
+  wo: ['Work orders', 'build', '#FDECEC', '#B42318', 'Work Orders.dc.html'],
+  part: ['Spare parts', 'inventory_2', '#EAF1FD', '#2456B8', 'Spare Parts.dc.html'],
+  doc: ['Documents', 'description', '#F3EEFC', '#6941C6', 'Documents.dc.html'],
+  plan: ['Maintenance plans', 'event_repeat', '#FEF3E2', '#B54708', 'Maintenance Plans.dc.html'],
+  checklist: ['Checklists', 'checklist', '#FEF3E2', '#B54708', 'Checklists.dc.html'],
+  person: ['People', 'person', '#EEF1F4', '#475467', 'Teams and Users.dc.html'],
+};
+const q = s => encodeURIComponent(s);
+const IDX = [
+  ...[['Tempering Furnace 2', 'Tempering Line › Furnace Zone'], ['Tempering Furnace 1', 'Tempering Line › Furnace Zone'], ['Tempering Furnace 3', 'Tempering Line › Furnace Zone'], ['Entry Conveyor', 'Float Line › Furnace Zone'], ['Transfer Conveyor', 'Float Line › Furnace Zone'], ['Conveyor Line 3', 'Float Line'], ['Conveyor Line 2', 'Float Line'], ['Pump P-101', 'Tempering Line › Heating Zone'], ['Fan V-12', 'Float Line › Utilities'], ['Compressor C-01', 'Utilities › Compressed Air'], ['Palletizing Robot 1', 'Packaging › Line 1'], ['Packaging Line 1', 'Packaging'], ['Dryer S-01', 'Utilities › Compressed Air'], ['Hydraulic Press PH-030', 'Workshop › Press Area']]
+    .map(([n, m]) => ({ t: 'asset', n, m, k: m, href: 'Asset Detail.dc.html' })),
+  ...[['Pump P-101 — Seal replacement', 'Overdue'], ['Conveyor Line 3 — Sensor check', 'Today 09:00'], ['Hydraulic Press — Oil leak', 'Today 11:30'], ['Tempering Furnace 2 — Temperature check', 'Today 14:00'], ['Fan V-12 — Abnormal vibration', 'In progress'], ['Dryer S-01 — Belt replacement', 'Waiting for parts'], ['Compressor C-01 — Filter replacement', 'Today 16:00'], ['Conveyor Line 2 — 1000 h service', 'Oct 2']]
+    .map(([n, m]) => ({ t: 'wo', n, m, href: 'Work Orders.dc.html?q=' + q(n.split(' — ')[1]) })),
+  ...[['Ball bearing 6205-2RS', '42 in stock', 'BRG-6205'], ['Drive belt BPU280', 'Low · 2', 'BLT-BPU280'], ['Hydraulic filter HX-10', 'Out of stock', 'FLT-HX10'], ['Temperature probe PT100', '6 in stock', 'SEN-PT100'], ['Mechanical seal 45 mm', '3 in stock', 'SEAL-M45'], ['Lithium grease LT2 400 g', '18 in stock', 'GRS-LT2'], ['Variable speed drive ATV320', 'Out of stock', 'VFD-ATV320'], ['Air intake filter C-01', '7 in stock', 'FLT-AIR-C01'], ['Contactor LC1D18', '11 in stock', 'CTR-LC1D']]
+    .map(([n, m, ref]) => ({ t: 'part', n, m, k: ref, href: 'Spare Parts.dc.html?q=' + q(ref) })),
+  ...[['Electrical drawing — Furnace 2 main cabinet', 'Drawing · V4'], ['Mechanical drawing — Conveyor Line 3', 'Drawing · V2'], ['Bearing replacement procedure', 'Procedure · V3'], ['Lockout / tagout procedure', 'Procedure · V2'], ['Hydraulic circuit — Press PH-030', 'Drawing · V1'], ['Compressor C-01 service manual', 'Manual · V2']]
+    .map(([n, m]) => ({ t: 'doc', n, m, href: 'Documents.dc.html?q=' + q(n) })),
+  ...[['500 h conveyor service', 'Every 500 h'], ['Monthly press service', 'Every month'], ['Quarterly electrical check', 'Every 3 months'], ['General lubrication', 'Every 2 weeks'], ['Safety inspection', 'Every 6 months']].map(([n, m]) => ({ t: 'plan', n, m, href: 'Maintenance Plans.dc.html' })),
+  ...[['Conveyor maintenance', '8 tasks'], ['Hydraulic press service', '10 tasks'], ['Electrical check', '12 tasks'], ['Safety inspection', '7 tasks']].map(([n, m]) => ({ t: 'checklist', n, m, href: 'Checklists.dc.html' })),
+  ...[['Pierre Leroy', 'Technician · Mechanical'], ['Marc Dupont', 'Technician · Mechanical'], ['Sophie Martin', 'Technician · Electrical'], ['Julie Martin', 'Technician · Float Line'], ['Sofia Benali', 'Technician · Float Line'], ['Claire Moreau', 'Planner']].map(([n, m]) => ({ t: 'person', n, m, href: 'Teams and Users.dc.html' })),
+];
+const RECENT = [IDX[0], IDX.find(x => x.n.startsWith('Pump P-101 —')), IDX.find(x => x.n.startsWith('Drive belt')), IDX.find(x => x.n.startsWith('Electrical drawing'))];
+const norm = s => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 class Component extends DCLogic {
-  renderVals() { return { role: this.props.role ?? 'Maintenance Manager' }; }
+  state = { q: '', focus: false, active: 0, collapsed: (() => { try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; } })() };
+  inputRef = React.createRef();
+  componentDidMount() {
+    this._nav = e => this.setState({ collapsed: !!e.detail });
+    this._key = e => { const t = e.target; if (e.key === '/' && !(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable))) { e.preventDefault(); this.inputRef.current && this.inputRef.current.focus(); } };
+    window.addEventListener('cmms-nav', this._nav); window.addEventListener('keydown', this._key);
+  }
+  componentWillUnmount() { window.removeEventListener('cmms-nav', this._nav); window.removeEventListener('keydown', this._key); }
+  results() {
+    const s = norm(this.state.q.trim());
+    if (!s) return { flat: RECENT, groups: [{ label: '', items: RECENT }], total: 0, recent: true };
+    const hits = IDX.filter(x => norm(x.n + ' ' + (x.k || '') + ' ' + x.m).includes(s));
+    const groups = Object.keys(CAT).map(t => { const all = hits.filter(h => h.t === t); return { t, all, items: all.slice(0, 4) }; }).filter(g => g.items.length);
+    return { flat: groups.flatMap(g => g.items), groups, total: hits.length, recent: false };
+  }
+  renderVals() {
+    const st = this.state, r = this.results(), s = norm(st.q.trim());
+    let i = -1;
+    const deco = x => { i++; const idx = i, [, icon, iconBg, iconFg] = CAT[x.t], on = idx === st.active;
+      const nn = norm(x.n), at = s ? nn.indexOf(s) : -1;
+      const [pre, hit, post] = at >= 0 ? [x.n.slice(0, at), x.n.slice(at, at + s.length), x.n.slice(at + s.length)] : [x.n, '', ''];
+      return { href: x.href, icon, iconBg, iconFg, pre, hit, post, meta: x.m, bg: on ? '#F2F4F7' : 'transparent', enterColor: on ? '#98A2B3' : 'transparent', hover: () => this.state.active !== idx && this.setState({ active: idx }) }; };
+    const groups = r.recent ? [{ label: '', count: '', more: '', href: '#', items: r.flat.map(deco) }]
+      : r.groups.map(g => { const [label, , , , href] = CAT[g.t]; return { label, count: g.all.length, more: g.all.length > g.items.length ? `See all ${g.all.length}` : '', href: href + (g.t === 'asset' ? '' : ''), items: g.items.map(deco) }; });
+    const go = () => { const x = r.flat[st.active]; if (x) window.location.href = x.href; };
+    return {
+      role: this.props.role ?? 'Maintenance Manager', logoW: st.collapsed ? '64px' : '232px', showWordmark: !st.collapsed,
+      inputRef: this.inputRef, q: st.q, hasQuery: !!st.q,
+      open: st.focus, showRecent: r.recent, groups, noResults: !r.recent && r.total === 0,
+      totalLabel: r.recent ? 'Recently opened' : `${r.total} result${r.total === 1 ? '' : 's'}`,
+      searchBorder: st.focus ? '#fff' : 'transparent', searchRing: st.focus ? '0 0 0 3px rgba(255,255,255,.25)' : 'none',
+      onInput: e => this.setState({ q: e.target.value, active: 0, focus: true }),
+      onFocus: () => this.setState({ focus: true }), onBlur: () => this.setState({ focus: false }),
+      keepFocus: e => e.preventDefault(),
+      clear: e => { e.preventDefault(); this.setState({ q: '', active: 0 }); },
+      onKey: e => {
+        const n = r.flat.length;
+        if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ active: n ? (st.active + 1) % n : 0 }); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); this.setState({ active: n ? (st.active - 1 + n) % n : 0 }); }
+        else if (e.key === 'Enter') { e.preventDefault(); go(); }
+        else if (e.key === 'Escape') { this.setState({ q: '', focus: false }); e.target.blur(); }
+      },
+    };
+  }
 }
 </script>
 </body>

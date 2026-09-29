@@ -13,9 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
 <style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}</style>
 </helmet>
-<div style="display:grid;grid-template-columns:232px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
-  <div style="position:relative;min-height:0"><dc-import name="Sidebar" active="assets" style="position:absolute;inset:0" hint-size="232px,100%"></dc-import></div>
+  <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="assets" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
   <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Assets">
     <header style="flex:none;display:flex;align-items:flex-end;gap:16px">
@@ -188,14 +188,14 @@
               <button onClick="{{ zoomIn }}" title="Zoom in" style="width:30px;height:28px;display:grid;place-items:center;background:transparent;border:0;color:#475467;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span></button>
             </div>
             <button onClick="{{ zoomReset }}" title="Reset zoom" style="width:30px;height:30px;display:grid;place-items:center;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#475467;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">fit_screen</span></button>
-            <span style="color:#667085;font-size:12px">{{ pathLabel }}</span>
+            <span style="color:#667085;font-size:12px;display:flex;align-items:center;gap:4px"><span style="font:15px/1 'Material Symbols Outlined'">pan_tool</span>Drag to move · Ctrl + scroll to zoom</span>
             <div style="margin-left:auto;display:flex;gap:14px;font-size:12px;color:#475467">
               <span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#12A06E"></span>In service</span>
               <span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#D92D20"></span>Stopped</span>
               <span style="display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:#98A2B3"></span>Out of service</span>
             </div>
           </div>
-          <div style="flex:1;overflow:auto;padding:28px;background-image:radial-gradient(#E4E7EC 1px,transparent 1px);background-size:16px 16px">
+          <div ref="{{ canvasRef }}" onPointerDown="{{ panStart }}" onPointerMove="{{ panMove }}" onPointerUp="{{ panEnd }}" onPointerLeave="{{ panEnd }}" onWheel="{{ onWheel }}" style="position:relative;flex:1;overflow:auto;scrollbar-width:thin;padding:28px;cursor:{{ panCursor }};user-select:none;touch-action:none;background-image:radial-gradient(#E4E7EC 1px,transparent 1px);background-size:16px 16px">
             <div style="position:relative;width:{{ chartW }};height:{{ chartH }}">
               <div style="position:absolute;left:0;top:0;width:{{ chartRawW }};height:{{ chartRawH }};transform:scale({{ zoom }});transform-origin:0 0">
                 <svg width="{{ chartRawW }}" height="{{ chartRawH }}" style="position:absolute;inset:0;overflow:visible">
@@ -453,7 +453,9 @@ function qrPath(seed) {
 }
 
 class Component extends DCLogic {
+  canvasRef = React.createRef();
   state = {
+    panning: false,
     view: this.props.view ?? 'list', rows: SEED, q: '', type: '', loc: '', crit: '', status: '', sel: {}, sort: ['name', 1],
     menu: null, globalMenu: false, drawer: null, form: {}, errors: {}, labelFmt: '50x50', confirm: null, toast: null,
     expanded: { root: 1, lf: 1, zf1: 1, ft2: 1, lt: 1 }, selNode: 'ft2', tq: '', zoom: 1,
@@ -549,7 +551,7 @@ class Component extends DCLogic {
       const [icon, , ic, ib] = LVL[n.lvl], on = s.selNode === n.id;
       nodes.push({ name: n.name, code: n.code, icon, iconColor: ic, iconBg: ib, dot: STATUS[n.st][2], x: x + 'px', y: y + 'px',
         bg: on ? '#FFF6F6' : '#fff', border: on ? '#C00018' : onPath.has(n.id) ? '#D0D5DD' : '#E4E7EC', shadow: on ? '0 0 0 3px rgba(192,0,24,.12)' : '0 1px 2px rgba(16,24,40,.05)',
-        select: () => this.setState(st => ({ selNode: n.id, expanded: { ...st.expanded, [n.id]: 1 } })) });
+        select: () => { if (this._moved) return; this.setState(st => ({ selNode: n.id, expanded: { ...st.expanded, [n.id]: 1 } })); } });
       return x;
     };
     lay(TREE);
@@ -598,6 +600,11 @@ class Component extends DCLogic {
       openCreate: () => this.openForm(null),
       treeRows, nodes, edges, tq: s.tq, setTq: e => this.setState({ tq: e.target.value }),
       expandAll: () => this.setState({ expanded: Object.fromEntries(ALL_IDS.map(i => [i, 1])) }), collapseAll: () => this.setState({ expanded: { root: 1 } }),
+      canvasRef: this.canvasRef, panCursor: s.panning ? 'grabbing' : 'grab',
+      panStart: e => { if (e.button !== 0) return; const el = this.canvasRef.current; if (!el) return; this._pan = { x: e.clientX, y: e.clientY, l: el.scrollLeft, t: el.scrollTop }; this._moved = false; this.setState({ panning: true }); },
+      panMove: e => { const p = this._pan, el = this.canvasRef.current; if (!p || !el) return; const dx = e.clientX - p.x, dy = e.clientY - p.y; if (Math.abs(dx) + Math.abs(dy) > 4) this._moved = true; el.scrollLeft = p.l - dx; el.scrollTop = p.t - dy; },
+      panEnd: () => { if (!this._pan) return; this._pan = null; this.setState({ panning: false }); setTimeout(() => { this._moved = false; }, 0); },
+      onWheel: e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); const z = Math.min(1.5, Math.max(0.5, +(this.state.zoom - Math.sign(e.deltaY) * 0.1).toFixed(2))); this.setState({ zoom: z }); },
       zoom: s.zoom, zoomLabel: Math.round(s.zoom * 100) + '%', zoomIn: () => this.setState({ zoom: Math.min(1.5, +(s.zoom + 0.1).toFixed(2)) }), zoomOut: () => this.setState({ zoom: Math.max(0.5, +(s.zoom - 0.1).toFixed(2)) }), zoomReset: () => this.setState({ zoom: 1 }),
       chartRawW: rawW + 'px', chartRawH: rawH + 'px', chartW: rawW * s.zoom + 'px', chartH: rawH * s.zoom + 'px',
       pathLabel: path.map(p => p.name).join('  ›  '),

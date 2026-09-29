@@ -13,9 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
 <style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}</style>
 </helmet>
-<div style="display:grid;grid-template-columns:232px minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
-  <div style="position:relative;min-height:0"><dc-import name="Sidebar" active="documents" style="position:absolute;inset:0" hint-size="232px,100%"></dc-import></div>
+  <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="documents" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
   <main style="position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) {{ panelW }};min-height:0" data-screen-label="Documents">
     <div style="overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:14px;min-width:0">
@@ -180,7 +180,7 @@
         </label>
         <label style="display:flex;flex-direction:column;gap:5px">
           <span style="font-size:12.5px;font-weight:500;color:#344054">Linked work order</span>
-          <input value="{{ u.wo }}" onInput="{{ uon.wo }}" placeholder="e.g. WO-1339875" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Mono',monospace;outline:none" />
+          <span style="position:relative;display:flex"><select value="{{ u.wo }}" onChange="{{ uon.wo }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">None</option><option>Pump P-101 — Seal replacement</option><option>Conveyor Line 3 — Sensor check</option><option>Hydraulic Press — Oil leak</option><option>Tempering Furnace 2 — Temperature check</option><option>Fan V-12 — Abnormal vibration</option></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
         </label>
         <label style="display:flex;flex-direction:column;gap:5px">
           <span style="font-size:12.5px;font-weight:500;color:#344054">Version note</span>
@@ -220,7 +220,7 @@ const SEED = [
 const ASSETS = ['Tempering Furnace 2', 'Tempering Furnace 1', 'Conveyor Line 3', 'Conveyor Line 2', 'Hydraulic Press PH-030', 'Compressor C-01', 'Palletizing Robot 1', 'Float Line'];
 let did = 100;
 class Component extends DCLogic {
-  state = { rows: SEED, cat: '', q: '', ft: '', asset: '', fav: false, layout: 'grid', sel: this.props.showPreview === false ? null : 'd0', zoom: 1, panelMenu: false, upload: null, u: {}, uerr: {}, file: false, toast: null };
+  state = { rows: SEED, cat: '', q: new URLSearchParams(window.location.search).get('q') || '', ft: '', asset: '', fav: false, layout: 'grid', sel: this.props.showPreview === false ? null : 'd0', zoom: 1, panelMenu: false, upload: null, u: {}, uerr: {}, file: false, toast: null };
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   star(id) { this.setState(s => ({ rows: s.rows.map(r => r.id === id ? { ...r, fav: !r.fav } : r) })); }
   renderVals() {
@@ -236,7 +236,7 @@ class Component extends DCLogic {
     const sel = (k, ph, opts) => ({ value: s[k], border: s[k] ? '#C00018' : '#D0D5DD', bg: s[k] ? '#FBF7F7' : '#fff', options: [{ v: '', l: ph }, ...opts.map(o => ({ v: o, l: o }))], onChange: e => this.setState({ [k]: e.target.value }) });
     const cur = s.rows.find(r => r.id === s.sel);
     const n = cur ? +cur.ver.slice(1) : 0;
-    const selV = cur ? { ...deco(cur), size: ['2.4 MB', '860 KB', '1.1 MB', '4.8 MB'][cur.name.length % 4], pages: cur.ft === 'JPG' ? 1 : (cur.name.length % 5) + 2, wos: cur.fav ? 'WO-1339859, WO-1339851' : 'WO-1339875',
+    const selV = cur ? { ...deco(cur), size: ['2.4 MB', '860 KB', '1.1 MB', '4.8 MB'][cur.name.length % 4], pages: cur.ft === 'JPG' ? 1 : (cur.name.length % 5) + 2, wos: cur.fav ? 'Pump P-101 — Seal replacement · Furnace 2 — Probe replacement' : 'Conveyor Line 3 — Sensor check',
       versions: Array.from({ length: n }, (_, i) => n - i).map(v => ({ v: 'V' + v, color: v === n ? '#0B6B4A' : '#98A2B3', note: v === n ? (cur.note || 'Updated cabinet wiring after retrofit') : v === 1 ? 'Initial release' : 'Revised terminal numbering', who: ['P. Leroy', 'S. Martin', 'M. Dupont'][v % 3], when: v === n ? cur.date : ['Jun 14', 'Mar 2', 'Jan 9'][v % 3] })) } : null;
     const u = s.u, E = k => s.uerr[k] ? '#F04438' : '#D0D5DD';
     const total = s.cat || q || s.ft || s.asset || s.fav ? list.length : 2847;
