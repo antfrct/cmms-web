@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<nav style="width:232px;height:100%;box-sizing:border-box;background:#34050D;padding:12px 12px 16px;display:flex;flex-direction:column;gap:2px;font-family:'IBM Plex Sans',system-ui,sans-serif;overflow:auto">
+  <sc-for list="{{ primary }}" as="it" hint-placeholder-count="7">
+    <sc-if value="{{ it.active }}">
+      <a href="{{ it.href }}" style="position:relative;height:38px;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:6px;background:rgba(255,255,255,.1);color:#fff;text-decoration:none;font-size:13.5px;font-weight:600">
+        <span style="position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:#E0243A"></span>
+        <span style="font:20px/1 'Material Symbols Outlined'">{{ it.icon }}</span>{{ it.label }}
+      </a>
+    </sc-if>
+    <sc-if value="{{ it.idle }}" hint-placeholder-val="{{ true }}">
+      <a href="{{ it.href }}" style="height:38px;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:6px;color:rgba(255,255,255,.74);text-decoration:none;font-size:13.5px;font-weight:500" style-hover="background:rgba(255,255,255,.06);color:#fff">
+        <span style="font:20px/1 'Material Symbols Outlined'">{{ it.icon }}</span>{{ it.label }}
+        <sc-if value="{{ it.hasChildren }}"><span style="margin-left:auto;font:18px/1 'Material Symbols Outlined';opacity:.6">expand_more</span></sc-if>
+      </a>
+    </sc-if>
+    <sc-if value="{{ it.hasChildren }}">
+      <div style="display:flex;flex-direction:column;gap:1px;margin:0 0 4px 21px;padding-left:12px;border-left:1px solid rgba(255,255,255,.12)">
+        <sc-for list="{{ it.children }}" as="c">
+          <sc-if value="{{ c.active }}">
+            <a href="{{ c.href }}" style="height:32px;display:flex;align-items:center;padding:0 10px;border-radius:6px;background:rgba(255,255,255,.1);color:#fff;text-decoration:none;font-size:13px;font-weight:600">{{ c.label }}</a>
+          </sc-if>
+          <sc-if value="{{ c.idle }}">
+            <a href="{{ c.href }}" style="height:32px;display:flex;align-items:center;padding:0 10px;border-radius:6px;color:rgba(255,255,255,.66);text-decoration:none;font-size:13px" style-hover="background:rgba(255,255,255,.06);color:#fff">{{ c.label }}</a>
+          </sc-if>
+        </sc-for>
+      </div>
+    </sc-if>
+  </sc-for>
+  <div style="flex:1;min-height:16px"></div>
+  <div style="height:1px;background:rgba(255,255,255,.1);margin:0 4px 8px"></div>
+  <sc-for list="{{ secondary }}" as="it" hint-placeholder-count="2">
+    <sc-if value="{{ it.active }}">
+      <a href="{{ it.href }}" style="position:relative;height:38px;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:6px;background:rgba(255,255,255,.1);color:#fff;text-decoration:none;font-size:13.5px;font-weight:600">
+        <span style="position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:#E0243A"></span>
+        <span style="font:20px/1 'Material Symbols Outlined'">{{ it.icon }}</span>{{ it.label }}
+      </a>
+    </sc-if>
+    <sc-if value="{{ it.idle }}" hint-placeholder-val="{{ true }}">
+      <a href="{{ it.href }}" style="height:38px;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:6px;color:rgba(255,255,255,.74);text-decoration:none;font-size:13.5px;font-weight:500" style-hover="background:rgba(255,255,255,.06);color:#fff">
+        <span style="font:20px/1 'Material Symbols Outlined'">{{ it.icon }}</span>{{ it.label }}
+      </a>
+    </sc-if>
+  </sc-for>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:232,&quot;height&quot;:844},&quot;active&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;assets&quot;,&quot;workorders&quot;,&quot;plans&quot;,&quot;checklists&quot;,&quot;planning&quot;,&quot;parts&quot;,&quot;documents&quot;,&quot;teams&quot;,&quot;admin&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const a = this.props.active ?? 'home';
+    const mk = (key, label, icon, href, children) => {
+      const kids = (children || []).map(([k, l, h]) => ({ label: l, href: h, active: k === a, idle: k !== a }));
+      const act = key === a;
+      return { label, icon, href, active: act, idle: !act, hasChildren: kids.length > 0, children: kids };
+    };
+    return {
+      primary: [
+        mk('home', 'Home', 'home', 'Home.dc.html'),
+        mk('assets', 'Assets', 'precision_manufacturing', 'Assets.dc.html'),
+        mk('workorders', 'Work orders', 'build', 'Work Orders.dc.html'),
+        mk('preventive', 'Preventive', 'event_repeat', 'Maintenance Plans.dc.html', [
+          ['plans', 'Maintenance plans', 'Maintenance Plans.dc.html'],
+          ['checklists', 'Checklists', 'Checklists.dc.html'],
+        ]),
+        mk('planning', 'Planning', 'calendar_month', 'Planning.dc.html'),
+        mk('parts', 'Spare parts', 'inventory_2', 'Spare Parts.dc.html'),
+        mk('documents', 'Documents', 'description', 'Documents.dc.html'),
+      ],
+      secondary: [
+        mk('teams', 'Teams & users', 'group', 'Teams and Users.dc.html'),
+        mk('admin', 'Administration', 'settings', 'Administration.dc.html'),
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
