@@ -145,13 +145,15 @@
 const LIB = ['Check general condition of the equipment', 'Check fixings and tightening', 'Inspect wear parts', 'Clean surfaces', 'Check oil level', 'Grease lubrication points', 'Run a functional test', 'Record observations', 'Check belt tension', 'Measure motor temperature', 'Check emergency stops', 'Inspect cables and connectors', 'Check hydraulic pressure', 'Replace air filter', 'Lock out / tag out the equipment'];
 const ICONS = [['build', '#E6F4EE', '#0B6B4A'], ['oil_barrel', '#F3EEFC', '#6941C6'], ['bolt', '#FEF3E2', '#B54708'], ['health_and_safety', '#FDECEC', '#B42318'], ['water_drop', '#EAF1FD', '#2456B8'], ['cleaning_services', '#EEF1F4', '#475467']];
 const SEED = [
+  ['Pump seal replacement', 'Mechanical seal replacement with pressure and leak test', 1, 11, 2, 'Sep 20', 'Sep 29', 'pump-seal'],
+  ['Standard intervention', 'Default checklist for corrective work orders', 0, 6, 4, 'Sep 2', 'Sep 18', 'standard'],
   ['Conveyor maintenance', 'Standard checklist for conveyor maintenance', 0, 8, 3, 'Sep 12', 'Sep 22'],
   ['Hydraulic press service', 'Preventive service of the hydraulic press', 1, 10, 1, 'Sep 10', 'Sep 21'],
   ['Electrical check', 'Inspection of electrical equipment and cabinets', 2, 12, 2, 'Sep 5', 'Sep 18'],
   ['Safety inspection', 'Machine and equipment safety checkpoints', 3, 7, 1, 'Aug 28', 'Aug 28'],
   ['General lubrication', 'Periodic lubrication operations', 4, 6, 2, 'Aug 22', 'Sep 15'],
   ['Industrial cleaning', 'Complete cleaning of equipment', 5, 9, 0, 'Aug 15', 'Aug 15'],
-].map(([name, desc, ic, tasks, used, created, modified], i) => ({ id: 'c' + i, name, desc, ic, created, modified, used, tasks: LIB.slice(0, tasks).map((l, j) => ({ id: `${i}-${j}`, label: l })) }));
+].map(([name, desc, ic, tasks, used, created, modified, cid], i) => ({ id: cid || 'c' + i, name, desc, ic, created, modified, used, tasks: LIB.slice(0, tasks).map((l, j) => ({ id: `${i}-${j}`, label: l })) }));
 let tid = 100;
 class Component extends DCLogic {
   constructor(p) {
@@ -160,7 +162,8 @@ class Component extends DCLogic {
     this.state = { rows: SEED, q: '', usage: '', menu: null, drawer: isNew ? { id: null } : null, name: '', desc: '', tasks: [], draft: '', mode: 'manual', lq: '', drag: null, errors: {}, toast: null };
   }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
-  open(r) { this.setState({ drawer: { id: r ? r.id : null }, name: r ? r.name : '', desc: r ? r.desc : '', tasks: r ? r.tasks.map(t => ({ ...t })) : [], draft: '', errors: {}, menu: null, mode: 'manual' }); }
+  open(r) { window.location.href = 'Checklist Editor.dc.html?id=' + encodeURIComponent(r ? r.id : 'new') + (r ? '&name=' + encodeURIComponent(r.name) : ''); }
+  openDrawer(r) { this.setState({ drawer: { id: r ? r.id : null }, name: r ? r.name : '', desc: r ? r.desc : '', tasks: r ? r.tasks.map(t => ({ ...t })) : [], draft: '', errors: {}, menu: null, mode: 'manual' }); }
   addTask(label) { if (!label.trim()) return; this.setState(s => ({ tasks: [...s.tasks, { id: 't' + tid++, label: label.trim() }], draft: '', errors: { ...s.errors, tasks: 0 } })); }
   save() {
     const s = this.state, errors = { name: !s.name.trim(), tasks: !s.tasks.length };

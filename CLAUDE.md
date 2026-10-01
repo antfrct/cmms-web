@@ -1,10 +1,15 @@
 # CMMS Web MVP — design system (keep consistent)
 - All UI in English. Target 1440×900 desktop.
-- Shell: TopBar.dc.html (56px, #34050D) + Sidebar.dc.html (232px, #34050D, prop `active`). Each screen = own DC file importing both.
+- Shell: TopBar.dc.html (56px, #34050D, live search) + Sidebar.dc.html (232px / 64px collapsed, #34050D, prop `active`; collapse state in localStorage `cmms.nav.collapsed`, event `cmms-nav`). Page grid `auto minmax(0,1fr)`; sidebar mount `<div style="display:flex;min-height:0"><dc-import name="Sidebar" style="height:100%">`.
 - Font: IBM Plex Sans (UI), IBM Plex Mono (IDs/codes). Icons: Material Symbols Outlined via font (inline `font:20px/1 'Material Symbols Outlined'`).
 - Colors: accent #C00018 (primary CTA, active tab underline), bg #F6F7F9, surface #FFF, border #E4E7EC, text #1E2430, text-2 #667085, text-3 #98A2B3, success #0B6B4A, info #2456B8, warning #B54708, critical #B42318.
 - Priority badges: Critical solid #C00018/#fff · High #FDECEC/#B42318 · Medium #FEF3E2/#B54708 · Low #EEF1F4/#475467.
 - Status badges (dot + label): Overdue #FDECEC/#B42318 · Scheduled #EAF1FD/#2456B8 · In progress #E6F4EE/#0B6B4A · Waiting for parts #FEF3E2/#B54708 · Completed #EEF1F4/#475467.
 - Panels: white, 1px #E4E7EC, radius 8, no shadow. Panel header 14px/600, "View all" link right in #C00018.
 - Buttons 34px high, radius 6. Primary red; secondary white w/ border. Page title 22px/600 + 13px subtitle.
-- Terminology: Work order (WO-xxxxxxx), Maintenance plans, Checklists, Planning, Spare parts, Documents, Teams & Users, Administration.
+- NEVER show work order IDs (WO-xxxx) in the UI — identify work orders by "Asset — Task" title.
+- Overdue items: red tinted row (#FEF6F6) + 3px #C00018 left bar + "N d late"; urgent = Critical/High priority pill with bolt icon; normal = muted priority text.
+- Terminology: Work order, Maintenance plans, Checklists, Planning, Spare parts, Documents, Teams & Users, Administration.
+- Intervention flow: Work Order.dc.html (detail, "Start/Resume intervention") → Intervention.dc.html (focused mode, no sidebar; one step at a time, Previous/Next, "Step N of M", Pause, Review & close). Params ?wo&task&asset&loc&type&prio&status (never `t` — preview uses it); progress in localStorage `cmms.intervention.v3.<wo>` (.summary for other pages). Row click = open WO; explicit Start/Resume button = run.
+- Checklists: shared model in checklist-model.js (dynamic import; also window.CMMSChecklist; storage `cmms.checklists.v1`). Checklist Editor.dc.html = Checklist view (list, expandable StepEditor.dc.html, quick-add) + Workflow view (Start/End fixed, palette, auto-layout, drag dots to connect, + insert zones, side panel StepEditor). Intervention reads the same model; ?preview=1 uses `cmms.checklists.preview`.
+- Sites: sites-model.js (BUSINESSES with parent chain, SITES with geo/tz/kpis; current site in localStorage `cmms.site`, event `cmms-site`; `cmms-site-open` opens the TopBar switcher). Site Dashboard.dc.html = tabs Overview / Work orders / Equipment / Spare parts.

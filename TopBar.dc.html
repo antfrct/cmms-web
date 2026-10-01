@@ -53,9 +53,39 @@
   </div>
 
   <div style="flex:1"></div>
-  <button style="height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;background:transparent;border:0;border-radius:6px;color:#fff;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:rgba(255,255,255,.08)">
-    <span style="font:20px/1 'Material Symbols Outlined';opacity:.8">factory</span>Thourotte Plant<span style="font:18px/1 'Material Symbols Outlined';opacity:.6">expand_more</span>
-  </button>
+  <div style="position:relative">
+    <button onClick="{{ toggleSites }}" title="Switch site" style="height:42px;display:flex;align-items:center;gap:10px;padding:0 8px 0 10px;background:{{ siteBtnBg }};border:0;border-radius:8px;color:#fff;cursor:pointer;text-align:left" style-hover="background:rgba(255,255,255,.08)">
+      <span style="font:20px/1 'Material Symbols Outlined';opacity:.8">factory</span>
+      <span style="display:flex;flex-direction:column;gap:1px">
+        <span style="font:400 11px/1.2 'IBM Plex Sans',sans-serif;opacity:.65;white-space:nowrap">{{ siteBiz }}</span>
+        <span style="font:600 13px/1.2 'IBM Plex Sans',sans-serif;white-space:nowrap">{{ siteName }}</span>
+      </span>
+      <span style="font:18px/1 'Material Symbols Outlined';opacity:.6">expand_more</span>
+    </button>
+    <sc-if value="{{ sitesOpen }}">
+      <div onClick="{{ closeSites }}" style="position:fixed;inset:0;z-index:90"></div>
+      <div style="position:absolute;right:0;top:48px;z-index:91;width:380px;background:#fff;border:1px solid #E4E7EC;border-radius:10px;box-shadow:0 16px 40px rgba(16,24,40,.2);color:#1E2430;font-family:'IBM Plex Sans',sans-serif;font-size:13px;overflow:hidden">
+        <div style="padding:10px;border-bottom:1px solid #EEF0F3">
+          <label style="height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px"><span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ siteQ }}" onInput="{{ setSiteQ }}" placeholder="Find a site, city or business…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif;background:transparent" /></label>
+        </div>
+        <div style="max-height:380px;overflow:auto;padding:4px 6px 8px">
+          <sc-for list="{{ siteGroups }}" as="g">
+            <div style="padding:10px 8px 4px;font-size:11.5px;font-weight:600;color:#98A2B3">{{ g.path }}</div>
+            <sc-for list="{{ g.sites }}" as="s">
+              <button onClick="{{ s.pick }}" style="width:100%;min-height:48px;display:flex;align-items:center;gap:10px;padding:6px 8px;background:{{ s.bg }};border:0;border-radius:6px;text-align:left;cursor:pointer;font-family:inherit" style-hover="background:#F2F4F7">
+                <span style="width:30px;height:30px;flex:none;border-radius:6px;background:#F2F4F7;color:#475467;display:grid;place-items:center;font:600 10.5px 'IBM Plex Mono',monospace">{{ s.code }}</span>
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600;color:#1E2430">{{ s.name }}</span><span style="font-size:12px;color:#667085">{{ s.place }} · {{ s.time }}</span></span>
+                <sc-if value="{{ s.hasAlert }}"><span title="Overdue work orders" style="height:20px;display:inline-flex;align-items:center;padding:0 7px;border-radius:10px;background:#FDECEC;color:#B42318;font-size:11.5px;font-weight:600;white-space:nowrap">{{ s.alert }} overdue</span></sc-if>
+                <sc-if value="{{ s.current }}"><span style="font:18px/1 'Material Symbols Outlined';color:#C00018">check</span></sc-if>
+              </button>
+            </sc-for>
+          </sc-for>
+          <sc-if value="{{ noSites }}"><div style="padding:20px;text-align:center;color:#667085">No site matches “{{ siteQ }}”</div></sc-if>
+        </div>
+        <div style="padding:8px 14px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12px;color:#667085">{{ siteCount }}</div>
+      </div>
+    </sc-if>
+  </div>
   <div style="width:1px;height:24px;background:rgba(255,255,255,.12)"></div>
   <div style="display:flex;gap:4px">
     <button title="Notifications" style="position:relative;width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#fff;cursor:pointer" style-hover="background:rgba(255,255,255,.08)">
@@ -108,6 +138,9 @@ class Component extends DCLogic {
     this._nav = e => this.setState({ collapsed: !!e.detail });
     this._key = e => { const t = e.target; if (e.key === '/' && !(t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable))) { e.preventDefault(); this.inputRef.current && this.inputRef.current.focus(); } };
     window.addEventListener('cmms-nav', this._nav); window.addEventListener('keydown', this._key);
+    import('./sites-model.js').then(S => this.setState({ site: S.current().id }));
+    this._site = e => this.setState({ site: e.detail, sitesOpen: false }); this._siteOpen = () => this.setState({ sitesOpen: true, siteQ: '' });
+    window.addEventListener('cmms-site', this._site); window.addEventListener('cmms-site-open', this._siteOpen);
   }
   componentWillUnmount() { window.removeEventListener('cmms-nav', this._nav); window.removeEventListener('keydown', this._key); }
   results() {
@@ -116,6 +149,19 @@ class Component extends DCLogic {
     const hits = IDX.filter(x => norm(x.n + ' ' + (x.k || '') + ' ' + x.m).includes(s));
     const groups = Object.keys(CAT).map(t => { const all = hits.filter(h => h.t === t); return { t, all, items: all.slice(0, 4) }; }).filter(g => g.items.length);
     return { flat: groups.flatMap(g => g.items), groups, total: hits.length, recent: false };
+  }
+  siteVals() {
+    const S = window.CMMSSites, st = this.state;
+    if (!S || !st.site) return { siteName: 'Thourotte Plant', siteBiz: 'Flat Glass Europe', siteBtnBg: 'transparent', sitesOpen: false, siteGroups: [] };
+    const cur = S.SITES.find(x => x.id === st.site) || S.SITES[0], q = norm((st.siteQ || '').trim());
+    const groups = [];
+    S.SITES.forEach(x => { const path = S.businessPath(x).map(b => b.name), hay = norm([x.name, x.city, x.country, x.id, ...path].join(' '));
+      if (q && !hay.includes(q)) return; const key = path.join(' › '); let g = groups.find(y => y.path === key); if (!g) groups.push(g = { path: key, sites: [] });
+      g.sites.push({ code: x.id, name: x.name, place: `${x.city}, ${x.country}`, time: S.localTime(x), alert: x.k.overdue, hasAlert: x.k.overdue > 0, current: x.id === cur.id, bg: x.id === cur.id ? '#FBF1F2' : 'transparent',
+        pick: () => { this.setState({ sitesOpen: false }); S.select(x.id); } }); });
+    return { siteName: cur.name, siteBiz: S.businessPath(cur).slice(-1)[0].name, siteBtnBg: st.sitesOpen ? 'rgba(255,255,255,.12)' : 'transparent',
+      sitesOpen: !!st.sitesOpen, toggleSites: () => this.setState({ sitesOpen: !st.sitesOpen, siteQ: '' }), closeSites: () => this.setState({ sitesOpen: false }),
+      siteQ: st.siteQ || '', setSiteQ: e => this.setState({ siteQ: e.target.value }), siteGroups: groups, noSites: !groups.length, siteCount: `You have access to ${S.SITES.length} sites` };
   }
   renderVals() {
     const st = this.state, r = this.results(), s = norm(st.q.trim());
@@ -128,6 +174,7 @@ class Component extends DCLogic {
       : r.groups.map(g => { const [label, , , , href] = CAT[g.t]; return { label, count: g.all.length, more: g.all.length > g.items.length ? `See all ${g.all.length}` : '', href: href + (g.t === 'asset' ? '' : ''), items: g.items.map(deco) }; });
     const go = () => { const x = r.flat[st.active]; if (x) window.location.href = x.href; };
     return {
+      ...this.siteVals(),
       role: this.props.role ?? 'Maintenance Manager', logoW: st.collapsed ? '64px' : '232px', showWordmark: !st.collapsed,
       inputRef: this.inputRef, q: st.q, hasQuery: !!st.q,
       open: st.focus, showRecent: r.recent, groups, noResults: !r.recent && r.total === 0,

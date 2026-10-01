@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
+<style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}</style>
+</helmet>
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
+  <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
+  <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="workorders" style="height:100%" hint-size="232px,100%"></dc-import></div>
+
+  <main style="overflow:auto;padding:16px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Work order detail">
+    <nav style="flex:none;display:flex;align-items:center;gap:6px;font-size:12.5px;color:#667085">
+      <a href="Work Orders.dc.html" style="display:flex;align-items:center;gap:4px;color:#475467;font-weight:500;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">arrow_back</span>Work orders</a>
+      <span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">chevron_right</span><span style="color:#1E2430;font-weight:500">{{ title }}</span>
+    </nav>
+
+    <header style="flex:none;display:flex;align-items:flex-start;gap:16px">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">{{ title }}</h1>
+          <span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:11px;font-size:12px;font-weight:600;background:{{ st.bg }};color:{{ st.fg }}"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ st.label }}</span>
+          <span style="display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px 0 6px;border-radius:4px;font-size:12px;font-weight:600;background:{{ pr.bg }};color:{{ pr.fg }}"><sc-if value="{{ pr.urgent }}"><span style="font:14px/1 'Material Symbols Outlined'">bolt</span></sc-if>{{ wo.prio }}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;color:#667085;flex-wrap:wrap">
+          <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined'">build</span>{{ wo.type }}</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined'">location_on</span>{{ wo.loc }}</span>
+          <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined'">person</span>Pierre Leroy</span>
+          <span style="display:flex;align-items:center;gap:5px;color:{{ dueColor }}"><span style="font:16px/1 'Material Symbols Outlined'">event</span>{{ dueLabel }}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit</button>
+        <button title="More actions" style="width:34px;height:34px;display:grid;place-items:center;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#344054;cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">more_horiz</span></button>
+        <sc-if value="{{ canStart }}" hint-placeholder-val="{{ true }}">
+          <a href="{{ runHref }}" style="height:38px;display:flex;align-items:center;gap:6px;padding:0 16px 0 12px;background:#C00018;border-radius:6px;color:#fff;font:600 14px 'IBM Plex Sans',sans-serif"><span style="font:22px/1 'Material Symbols Outlined'">play_arrow</span>{{ startLabel }}</a>
+        </sc-if>
+      </div>
+    </header>
+
+    <sc-if value="{{ inProgress }}">
+      <section style="flex:none;display:flex;align-items:center;gap:14px;padding:12px 16px;background:#fff;border:1px solid #E4E7EC;border-left:3px solid #F79009;border-radius:8px">
+        <span style="width:36px;height:36px;border-radius:50%;background:#FEF3E2;color:#B54708;display:grid;place-items:center;font:20px/1 'Material Symbols Outlined'">pause</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+          <span style="font-weight:600;font-size:14px">Intervention paused at step {{ run.stepNo }} of {{ run.total }} — {{ run.stepTitle }}</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:220px;height:6px;border-radius:3px;background:#EEF0F3;overflow:hidden"><span style="display:block;height:100%;width:{{ run.pct }};background:#C00018"></span></span>
+            <span style="font-size:12.5px;color:#667085">{{ run.elapsed }} spent · progress saved</span>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+    <sc-if value="{{ isDone }}">
+      <section style="flex:none;display:flex;align-items:center;gap:14px;padding:12px 16px;background:#fff;border:1px solid #E4E7EC;border-left:3px solid {{ doneColor }};border-radius:8px">
+        <span style="width:36px;height:36px;border-radius:50%;background:{{ doneBg }};color:{{ doneColor }};display:grid;place-items:center;font:20px/1 'Material Symbols Outlined'">{{ doneIcon }}</span>
+        <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:14px">{{ doneTitle }}</span><span style="font-size:12.5px;color:#667085">{{ doneSub }}</span></div>
+        <a href="{{ runHref }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:500"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">summarize</span>View summary</a>
+      </section>
+    </sc-if>
+
+    <div style="flex:none;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr);gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px">
+          <h2 style="margin:0;font-size:14px;font-weight:600">Description</h2>
+          <p style="margin:0;line-height:1.55;color:#344054;text-wrap:pretty">{{ desc }}</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <span style="height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:4px;background:#F2F4F7;color:#475467;font-size:12px;font-weight:500"><span style="font:14px/1 'Material Symbols Outlined'">category</span>{{ category }}</span>
+            <sc-if value="{{ stop }}"><span style="height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:4px;background:#FDECEC;color:#B42318;font-size:12px;font-weight:600"><span style="font:14px/1 'Material Symbols Outlined'">block</span>Production stop</span></sc-if>
+          </div>
+        </section>
+
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+          <div style="display:flex;align-items:center;gap:8px;padding:14px 16px 8px">
+            <h2 style="margin:0;font-size:14px;font-weight:600">Checklist</h2>
+            <span style="color:#667085">{{ checklistName }} · {{ stepCountLabel }} · est. {{ est }}</span>
+            <a href="{{ checklistHref }}" style="margin-left:auto;font-weight:600;font-size:12.5px;white-space:nowrap">Edit checklist</a>
+          </div>
+          <ol style="margin:0;padding:0 0 8px;list-style:none">
+            <sc-for list="{{ steps }}" as="s" hint-placeholder-count="6">
+              <li style="display:flex;align-items:center;gap:12px;padding:8px 16px;border-top:1px solid #F2F4F7">
+                <span style="width:24px;height:24px;flex:none;border-radius:50%;background:{{ s.bg }};color:{{ s.fg }};display:grid;place-items:center;font:600 11.5px 'IBM Plex Mono',monospace">{{ s.mark }}</span>
+                <span style="flex:1;font-weight:500">{{ s.title }}</span>
+                <sc-if value="{{ s.cond }}"><span style="height:20px;display:inline-flex;align-items:center;gap:3px;padding:0 7px;border-radius:10px;background:#EAF1FD;color:#2456B8;font-size:11.5px;font-weight:600"><span style="font:13px/1 'Material Symbols Outlined'">alt_route</span>{{ s.cond }}</span></sc-if>
+                <span style="font-size:12px;color:#98A2B3">{{ s.kinds }}</span>
+              </li>
+            </sc-for>
+          </ol>
+        </section>
+
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+          <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600">Reserved spare parts</h2><a href="Spare Parts.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">Add part</a></div>
+          <sc-for list="{{ parts }}" as="p">
+            <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid #F2F4F7">
+              <span style="width:32px;height:32px;border-radius:6px;background:repeating-linear-gradient(135deg,#EEF0F3 0 4px,#E4E7EC 4px 8px);display:grid;place-items:center;color:#98A2B3;font:17px/1 'Material Symbols Outlined'">settings</span>
+              <span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ p.name }}</span><span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ p.ref }}</span></span>
+              <span style="font-size:12.5px;font-weight:500;color:{{ p.color }}">{{ p.stock }}</span>
+              <span style="width:48px;text-align:right;font:600 13px 'IBM Plex Mono',monospace">×{{ p.qty }}</span>
+            </div>
+          </sc-for>
+          <sc-if value="{{ noParts }}"><div style="padding:4px 16px 14px;color:#98A2B3">No parts reserved. Technicians can add parts during the intervention.</div></sc-if>
+        </section>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+          <h2 style="margin:0;padding:14px 16px 6px;font-size:14px;font-weight:600">Details</h2>
+          <dl style="margin:0;padding:4px 16px 14px;display:grid;grid-template-columns:120px minmax(0,1fr);row-gap:9px;column-gap:12px">
+            <sc-for list="{{ details }}" as="d" hint-placeholder-count="8"><dt style="color:#667085">{{ d.k }}</dt><dd style="margin:0;font-weight:500">{{ d.v }}</dd></sc-for>
+          </dl>
+        </section>
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+          <div style="display:flex;align-items:center;padding:14px 16px 6px"><h2 style="margin:0;font-size:14px;font-weight:600">Documents</h2><a href="Documents.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">Add</a></div>
+          <sc-for list="{{ docs }}" as="d">
+            <a href="Documents.dc.html" style="display:flex;align-items:center;gap:10px;padding:8px 16px;color:#1E2430" style-hover="background:#F9FAFB">
+              <span style="width:28px;height:28px;border-radius:6px;background:#FDECEC;color:#B42318;display:grid;place-items:center;font:600 9.5px 'IBM Plex Mono',monospace">PDF</span>
+              <span style="flex:1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }}</span><span style="font-size:12px;color:#98A2B3">{{ d.meta }}</span>
+            </a>
+          </sc-for>
+          <div style="height:8px"></div>
+        </section>
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding-bottom:8px">
+          <h2 style="margin:0;padding:14px 16px 6px;font-size:14px;font-weight:600">Activity</h2>
+          <sc-for list="{{ activity }}" as="a">
+            <div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:7px 16px;align-items:start">
+              <span style="width:24px;height:24px;border-radius:50%;background:#F2F4F7;color:#475467;display:grid;place-items:center;font:14px/1 'Material Symbols Outlined'">{{ a.icon }}</span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ a.text }}</span><span style="font-size:12px;color:#667085">{{ a.who }}</span></span>
+              <span style="font-size:12px;color:#98A2B3;white-space:nowrap">{{ a.when }}</span>
+            </div>
+          </sc-for>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const QS = new URLSearchParams(window.location.search);
+const WO = { key: QS.get('wo') || 'WO-1339859', task: QS.get('task') || 'Seal replacement', asset: QS.get('asset') || 'Pump P-101', loc: QS.get('loc') || 'Tempering Line › Heating Zone', type: QS.get('type') || 'Corrective', prio: QS.get('prio') || 'Critical', status: QS.get('status') || 'Overdue' };
+if (/P-101/.test(WO.asset) && WO.loc === 'Tempering Line') WO.loc = 'Tempering Line › Heating Zone';
+const SEAL = /P-101/.test(WO.asset);
+const PRIO = { Critical: ['#C00018', '#fff'], High: ['#FDECEC', '#B42318'], Medium: ['#FEF3E2', '#B54708'], Low: ['#EEF1F4', '#475467'] };
+const SB = { Requested: ['#F3EEFC', '#6941C6'], Overdue: ['#FDECEC', '#B42318'], Scheduled: ['#EAF1FD', '#2456B8'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting for parts': ['#FEF3E2', '#B54708'], Completed: ['#EEF1F4', '#475467'] };
+const STEPS = SEAL
+  ? [['Secure the equipment', 'Instructions · checklist'], ['Inspect the pump', 'Yes / No · photo · notes'], ['Locate the leak source', 'Choice', 'If a leak is found'], ['Replace the mechanical seal', 'Procedure · parts · consumables'], ['Restart and check the pressure', 'Measurements'], ['Leak test', 'Yes / No · photo'], ['Clean up and hand over', 'Checklist']]
+  : [['Secure the equipment', 'Instructions · checklist'], ['Initial inspection', 'Yes / No · photo · notes'], [WO.task, 'Instructions · parts · consumables'], ['Functional test', 'Yes / No · measurement'], ['Clean up and hand over', 'Checklist']];
+const FINAL = { completed: ['Completed', 'task_alt', '#0B6B4A', '#E6F4EE'], partial: ['Partially completed', 'timelapse', '#B54708', '#FEF3E2'], unable: ['Unable to complete', 'block', '#B42318', '#FDECEC'] };
+const pad = n => String(n).padStart(2, '0');
+const hms = ms => { const t = Math.floor((ms || 0) / 1000); return `${pad(Math.floor(t / 3600))}:${pad(Math.floor(t / 60) % 60)}:${pad(t % 60)}`; };
+class Component extends DCLogic {
+  state = { run: (() => { try { return JSON.parse(localStorage.getItem('cmms.intervention.v3.' + WO.key)); } catch (e) { return null; } })() };
+  componentDidMount() { import('./checklist-model.js').then(M => this.setState({ cl: M.load(M.checklistFor(WO.asset)) })); }
+  renderVals() {
+    const M = window.CMMSChecklist, cl = this.state.cl;
+    const run = this.state.run, sum = run && run.summary, done = sum && sum.mode === 'done', going = sum && !done;
+    const status = done ? 'Completed' : going ? 'In progress' : WO.status;
+    const [sbg, sfg] = SB[status] || SB.Scheduled, [pbg, pfg] = PRIO[WO.prio] || PRIO.Medium;
+    const fin = done ? FINAL[sum.final || 'completed'] : null;
+    const at = done && sum.completedAt ? new Date(sum.completedAt) : null;
+    const r = run && run.result;
+    const overdue = status === 'Overdue';
+    return {
+      wo: WO, title: `${WO.asset} — ${WO.task}`,
+      st: { label: done && sum.final !== 'completed' ? fin[0] : status, bg: done && sum.final !== 'completed' ? fin[3] : sbg, fg: done && sum.final !== 'completed' ? fin[2] : sfg },
+      pr: { bg: pbg, fg: pfg, urgent: WO.prio === 'Critical' || WO.prio === 'High' },
+      dueLabel: overdue ? 'Due Sep 27 · 3 d late' : 'Scheduled today, 09:00', dueColor: overdue ? '#B42318' : '#667085',
+      canStart: !done && status !== 'Requested', startLabel: going ? 'Resume intervention' : 'Start intervention',
+      runHref: 'Intervention.dc.html' + window.location.search,
+      inProgress: !!going, run: going ? { stepNo: sum.stepNo, total: sum.total, stepTitle: sum.mode === 'review' ? 'Review' : sum.stepTitle, pct: Math.round((sum.stepNo - 1) / sum.total * 100) + '%', elapsed: hms(sum.elapsed) } : {},
+      isDone: !!done, doneIcon: fin ? fin[1] : '', doneColor: fin ? fin[2] : '', doneBg: fin ? fin[3] : '',
+      doneTitle: fin ? `Intervention ${fin[0].toLowerCase()}` : '',
+      doneSub: at ? `Closed at ${pad(at.getHours())}:${pad(at.getMinutes())} · ${r ? r.minutes : 0} min · Gaudéric Durand${r && r.followUp ? ' · follow-up created' : ''}` : '',
+      desc: SEAL ? 'Operators reported a major leak at the pump shaft during the night shift. The mechanical seal is suspected. Pump is running on the backup line — replace the seal and check the discharge pressure before handing back.' : `Carry out the ${WO.type.toLowerCase()} work on ${WO.asset}: ${WO.task.toLowerCase()}. Follow the checklist and record parts used.`,
+      category: SEAL ? 'Mechanical' : WO.type === 'Preventive' ? 'Preventive' : 'Mechanical', stop: SEAL,
+      checklistName: cl ? cl.name : (SEAL ? 'Pump seal replacement' : 'Standard intervention'), stepCountLabel: `${cl ? cl.steps.length : STEPS.length} steps`, est: cl && cl.est ? cl.est + ' min' : (SEAL ? '1 h 30' : '1 h'), checklistHref: 'Checklist Editor.dc.html?id=' + (cl ? cl.id : 'pump-seal'),
+      steps: (cl && M ? cl.steps.map(st => [st.title, `${M.TYPES[st.type].label}${st.required ? ' · required' : ''}`, st.conditional ? 'Branch' : '']) : STEPS).map(([title, kinds, cond], i) => { const past = going && i < sum.stepNo - 1 || done; return { title, kinds, cond: cond || '', mark: past ? '✓' : i + 1, bg: past ? '#E6F4EE' : '#F2F4F7', fg: past ? '#0B6B4A' : '#475467' }; }),
+      parts: SEAL ? [{ name: 'Mechanical seal 45 mm', ref: 'SEAL-M45', stock: '3 in stock', color: '#0B6B4A', qty: 1 }] : [], noParts: !SEAL,
+      details: [['Asset', WO.asset], ['Location', WO.loc], ['Type', WO.type], ['Priority', WO.prio], ['Assigned to', 'Pierre Leroy'], ['Team', 'Mechanical team'], ['Requested by', 'Night shift · L. Petit'], ['Request date', 'Sep 26, 2026'], ['Scheduled', overdue ? 'Sep 27, 08:00' : 'Today, 09:00'], ['Estimated', SEAL ? '1 h 30' : '1 h']].map(([k, v]) => ({ k, v })),
+      docs: SEAL ? [{ name: 'Seal replacement procedure', meta: 'V3' }, { name: 'Pump P-101 manufacturer manual', meta: 'V1' }] : [{ name: `${WO.asset} manual`, meta: 'V1' }],
+      activity: [
+        ...(done ? [['task_alt', `Intervention ${fin[0].toLowerCase()}`, 'Gaudéric Durand', 'Today']] : going ? [['play_arrow', 'Intervention started', 'Gaudéric Durand', 'Today']] : []),
+        ['event', 'Scheduled', 'Claire Moreau · Planner', 'Sep 26'], ['check', 'Request approved', 'Gaudéric Durand', 'Sep 26'], ['campaign', 'Request created', 'L. Petit · Night shift', 'Sep 26'],
+      ].map(([icon, text, who, when]) => ({ icon, text, who, when })),
+    };
+  }
+}
+</script>
+</body>
+</html>

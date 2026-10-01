@@ -58,17 +58,21 @@
                 <span>{{ g.label }}</span><span style="font-weight:500;opacity:.75">{{ g.count }}</span>
               </div>
               <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
-                <div style="position:relative;display:grid;grid-template-columns:20px 64px minmax(0,1fr) auto;align-items:center;gap:10px;padding:9px 14px;cursor:pointer" style-hover="background:rgba(16,24,40,.035)">
+                <div style="position:relative;display:grid;grid-template-columns:20px 64px minmax(0,1fr) auto 84px;align-items:center;gap:10px;padding:9px 14px;cursor:pointer" style-hover="background:rgba(16,24,40,.035)">
                   <span style="position:absolute;left:-1px;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:{{ it.edge }}"></span>
                   <button onClick="{{ it.toggle }}" title="Mark as done" style="width:18px;height:18px;padding:0;border-radius:4px;border:1.5px solid {{ it.boxBorder }};background:{{ it.boxBg }};display:grid;place-items:center;cursor:pointer;color:#fff"><span style="font:14px/1 'Material Symbols Outlined'">{{ it.boxIcon }}</span></button>
                   <span style="font:{{ it.timeFont }};color:{{ it.timeColor }};white-space:nowrap">{{ it.time }}</span>
-                  <a href="Work Orders.dc.html" style="min-width:0;display:flex;flex-direction:column;gap:2px;color:#1E2430;text-decoration:{{ it.deco }};opacity:{{ it.op }}">
+                  <a href="{{ it.woHref }}" style="min-width:0;display:flex;flex-direction:column;gap:2px;color:#1E2430;text-decoration:{{ it.deco }};opacity:{{ it.op }}">
                     <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.title }}</span>
                     <span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.sub }}</span>
                   </a>
+                  <span style="display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0">
                   <sc-if value="{{ it.urgent }}"><span style="display:inline-flex;align-items:center;gap:3px;height:22px;padding:0 8px 0 6px;border-radius:4px;font-size:11.5px;font-weight:600;background:{{ it.pbg }};color:{{ it.pfg }}"><span style="font:14px/1 'Material Symbols Outlined'">bolt</span>{{ it.prio }}</span></sc-if>
                   <sc-if value="{{ it.normal }}"><span style="font-size:12px;color:#98A2B3">{{ it.prio }}</span></sc-if>
                   <sc-if value="{{ it.hasStatus }}"><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:11px;font-size:11.5px;font-weight:600;background:{{ it.sbg }};color:{{ it.sfg }};white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ it.status }}</span></sc-if>
+                  </span>
+                  <sc-if value="{{ it.canStart }}"><button onClick="{{ it.start }}" title="Start intervention" style="justify-self:end;height:28px;display:flex;align-items:center;gap:3px;padding:0 9px 0 5px;background:{{ it.startBg }};border:1px solid {{ it.startBorder }};border-radius:6px;font:600 12px 'IBM Plex Sans',sans-serif;color:#A30014;cursor:pointer;white-space:nowrap" style-hover="border-color:#C00018"><span style="font:17px/1 'Material Symbols Outlined'">play_arrow</span>{{ it.startLabel }}</button></sc-if>
+                  <sc-if value="{{ it.noStart }}"><span></span></sc-if>
                 </div>
               </sc-for>
             </div>
@@ -123,6 +127,7 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;manager&quot;,&quot;planner&quot;,&quot;technician&quot;],&quot;default&quot;:&quot;manager&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultTab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;todo&quot;,&quot;schedule&quot;,&quot;mine&quot;],&quot;default&quot;:&quot;todo&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const WOKEY = { 'Pump P-101 — Seal replacement': 'WO-1339859' };
 const PRIO = { Critical: ['#C00018', '#fff'], High: ['#FDECEC', '#B42318'] };
 const STATUS = { 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting for parts': ['#FEF3E2', '#B54708'], Scheduled: ['#EAF1FD', '#2456B8'], Completed: ['#EEF1F4', '#475467'], Overdue: ['#FDECEC', '#B42318'] };
 const OVERDUE = [
@@ -173,7 +178,15 @@ class Component extends DCLogic {
         items: g.items.map(([id, time, title, sub, prio, status]) => {
           const d = !!done[id], urgent = !d && (prio === 'Critical' || prio === 'High'), [pbg, pfg] = PRIO[prio] || [];
           const [sbg, sfg] = STATUS[status] || [];
-          return { title, sub, time, prio, urgent, normal: !urgent && !status && !d, hasStatus: !!status, status, sbg, sfg, pbg, pfg,
+          const [asset, task] = title.split(' — '), wo = WOKEY[title] || 'home-' + id, line = sub.split(' · ')[0];
+          const typ = (sub.split(' · ')[1] || 'Corrective').replace(/^(\d.*|Est.*|with.*)$/, 'Corrective');
+          const qs = new URLSearchParams({ wo, task, asset, loc: line, type: ['Corrective', 'Preventive', 'Inspection', 'Improvement'].includes(typ) ? typ : 'Corrective', prio, status: over ? 'Overdue' : status || 'Scheduled' }).toString();
+          let run = null; try { const v = JSON.parse(localStorage.getItem('cmms.intervention.v3.' + wo)); run = v && v.summary; } catch (e) {}
+          const resumable = !!(run && run.mode !== 'done'), finished = !!(run && run.mode === 'done');
+          return { title, sub, time, prio, urgent, normal: !urgent && !status && !d, hasStatus: !!status, status, sbg, sfg, pbg, pfg, noBadge: !urgent && !status && d,
+            woHref: 'Work Order.dc.html?' + qs, canStart: !d && !finished && status !== 'Completed' && status !== 'Waiting for parts', noStart: !(!d && !finished && status !== 'Completed' && status !== 'Waiting for parts'),
+            startLabel: resumable ? 'Resume' : 'Start', startBg: resumable ? '#FBF1F2' : '#fff', startBorder: resumable ? '#F3A3AC' : '#D0D5DD',
+            start: e => { e.stopPropagation(); window.location.href = 'Intervention.dc.html?' + qs; },
             edge: over && !d ? '#C00018' : 'transparent', hoverBg: over ? '#FDEEEE' : '#F9FAFB',
             timeFont: over ? "600 12px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Mono',monospace", timeColor: over && !d ? '#B42318' : '#475467',
             deco: d ? 'line-through' : 'none', op: d ? 0.45 : 1, boxBg: d ? '#0B6B4A' : '#fff', boxBorder: d ? '#0B6B4A' : over ? '#F1A7A7' : '#C4CAD4', boxIcon: d ? 'check' : '',

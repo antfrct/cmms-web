@@ -65,6 +65,7 @@ class Component extends DCLogic {
       toggle: () => this.toggle(), toggleIcon: col ? 'left_panel_open' : 'left_panel_close', toggleTip: col ? 'Expand menu' : 'Collapse menu', togglePad: col ? '0' : '12px', toggleJustify: col ? 'center' : 'flex-start',
       primary: [
         mk('home', 'Home', 'home', 'Home.dc.html'),
+        mk('dashboard', 'Site dashboard', 'monitoring', 'Site Dashboard.dc.html'),
         mk('assets', 'Assets', 'precision_manufacturing', 'Assets.dc.html'),
         mk('workorders', 'Work orders', 'build', 'Work Orders.dc.html'),
         mk('preventive', 'Preventive', 'event_repeat', 'Maintenance Plans.dc.html', [['plans', 'Maintenance plans', 'Maintenance Plans.dc.html'], ['checklists', 'Checklists', 'Checklists.dc.html']]),
