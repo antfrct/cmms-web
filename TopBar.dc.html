@@ -174,6 +174,7 @@
     </div>
   </div>
 
+  <dc-import name="QuickIntervention" hint-size="0px,0px"></dc-import>
   <sc-if value="{{ toast }}">
     <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;font:500 13px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24)"><span style="font:18px/1 'Material Symbols Outlined';color:#4ADE9B">check_circle</span>{{ toast }}</div>
   </sc-if>
@@ -214,7 +215,6 @@ const NOTIF = [
   ['n4', 'imp', 'block', 'Required part unavailable', 'Hydraulic filter HX-10 is out of stock', 'Blocks Hydraulic Press — Oil leak', '40 min', 'today', 'Spare Parts.dc.html?q=FLT-HX10'],
   ['n5', 'imp', 'pause_circle', 'Intervention paused', 'Compressor C-01 — Filter replacement', 'Sophie Martin · 4 of 6 steps · waiting for a part', '1 h', 'today', woHref('Compressor C-01 — Filter replacement', 'Utilities', 'Preventive', 'Medium', 'In progress')],
   ['n6', 'imp', 'priority_high', 'Priority changed', 'Conveyor Line 3 — Sensor check', 'Medium → High · by Hugo Petit', '1 h', 'today', woHref('Conveyor Line 3 — Sensor check', 'Float Line', 'Corrective', 'High', 'Scheduled')],
-  ['n7', 'info', 'alternate_email', 'Pierre Leroy mentioned you', '“Can someone check this pump after the current intervention?”', 'Mechanical team · Pump P-101', '1 h', 'today', 'Home.dc.html'],
   ['n8', 'imp', 'inventory_2', 'Low spare-part stock', 'Drive belt BPU280 — 2 left', 'Minimum 5 · used on 3 assets', '2 h', 'today', 'Spare Parts.dc.html?q=BLT-BPU280'],
   ['n9', 'info', 'event', 'Planning change', 'Palletizing Robot — Lubrication', 'Moved to Wed 30, 10:00 · by Hugo Petit', 'Yesterday', 'earlier', 'Planning.dc.html', 1],
   ['n10', 'info', 'subdirectory_arrow_right', 'Follow-up intervention created', 'Conveyor Line 3 — Belt replacement', 'From the completed sensor check · Sophie Martin', 'Yesterday', 'earlier', woHref('Conveyor Line 3 — Belt replacement', 'Float Line', 'Corrective', 'Medium', 'Requested'), 1],
@@ -237,6 +237,8 @@ class Component extends DCLogic {
     import((window.__resources && window.__resources.sitesModel) || './sites-model.js').then(S => this.setState({ site: S.current().id }));
     this._site = e => this.setState({ site: e.detail }); this._siteOpen = () => this.setState({ menu: 'sites', siteQ: '' });
     window.addEventListener('cmms-site', this._site); window.addEventListener('cmms-site-open', this._siteOpen);
+    import('./collab-model.js').then(C => this.setState({ C }));
+    this._notif = () => this.setState(s => ({ nv: (s.nv || 0) + 1 })); window.addEventListener('cmms-notif', this._notif);
   }
   componentWillUnmount() { ['cmms-nav', 'keydown', 'cmms-site', 'cmms-site-open'].forEach((k, i) => window.removeEventListener(k, [this._nav, this._key, this._site, this._siteOpen][i])); clearTimeout(this._t); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2800); }
@@ -282,7 +284,10 @@ class Component extends DCLogic {
     const cats = [['', 'All', 'apps', r.total]].concat(Object.keys(CAT).map(t => [t, CAT[t][0], CAT[t][1], r.counts[t] || 0])).map(([k, label, icon, count]) => {
       const on = st.cat === k; return { label, icon, count, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#E4E7EC', color: on ? '#fff' : '#344054', countColor: on ? 'rgba(255,255,255,.7)' : '#98A2B3', op: count || on ? 1 : 0.45, select: () => this.setState({ cat: on ? '' : k, active: 0 }) }; });
 
-    const nList = NOTIF.map(([id, lvl, icon, kind, title, sub, ago, grp, href]) => ({ id, lvl, icon, kind, title, sub, ago, grp, href, unread: !st.read[id] }));
+    const chatN = st.C ? st.C.notifications().map(n => ({ id: n.id, lvl: n.lvl, icon: n.icon, kind: n.kind, title: n.title, sub: n.sub, ago: n.ago, grp: 'today', href: st.C.notifHref(n), unread: !st.read[n.id] })) : [];
+    const nList = [...chatN.filter(n => n.ago === 'now'), ...NOTIF.map(([id, lvl, icon, kind, title, sub, ago, grp, href]) => ({ id, lvl, icon, kind, title, sub, ago, grp, href, unread: !st.read[id] })), ...chatN.filter(n => n.ago !== 'now')];
+    const order = { now: 0, '2 min': 1, '15 min': 2, '20 min': 3, '28 min': 4, '40 min': 5, '45 min': 6, '1 h': 7, '2 h': 8, Yesterday: 9 };
+    nList.sort((a, b) => (order[a.ago] ?? 8) - (order[b.ago] ?? 8));
     const unread = nList.filter(n => n.unread).length;
     const shown = nList.filter(n => st.nfilter === 'all' || n.unread);
     const notifGroups = [['today', 'Today'], ['earlier', 'Earlier']].map(([g, label]) => ({ label, items: shown.filter(n => n.grp === g).map(n => { const [ibg, ifg, edge] = LVL[n.lvl];
@@ -318,7 +323,7 @@ class Component extends DCLogic {
         pick: () => { try { localStorage.setItem(LKEY, code); } catch (e) {} this.setState({ lang: code, menu: null }); } })),
       notifOpen: menu === 'notif', toggleNotif: toggle('notif'), notifBtnBg: menu === 'notif' ? 'rgba(255,255,255,.12)' : 'transparent',
       hasUnread: unread > 0, unreadCount: unread > 9 ? '9+' : unread, markAllColor: unread ? '#C00018' : '#98A2B3',
-      markAll: () => { const read = { ...st.read }; NOTIF.forEach(n => { read[n[0]] = true; }); this.setRead(read); },
+      markAll: () => { const read = { ...st.read }; nList.forEach(n => { read[n.id] = true; }); this.setRead(read); },
       notifTabs: [['all', 'All', nList.length], ['unread', 'Unread', unread]].map(([k, label, count]) => ({ label, count, font: st.nfilter === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: st.nfilter === k ? '#1E2430' : '#667085', bar: st.nfilter === k ? '#C00018' : 'transparent', select: () => this.setState({ nfilter: k }) })),
       notifGroups, noNotif: !notifGroups.length,
       profileOpen: menu === 'profile', toggleProfile: toggle('profile'), profileBg: menu === 'profile' || menu === 'sites' ? 'rgba(255,255,255,.12)' : 'transparent',

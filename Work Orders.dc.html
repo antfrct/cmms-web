@@ -24,6 +24,7 @@
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Track and prioritize all maintenance work</p>
       </div>
       <button onClick="{{ doExport }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">download</span>Export</button>
+      <button onClick="{{ openQuick }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:#fff;border:1px solid #F3A3AC;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#A30014;cursor:pointer" style-hover="background:#FBF1F2"><span style="font:19px/1 'Material Symbols Outlined'">bolt</span>Quick intervention</button>
       <button onClick="{{ openCreate }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</button>
     </header>
 
@@ -50,7 +51,34 @@
           <span style="position:absolute;right:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
         </label>
       </sc-for>
-      <button style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">tune</span>More filters</button>
+      <div style="position:relative">
+        <button onClick="{{ toggleMore }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 10px 0 12px;background:{{ moreBg }};border:1px solid {{ moreBorder }};border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">tune</span>More filters<sc-if value="{{ moreCount }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ moreCount }}</span></sc-if></button>
+        <sc-if value="{{ moreOpen }}">
+          <div onClick="{{ toggleMore }}" style="position:fixed;inset:0;z-index:40"></div>
+          <div style="position:absolute;left:0;top:40px;z-index:41;width:420px;background:#fff;border:1px solid #E4E7EC;border-radius:10px;box-shadow:0 12px 32px rgba(16,24,40,.16);display:flex;flex-direction:column">
+            <div style="display:flex;flex-direction:column;gap:14px;padding:14px 16px">
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">Maintenance type</span>
+                <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ mfTypes }}" as="t"><button onClick="{{ t.toggle }}" style="height:32px;display:flex;align-items:center;gap:5px;padding:0 10px 0 7px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:16px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:{{ t.color }};cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}</button></sc-for></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <sc-for list="{{ mfSelects }}" as="m">
+                  <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12px;font-weight:600;color:#667085">{{ m.label }}</span>
+                    <span style="position:relative;display:flex"><select value="{{ m.value }}" onChange="{{ m.onChange }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 28px 0 10px;border:1px solid {{ m.border }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><sc-for list="{{ m.options }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:6px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+                  </label>
+                </sc-for>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <sc-for list="{{ mfToggles }}" as="t"><button onClick="{{ t.toggle }}" style="height:36px;display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;cursor:pointer;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430"><span style="width:18px;height:18px;border-radius:4px;border:1.5px solid {{ t.boxBorder }};background:{{ t.boxBg }};display:grid;place-items:center;color:#fff;font:14px/1 'Material Symbols Outlined'">{{ t.boxIcon }}</span>{{ t.label }}<span style="margin-left:auto;font-size:12px;color:#98A2B3">{{ t.count }}</span></button></sc-for>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;padding:10px 16px;border-top:1px solid #EEF0F3;background:#F9FAFB;border-radius:0 0 10px 10px">
+              <button onClick="{{ clearMore }}" style="padding:0;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Clear</button>
+              <span style="margin-left:auto;font-size:12.5px;color:#667085;margin-right:10px">{{ resultCount }}</span>
+              <button onClick="{{ toggleMore }}" style="height:32px;padding:0 14px;background:#1E2430;border:0;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Show results</button>
+            </div>
+          </div>
+        </sc-if>
+      </div>
       <sc-if value="{{ hasFilters }}"><button onClick="{{ resetFilters }}" style="height:34px;padding:0 8px;background:transparent;border:0;font:600 13px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">Reset</button></sc-if>
       <div style="margin-left:auto;display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
         <sc-for list="{{ views }}" as="v" hint-placeholder-count="2">
@@ -74,7 +102,9 @@
                         <span style="padding:6px 10px;min-width:0;display:flex;flex-direction:column;gap:2px">
               <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</span>
               <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#667085;min-width:0">
-                <span style="white-space:nowrap">{{ r.type }}</span>
+                <span style="font:500 11.5px 'IBM Plex Mono',monospace;color:#98A2B3;white-space:nowrap">{{ r.id }}</span><span style="color:#D0D5DD">·</span><span style="white-space:nowrap">{{ r.type }}</span>
+                <sc-if value="{{ r.incomplete }}"><span style="display:inline-flex;align-items:center;gap:3px;height:18px;padding:0 6px;border-radius:4px;background:#FEF3E2;color:#B54708;font-size:11px;font-weight:600;white-space:nowrap"><span style="font:12px/1 'Material Symbols Outlined'">edit_note</span>Information incomplete</span></sc-if>
+                <sc-if value="{{ r.hasChat }}"><span title="Discussion" style="display:inline-flex;align-items:center;gap:3px;color:{{ r.chatColor }};font-weight:600;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">chat_bubble</span>{{ r.chat }}</span></sc-if>
                 <sc-if value="{{ r.stop }}"><span style="display:inline-flex;align-items:center;gap:3px;color:#B42318;font-weight:600;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">block</span>Production stop</span></sc-if>
               </span>
             </span>
@@ -126,7 +156,7 @@
             <sc-for list="{{ col.cards }}" as="c">
               <div draggable="true" onClick="{{ c.openWo }}" onDragStart="{{ c.drag }}" onDragEnd="{{ c.dragEnd }}" style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:#fff;border:1px solid #E4E7EC;border-left:3px solid {{ c.edge }};border-radius:6px;cursor:grab;opacity:{{ c.op }}" style-hover="border-color:#C4CAD4">
                 <div style="display:flex;align-items:center;gap:6px">
-                  <span style="font-size:11.5px;font-weight:500;color:#667085">{{ c.type }}</span>
+                  <span style="font:500 11px 'IBM Plex Mono',monospace;color:#98A2B3">{{ c.id }}</span><span style="font-size:11.5px;font-weight:500;color:#667085">{{ c.type }}</span>
                   <sc-if value="{{ c.overdue }}"><span style="font-size:11px;font-weight:600;color:#B42318;display:flex;align-items:center;gap:2px"><span style="font:13px/1 'Material Symbols Outlined'">schedule</span>Overdue</span></sc-if>
                   <span style="margin-left:auto;display:inline-flex;align-items:center;height:20px;padding:0 6px;border-radius:4px;font-size:11px;font-weight:600;background:{{ c.pbg }};color:{{ c.pfg }}">{{ c.prio }}</span>
                 </div>
@@ -149,144 +179,7 @@
     <sc-if value="{{ menuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:30"></div></sc-if>
   </main>
 
-  <sc-if value="{{ drawerOpen }}">
-    <div onClick="{{ closeDrawer }}" style="position:fixed;inset:56px 0 0 0;background:rgba(16,24,40,.28);z-index:50"></div>
-    <aside style="position:fixed;top:56px;right:0;bottom:0;width:560px;z-index:51;background:#fff;box-shadow:-12px 0 32px rgba(16,24,40,.14);display:flex;flex-direction:column;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430">
-      <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #EEF0F3">
-        <div style="flex:1"><h2 style="margin:0;font-size:16px;font-weight:600">New work order</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">{{ drawerSub }}</p></div>
-        <button onClick="{{ closeDrawer }}" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">close</span></button>
-      </div>
-      <div style="flex:1;overflow:auto;padding:0 20px 20px">
-        <div style="display:flex;align-items:center;gap:8px;padding:18px 0 10px"><span style="width:20px;height:20px;border-radius:50%;background:#1E2430;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:600">1</span><span style="font-weight:600;font-size:14px">General information</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Asset<span style="color:#C00018"> *</span></span>
-            <span style="position:relative;display:flex">
-              <select value="{{ f.asset }}" onChange="{{ on.asset }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid {{ err.asset }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-                <option value="">Select an asset</option>
-                <sc-for list="{{ assetOpts }}" as="o"><option value="{{ o.code }}">{{ o.label }}</option></sc-for>
-              </select>
-              <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-            </span>
-            <sc-if value="{{ prefilled }}"><span style="font-size:12px;color:#667085;display:flex;align-items:center;gap:4px"><span style="font:14px/1 'Material Symbols Outlined'">link</span>Prefilled from the asset record</span></sc-if>
-          </label>
-          <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Work order type<span style="color:#C00018"> *</span></span>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-              <sc-for list="{{ types }}" as="t" hint-placeholder-count="4">
-                <button onClick="{{ t.select }}" style="height:36px;display:flex;align-items:center;justify-content:center;gap:6px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:6px;font:{{ t.font }};color:{{ t.color }};cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}</button>
-              </sc-for>
-            </div>
-          </div>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Priority<span style="color:#C00018"> *</span></span>
-            <span style="position:relative;display:flex;align-items:center">
-              <span style="position:absolute;left:10px;width:8px;height:8px;border-radius:2px;background:{{ prioDot }}"></span>
-              <select value="{{ f.prio }}" onChange="{{ on.prio }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 26px;border:1px solid {{ err.prio }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-                <option value="">Select</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option>
-              </select>
-              <span style="position:absolute;right:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-            </span>
-          </label>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Assigned to<span style="color:#C00018"> *</span></span>
-            <span style="position:relative;display:flex">
-              <select value="{{ f.who }}" onChange="{{ on.who }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid {{ err.who }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-                <option value="">Technician or team</option>
-                <optgroup label="Technicians"><option>Pierre Leroy</option><option>Sophie Martin</option><option>Marc Dupont</option><option>Julie Martin</option><option>Sofia Benali</option></optgroup>
-                <optgroup label="Teams"><option>Mechanical team</option><option>Electrical team</option><option>Float Line team</option></optgroup>
-              </select>
-              <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-            </span>
-          </label>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Request date<span style="color:#C00018"> *</span></span>
-            <input type="date" value="{{ f.req }}" onInput="{{ on.req }}" style="height:36px;padding:0 10px;border:1px solid {{ err.req }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
-          </label>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Desired date &amp; time</span>
-            <input type="datetime-local" value="{{ f.due }}" onInput="{{ on.due }}" style="height:36px;padding:0 10px;border:1px solid {{ err.due }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
-            <sc-if value="{{ dateErr }}"><span style="font-size:12px;color:#B42318">Can't be before the request date</span></sc-if>
-          </label>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:8px;padding:24px 0 10px"><span style="width:20px;height:20px;border-radius:50%;background:#1E2430;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:600">2</span><span style="font-weight:600;font-size:14px">Details</span></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Title<span style="color:#C00018"> *</span></span>
-            <input value="{{ f.title }}" onInput="{{ on.title }}" placeholder="e.g. Replace conveyor bearing" style="height:36px;padding:0 10px;border:1px solid {{ err.title }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" style-focus="border-color:#C00018" />
-          </label>
-          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-            <span style="display:flex;font-size:12.5px;font-weight:500;color:#344054">Description<span style="color:#C00018">&nbsp;*</span><span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ descCount }} / 500</span></span>
-            <textarea value="{{ f.desc }}" onInput="{{ on.desc }}" maxlength="500" rows="4" placeholder="Context, symptoms, actions to carry out…" style="padding:8px 10px;border:1px solid {{ err.desc }};border-radius:6px;font:13px/1.5 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;resize:vertical"></textarea>
-          </label>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Failure category</span>
-            <span style="position:relative;display:flex">
-              <select value="{{ f.cat }}" onChange="{{ on.cat }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-                <option value="">Select a category</option><option>Mechanical</option><option>Electrical</option><option>Hydraulic</option><option>Pneumatic</option><option>Instrumentation</option><option>Software / PLC</option>
-              </select>
-              <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-            </span>
-          </label>
-          <div style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:500;color:#344054">Production stop</span>
-            <button onClick="{{ toggleStop }}" style="height:36px;display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;cursor:pointer;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430">
-              <span style="position:relative;width:36px;height:20px;border-radius:10px;background:{{ stopTrack }};transition:background .15s"><span style="position:absolute;top:2px;left:{{ stopKnob }};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s"></span></span>{{ stopLabel }}
-            </button>
-          </div>
-        </div>
-
-        <div style="display:flex;align-items:center;gap:8px;padding:24px 0 10px"><span style="width:20px;height:20px;border-radius:50%;background:#1E2430;color:#fff;display:grid;place-items:center;font-size:11px;font-weight:600">3</span><span style="font-weight:600;font-size:14px">Parts &amp; documents</span></div>
-        <div style="display:flex;flex-direction:column;gap:8px">
-          <div style="display:flex;align-items:center"><span style="font-size:12.5px;font-weight:500;color:#344054">Required parts</span></div>
-          <sc-for list="{{ parts }}" as="p">
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:6px">
-              <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">inventory_2</span>
-              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ p.name }}</span><span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · <span style="color:{{ p.stockColor }};font-weight:500">{{ p.stockLabel }}</span></span></span>
-              <span style="display:flex;align-items:center;border:1px solid #D0D5DD;border-radius:6px;height:28px">
-                <button onClick="{{ p.dec }}" style="width:26px;height:26px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">remove</button>
-                <span style="width:28px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums">{{ p.qty }}</span>
-                <button onClick="{{ p.inc }}" style="width:26px;height:26px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">add</button>
-              </span>
-              <button onClick="{{ p.remove }}" title="Remove" style="width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
-            </div>
-          </sc-for>
-          <sc-if value="{{ partPicker }}">
-            <div style="flex:none;border:1px solid #D0D5DD;border-radius:6px;overflow:hidden">
-              <label style="height:36px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #EEF0F3"><span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ pq }}" onInput="{{ setPq }}" placeholder="Search spare parts by name or reference…" style="flex:1;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label>
-              <div style="max-height:180px;overflow:auto">
-                <sc-for list="{{ partOpts }}" as="o">
-                  <button onClick="{{ o.add }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;background:transparent;border:0;text-align:left;cursor:pointer;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="background:#F9FAFB">
-                    <span style="flex:1">{{ o.name }} <span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ o.ref }}</span></span>
-                    <span style="font-size:12px;color:{{ o.stockColor }};font-weight:500">{{ o.stockLabel }}</span>
-                  </button>
-                </sc-for>
-              </div>
-            </div>
-          </sc-if>
-          <button onClick="{{ togglePicker }}" style="align-self:flex-start;height:32px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span>Add part</button>
-          <div style="display:flex;align-items:center;margin-top:10px"><span style="font-size:12.5px;font-weight:500;color:#344054">Documents</span></div>
-          <sc-for list="{{ docs }}" as="d">
-            <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:6px">
-              <span style="width:28px;height:28px;border-radius:6px;background:#FDECEC;color:#B42318;display:grid;place-items:center;font:600 9.5px 'IBM Plex Mono',monospace">PDF</span>
-              <span style="flex:1;font-weight:500">{{ d.name }}</span>
-              <button onClick="{{ d.remove }}" style="width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
-            </div>
-          </sc-for>
-          <button onClick="{{ addDoc }}" style="align-self:flex-start;height:32px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">attach_file</span>Add document</button>
-        </div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3">
-        <button onClick="{{ toggleAnother }}" style="display:flex;align-items:center;gap:8px;background:transparent;border:0;padding:0;font:13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer">
-          <span style="width:16px;height:16px;border-radius:4px;border:1.5px solid {{ anotherBorder }};background:{{ anotherBg }};display:grid;place-items:center;color:#fff;font:13px/1 'Material Symbols Outlined'">{{ anotherIcon }}</span>Create another
-        </button>
-        <sc-if value="{{ hasErrors }}"><span style="margin-left:12px;font-size:12.5px;color:#B42318;display:flex;align-items:center;gap:4px"><span style="font:16px/1 'Material Symbols Outlined'">error</span>Check required fields</span></sc-if>
-        <button onClick="{{ closeDrawer }}" style="margin-left:auto;height:34px;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Cancel</button>
-        <button onClick="{{ create }}" style="height:34px;padding:0 16px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014">Create work order</button>
-      </div>
-    </aside>
-  </sc-if>
+  <dc-import name="WorkOrderPanel" hint-size="0px,0px"></dc-import>
 
   <sc-if value="{{ toast }}">
     <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:12px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.24);font:500 13px 'IBM Plex Sans',sans-serif">
@@ -302,9 +195,9 @@ const PB = { Critical: ['#C00018', '#fff'], High: ['#FDECEC', '#B42318'], Medium
 const PDOT = { Critical: '#C00018', High: '#E0591B', Medium: '#E3A008', Low: '#98A2B3', '': '#D0D5DD' };
 const PORD = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 const SORD = { Overdue: 0, Requested: 1, 'In progress': 2, 'Waiting for parts': 3, Scheduled: 4, Completed: 5 };
-const PEOPLE = { 'Pierre Leroy': ['PL', '#E8EEF9', '#2456B8'], 'Sophie Martin': ['SM', '#F3EEFC', '#6941C6'], 'Marc Dupont': ['MD', '#E6F4EE', '#0B6B4A'], 'Julie Martin': ['JM', '#FEF3E2', '#B54708'], 'Sofia Benali': ['SB', '#FDECEC', '#B42318'] };
-const TEAM = { 'Pierre Leroy': 'Mechanical team', 'Marc Dupont': 'Mechanical team', 'Sophie Martin': 'Electrical team', 'Julie Martin': 'Float Line team', 'Sofia Benali': 'Electrical team' };
-const ASSETS = [['FT2-FR-001', 'Tempering Furnace 2', 'Tempering Line'], ['FT1-FR-001', 'Tempering Furnace 1', 'Tempering Line'], ['CV-L3', 'Conveyor Line 3', 'Float Line'], ['CV-L2', 'Conveyor Line 2', 'Float Line'], ['P-101', 'Pump P-101', 'Tempering Line'], ['V-12', 'Fan V-12', 'Float Line'], ['C-01', 'Compressor C-01', 'Utilities'], ['RP-01', 'Palletizing Robot 1', 'Packaging Line'], ['PH-030', 'Hydraulic Press PH-030', 'Workshop'], ['S-01', 'Dryer S-01', 'Utilities']];
+const PEOPLE = { 'Alex Martin': ['AM', '#FEF3E2', '#B54708'], 'Pierre Leroy': ['PL', '#E8EEF9', '#2456B8'], 'Sophie Martin': ['SM', '#F3EEFC', '#6941C6'], 'Marc Dupont': ['MD', '#E6F4EE', '#0B6B4A'], 'Julie Martin': ['JM', '#FEF3E2', '#B54708'], 'Sofia Benali': ['SB', '#FDECEC', '#B42318'] };
+const TEAM = { 'Alex Martin': 'Mechanical team', 'Pierre Leroy': 'Mechanical team', 'Marc Dupont': 'Mechanical team', 'Sophie Martin': 'Electrical team', 'Julie Martin': 'Float Line team', 'Sofia Benali': 'Electrical team' };
+const ASSETS = [['FT2-FR-001', 'Tempering Furnace 2', 'Tempering Line'], ['FT1-FR-001', 'Tempering Furnace 1', 'Tempering Line'], ['CV-L3', 'Conveyor Line 3', 'Float Line'], ['CV-L2', 'Conveyor Line 2', 'Float Line'], ['P-101', 'Pump P-101', 'Tempering Line'], ['V-12', 'Fan V-12', 'Float Line'], ['C-01', 'Compressor C-01', 'Utilities'], ['RP-01', 'Palletizing Robot 1', 'Packaging Line'], ['V-08', 'Fan V-08', 'Float Line'], ['TB-01', 'Tin Bath', 'Float Line'], ['MX-02', 'Mixer 02', 'Batch House'], ['BC-548', 'Bottero 548 Cutter', 'Cutting Line'], ['PH-030', 'Hydraulic Press PH-030', 'Workshop'], ['S-01', 'Dryer S-01', 'Utilities']];
 const PARTS = [['BRG-6205', 'Ball bearing 6205-2RS', 42, 10], ['BLT-BPU280', 'Drive belt BPU280', 2, 5], ['FLT-HX10', 'Hydraulic filter HX-10', 0, 4], ['SEN-PT100', 'Temperature probe PT100', 6, 3], ['SEAL-M45', 'Mechanical seal 45 mm', 3, 2], ['GRS-LT2', 'Lithium grease LT2 400 g', 18, 6], ['ENC-500', 'Incremental encoder 500 ppr', 1, 2], ['VFD-ATV320', 'Variable speed drive ATV320', 0, 1]];
 const SEED = [
   ['WO-1339859', 'Seal replacement', 'Corrective', 'P-101', 'Overdue', 'Critical', 'Pierre Leroy', '2026-09-27T08:00', true],
@@ -312,7 +205,7 @@ const SEED = [
   ['WO-1339861', 'High motor temperature', 'Inspection', 'CV-L3', 'Scheduled', 'High', 'Julie Martin', '2026-09-30T09:00'],
   ['WO-1339848', '1000 h preventive service', 'Preventive', 'CV-L2', 'Scheduled', 'Medium', 'Sofia Benali', '2026-10-02T10:00'],
   ['WO-1339835', 'Variable speed drive replacement', 'Corrective', 'CV-L3', 'In progress', 'High', 'Pierre Leroy', '2026-09-29T13:00'],
-  ['WO-1339850', 'Abnormal fan noise', 'Corrective', 'V-12', 'In progress', 'High', 'Marc Dupont', '2026-09-29T11:00'],
+  ['WO-1339850', 'Abnormal fan noise', 'Corrective', 'V-12', 'In progress', 'High', 'Alex Martin', '2026-09-29T11:00'],
   ['WO-1339836', 'Hydraulic leak repair', 'Corrective', 'PH-030', 'In progress', 'High', 'Julie Martin', '2026-09-29T08:30'],
   ['WO-1339851', 'Safety sensor check', 'Inspection', 'RP-01', 'Scheduled', 'Medium', 'Pierre Leroy', '2026-10-01T10:00'],
   ['WO-1339828', 'Drive replacement ATV320', 'Corrective', 'CV-L3', 'Waiting for parts', 'High', 'Sofia Benali', ''],
@@ -325,7 +218,7 @@ const SEED = [
 const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = d => { if (!d) return '—'; const [ymd, t] = d.split('T'); const [, m, dd] = ymd.split('-'); return `${M[+m - 1]} ${+dd}${t ? ', ' + t : ''}`; };
 const fmtShort = d => { if (!d) return 'Unscheduled'; const [ymd] = d.split('T'); const [, m, dd] = ymd.split('-'); return `${M[+m - 1]} ${+dd}`; };
-const TYPES = [['Corrective', 'build'], ['Preventive', 'event_repeat'], ['Improvement', 'trending_up'], ['Inspection', 'visibility']];
+const TYPES = [['Corrective', 'build'], ['Preventive', 'event_repeat'], ['Predictive', 'insights'], ['Inspection', 'visibility']];
 const COLS = [['Requested', 'Requested'], ['Scheduled', 'Scheduled'], ['In progress', 'In progress'], ['Waiting for parts', 'Waiting for parts'], ['Completed', 'Completed']];
 const blank = () => ({ asset: '', type: 'Corrective', prio: '', who: '', req: '2026-09-29', due: '', title: '', desc: '', cat: '', stop: false, parts: [], docs: [] });
 let nextId = 1339912;
@@ -336,21 +229,23 @@ class Component extends DCLogic {
     const qs = new URLSearchParams(window.location.search);
     const open = qs.get('new') === '1', asset = qs.get('asset') || '';
     this.state = { view: this.props.view ?? 'list', rows: SEED, q: qs.get('q') || '', team: '', status: '', prio: '', kpi: '', sort: ['status', 1], sel: {}, menu: null,
-      drawer: open, form: { ...blank(), asset }, prefilled: !!asset, errors: {}, another: false, picker: false, pq: '', dragId: null, dragOver: null, toast: null };
+      dragId: null, dragOver: null, toast: null, more: false, mf: { types: [], line: '', who: '', due: '', stop: false, incomplete: false, chat: false }, C: null };
+    this._openNew = open ? asset : null;
   }
+  componentDidMount() {
+    import('./collab-model.js').then(C => {
+      const extra = C.createdWos().filter(w => !this.state.rows.some(r => r.id === w.key)).map(w => ({ id: w.key, title: w.task, type: w.type, asset: w.assetCode || (ASSETS.find(a => a[1] === w.asset) || [w.asset])[0], status: w.status, prio: w.prio || '', who: w.assignee ? C.person(w.assignee).name : '', date: w.due || '', stop: !!w.stop, fresh: false }));
+      this.setState(s => ({ C, rows: [...extra, ...s.rows] }));
+    });
+    this._wo = e => { const r = e.detail || {}; this.setState(s => ({ rows: [{ id: r.key, title: r.title, type: r.type, asset: r.asset, status: r.status, prio: r.prio, who: r.who, date: r.date, stop: r.stop, fresh: true }, ...s.rows.filter(x => x.id !== r.key)], sort: ['id', -1] })); };
+    this._chat = () => this.setState(s => ({ cv: (s.cv || 0) + 1 }));
+    window.addEventListener('cmms-wo-created', this._wo); window.addEventListener('cmms-chat', this._chat);
+    if (this._openNew !== null) setTimeout(() => window.CMMSCreateWO && window.CMMSCreateWO({ asset: this._openNew }), 300);
+  }
+  componentWillUnmount() { window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-chat', this._chat); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 3200); }
   setF(k, v) { this.setState(s => ({ form: { ...s.form, [k]: v }, errors: { ...s.errors, [k]: 0 } })); }
   setStatus(id, status) { this.setState(s => ({ rows: s.rows.map(r => r.id === id ? { ...r, status } : r), menu: null })); }
-  create() {
-    const f = this.state.form, errors = {};
-    ['asset', 'prio', 'who', 'req', 'title', 'desc'].forEach(k => { if (!f[k]) errors[k] = 1; });
-    if (f.due && f.req && f.due.slice(0, 10) < f.req) errors.due = 1;
-    if (Object.keys(errors).length) return this.setState({ errors });
-    const id = 'wo' + nextId++;
-    const row = { id, title: f.title, type: f.type, asset: f.asset, status: f.due ? 'Scheduled' : 'Requested', prio: f.prio, who: f.who, date: f.due, stop: f.stop };
-    this.setState(s => ({ rows: [row, ...s.rows], drawer: s.another, form: s.another ? { ...blank(), asset: f.asset } : s.form, errors: {}, picker: false, sort: ['id', -1] }));
-    this.flash(`"${f.title}" created${f.due ? ' · ' + fmtDate(f.due) : ''}`);
-  }
   renderVals() {
     const s = this.state, f = s.form;
     const assetOf = c => ASSETS.find(a => a[0] === c) || [c, c, ''];
@@ -359,7 +254,8 @@ class Component extends DCLogic {
     const open = ROWS.filter(r => r.status !== 'Completed');
     const kpiDefs = [['open', 'Open', open.length + 43, 'across 4 teams', '#1E2430'], ['overdue', 'Overdue', ROWS.filter(r => r.status === 'Overdue').length + 6, 'oldest 3 days', '#B42318'], ['critical', 'Critical', open.filter(r => r.prio === 'Critical').length + 1, 'priority', '#1E2430'], ['progress', 'In progress', ROWS.filter(r => r.status === 'In progress').length + 15, 'right now', '#1E2430']];
     const kpis = kpiDefs.map(([k, label, value, sub, color]) => ({ label, value, sub, color, bg: s.kpi === k ? '#FBF7F7' : '#fff', bar: s.kpi === k ? '#C00018' : 'transparent', select: () => this.setState({ kpi: s.kpi === k ? '' : k }) }));
-    const q = s.q.trim().toLowerCase();
+    const q = s.q.trim().toLowerCase(), C = s.C;
+    const isIncomplete = r => { if (!C) return false; const w = C.getWo(r.id); return !!(w && w.quick ? C.missingInfo(w).length : !r.prio || !r.who); };
     let list = ROWS.filter(r => {
       const a = assetOf(r.asset);
       if (q && ![r.id, r.title, a[1], a[2]].join(' ').toLowerCase().includes(q)) return false;
@@ -370,29 +266,42 @@ class Component extends DCLogic {
       if (s.kpi === 'overdue' && r.status !== 'Overdue') return false;
       if (s.kpi === 'critical' && (r.prio !== 'Critical' || r.status === 'Completed')) return false;
       if (s.kpi === 'progress' && r.status !== 'In progress') return false;
+      const mf = s.mf;
+      if (mf.types.length && !mf.types.includes(r.type)) return false;
+      if (mf.line && a[2] !== mf.line) return false;
+      if (mf.who && (mf.who === '-' ? r.who : r.who !== mf.who)) return false;
+      if (mf.due === 'overdue' && r.status !== 'Overdue') return false;
+      if (mf.due === 'today' && !(r.date || '').startsWith('2026-09-29')) return false;
+      if (mf.due === 'week' && !(r.date && r.date >= '2026-09-28' && r.date < '2026-10-05')) return false;
+      if (mf.due === 'none' && r.date) return false;
+      if (mf.stop && !r.stop) return false;
+      if (mf.incomplete && !isIncomplete(r)) return false;
+      if (mf.chat && !(C && C.messages(r.id).length)) return false;
       return true;
     });
     const [sk, sd] = s.sort;
     const key = r => sk === 'prio' ? PORD[r.prio] : sk === 'status' ? SORD[r.status] * 10 + PORD[r.prio] : sk === 'date' ? (r.date || '9') : sk === 'asset' ? assetOf(r.asset)[1] : r[sk];
     list = [...list].sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0) * sd);
-    const hasFilters = !!(q || s.team || s.status || s.prio || s.kpi);
+    const mfCount = s.mf.types.length + ['line', 'who', 'due'].filter(k => s.mf[k]).length + ['stop', 'incomplete', 'chat'].filter(k => s.mf[k]).length;
+    const hasFilters = !!(q || s.team || s.status || s.prio || s.kpi || mfCount);
     const selIds = Object.keys(s.sel).filter(k => s.sel[k]);
     const allSel = list.length && list.every(r => s.sel[r.id]);
     const box = on => on ? ['#C00018', '#C00018'] : ['#C4CAD4', '#fff'];
     const decorate = (r, i) => {
-      const a = assetOf(r.asset), [sbg, sfg, sdot] = SB[r.status], [pbg, pfg] = PB[r.prio], [ini, avBg, avFg] = PEOPLE[r.who] || ['T', '#EEF1F4', '#475467'];
+      const a = assetOf(r.asset), [sbg, sfg, sdot] = SB[r.status] || SB.Requested, [pbg, pfg] = PB[r.prio] || ['#F2F4F7', '#98A2B3'], [ini, avBg, avFg] = PEOPLE[r.who] || ['T', '#EEF1F4', '#475467'];
       const on = !!s.sel[r.id], [bb, bg] = box(on), mo = s.menu === r.id;
       const act = (icon, label, run, danger, sep) => ({ icon, label, run: e => { e.stopPropagation(); run(); }, color: danger ? '#B42318' : '#1E2430', iconColor: danger ? '#B42318' : '#667085', sep: sep ? '1px solid #EEF0F3' : '0' });
       const qs = new URLSearchParams({ wo: r.id, task: r.title, asset: a[1], loc: a[2], type: r.type, prio: r.prio, status: r.status }).toString();
       const goWo = () => { window.location.href = 'Work Order.dc.html?' + qs; }, goRun = () => { window.location.href = 'Intervention.dc.html?' + qs; };
       const resumable = !!(r.run && r.run.mode !== 'done'), startable = resumable || ['Scheduled', 'Overdue', 'In progress', 'Waiting for parts'].includes(r.status);
-      const actions = [act('open_in_new', 'Open work order', goWo), act('edit', 'Edit', () => this.setState({ menu: null })), act('event', 'Reschedule', () => { window.location.href = 'Planning.dc.html'; })];
+      const actions = [act('open_in_new', 'Open work order', goWo), act('edit', 'Edit', () => { window.location.href = 'Work Order.dc.html?' + qs + '&edit=1'; }), act('forum', 'Open discussion', () => { window.location.href = 'Work Order.dc.html?' + qs + '&chat=1'; }), act('event', 'Reschedule', () => { window.location.href = 'Planning.dc.html'; })];
       if (r.status === 'Scheduled' || r.status === 'Overdue' || r.status === 'Waiting for parts') actions.push(act('play_arrow', 'Start intervention', goRun));
       if (r.status === 'Requested') actions.push(act('check', 'Approve request', () => this.setStatus(r.id, 'Scheduled')));
       if (r.status === 'In progress') actions.push(act('play_arrow', 'Resume intervention', goRun));
-      actions.push(act('content_copy', 'Duplicate', () => this.setState({ menu: null })));
+      actions.push(act('content_copy', 'Duplicate', () => { this.setState({ menu: null }); window.CMMSCreateWO && window.CMMSCreateWO({ asset: r.asset, title: r.title, type: r.type, prio: r.prio }); }));
       actions.push(act('cancel', 'Cancel work order', () => { this.setState(st => ({ rows: st.rows.filter(x => x.id !== r.id), menu: null })); this.flash(`"${r.title}" cancelled`); }, true, true));
-      return { ...r, asset: a[1], line: a[2], sbg, sfg, sdot, pbg, pfg, ini, avBg, avFg, rowBg: on ? '#FBF7F7' : '#fff', boxBorder: bb, boxBg: bg, boxIcon: on ? 'check' : '',
+      const nChat = C ? C.messages(r.id).filter(m => m.who !== 'sys').length : 0, nUnread = C && nChat ? C.unread(r.id) : 0;
+      return { ...r, prio: r.prio || 'No priority', incomplete: isIncomplete(r), hasChat: nChat > 0, chat: nUnread ? nUnread + ' new' : nChat, chatColor: nUnread ? '#C00018' : '#98A2B3', who: r.who || 'Unassigned', asset: a[1], line: a[2], sbg, sfg, sdot, pbg, pfg, ini, avBg, avFg, rowBg: on ? '#FBF7F7' : r.fresh ? '#F5F8FE' : '#fff', boxBorder: bb, boxBg: bg, boxIcon: on ? 'check' : '',
         dateLabel: fmtDate(r.date), dateShort: fmtShort(r.date), dateColor: r.status === 'Overdue' ? '#B42318' : r.date ? '#344054' : '#98A2B3',
         toggle: e => { e.stopPropagation(); this.setState(st => ({ sel: { ...st.sel, [r.id]: !st.sel[r.id] } })); },
         menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > list.length - 5 && list.length > 6 ? '-230px' : '34px',
@@ -415,40 +324,27 @@ class Component extends DCLogic {
       return { label, count: cards.length, cards, dot: SB[st][2], bg: over ? '#FBF1F2' : '#EEF0F3', border: over ? '#C00018' : 'transparent',
         over: e => { e.preventDefault(); if (s.dragOver !== st) this.setState({ dragOver: st }); }, leave: () => {},
         drop: e => { e.preventDefault(); const id = e.dataTransfer.getData('text/plain'); this.setStatus(id, st); this.setState({ dragOver: null, dragId: null }); this.flash(`"${(this.state.rows.find(x => x.id === id) || {}).title}" moved to ${label}`); },
-        add: () => this.setState({ drawer: true, form: blank(), prefilled: false, errors: {} }) };
+        add: () => window.CMMSCreateWO && window.CMMSCreateWO({}) };
     });
-    const E = k => s.errors[k] ? '#F04438' : '#D0D5DD';
     const stock = (q0, min) => q0 === 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${q0} in stock`, '#B54708'] : [`${q0} in stock`, '#0B6B4A'];
-    const pq = s.pq.trim().toLowerCase();
     const total = hasFilters ? list.length : 57;
     return {
       kpis, rows, cols, board, empty: rows.length === 0, isList: s.view === 'list', isBoard: s.view === 'board',
       views: [['list', 'List', 'table_rows'], ['board', 'Board', 'view_kanban']].map(([k, label, icon]) => ({ label, icon, bg: s.view === k ? '#fff' : 'transparent', shadow: s.view === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.view === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: s.view === k ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) })),
-      q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters, resetFilters: () => this.setState({ q: '', team: '', status: '', prio: '', kpi: '' }),
+      q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters, resetFilters: () => this.setState({ q: '', team: '', status: '', prio: '', kpi: '', mf: { types: [], line: '', who: '', due: '', stop: false, incomplete: false, chat: false } }),
       selects: [sel('team', 'All teams', ['Mechanical team', 'Electrical team', 'Float Line team']), sel('status', 'Any status', Object.keys(SB)), sel('prio', 'Any priority', Object.keys(PB))],
       allBorder: ab, allBg: abg, allIcon: allSel ? 'check' : selIds.length ? 'remove' : '', toggleAll: () => this.setState({ sel: allSel ? {} : Object.fromEntries(list.map(r => [r.id, true])) }),
       rangeLabel: `Showing 1–${Math.min(10, total)} of ${total} work orders`, pages: ['1', '2', '3', '4', '5', '6'].map((n, i) => ({ n, bg: i ? 'transparent' : '#F2F4F7', border: i ? 'transparent' : '#D0D5DD' })),
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }),
       doExport: () => this.flash(`Exporting ${selIds.length || total} work orders…`),
-      openCreate: () => this.setState({ drawer: true, form: blank(), prefilled: false, errors: {} }), closeDrawer: () => this.setState({ drawer: false, picker: false }),
-      drawerOpen: s.drawer, drawerSub: s.prefilled ? `For ${assetOf(f.asset)[1]}` : 'Fields marked * are required', prefilled: s.prefilled && !!f.asset,
-      f, err: { asset: E('asset'), prio: E('prio'), who: E('who'), req: E('req'), due: E('due'), title: E('title'), desc: E('desc') }, dateErr: !!s.errors.due,
-      on: Object.fromEntries(['asset', 'prio', 'who', 'req', 'due', 'title', 'desc', 'cat'].map(k => [k, e => this.setF(k, e.target.value)])),
-      assetOpts: ASSETS.map(([code, name, line]) => ({ code, label: `${name} · ${code} · ${line}` })),
-      types: TYPES.map(([t, icon]) => ({ label: t, icon, bg: f.type === t ? '#FBF1F2' : '#fff', border: f.type === t ? '#C00018' : '#D0D5DD', color: f.type === t ? '#A30014' : '#344054', font: f.type === t ? "600 12.5px 'IBM Plex Sans',sans-serif" : "500 12.5px 'IBM Plex Sans',sans-serif", select: () => this.setF('type', t) })),
-      prioDot: PDOT[f.prio || ''], descCount: (f.desc || '').length,
-      toggleStop: () => this.setF('stop', !f.stop), stopTrack: f.stop ? '#C00018' : '#D0D5DD', stopKnob: f.stop ? '18px' : '2px', stopLabel: f.stop ? 'Yes — production is stopped' : 'No',
-      parts: f.parts.map(p => { const [sl, sc] = stock(p.stock, p.min); return { ...p, stockLabel: sl, stockColor: sc,
-        inc: () => this.setF('parts', f.parts.map(x => x.ref === p.ref ? { ...x, qty: x.qty + 1 } : x)),
-        dec: () => this.setF('parts', f.parts.map(x => x.ref === p.ref ? { ...x, qty: Math.max(1, x.qty - 1) } : x)),
-        remove: () => this.setF('parts', f.parts.filter(x => x.ref !== p.ref)) }; }),
-      partPicker: s.picker, togglePicker: () => this.setState({ picker: !s.picker, pq: '' }), pq: s.pq, setPq: e => this.setState({ pq: e.target.value }),
-      partOpts: PARTS.filter(([ref, name]) => !f.parts.some(p => p.ref === ref) && (!pq || (ref + name).toLowerCase().includes(pq))).map(([ref, name, st, min]) => { const [sl, sc] = stock(st, min); return { ref, name, stockLabel: sl, stockColor: sc,
-        add: () => { this.setF('parts', [...f.parts, { ref, name, stock: st, min, qty: 1 }]); this.setState({ picker: false }); } }; }),
-      docs: f.docs.map((name, i) => ({ name, remove: () => this.setF('docs', f.docs.filter((_, j) => j !== i)) })),
-      addDoc: () => this.setF('docs', [...f.docs, ['Repair procedure.pdf', 'Electrical drawing.pdf', 'Manufacturer manual.pdf'][f.docs.length % 3]]),
-      toggleAnother: () => this.setState({ another: !s.another }), anotherBorder: s.another ? '#C00018' : '#C4CAD4', anotherBg: s.another ? '#C00018' : '#fff', anotherIcon: s.another ? 'check' : '',
-      hasErrors: Object.values(s.errors).some(Boolean), create: () => this.create(), toast: s.toast,
+      openCreate: () => window.CMMSCreateWO && window.CMMSCreateWO({}), openQuick: () => window.CMMSQuickIntervention && window.CMMSQuickIntervention({}),
+      moreOpen: s.more, toggleMore: () => this.setState({ more: !s.more }), moreCount: mfCount, moreBg: mfCount ? '#FBF7F7' : '#fff', moreBorder: mfCount || s.more ? '#C00018' : '#D0D5DD',
+      clearMore: () => this.setState({ mf: { types: [], line: '', who: '', due: '', stop: false, incomplete: false, chat: false } }), resultCount: `${list.length} work order${list.length === 1 ? '' : 's'}`,
+      mfTypes: [['Corrective', 'build'], ['Preventive', 'event_repeat'], ['Predictive', 'insights'], ['Inspection', 'visibility']].map(([t, icon]) => { const on = s.mf.types.includes(t); return { label: t, icon, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', toggle: () => this.setState(st => ({ mf: { ...st.mf, types: on ? st.mf.types.filter(x => x !== t) : [...st.mf.types, t] } })) }; }),
+      mfSelects: [['line', 'Line / area', 'Any line', [...new Set(ASSETS.map(x => x[2]))].map(v => [v, v])], ['who', 'Assigned to', 'Anyone', [['-', 'Unassigned'], ...Object.keys(PEOPLE).map(v => [v, v])]], ['due', 'Due', 'Any date', [['overdue', 'Overdue'], ['today', 'Today'], ['week', 'This week'], ['none', 'Not scheduled']]]]
+        .map(([k, label, ph, opts]) => ({ label, value: s.mf[k], border: s.mf[k] ? '#C00018' : '#D0D5DD', options: [{ v: '', l: ph }, ...opts.map(([v, l]) => ({ v, l }))], onChange: e => { const v = e.target.value; this.setState(st => ({ mf: { ...st.mf, [k]: v } })); } })),
+      mfToggles: [['stop', 'Production stop only', ROWS.filter(r => r.stop).length], ['incomplete', 'Information incomplete', ROWS.filter(isIncomplete).length], ['chat', 'Has a discussion', C ? ROWS.filter(r => C.messages(r.id).length).length : 0]].map(([k, label, count]) => { const on = s.mf[k]; return { label, count, boxBorder: on ? '#C00018' : '#C4CAD4', boxBg: on ? '#C00018' : '#fff', boxIcon: on ? 'check' : '', toggle: () => this.setState(st => ({ mf: { ...st.mf, [k]: !st.mf[k] } })) }; }),
+      toast: s.toast,
     };
   }
 }

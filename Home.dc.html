@@ -23,6 +23,7 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Good morning, Gaudéric</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Tuesday, September 29 · Thourotte Plant · Mechanical team</p>
       </div>
+      <button onClick="{{ quick }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:#fff;border:1px solid #F3A3AC;border-radius:6px;color:#A30014;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#FBF1F2"><span style="font:19px/1 'Material Symbols Outlined'">bolt</span>Quick intervention</button>
       <button onClick="{{ newWo }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</button>
     </header>
 
@@ -255,54 +256,34 @@
 
           <sc-if value="{{ isChat }}">
             <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #F2F4F7;font-size:12px;color:#667085">
-              <span style="display:flex">
-                <sc-for list="{{ members }}" as="m"><span style="width:22px;height:22px;margin-right:-5px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;background:{{ m.bg }};color:{{ m.fg }};font:600 8.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span></sc-for>
-              </span>
+              <span style="display:flex"><sc-for list="{{ members }}" as="m"><span style="width:22px;height:22px;margin-right:-5px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;background:{{ m.bg }};color:{{ m.fg }};font:600 8.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span></sc-for></span>
               <span style="margin-left:8px">{{ channelInfo }}</span>
-              <sc-if value="{{ hasHighlight }}"><button onClick="{{ clearHighlight }}" style="margin-left:auto;height:22px;display:flex;align-items:center;gap:4px;padding:0 4px 0 8px;background:#EAF1FD;border:0;border-radius:11px;font:600 11.5px 'IBM Plex Sans',sans-serif;color:#2456B8;cursor:pointer;max-width:200px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ highlight }}</span><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></sc-if>
             </div>
-            <div ref="{{ chatRef }}" style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:2px;padding:8px 0">
-              <sc-for list="{{ messages }}" as="m" hint-placeholder-count="4">
-                <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px;padding:7px 16px;background:{{ m.bg }}">
-                  <span style="width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:{{ m.avBg }};color:{{ m.avFg }};font:600 10px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span>
-                  <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
-                    <span style="display:flex;align-items:baseline;gap:6px"><span style="font-weight:600">{{ m.name }}</span><span style="font-size:11.5px;color:#98A2B3">{{ m.role }} · {{ m.time }}</span><sc-if value="{{ m.hasTag }}"><span style="height:18px;display:inline-flex;align-items:center;padding:0 6px;border-radius:4px;background:{{ m.tagBg }};color:{{ m.tagFg }};font-size:11px;font-weight:600">{{ m.tag }}</span></sc-if></span>
-                    <span style="line-height:1.45;text-wrap:pretty">{{ m.text }}</span>
-                    <sc-if value="{{ m.hasRef }}">
-                      <a href="{{ m.ref.href }}" style="align-self:flex-start;max-width:100%;display:flex;align-items:center;gap:8px;margin-top:2px;padding:5px 10px 5px 6px;border:1px solid #E4E7EC;border-radius:6px;background:#fff;color:#1E2430" style-hover="border-color:#98A2B3">
-                        <span style="flex:none;width:22px;height:22px;border-radius:5px;display:grid;place-items:center;background:{{ m.ref.bg }};color:{{ m.ref.fg }};font:15px/1 'Material Symbols Outlined'">{{ m.ref.icon }}</span>
-                        <span style="min-width:0;display:flex;flex-direction:column"><span style="font-size:11px;color:#98A2B3;font-weight:500">{{ m.ref.kind }}</span><span style="font-size:12.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.ref.label }}</span></span>
-                        <span style="flex:none;font-size:11.5px;color:#667085;white-space:nowrap">{{ m.ref.meta }}</span>
-                      </a>
-                    </sc-if>
-                  </div>
-                </div>
+            <dc-import name="ChatThread" channel="{{ hub }}" highlight="{{ chatHl }}" style="flex:1;min-height:0" hint-size="100%,400px"></dc-import>
+          </sc-if>
+          <sc-if value="{{ isWoList }}">
+            <div style="flex:none;padding:8px 16px;border-bottom:1px solid #F2F4F7;font-size:12px;color:#667085">Discussions on work orders you're part of</div>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:4px 0">
+              <sc-for list="{{ threads }}" as="t" hint-placeholder-count="4">
+                <button onClick="{{ t.open }}" style="display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 16px;background:transparent;border:0;border-bottom:1px solid #F2F4F7;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430" style-hover="background:#F9FAFB">
+                  <span style="width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:#FBE7EA;color:#A30014;font:17px/1 'Material Symbols Outlined'">build</span>
+                  <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
+                    <span style="display:flex;align-items:baseline;gap:6px;min-width:0"><span style="font-weight:{{ t.weight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</span><span style="flex:none;font:500 11px 'IBM Plex Mono',monospace;color:#98A2B3">{{ t.key }}</span></span>
+                    <span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.preview }}</span>
+                  </span>
+                  <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-size:11.5px;color:#98A2B3">{{ t.time }}</span><sc-if value="{{ t.hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ t.unread }}</span></sc-if></span>
+                </button>
               </sc-for>
             </div>
-            <div style="position:relative;flex:none;display:flex;flex-direction:column;gap:6px;padding:10px 12px 12px;border-top:1px solid #EEF0F3">
-              <div style="display:flex;gap:6px;flex-wrap:wrap">
-                <sc-for list="{{ intents }}" as="q"><button onClick="{{ q.pick }}" style="height:24px;display:flex;align-items:center;gap:4px;padding:0 8px 0 6px;background:{{ q.bg }};border:1px solid {{ q.border }};border-radius:12px;font:500 11.5px 'IBM Plex Sans',sans-serif;color:{{ q.color }};cursor:pointer"><span style="font:14px/1 'Material Symbols Outlined'">{{ q.icon }}</span>{{ q.label }}</button></sc-for>
-                <sc-if value="{{ hasAttach }}"><span style="height:24px;display:flex;align-items:center;gap:5px;padding:0 4px 0 6px;background:#F2F4F7;border-radius:12px;font-size:11.5px;font-weight:600;color:#344054;max-width:240px"><span style="font:14px/1 'Material Symbols Outlined';color:{{ attach.fg }}">{{ attach.icon }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ attach.label }}</span><button onClick="{{ clearAttach }}" style="width:18px;height:18px;display:grid;place-items:center;padding:0;background:transparent;border:0;color:#667085;cursor:pointer;font:14px/1 'Material Symbols Outlined'">close</button></span></sc-if>
-              </div>
-              <div style="display:flex;align-items:center;gap:6px;height:38px;padding:0 4px 0 4px;border:1px solid #D0D5DD;border-radius:8px;background:#fff">
-                <button onClick="{{ toggleLink }}" title="Link equipment, work order, intervention or part" style="flex:none;width:30px;height:30px;display:grid;place-items:center;background:{{ linkBg }};border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined'">add_link</span></button>
-                <input value="{{ draft }}" onInput="{{ setDraft }}" onKeyDown="{{ draftKey }}" placeholder="{{ placeholder }}" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:transparent" />
-                <button onClick="{{ send }}" title="Send" style="flex:none;width:30px;height:30px;display:grid;place-items:center;background:{{ sendBg }};border:0;border-radius:6px;color:#fff;cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">send</span></button>
-              </div>
-              <sc-if value="{{ linkOpen }}">
-                <div onClick="{{ toggleLink }}" style="position:fixed;inset:0;z-index:20"></div>
-                <div style="position:absolute;left:12px;right:12px;bottom:calc(100% - 4px);z-index:21;padding:4px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 8px 24px rgba(16,24,40,.14)">
-                  <div style="padding:6px 8px 4px;font-size:11.5px;font-weight:600;color:#98A2B3">Link to…</div>
-                  <sc-for list="{{ refOpts }}" as="r">
-                    <button onClick="{{ r.pick }}" style="width:100%;display:flex;align-items:center;gap:9px;padding:6px 8px;background:transparent;border:0;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7">
-                      <span style="flex:none;width:22px;height:22px;border-radius:5px;display:grid;place-items:center;background:{{ r.bg }};color:{{ r.fg }};font:15px/1 'Material Symbols Outlined'">{{ r.icon }}</span>
-                      <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="font-weight:600">{{ r.label }}</span></span>
-                      <span style="flex:none;font-size:11.5px;color:#98A2B3">{{ r.kind }}</span>
-                    </button>
-                  </sc-for>
-                </div>
-              </sc-if>
+          </sc-if>
+          <sc-if value="{{ isWoThread }}">
+            <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-bottom:1px solid #F2F4F7">
+              <button onClick="{{ backToThreads }}" title="All work order discussions" style="flex:none;width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">arrow_back</span></button>
+              <span style="flex:none;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:#FBE7EA;color:#A30014;font:15px/1 'Material Symbols Outlined'">build</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ woThread.title }}</span><span style="font:500 11px 'IBM Plex Mono',monospace;color:#98A2B3">{{ woThread.key }} · {{ woThread.status }}</span></span>
+              <a href="{{ woThread.href }}" style="flex:none;height:30px;display:flex;align-items:center;gap:4px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:500;font-size:12.5px">Open<span style="font:15px/1 'Material Symbols Outlined'">open_in_new</span></a>
             </div>
+            <dc-import name="ChatThread" channel="{{ woThread.key }}" highlight="{{ chatHl }}" style="flex:1;min-height:0" hint-size="100%,400px"></dc-import>
           </sc-if>
         </section>
       </div>
@@ -387,28 +368,26 @@ const runOf = wo => { try { const v = JSON.parse(localStorage.getItem('cmms.inte
 
 class Component extends DCLogic {
   state = { tab: this.props.defaultTab ?? 'my', type: '', done: {}, moved: {}, menu: null, flashId: null, toast: null, slide: 0, hover: false,
-    hub: 'activity', chat: { team: CHAT.team, site: CHAT.site }, unread: { team: 2, site: 1 }, draft: '', attach: null, linkOpen: false, highlight: '', act: ACT, created: [] };
-  chatRef = React.createRef();
+    hub: 'activity', woOpen: null, chatHl: '', act: ACT, created: [], C: null };
   componentDidMount() {
+    const qs = new URLSearchParams(window.location.search), ch = qs.get('chat');
+    if (ch) this.setState(ch === 'team' || ch === 'site' ? { hub: ch, chatHl: qs.get('msg') || '' } : { hub: 'wo', woOpen: ch, chatHl: qs.get('msg') || '' });
+    import('./collab-model.js').then(C => this.setState({ C }));
+    this._chat = () => this.setState(st => ({ cv: (st.cv || 0) + 1 })); window.addEventListener('cmms-chat', this._chat);
     this._iv = setInterval(() => { if ((this.props.autoRotate ?? true) && !this.state.hover && Date.now() - (this._nav || 0) > 4500) this.setState(s => ({ slide: (s.slide + 1) % SLIDES.length })); }, 5000);
     this._wo = e => { const r = e.detail || {}; this.setState(s => ({ act: [['add_circle', 'Work order created', r.title, 'by you · ' + (r.date ? 'scheduled' : 'not scheduled'), 'now', '#EEF1F4', '#475467', 'Work Orders.dc.html'], ...s.act],
       created: r.date ? s.created : [[`n${Date.now()}`, r.title, '', r.type || 'Corrective', r.prio || 'Medium', 'GD', 'Created just now'], ...s.created] })); };
     window.addEventListener('cmms-wo-created', this._wo);
   }
-  componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); window.removeEventListener('cmms-wo-created', this._wo); }
-  componentDidUpdate(pp, ps) { const el = this.chatRef.current; if (el && (ps.hub !== this.state.hub || ps.chat !== this.state.chat)) el.scrollTop = this.state.highlight && ps.hub !== this.state.hub ? el.scrollTop : el.scrollHeight; }
+  componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-chat', this._chat); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null, flashId: null }), 3000); }
   go(i) { this._nav = Date.now(); this.setState({ slide: (i + SLIDES.length) % SLIDES.length }); }
-  openHub(k, highlight) { this.setState(s => ({ hub: k, highlight: highlight || '', unread: k === 'activity' ? s.unread : { ...s.unread, [k]: 0 } })); }
-  send() {
-    const s = this.state, txt = s.draft.trim(); if (!txt && !s.attach) return;
-    const h = new Date(), time = `${String(h.getHours()).padStart(2, '0')}:${String(h.getMinutes()).padStart(2, '0')}`;
-    const tag = /^Shift handover/.test(txt) ? 'Handover' : /^Need assistance/.test(txt) ? 'Help' : '';
-    this.setState({ chat: { ...s.chat, [s.hub]: [...s.chat[s.hub], ['GD', time, txt, s.attach, tag]] }, draft: '', attach: null });
-  }
+  openHub(k) { this.setState({ hub: k, woOpen: null, chatHl: '' }); }
+  openWoThread(key) { this.setState({ hub: 'wo', woOpen: key, chatHl: '' }); }
   renderVals() {
     const s = this.state, tab = s.tab, data = D[tab], isMy = tab === 'my', tf = s.type;
-    const typeOk = t => !tf || t === tf;
+    const typeOk = t => !tf || t === tf, C = s.C;
+    const chatN = k => C ? C.messages(k).filter(m => m.who !== 'sys').length : 0;
     const person = k => { const [n, role, bg, fg] = PPL[k] || PPL['--']; return { name: n, role, avBg: bg, avFg: fg, initials: k === '--' ? '?' : k, short: k === '--' ? 'Unassigned' : n.replace(/^(\w)\w+ /, '$1. ') }; };
     const tinfo = t => { const [icon, fg, bg] = TYPE[t]; return { type: t, typeIcon: icon, typeFg: fg, typeBg: bg }; };
     const prioV = (prio, d) => { const urgent = !d && (prio === 'Critical' || prio === 'High'), [pbg, pfg] = PRIO[prio] || []; return { prio, urgent, pbg, pfg }; };
@@ -423,7 +402,7 @@ class Component extends DCLogic {
       const [sbg, sfg] = STATUS[st] || [];
       const pv = prioV(prio, d);
       return { ...tinfo(type), ...pv, title, line, when, normal: !pv.urgent && !st && !d, hasStatus: !!st && !d, status: st, sbg, sfg,
-        hasChat: !!x.chat, chat: x.chat, openThread: e => { e.preventDefault(); this.openHub('team', title); },
+        hasChat: chatN(wo) > 0, chat: chatN(wo), openThread: e => { e.preventDefault(); this.openWoThread(wo); },
         woHref: 'Work Order.dc.html?' + qs, canCheck: isMy, noCheck: !isMy,
         canStart: isMy && !d && !finished && st !== 'Waiting for parts', showWho: !isMy, initials: p.initials, avBg: p.avBg, avFg: p.avFg, whoShort: p.short,
         start: e => { e.stopPropagation(); window.location.href = 'Intervention.dc.html?' + qs; },
@@ -443,7 +422,7 @@ class Component extends DCLogic {
       return { ...tinfo(type), title, woHref: 'Work Order.dc.html?' + qs, segs: Array.from({ length: tot }, (_, i) => ({ bg: i < dn ? '#2456B8' : '#D6E2F8' })),
         progress: `${dn} of ${tot} steps · ${Math.round(dn / tot * 100)}%`, detail: `Paused ${ago} · next: ${step}`,
         canResume: who === 'GD', isOther: who !== 'GD', hasWho: who !== 'GD', initials: p.initials, avBg: p.avBg, avFg: p.avFg, whoName: p.short,
-        resume: () => { window.location.href = 'Intervention.dc.html?' + qs; }, ping: () => this.openHub('team', title) };
+        resume: () => { window.location.href = 'Intervention.dc.html?' + qs; }, ping: () => this.openWoThread(wo) };
     });
 
     const unscheduled = unschedAll.filter(u => typeOk(u[3])).map(([id, title, line, type, prio, who, meta]) => {
@@ -473,8 +452,10 @@ class Component extends DCLogic {
     const kpis = [['Overdue', 7, 'Work Orders.dc.html', '', 'crit'], ['Due today', 24, 'Planning.dc.html', ''], ['In progress', 7, 'Work Orders.dc.html', '2 paused'], ['Not scheduled', 11, 'Planning.dc.html', 'need a date', 'warn'], ['Parts out of stock', 5, 'Spare Parts.dc.html', '', 'warn']]
       .map(([label, value, href, note, lvl]) => ({ label, value, href, note, alert: lvl === 'crit', bg: lvl === 'crit' ? '#FEF6F6' : '#fff', labelColor: lvl === 'crit' ? '#B42318' : '#667085', color: lvl === 'crit' ? '#B42318' : lvl === 'warn' ? '#B54708' : '#1E2430', edge: lvl === 'crit' ? '#C00018' : 'transparent' }));
 
-    const hub = s.hub, isChat = hub !== 'activity';
-    const msgs = isChat ? s.chat[hub] : [];
+    const hub = s.hub, isChat = hub === 'team' || hub === 'site', isWo = hub === 'wo';
+    const threads = C ? C.woThreads() : [];
+    const woUnread = threads.reduce((a, t) => a + t.unread, 0);
+    const wt = C && s.woOpen ? C.channelInfo(s.woOpen) : null;
     const role = this.props.role ?? 'manager';
     return {
       kpis, typeChips, groups, paused, hasPaused: paused.length > 0, unscheduled, noUnsched: !unscheduled.length,
@@ -487,25 +468,17 @@ class Component extends DCLogic {
       prevSlide: () => this.go(s.slide - 1), nextSlide: () => this.go(s.slide + 1),
       dots: SLIDES.map(([t], i) => ({ title: t, w: i === s.slide ? '18px' : '6px', bg: i === s.slide ? '#C00018' : '#D0D5DD', go: () => this.go(i) })),
       hoverOn: () => this.setState({ hover: true }), hoverOff: () => this.setState({ hover: false }),
-      hubTabs: [['activity', 'Live activity', 'bolt'], ['team', 'Mechanical team', 'groups'], ['site', 'Site channel', 'factory']].map(([k, label, icon]) => ({ label, icon, live: k === 'activity', hasUnread: k !== 'activity' && s.unread[k] > 0 && hub !== k, unread: s.unread[k], font: hub === k ? bold : reg, color: hub === k ? '#1E2430' : '#667085', bar: hub === k ? '#C00018' : 'transparent', select: () => this.openHub(k) })),
-      isActivity: !isChat, isChat,
+      quick: () => window.CMMSQuickIntervention && window.CMMSQuickIntervention({}),
+      hubTabs: [['activity', 'Live activity', 'bolt'], ['team', 'Team', 'groups'], ['site', 'Site', 'factory'], ['wo', 'Work orders', 'build']].map(([k, label, icon]) => { const un = !C ? 0 : k === 'wo' ? woUnread : k === 'activity' ? 0 : C.unread(k);
+        return { label, icon, live: k === 'activity', hasUnread: un > 0 && hub !== k, unread: un, font: hub === k ? bold : reg, color: hub === k ? '#1E2430' : '#667085', bar: hub === k ? '#C00018' : 'transparent', select: () => this.openHub(k) }; }),
+      isActivity: hub === 'activity', isChat, isWoList: isWo && !wt, isWoThread: isWo && !!wt,
       activity: s.act.map(([icon, kind, title, sub, ago, ibg, ifg, href], i) => ({ icon, kind, title, sub, ago, ibg, ifg, href, kindColor: ifg === '#B42318' ? '#B42318' : '#667085', bg: ifg === '#B42318' && i === 0 ? '#FEF6F6' : 'transparent' })),
-      members: (hub === 'team' ? ['MD', 'SM', 'PL', 'JM', 'SB'] : ['PS', 'HS', 'PN', 'MD', 'SM']).map(k => { const p = person(k); return { initials: k, bg: p.avBg, fg: p.avFg }; }),
-      channelInfo: hub === 'team' ? '6 members · 4 on shift' : 'Thourotte Plant · maintenance, production, HSE',
-      hasHighlight: !!s.highlight && isChat, highlight: s.highlight, clearHighlight: () => this.setState({ highlight: '' }),
-      chatRef: this.chatRef,
-      messages: msgs.map(([who, time, text, ref, tag]) => { const p = person(who); const hl = !!s.highlight && !!ref && ref.label === s.highlight;
-        const k = ref && KIND[ref.kind];
-        return { initials: who, name: who === 'GD' ? 'You' : p.name, role: p.role, time, text, avBg: p.avBg, avFg: p.avFg, bg: hl ? '#F5F8FE' : 'transparent',
-          hasTag: !!tag, tag, tagBg: tag === 'Help' ? '#FDECEC' : '#EAF1FD', tagFg: tag === 'Help' ? '#B42318' : '#2456B8',
-          hasRef: !!ref, ref: ref ? { ...ref, icon: k[0], fg: k[1], bg: k[2] } : {} }; }),
-      intents: [['help', 'Need assistance', 'support', 'Need assistance on '], ['handover', 'Shift handover', 'swap_horiz', 'Shift handover: ']].map(([k, label, icon, pre]) => ({ label, icon, bg: '#fff', border: '#E4E7EC', color: '#344054', pick: () => this.setState({ draft: pre }) })),
-      hasAttach: !!s.attach, attach: s.attach ? { label: s.attach.label, icon: KIND[s.attach.kind][0], fg: KIND[s.attach.kind][1] } : {}, clearAttach: () => this.setState({ attach: null }),
-      linkOpen: s.linkOpen, toggleLink: () => this.setState({ linkOpen: !s.linkOpen }), linkBg: s.linkOpen ? '#F2F4F7' : 'transparent',
-      refOpts: REFS.map(r => ({ ...r, icon: KIND[r.kind][0], fg: KIND[r.kind][1], bg: KIND[r.kind][2], pick: () => this.setState({ attach: r, linkOpen: false }) })),
-      draft: s.draft, setDraft: e => this.setState({ draft: e.target.value }), draftKey: e => { if (e.key === 'Enter') this.send(); },
-      send: () => this.send(), sendBg: s.draft.trim() || s.attach ? '#C00018' : '#D0D5DD',
-      placeholder: hub === 'team' ? 'Message Mechanical team…' : 'Message the site channel…',
+      members: C && isChat ? C.CHANNELS[hub].members.slice(0, 6).map(k => { const p = C.person(k); return { initials: k, bg: p.avBg, fg: p.avFg }; }) : [],
+      channelInfo: hub === 'team' ? 'Mechanical team · 6 members · 4 on shift' : 'Thourotte Plant · maintenance, production, HSE',
+      chatHl: s.chatHl,
+      threads: threads.map(t => { const p = t.last && t.last.who !== 'sys' ? C.person(t.last.who) : null; return { key: t.key, title: t.title, weight: t.unread ? 700 : 600, time: t.last ? t.last.t : '', hasUnread: t.unread > 0, unread: t.unread,
+        preview: t.last ? (p ? (t.last.who === C.ME ? 'You' : p.name.split(' ')[0]) + ': ' : '') + t.last.text : 'No messages yet', open: () => this.openWoThread(t.key) }; }),
+      woThread: wt ? { key: s.woOpen, title: wt.title, href: wt.href, status: wt.status || '' } : {}, backToThreads: () => this.setState({ woOpen: null, chatHl: '' }),
       toast: s.toast,
       roleLabel: { manager: 'Maintenance Manager', planner: 'Maintenance Planner', technician: 'Maintenance Technician' }[role],
     };
