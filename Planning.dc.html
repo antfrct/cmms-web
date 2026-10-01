@@ -17,336 +17,439 @@
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="planning" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
-  <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:14px" data-screen-label="Planning">
+  <main style="position:relative;min-height:0;overflow:hidden;padding:18px 24px 18px;display:flex;flex-direction:column;gap:12px" data-screen-label="Planning">
     <header style="flex:none;display:flex;align-items:flex-end;gap:16px">
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Planning</h1>
-        <p style="margin:2px 0 0;color:#667085;font-size:13px">Schedule and reschedule work across technicians and teams</p>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ summary }}</p>
       </div>
-      <button onClick="{{ openBlank }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>Schedule work order</button>
     </header>
 
-    <section style="flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
-        <div style="display:flex;flex-direction:column;gap:1px;padding:11px 18px;border-right:1px solid #EEF0F3">
-          <span style="font-size:12px;color:#667085;font-weight:500">{{ k.label }}</span>
-          <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:20px;line-height:26px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;color:{{ k.color }}">{{ k.value }}</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.sub }}</span></span>
-        </div>
-      </sc-for>
-    </section>
-
-    <section style="flex:1;min-height:640px;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-      <div style="flex:none;display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #EEF0F3;flex-wrap:wrap">
-        <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
-          <sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
-            <button onClick="{{ m.select }}" style="height:30px;padding:0 14px;background:{{ m.bg }};border:0;border-radius:5px;box-shadow:{{ m.shadow }};font:{{ m.font }};color:{{ m.color }};cursor:pointer">{{ m.label }}</button>
-          </sc-for>
-        </div>
-        <div style="display:flex;align-items:center;gap:2px">
-          <button onClick="{{ prev }}" title="Previous" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">chevron_left</span></button>
-          <button onClick="{{ next }}" title="Next" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">chevron_right</span></button>
-        </div>
-        <span style="font-weight:600;font-size:14px;min-width:190px">{{ rangeLabel }}</span>
-        <button onClick="{{ today }}" style="height:32px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Today</button>
-        <div style="margin-left:auto;display:flex;gap:14px;font-size:12px;color:#475467">
-          <sc-for list="{{ legend }}" as="l" hint-placeholder-count="4"><span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:{{ l.bg }};border:1px solid {{ l.fg }}"></span>{{ l.label }}</span></sc-for>
-        </div>
-      </div>
-      <div style="flex:none;display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid #EEF0F3;overflow-x:auto;scrollbar-width:none">
-        <sc-for list="{{ resources }}" as="r" hint-placeholder-count="7">
-          <button onClick="{{ r.select }}" style="flex:none;height:36px;display:flex;align-items:center;gap:8px;padding:0 10px 0 4px;background:{{ r.bg }};border:1px solid {{ r.border }};border-radius:18px;cursor:pointer;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430">
-            <span style="width:26px;height:26px;border-radius:50%;background:{{ r.avBg }};color:{{ r.avFg }};display:grid;place-items:center;font-size:10.5px;font-weight:600"><span style="font:{{ r.avFont }}">{{ r.ini }}</span></span>
-            {{ r.name }}
-            <sc-if value="{{ r.hasLoad }}">
-              <span style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:{{ r.loadColor }};font-weight:600"><span style="width:28px;height:4px;border-radius:2px;background:#EEF0F3;overflow:hidden"><span style="display:block;height:100%;width:{{ r.loadW }};background:{{ r.loadColor }}"></span></span>{{ r.load }}</span>
-            </sc-if>
-          </button>
+    <div style="flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:4px;padding:3px;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+        <sc-for list="{{ typeChips }}" as="t" hint-placeholder-count="4">
+          <button onClick="{{ t.toggle }}" title="{{ t.tip }}" style="height:28px;display:flex;align-items:center;gap:6px;padding:0 9px 0 5px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:6px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:{{ t.color }};cursor:pointer;opacity:{{ t.op }}"><span style="width:20px;height:20px;border-radius:5px;display:grid;place-items:center;background:{{ t.tileBg }};color:{{ t.tileFg }};font:14px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}<span style="color:#98A2B3;font-variant-numeric:tabular-nums">{{ t.count }}</span></button>
         </sc-for>
       </div>
-
-      <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
-        <div style="flex:1;overflow:auto;position:relative">
-          <div style="display:grid;grid-template-columns:{{ gridCols }};position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid #E4E7EC">
-            <span></span>
-            <sc-for list="{{ columns }}" as="c">
-              <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-left:1px solid #F2F4F7;background:{{ c.headBg }}">
-                <sc-if value="{{ c.isPerson }}"><span style="width:24px;height:24px;border-radius:50%;background:{{ c.avBg }};color:{{ c.avFg }};display:grid;place-items:center;font-size:10px;font-weight:600">{{ c.ini }}</span></sc-if>
-                <span style="font-size:12px;color:{{ c.subColor }};font-weight:500">{{ c.top }}</span>
-                <span style="font-size:15px;font-weight:600;color:{{ c.mainColor }}">{{ c.main }}</span>
-                <span style="margin-left:auto;font-size:11.5px;color:#98A2B3">{{ c.meta }}</span>
+      <span style="width:1px;height:22px;background:#E4E7EC;margin:0 2px"></span>
+      <sc-for list="{{ filters }}" as="fl" hint-placeholder-count="4">
+        <div style="position:relative">
+          <button onClick="{{ fl.toggle }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 8px 0 10px;background:{{ fl.bg }};border:1px solid {{ fl.border }};border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3">
+            <span style="font:17px/1 'Material Symbols Outlined';color:#667085">{{ fl.icon }}</span>{{ fl.label }}
+            <sc-if value="{{ fl.hasValue }}"><span style="max-width:150px;height:20px;display:inline-flex;align-items:center;padding:0 7px;border-radius:10px;background:#1E2430;color:#fff;font-size:11.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis">{{ fl.valueLabel }}</span></sc-if>
+            <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
+          </button>
+          <sc-if value="{{ fl.open }}">
+            <div onClick="{{ closeDd }}" style="position:fixed;inset:0;z-index:40"></div>
+            <div style="position:absolute;left:0;top:40px;z-index:41;width:270px;background:#fff;border:1px solid #E4E7EC;border-radius:10px;box-shadow:0 12px 32px rgba(16,24,40,.16);overflow:hidden">
+              <sc-if value="{{ fl.hasSearch }}">
+                <div style="padding:8px;border-bottom:1px solid #EEF0F3"><label style="height:32px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid #D0D5DD;border-radius:6px"><span style="font:17px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ aq }}" onInput="{{ setAq }}" placeholder="Search line or equipment…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label></div>
+              </sc-if>
+              <div style="max-height:320px;overflow:auto;padding:4px">
+                <sc-for list="{{ fl.options }}" as="o">
+                  <button onClick="{{ o.toggle }}" style="width:100%;min-height:32px;display:flex;align-items:center;gap:8px;padding:0 8px 0 {{ o.pad }};background:transparent;border:0;border-radius:6px;font:{{ o.font }};color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7">
+                    <span style="flex:none;width:16px;height:16px;border-radius:4px;border:1.5px solid {{ o.boxBorder }};background:{{ o.boxBg }};display:grid;place-items:center;color:#fff;font:13px/1 'Material Symbols Outlined'">{{ o.boxIcon }}</span>
+                    <sc-if value="{{ o.hasDot }}"><span style="flex:none;width:8px;height:8px;border-radius:2px;background:{{ o.dot }}"></span></sc-if>
+                    <sc-if value="{{ o.hasIcon }}"><span style="flex:none;font:16px/1 'Material Symbols Outlined';color:#98A2B3">{{ o.icon }}</span></sc-if>
+                    <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.label }}</span>
+                    <span style="flex:none;font-size:12px;color:#98A2B3;font-variant-numeric:tabular-nums">{{ o.count }}</span>
+                  </button>
+                </sc-for>
               </div>
+              <div style="display:flex;align-items:center;padding:8px 10px;border-top:1px solid #EEF0F3;background:#F9FAFB">
+                <button onClick="{{ fl.clear }}" style="padding:0;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Clear</button>
+                <button onClick="{{ closeDd }}" style="margin-left:auto;height:28px;padding:0 12px;background:#1E2430;border:0;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Done</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <sc-if value="{{ anyFilter }}"><button onClick="{{ clearAll }}" style="height:34px;display:flex;align-items:center;gap:4px;padding:0 8px;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">close</span>Clear filters</button></sc-if>
+    </div>
+
+    <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) {{ panelW }};gap:12px">
+      <section style="min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+        <div style="flex:none;display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #EEF0F3">
+          <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
+            <sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
+              <button onClick="{{ m.select }}" style="height:28px;padding:0 14px;background:{{ m.bg }};border:0;border-radius:5px;box-shadow:{{ m.shadow }};font:{{ m.font }};color:{{ m.color }};cursor:pointer">{{ m.label }}</button>
             </sc-for>
           </div>
-          <div style="display:grid;grid-template-columns:{{ gridCols }};position:relative">
-            <div style="display:flex;flex-direction:column">
-              <sc-for list="{{ hours }}" as="h"><div style="height:52px;padding:0 8px 0 0;text-align:right;font:11.5px 'IBM Plex Mono',monospace;color:#98A2B3;padding-top:4px">{{ h.label }}</div></sc-for>
-            </div>
-            <sc-for list="{{ columns }}" as="c">
-              <div style="position:relative;border-left:1px solid #F2F4F7;background:{{ c.bodyBg }}">
-                <sc-for list="{{ c.slots }}" as="sl">
-                  <div onClick="{{ sl.click }}" onDragOver="{{ sl.over }}" onDrop="{{ sl.drop }}" title="{{ sl.title }}" style="height:52px;border-top:1px solid #F2F4F7;background:{{ sl.bg }};cursor:copy;display:grid;place-items:center;color:transparent;font:20px/1 'Material Symbols Outlined'" style-hover="background:#FBF7F7;color:#C00018">add</div>
-                </sc-for>
-                <sc-for list="{{ c.events }}" as="e">
-                  <div draggable="true" onDragStart="{{ e.drag }}" onClick="{{ e.click }}" style="position:absolute;left:4px;right:4px;top:{{ e.top }};height:{{ e.h }};padding:6px 8px;background:{{ e.bg }};border:1px solid {{ e.border }};border-left:3px solid {{ e.fg }};border-radius:6px;overflow:hidden;cursor:grab;display:flex;flex-direction:column;gap:2px;opacity:{{ e.op }};box-shadow:{{ e.shadow }}">
-                    <span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:{{ e.fg }};white-space:nowrap;overflow:hidden"><sc-if value="{{ e.critical }}"><span style="font:13px/1 'Material Symbols Outlined'">priority_high</span></sc-if><span style="overflow:hidden;text-overflow:ellipsis">{{ e.asset }}</span></span>
-                    <span style="font-size:12px;color:#344054;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.title }}</span>
-                    <span style="margin-top:auto;display:flex;align-items:center;gap:6px;font-size:11px;color:#667085;white-space:nowrap;overflow:hidden"><span style="font-family:'IBM Plex Mono',monospace">{{ e.time }}</span>{{ e.who }}</span>
+          <div style="display:flex;align-items:center;gap:2px">
+            <button onClick="{{ prev }}" title="Previous" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">chevron_left</span></button>
+            <button onClick="{{ next }}" title="Next" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">chevron_right</span></button>
+          </div>
+          <span style="font-weight:600;font-size:14px;white-space:nowrap">{{ rangeLabel }}</span>
+          <button onClick="{{ today }}" style="height:30px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Today</button>
+          <span style="margin-left:auto;display:flex;align-items:center;gap:12px;font-size:12px;color:#667085;white-space:nowrap">
+            <span style="display:flex;align-items:center;gap:4px"><span style="font:14px/1 'Material Symbols Outlined';color:#C00018">bolt</span>Critical / High</span>
+            <span style="display:flex;align-items:center;gap:4px"><span style="font:14px/1 'Material Symbols Outlined';color:#0B6B4A">check_circle</span>Done</span>
+          </span>
+        </div>
+
+        <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:1;min-height:0;overflow:auto;position:relative">
+            <div style="min-width:{{ gridMin }}">
+              <div style="display:grid;grid-template-columns:{{ gridCols }};position:sticky;top:0;z-index:8;background:#fff;border-bottom:1px solid #E4E7EC">
+                <span></span>
+                <sc-for list="{{ columns }}" as="c">
+                  <div style="min-width:0;display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-left:1px solid #F2F4F7;background:{{ c.headBg }}">
+                    <sc-if value="{{ c.isDay }}">
+                      <span style="display:flex;align-items:baseline;gap:6px;min-width:0"><span style="font-size:12px;color:{{ c.subColor }};font-weight:500">{{ c.top }}</span><span style="font-size:15px;font-weight:600;color:{{ c.mainColor }}">{{ c.main }}</span><span style="margin-left:auto;font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.meta }}</span></span>
+                    </sc-if>
+                    <sc-if value="{{ c.isPerson }}">
+                      <span style="display:flex;align-items:center;gap:8px;min-width:0">
+                        <span style="flex:none;width:26px;height:26px;border-radius:50%;background:{{ c.avBg }};color:{{ c.avFg }};display:grid;place-items:center;font:600 10px 'IBM Plex Sans',sans-serif">{{ c.ini }}</span>
+                        <span style="min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.main }}</span><span style="font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.team }}</span></span>
+                      </span>
+                      <span style="display:flex;align-items:center;gap:8px">
+                        <span style="flex:1;height:6px;border-radius:3px;background:#EEF0F3;overflow:hidden;position:relative"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ c.loadW }};background:{{ c.loadColor }};border-radius:3px"></span></span>
+                        <span style="flex:none;font-size:11.5px;font-weight:600;color:{{ c.loadColor }};font-variant-numeric:tabular-nums;white-space:nowrap">{{ c.load }}</span>
+                      </span>
+                    </sc-if>
                   </div>
                 </sc-for>
-                <sc-if value="{{ c.isToday }}"><div style="position:absolute;left:0;right:0;top:{{ nowTop }};height:0;border-top:2px solid #C00018;z-index:3;pointer-events:none"><span style="position:absolute;left:-5px;top:-6px;width:10px;height:10px;border-radius:50%;background:#C00018"></span></div></sc-if>
+              </div>
+              <div style="display:grid;grid-template-columns:{{ gridCols }};position:relative">
+                <div style="display:flex;flex-direction:column">
+                  <sc-for list="{{ hours }}" as="h"><div style="height:52px;padding:3px 8px 0 0;text-align:right;font:11px 'IBM Plex Mono',monospace;color:#98A2B3">{{ h.label }}</div></sc-for>
+                </div>
+                <sc-for list="{{ columns }}" as="c">
+                  <div onDragLeave="{{ c.leave }}" style="position:relative;min-width:0;border-left:1px solid #F2F4F7;background:{{ c.bodyBg }}">
+                    <sc-for list="{{ c.slots }}" as="sl"><div onDragOver="{{ sl.over }}" onDrop="{{ sl.drop }}" style="height:26px;border-top:1px solid {{ sl.line }}"></div></sc-for>
+                    <sc-for list="{{ c.events }}" as="e">
+                      <div draggable="true" onDragStart="{{ e.dragStart }}" onDragEnd="{{ e.dragEnd }}" onClick="{{ e.open }}" title="{{ e.tip }}" style="position:absolute;top:{{ e.top }};height:{{ e.h }};left:{{ e.left }};width:{{ e.width }};padding:4px 6px 4px 5px;background:{{ e.bg }};border:1px solid {{ e.border }};border-left:3px solid {{ e.fg }};border-radius:6px;overflow:hidden;cursor:grab;display:flex;flex-direction:column;gap:1px;opacity:{{ e.op }};z-index:2;pointer-events:{{ e.pe }};box-shadow:{{ e.shadow }}" style-hover="z-index:7;min-width:190px;box-shadow:0 6px 16px rgba(16,24,40,.16)">
+                        <span style="display:flex;align-items:center;gap:4px;min-width:0">
+                          <button onClick="{{ e.filterType }}" title="{{ e.typeTip }}" style="flex:none;width:18px;height:18px;padding:0;display:grid;place-items:center;background:#fff;border:1px solid {{ e.border }};border-radius:4px;color:{{ e.fg }};cursor:pointer;font:13px/1 'Material Symbols Outlined'">{{ e.icon }}</button>
+                          <span style="flex:1;min-width:0;font-size:12px;font-weight:600;color:#1E2430;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.asset }}</span>
+                          <sc-if value="{{ e.urgent }}"><span style="flex:none;font:14px/1 'Material Symbols Outlined';color:{{ e.prioColor }}">bolt</span></sc-if>
+                          <sc-if value="{{ e.done }}"><span style="flex:none;font:14px/1 'Material Symbols Outlined';color:#0B6B4A">check_circle</span></sc-if>
+                          <sc-if value="{{ e.waiting }}"><span title="Waiting for parts" style="flex:none;font:14px/1 'Material Symbols Outlined';color:#B54708">inventory_2</span></sc-if>
+                        </span>
+                        <span style="font-size:11.5px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.task }}</span>
+                        <sc-if value="{{ e.showMeta }}">
+                          <span style="margin-top:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:#667085;white-space:nowrap;overflow:hidden">
+                            <span style="font-family:'IBM Plex Mono',monospace">{{ e.time }}</span>
+                            <sc-if value="{{ e.showWho }}"><span style="flex:none;width:16px;height:16px;border-radius:50%;background:{{ e.avBg }};color:{{ e.avFg }};display:grid;place-items:center;font:600 7.5px 'IBM Plex Sans',sans-serif">{{ e.ini }}</span></sc-if>
+                          </span>
+                        </sc-if>
+                      </div>
+                    </sc-for>
+                    <sc-if value="{{ c.hasPreview }}">
+                      <div style="position:absolute;left:2px;right:2px;top:{{ c.pvTop }};height:{{ c.pvH }};border:2px dashed #C00018;background:rgba(192,0,24,.06);border-radius:6px;pointer-events:none;z-index:6;padding:3px 6px;font:600 11.5px 'IBM Plex Sans',sans-serif;color:#A30014;white-space:nowrap;overflow:hidden">{{ c.pvLabel }}</div>
+                    </sc-if>
+                    <sc-if value="{{ c.isToday }}"><div style="position:absolute;left:0;right:0;top:{{ nowTop }};height:0;border-top:2px solid #C00018;z-index:5;pointer-events:none"><span style="position:absolute;left:-5px;top:-6px;width:10px;height:10px;border-radius:50%;background:#C00018"></span></div></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isMonth }}">
+          <div style="flex:1;min-height:0;overflow:auto;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(104px,1fr)">
+            <sc-for list="{{ monthHead }}" as="d"><div style="padding:8px 10px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #EEF0F3">{{ d }}</div></sc-for>
+            <sc-for list="{{ monthDays }}" as="d">
+              <div onClick="{{ d.click }}" onDragOver="{{ d.over }}" onDrop="{{ d.drop }}" style="padding:6px 8px;border-right:1px solid #F2F4F7;border-bottom:1px solid #F2F4F7;display:flex;flex-direction:column;gap:3px;background:{{ d.bg }};cursor:pointer;min-width:0">
+                <span style="display:flex;align-items:center;gap:6px"><span style="min-width:24px;height:24px;padding:0 6px;border-radius:12px;display:grid;place-items:center;font-size:12.5px;font-weight:600;background:{{ d.numBg }};color:{{ d.numColor }}">{{ d.n }}</span><span style="margin-left:auto;font-size:11px;color:#98A2B3">{{ d.load }}</span></span>
+                <sc-for list="{{ d.events }}" as="e"><span style="display:flex;align-items:center;gap:4px;padding:2px 6px 2px 4px;border-radius:4px;background:{{ e.bg }};font-size:11.5px;font-weight:500;color:#1E2430;white-space:nowrap;overflow:hidden"><span style="flex:none;font:13px/1 'Material Symbols Outlined';color:{{ e.fg }}">{{ e.icon }}</span><span style="overflow:hidden;text-overflow:ellipsis">{{ e.label }}</span></span></sc-for>
+                <sc-if value="{{ d.more }}"><span style="font-size:11.5px;color:#667085;font-weight:500;padding-left:4px">{{ d.more }}</span></sc-if>
               </div>
             </sc-for>
           </div>
-        </div>
-      </sc-if>
+        </sc-if>
+      </section>
 
-      <sc-if value="{{ isMonth }}">
-        <div style="flex:1;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(110px,1fr)">
-          <sc-for list="{{ monthHead }}" as="d"><div style="padding:8px 10px;font-size:12px;font-weight:600;color:#667085;border-bottom:1px solid #EEF0F3">{{ d }}</div></sc-for>
-          <sc-for list="{{ monthDays }}" as="d">
-            <div onClick="{{ d.click }}" style="padding:6px 8px;border-right:1px solid #F2F4F7;border-bottom:1px solid #F2F4F7;display:flex;flex-direction:column;gap:3px;background:{{ d.bg }};cursor:copy;min-width:0">
-              <span style="align-self:flex-start;min-width:24px;height:24px;padding:0 6px;border-radius:12px;display:grid;place-items:center;font-size:12.5px;font-weight:600;background:{{ d.numBg }};color:{{ d.numColor }}">{{ d.n }}</span>
-              <sc-for list="{{ d.events }}" as="e"><span style="display:block;padding:2px 6px;border-radius:4px;background:{{ e.bg }};color:{{ e.fg }};font-size:11.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.label }}</span></sc-for>
-              <sc-if value="{{ d.more }}"><span style="font-size:11.5px;color:#667085;font-weight:500;padding-left:4px">{{ d.more }}</span></sc-if>
+      <aside onDragOver="{{ panelOver }}" onDragLeave="{{ panelLeave }}" onDrop="{{ panelDrop }}" style="min-width:0;min-height:0;display:flex;flex-direction:column;background:{{ panelBg }};border:1px {{ panelBorderStyle }} {{ panelBorder }};border-radius:8px;overflow:hidden">
+        <sc-if value="{{ panelOpen }}" hint-placeholder-val="{{ true }}">
+          <div style="flex:none;display:flex;flex-direction:column;gap:10px;padding:12px 12px 10px;border-bottom:1px solid #EEF0F3">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font:18px/1 'Material Symbols Outlined';color:#475467">event_busy</span>
+              <h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">Not scheduled</h2>
+              <span style="height:20px;display:inline-flex;align-items:center;padding:0 7px;border-radius:10px;background:#FEF3E2;color:#B54708;font-size:11.5px;font-weight:600">{{ backlogCount }}</span>
+              <span style="font-size:12px;color:#98A2B3;white-space:nowrap">{{ backlogHours }}</span>
+              <button onClick="{{ togglePanel }}" title="Collapse panel" style="margin-left:auto;width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined'">right_panel_close</span></button>
             </div>
-          </sc-for>
-        </div>
-      </sc-if>
-    </section>
+            <button onClick="{{ createWo }}" style="height:34px;display:flex;align-items:center;justify-content:center;gap:6px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:19px/1 'Material Symbols Outlined'">add</span>Create work order</button>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:#667085"><span style="font:15px/1 'Material Symbols Outlined'">drag_pan</span>Drag a card onto the planning to schedule it</span>
+          </div>
+          <sc-if value="{{ dropHint }}">
+            <div style="flex:none;margin:10px 10px 0;padding:14px;border:2px dashed #C00018;border-radius:8px;background:#FFF8F8;color:#A30014;font-weight:600;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="font:20px/1 'Material Symbols Outlined'">undo</span>Drop here to unschedule</div>
+          </sc-if>
+          <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px">
+            <sc-for list="{{ backlog }}" as="u" hint-placeholder-count="5">
+              <div draggable="true" onDragStart="{{ u.dragStart }}" onDragEnd="{{ u.dragEnd }}" style="flex:none;display:flex;flex-direction:column;gap:4px;padding:8px 10px 8px 6px;background:#fff;border:1px solid {{ u.border }};border-radius:8px;cursor:grab;opacity:{{ u.op }};box-shadow:{{ u.shadow }}" style-hover="border-color:#98A2B3;box-shadow:0 2px 6px rgba(16,24,40,.08)">
+                <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                  <span style="flex:none;font:17px/1 'Material Symbols Outlined';color:#C4CAD4">drag_indicator</span>
+                  <button onClick="{{ u.filterType }}" title="{{ u.typeTip }}" style="flex:none;height:22px;display:flex;align-items:center;gap:4px;padding:0 7px 0 4px;background:{{ u.typeBg }};border:0;border-radius:5px;font:600 11.5px 'IBM Plex Sans',sans-serif;color:{{ u.typeFg }};cursor:pointer"><span style="font:14px/1 'Material Symbols Outlined'">{{ u.icon }}</span>{{ u.type }}</button>
+                  <span style="margin-left:auto"></span>
+                  <sc-if value="{{ u.urgent }}"><span style="flex:none;display:inline-flex;align-items:center;gap:2px;height:22px;padding:0 7px 0 4px;border-radius:4px;font-size:11.5px;font-weight:600;background:{{ u.pbg }};color:{{ u.pfg }}"><span style="font:14px/1 'Material Symbols Outlined'">bolt</span>{{ u.prio }}</span></sc-if>
+                  <sc-if value="{{ u.normal }}"><span style="flex:none;font-size:12px;color:#98A2B3">{{ u.prio }}</span></sc-if>
+                </div>
+                <div style="min-width:0;display:flex;flex-direction:column;gap:1px;padding-left:23px">
+                  <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.asset }}</span>
+                  <span style="font-size:12.5px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.task }}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;padding-left:23px;font-size:12px;color:#667085;white-space:nowrap;min-width:0">
+                  <span style="display:flex;align-items:center;gap:3px;font-weight:600;color:#344054"><span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">timer</span>{{ u.dur }}</span>
+                  <span style="display:flex;align-items:center;gap:3px;min-width:0;overflow:hidden;text-overflow:ellipsis"><span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">groups</span>{{ u.team }}</span>
+                  <span style="margin-left:auto;color:{{ u.ageColor }}">{{ u.age }}</span>
+                </div>
+              </div>
+            </sc-for>
+            <sc-if value="{{ hiddenByFilter }}"><button onClick="{{ clearAll }}" style="flex:none;padding:8px;background:transparent;border:1px dashed #D0D5DD;border-radius:8px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">{{ hiddenLabel }} · Show all</button></sc-if>
+            <sc-if value="{{ backlogEmpty }}"><div style="padding:24px 10px;text-align:center;color:#667085"><span style="display:block;font:26px/1 'Material Symbols Outlined';color:#0B6B4A;margin-bottom:6px">task_alt</span>Everything is scheduled.</div></sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ panelClosed }}">
+          <button onClick="{{ togglePanel }}" title="Show not scheduled work orders" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;background:transparent;border:0;cursor:pointer;color:#475467">
+            <span style="font:19px/1 'Material Symbols Outlined'">right_panel_open</span>
+            <span style="height:20px;min-width:22px;display:grid;place-items:center;padding:0 6px;border-radius:10px;background:#FEF3E2;color:#B54708;font:600 11.5px 'IBM Plex Sans',sans-serif">{{ backlogCount }}</span>
+            <span style="writing-mode:vertical-rl;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054">Not scheduled</span>
+          </button>
+        </sc-if>
+      </aside>
+    </div>
   </main>
 
-  <sc-if value="{{ drawerOpen }}">
-    <div onClick="{{ closeDrawer }}" style="position:fixed;inset:56px 0 0 0;background:rgba(16,24,40,.28);z-index:50"></div>
-    <aside style="position:fixed;top:56px;right:0;bottom:0;width:520px;z-index:51;background:#fff;box-shadow:-12px 0 32px rgba(16,24,40,.14);display:flex;flex-direction:column;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430">
-      <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #EEF0F3">
-        <div style="flex:1"><h2 style="margin:0;font-size:16px;font-weight:600">Schedule work order</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">Fields marked * are required</p></div>
-        <button onClick="{{ closeDrawer }}" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">close</span></button>
-      </div>
-      <div style="flex:1;overflow:auto;padding:16px 20px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start">
-        <sc-if value="{{ fromSlot }}">
-          <div style="grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F6F7F9;border:1px solid #E4E7EC;border-radius:8px">
-            <span style="font:18px/1 'Material Symbols Outlined';color:#667085">event</span>
-            <span style="flex:1">From planning · <b style="font-weight:600">{{ slotLabel }}</b></span>
-          </div>
-        </sc-if>
-        <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Asset<span style="color:#C00018"> *</span></span>
-          <span style="position:relative;display:flex">
-            <select value="{{ f.asset }}" onChange="{{ on.asset }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid {{ err.asset }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-              <option value="">Select an asset</option>
-              <sc-for list="{{ assetOpts }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for>
-            </select>
-            <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-          </span>
-        </label>
-        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Work order type<span style="color:#C00018"> *</span></span>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
-            <sc-for list="{{ types }}" as="t" hint-placeholder-count="4">
-              <button onClick="{{ t.select }}" style="height:36px;display:flex;align-items:center;justify-content:center;gap:6px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:6px;font:{{ t.font }};color:{{ t.color }};cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}</button>
-            </sc-for>
-          </div>
-        </div>
-        <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Title<span style="color:#C00018"> *</span></span>
-          <input value="{{ f.title }}" onInput="{{ on.title }}" placeholder="e.g. Replace conveyor bearing" style="height:36px;padding:0 10px;border:1px solid {{ err.title }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" />
-        </label>
-        <label style="display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Priority<span style="color:#C00018"> *</span></span>
-          <span style="position:relative;display:flex">
-            <select value="{{ f.prio }}" onChange="{{ on.prio }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid {{ err.prio }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">Select</option><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select>
-            <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-          </span>
-        </label>
-        <label style="display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Technician / team<span style="color:#C00018"> *</span></span>
-          <span style="position:relative;display:flex">
-            <select value="{{ f.who }}" onChange="{{ on.who }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid {{ err.who }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-              <option value="">Select</option>
-              <sc-for list="{{ whoOpts }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for>
-            </select>
-            <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-          </span>
-        </label>
-        <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Checklist <span style="font-weight:400;color:#98A2B3">(optional)</span></span>
-          <div style="display:flex;gap:8px">
-            <span style="position:relative;display:flex;flex:1">
-              <select value="{{ f.checklist }}" onChange="{{ on.checklist }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
-                <option value="">No checklist</option><option>Conveyor maintenance · 8 tasks</option><option>Hydraulic press service · 10 tasks</option><option>Electrical check · 12 tasks</option><option>Safety inspection · 7 tasks</option><option>General lubrication · 6 tasks</option>
-              </select>
-              <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-            </span>
-            <a href="Checklists.dc.html?new=1" style="height:36px;display:flex;align-items:center;gap:4px;padding:0 12px;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:500;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">add</span>New checklist</a>
-          </div>
-          <span style="font-size:12px;color:#667085">The checklist defines the tasks the technician completes on site.</span>
-        </div>
-        <label style="display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Date &amp; time<span style="color:#C00018"> *</span></span>
-          <input type="datetime-local" value="{{ f.dt }}" onInput="{{ on.dt }}" style="height:36px;padding:0 10px;border:1px solid {{ err.dt }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" />
-        </label>
-        <label style="display:flex;flex-direction:column;gap:5px">
-          <span style="font-size:12.5px;font-weight:500;color:#344054">Estimated duration</span>
-          <span style="position:relative;display:flex">
-            <select value="{{ f.dur }}" onChange="{{ on.dur }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1 h 30</option><option value="2">2 h</option><option value="3">3 h</option><option value="4">4 h</option></select>
-            <span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-          </span>
-        </label>
-        <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-          <span style="display:flex;font-size:12.5px;font-weight:500;color:#344054">Description <span style="font-weight:400;color:#98A2B3;margin-left:4px">(optional)</span><span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ descCount }} / 500</span></span>
-          <textarea value="{{ f.desc }}" onInput="{{ on.desc }}" maxlength="500" rows="3" placeholder="Context, symptoms, actions to carry out…" style="padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px/1.5 'IBM Plex Sans',sans-serif;outline:none;resize:vertical"></textarea>
-        </label>
-        <sc-if value="{{ conflict }}">
-          <div style="grid-column:1/-1;display:flex;gap:10px;padding:10px 12px;background:#FEF3E2;border-radius:8px;color:#93370D;font-size:12.5px;line-height:1.5"><span style="font:18px/1 'Material Symbols Outlined'">warning</span><span>{{ conflict }}</span></div>
-        </sc-if>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3">
-        <button onClick="{{ toggleAnother }}" style="display:flex;align-items:center;gap:8px;background:transparent;border:0;padding:0;font:13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="width:16px;height:16px;border-radius:4px;border:1.5px solid {{ anotherBorder }};background:{{ anotherBg }};display:grid;place-items:center;color:#fff;font:13px/1 'Material Symbols Outlined'">{{ anotherIcon }}</span>Create another</button>
-        <button onClick="{{ closeDrawer }}" style="margin-left:auto;height:34px;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Cancel</button>
-        <button onClick="{{ create }}" style="height:34px;padding:0 16px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014">Create work order</button>
-      </div>
-    </aside>
-  </sc-if>
-
-  <sc-if value="{{ toast }}">
-    <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.24);font:500 13px 'IBM Plex Sans',sans-serif"><span style="font:18px/1 'Material Symbols Outlined';color:#6CE9A6">check_circle</span>{{ toast }}</div>
+  <sc-if value="{{ hasToast }}">
+    <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 14px;background:#1E2430;color:#fff;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.24);font:500 13px 'IBM Plex Sans',sans-serif"><span style="font:18px/1 'Material Symbols Outlined';color:{{ toastIconColor }}">{{ toastIcon }}</span>{{ toastText }}<sc-if value="{{ canUndo }}"><button onClick="{{ undo }}" style="margin-left:6px;height:26px;padding:0 10px;background:rgba(255,255,255,.12);border:0;border-radius:5px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Undo</button></sc-if></div>
   </sc-if>
 </div>
+<dc-import name="WorkOrderPanel" hint-size="0px,0px"></dc-import>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;day&quot;,&quot;week&quot;,&quot;month&quot;],&quot;default&quot;:&quot;week&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
-const TYPE = { Corrective: ['#FDECEC', '#B42318', '#F7C1BC', 'build'], Preventive: ['#EAF1FD', '#2456B8', '#BCD0F5', 'event_repeat'], Improvement: ['#E6F4EE', '#0B6B4A', '#B4DEC9', 'trending_up'], Inspection: ['#FEF3E2', '#B54708', '#F8D3A5', 'visibility'] };
-const TECHS = [['Marc Dupont', 'MD', '#E6F4EE', '#0B6B4A'], ['Julie Martin', 'JM', '#FEF3E2', '#B54708'], ['Pierre Leroy', 'PL', '#E8EEF9', '#2456B8'], ['Sofia Benali', 'SB', '#FDECEC', '#B42318'], ['Sophie Martin', 'SM', '#F3EEFC', '#6941C6']];
-const TEAMS = [['Float Line team', ['Julie Martin', 'Sofia Benali']], ['Mechanical team', ['Marc Dupont', 'Pierre Leroy']]];
-const ASSETS = ['Conveyor Line 3', 'Conveyor Line 2', 'Tempering Furnace 2', 'Hydraulic Press PH-030', 'Palletizing Robot 1', 'Pressure sensor PS-4', 'Bottero 548 Cutter', 'Float Line', 'Compressor C-01', 'Fan V-12'];
+const TYPE = { Preventive: ['event_repeat', '#2456B8', '#EAF1FD', '#C9D8F5'], Corrective: ['build', '#B54708', '#FEF3E2', '#F5D3A6'], Predictive: ['insights', '#6941C6', '#F3EEFC', '#D9CCF5'], Inspection: ['visibility', '#0E7490', '#E3F4F7', '#B5DDE6'] };
+const PRIO = { Critical: ['#C00018', '#fff', '#C00018'], High: ['#FDECEC', '#B42318', '#B42318'], Medium: [0, 0, '#E3A008'], Low: [0, 0, '#98A2B3'] };
+const PEOPLE = [['MD', 'Marc Dupont', 'Mechanical team', '#E6F4EE', '#0B6B4A'], ['PL', 'Pierre Leroy', 'Mechanical team', '#E8EEF9', '#2456B8'], ['AM', 'Alex Martin', 'Mechanical team', '#FEF3E2', '#B54708'], ['SM', 'Sophie Martin', 'Electrical team', '#F3EEFC', '#6941C6'], ['SB', 'Sofia Benali', 'Electrical team', '#E3F4F7', '#0E7490'], ['JM', 'Julie Martin', 'Float Line team', '#FDECEC', '#B42318']];
+const P = Object.fromEntries(PEOPLE.map(p => [p[0], p]));
+const TEAMS = ['Mechanical team', 'Electrical team', 'Float Line team'];
+const NAME_TEAM = { 'Pierre Leroy': 'Mechanical team', 'Marc Dupont': 'Mechanical team', 'Sophie Martin': 'Electrical team', 'Sofia Benali': 'Electrical team', 'Julie Martin': 'Float Line team' };
+const LINES = [['Float Line', ['Conveyor Line 3', 'Conveyor Line 2', 'Fan V-08', 'Fan V-12', 'Tin Bath', 'Annealing Lehr']], ['Tempering Line', ['Tempering Furnace 1', 'Tempering Furnace 2', 'Pump P-101']], ['Cutting Line', ['Bottero 548 Cutter']], ['Packaging', ['Palletizing Robot 1', 'Packaging Line 1']], ['Utilities', ['Compressor C-01', 'Dryer S-01', 'Cooling Tower']], ['Workshop', ['Hydraulic Press PH-030']], ['Batch House', ['Mixer 02']]];
+const LINE = {}; LINES.forEach(([l, as]) => as.forEach(a => { LINE[a] = l; }));
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const BASE = new Date(2026, 8, 28);
 const dateOf = d => new Date(BASE.getFullYear(), BASE.getMonth(), BASE.getDate() + d);
-const H0 = 7, H1 = 18, ROW = 52, TODAY = 1, NOW = 10.4;
-const hm = h => `${String(Math.floor(h)).padStart(2, '0')}:${h % 1 ? String(Math.round(h % 1 * 60)).padStart(2, '0') : '00'}`;
+const H0 = 7, H1 = 18, ROW = 52, TODAY = 1, NOW = 10.4, CAP = 8;
+const hm = h => `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.round(h % 1 * 60)).padStart(2, '0')}`;
+const fmtH = h => h % 1 ? `${Math.floor(h)} h ${String(Math.round(h % 1 * 60)).padStart(2, '0')}` : `${h} h`;
+const dayName = d => DAYS[((d % 7) + 7) % 7];
 let seq = 1;
 const SEED = [
-  [0, 7.5, 1.5, 'Conveyor Line 3', 'Bearing replacement', 'Marc Dupont', 'Corrective', 'High'],
-  [0, 10, 1.5, 'Hydraulic Press PH-030', 'Preventive service', 'Pierre Leroy', 'Preventive', 'Medium'],
-  [0, 12.25, 1.25, 'Float Line', 'Belt tension adjustment', 'Julie Martin', 'Improvement', 'Low'],
-  [0, 16, 1.5, 'Bottero 548 Cutter', 'Blade change', 'Marc Dupont', 'Corrective', 'Medium'],
-  [1, 8, 1.5, 'Tempering Furnace 2', 'Temperature check', 'Julie Martin', 'Inspection', 'Medium'],
-  [1, 11.25, 1.5, 'Palletizing Robot 1', 'Error E-452 diagnosis', 'Pierre Leroy', 'Corrective', 'Critical'],
-  [1, 15, 1.25, 'Fiber cleaning', 'Conveyor cleaning', 'Sofia Benali', 'Preventive', 'Low'],
-  [2, 7.25, 1.5, 'Tempering Line', 'Sensor verification', 'Pierre Leroy', 'Inspection', 'Medium'],
-  [2, 9.5, 1.25, 'Pressure sensor PS-4', 'Calibration', 'Marc Dupont', 'Preventive', 'Medium'],
-  [2, 11.5, 1.5, 'Tempering Furnace 1', 'Sensor verification', 'Julie Martin', 'Corrective', 'High'],
-  [2, 14, 1.5, 'Float Line', 'Half-day maintenance', 'Julie Martin', 'Preventive', 'Low'],
-  [2, 16, 1.25, 'Float Line', 'Chain lubrication', 'Marc Dupont', 'Preventive', 'Low'],
-  [3, 8.75, 1.25, 'Bottero 548 Cutter', 'Blade alignment', 'Marc Dupont', 'Corrective', 'High'],
-  [3, 13, 1.5, 'Hydraulic Press PH-030', 'Seal replacement', 'Pierre Leroy', 'Corrective', 'High'],
-  [3, 15, 1.25, 'Palletizing Robot 1', 'Gripper change', 'Sofia Benali', 'Improvement', 'Medium'],
-  [4, 7.5, 1.5, 'Tempering Furnace 2', 'Chain inspection', 'Pierre Leroy', 'Inspection', 'Medium'],
-  [4, 10.5, 1.25, 'Conveyor Line 3', 'Greasing', 'Sofia Benali', 'Preventive', 'Low'],
-  [4, 12.5, 1.5, 'Bottero 548 Cutter', 'Preventive service', 'Marc Dupont', 'Preventive', 'Medium'],
-  [4, 14.25, 1.25, 'Float Line', 'Half-day maintenance', 'Julie Martin', 'Preventive', 'Low'],
-  [7, 9, 2, 'Compressor C-01', 'Annual inspection', 'Sophie Martin', 'Inspection', 'Medium'],
-  [8, 13, 1.5, 'Fan V-12', 'Vibration analysis', 'Pierre Leroy', 'Inspection', 'High'],
-  [-3, 9, 2, 'Conveyor Line 2', '1000 h service', 'Sofia Benali', 'Preventive', 'Medium'],
-  [-6, 14, 1, 'Dryer S-01', 'Belt check', 'Marc Dupont', 'Inspection', 'Low'],
-].map(([day, start, dur, asset, title, who, type, prio]) => ({ id: 'e' + seq++, day, start, dur, asset, title, who, type, prio }));
+  [-3, 9, 2, 'Conveyor Line 2', '1000 h service', 'SB', 'Preventive', 'Medium'], [-6, 14, 1, 'Dryer S-01', 'Belt check', 'MD', 'Inspection', 'Low'],
+  [0, 7.5, 1.5, 'Conveyor Line 3', 'Bearing replacement', 'MD', 'Corrective', 'High'], [0, 8, 2, 'Hydraulic Press PH-030', 'Preventive service', 'PL', 'Preventive', 'Medium'],
+  [0, 9, 1.5, 'Annealing Lehr', 'Chain lubrication', 'JM', 'Preventive', 'Low'], [0, 10, 1, 'Compressor C-01', 'Oil analysis', 'SB', 'Predictive', 'Low'],
+  [0, 13, 2, 'Bottero 548 Cutter', 'Blade change', 'AM', 'Corrective', 'Medium'], [0, 13.5, 1.5, 'Tempering Furnace 2', 'Temperature check', 'SM', 'Inspection', 'Medium'], [0, 15, 1, 'Pump P-101', 'Vibration reading', 'SB', 'Predictive', 'Low'],
+  [1, 7, 1.5, 'Hydraulic Press PH-030', 'Pressure test', 'PL', 'Inspection', 'Medium'], [1, 7, 1.5, 'Tempering Furnace 2', 'Thermal imaging', 'SB', 'Predictive', 'Medium'],
+  [1, 8, 1.5, 'Conveyor Line 3', 'Sensor check', 'MD', 'Corrective', 'High'], [1, 8.5, 1, 'Cooling Tower', 'Water treatment check', 'JM', 'Preventive', 'Low'],
+  [1, 9, 2.5, 'Palletizing Robot 1', 'Error E-452 diagnosis', 'PL', 'Corrective', 'Critical'], [1, 9, 3, 'Tin Bath', 'Roller replacement', 'AM', 'Corrective', 'Critical'],
+  [1, 10, 1.5, 'Compressor C-01', 'Filter replacement', 'SM', 'Preventive', 'Medium', 'Waiting for parts'], [1, 10, 2, 'Dryer S-01', 'Motor insulation test', 'SB', 'Inspection', 'Medium'],
+  [1, 10.5, 1, 'Conveyor Line 2', 'Belt tracking', 'PL', 'Corrective', 'Medium'], [1, 11.5, 1.5, 'Hydraulic Press PH-030', 'Oil leak', 'MD', 'Corrective', 'Medium'],
+  [1, 13, 1, 'Mixer 02', 'Vibration analysis', 'SB', 'Predictive', 'Low'], [1, 13, 2, 'Bottero 548 Cutter', 'Motor inspection', 'AM', 'Inspection', 'High'],
+  [1, 13.5, 3, 'Annealing Lehr', 'Roller alignment', 'MD', 'Corrective', 'High'], [1, 14, 1.5, 'Tempering Furnace 1', 'Burner check', 'PL', 'Inspection', 'Medium'],
+  [1, 15.5, 1, 'Fan V-12', 'Bearing lubrication', 'JM', 'Preventive', 'Low'], [1, 16, 1.5, 'Packaging Line 1', 'Encoder calibration', 'AM', 'Preventive', 'Low'], [1, 16, 1.5, 'Pump P-101', 'Seal replacement', 'PL', 'Corrective', 'Critical'],
+  [2, 7.5, 1.5, 'Tempering Furnace 1', 'Sensor verification', 'JM', 'Inspection', 'Medium'], [2, 8, 2, 'Palletizing Robot 1', 'Lubrication', 'AM', 'Preventive', 'Low'],
+  [2, 9, 1.5, 'Conveyor Line 3', 'Belt tension', 'MD', 'Corrective', 'Medium'], [2, 9.5, 1, 'Mixer 02', 'Gearbox oil change', 'PL', 'Preventive', 'Low'],
+  [2, 11, 2, 'Tin Bath', 'Thermal imaging', 'SB', 'Predictive', 'High'], [2, 14, 3, 'Annealing Lehr', 'Half-day maintenance', 'JM', 'Preventive', 'Medium'],
+  [2, 14.5, 1.5, 'Cooling Tower', 'Fan inspection', 'SM', 'Inspection', 'Low'], [2, 15, 1, 'Fan V-12', 'Vibration analysis', 'SB', 'Predictive', 'Medium'],
+  [3, 8, 1.5, 'Bottero 548 Cutter', 'Blade alignment', 'MD', 'Corrective', 'High'], [3, 8.5, 2, 'Dryer S-01', 'Belt replacement', 'PL', 'Corrective', 'Medium', 'Waiting for parts'],
+  [3, 10, 1, 'Packaging Line 1', 'Safety inspection', 'AM', 'Inspection', 'Medium'], [3, 13, 1.5, 'Hydraulic Press PH-030', 'Seal replacement', 'PL', 'Corrective', 'High'],
+  [3, 13, 2, 'Compressor C-01', 'Annual inspection', 'SM', 'Inspection', 'Medium'], [3, 15, 1.5, 'Palletizing Robot 1', 'Gripper change', 'AM', 'Corrective', 'Medium'],
+  [4, 7.5, 1.5, 'Tempering Furnace 2', 'Chain inspection', 'PL', 'Inspection', 'Medium'], [4, 8, 2.5, 'Conveyor Line 2', '1000 h service', 'MD', 'Preventive', 'Medium'],
+  [4, 9, 1, 'Pump P-101', 'Oil analysis', 'SB', 'Predictive', 'Low'], [4, 10.5, 1.5, 'Conveyor Line 3', 'Greasing', 'JM', 'Preventive', 'Low'],
+  [4, 13, 2, 'Tin Bath', 'Roller inspection', 'AM', 'Inspection', 'High'], [4, 14, 1.5, 'Mixer 02', 'Motor current analysis', 'SB', 'Predictive', 'Low'],
+  [7, 9, 2, 'Compressor C-01', 'Annual overhaul', 'SM', 'Preventive', 'Medium'], [8, 13, 1.5, 'Fan V-12', 'Vibration analysis', 'PL', 'Predictive', 'High'],
+].map(([day, start, dur, asset, task, who, type, prio, status]) => ({ id: 'e' + seq++, day, start, dur, asset, task, who, type, prio, status }));
+const BACKLOG = [
+  ['Tin Bath', 'Roller drive replacement', 'Corrective', 'Critical', 4, 'Mechanical team', 'Reported 20 min ago', 1],
+  ['Fan V-08', 'Noisy bearing', 'Corrective', 'High', 1.5, 'Mechanical team', 'Requested 2 d ago'],
+  ['Cooling Tower', 'Legionella sampling', 'Inspection', 'High', 1, 'Float Line team', 'Due by Oct 2', 1],
+  ['Annealing Lehr', 'Safety guard repair', 'Corrective', 'Medium', 2, 'Float Line team', 'Requested today'],
+  ['Tempering Furnace 1', 'Gas detector calibration', 'Inspection', 'Medium', 1, 'Electrical team', 'Due by Oct 6'],
+  ['Hydraulic Press PH-030', 'Hose replacement', 'Corrective', 'Medium', 2.5, 'Mechanical team', 'Requested 1 d ago'],
+  ['Conveyor Line 2', 'Motor thermography', 'Predictive', 'Medium', 1, 'Electrical team', 'Requested 3 d ago'],
+  ['Packaging Line 1', 'Quarterly lubrication', 'Preventive', 'Low', 1.5, 'Mechanical team', 'Due by Oct 9'],
+  ['Mixer 02', 'Vibration trend review', 'Predictive', 'Low', 0.5, 'Electrical team', 'Requested 5 d ago'],
+].map(([asset, task, type, prio, dur, team, age, soon]) => ({ id: 'u' + seq++, asset, task, type, prio, dur, team, age, soon: !!soon }));
+const PORD = { Critical: 0, High: 1, Medium: 2, Low: 3 };
+const statusOf = e => e.status || (e.day < TODAY || (e.day === TODAY && e.start + e.dur <= NOW) ? 'Completed' : e.day === TODAY && e.start <= NOW ? 'In progress' : 'Scheduled');
+const layout = list => {
+  const out = {}, sorted = [...list].sort((a, b) => a.start - b.start || b.dur - a.dur);
+  let cluster = [], lanes = [], end = -1;
+  const flush = () => { cluster.forEach(e => { out[e.id].n = lanes.length; }); cluster = []; lanes = []; end = -1; };
+  sorted.forEach(e => { if (cluster.length && e.start >= end) flush(); let l = lanes.findIndex(x => x <= e.start); if (l < 0) { l = lanes.length; lanes.push(0); } lanes[l] = e.start + e.dur; out[e.id] = { lane: l }; cluster.push(e); end = Math.max(end, e.start + e.dur); });
+  flush(); return out;
+};
+const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
+const EMPTY = { team: [], type: [], asset: [], prio: [], status: [] };
 
 class Component extends DCLogic {
-  state = { mode: this.props.mode ?? 'week', week: 0, dayIdx: TODAY, who: '', events: SEED, drawer: null, form: {}, errors: {}, another: false, dragId: null, toast: null };
-  flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
-  openSlot(day, hour, who) {
-    const d = dateOf(day), dt = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T${hm(hour)}`;
-    this.setState({ drawer: { day, hour, slot: true }, form: { asset: '', type: 'Corrective', title: '', prio: '', who: who || this.state.who || '', checklist: '', dt, dur: '1.5', desc: '' }, errors: {} });
+  state = { mode: this.props.mode ?? 'week', week: 0, dayIdx: TODAY, events: SEED, backlog: BACKLOG, F: EMPTY, dd: null, aq: '', drag: null, over: null, panel: true, panelHot: false, toast: null };
+  componentDidMount() {
+    this._wo = e => { const r = e.detail || {}; const item = { id: 'u' + seq++, asset: r.assetName || r.asset || 'New asset', task: r.title, type: TYPE[r.type] ? r.type : 'Corrective', prio: r.prio || 'Medium', dur: 1, team: NAME_TEAM[r.who] || (TEAMS.includes(r.who) ? r.who : 'Mechanical team'), age: 'Created just now', fresh: true };
+      this.setState(s => ({ backlog: [item, ...s.backlog], panel: true, F: EMPTY })); this.flash('Added to Not scheduled — drag it onto the planning', false); };
+    window.addEventListener('cmms-wo-created', this._wo);
   }
-  create() {
-    const f = this.state.form, errors = {};
-    ['asset', 'title', 'prio', 'who', 'dt'].forEach(k => { if (!f[k]) errors[k] = 1; });
-    if (Object.keys(errors).length) return this.setState({ errors });
-    const [ymd, t] = f.dt.split('T'), [y, mo, dd] = ymd.split('-').map(Number), [hh, mm] = t.split(':').map(Number);
-    const day = Math.round((new Date(y, mo - 1, dd) - BASE) / 864e5), start = hh + mm / 60;
-    const ev = { id: 'e' + seq++, day, start, dur: +f.dur, asset: f.asset, title: f.title, who: f.who, type: f.type, prio: f.prio, fresh: true };
-    this.setState(s => ({ events: [...s.events, ev], drawer: s.another ? s.drawer : null, form: s.another ? { ...s.form, title: '', desc: '' } : s.form }));
-    this.flash(`"${f.asset} — ${f.title}" scheduled · ${DAYS[((day % 7) + 7) % 7]} ${hm(start)}`);
+  componentWillUnmount() { window.removeEventListener('cmms-wo-created', this._wo); clearTimeout(this._t); }
+  flash(text, undo = true) { this.setState({ toast: { text, undo } }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 5000); }
+  snapshot() { this._undo = { events: this.state.events, backlog: this.state.backlog }; }
+  loadOf(who, day, events = this.state.events) { return events.filter(e => e.who === who && e.day === day).reduce((a, e) => a + e.dur, 0); }
+  startDrag(ev, kind, item) { try { ev.dataTransfer.setData('text/plain', item.id); ev.dataTransfer.effectAllowed = 'move'; } catch (e) {} this._drag = { kind, id: item.id, dur: item.dur }; setTimeout(() => this.setState({ drag: this._drag }), 0); }
+  endDrag() { this._drag = null; this.setState({ drag: null, over: null, panelHot: false }); }
+  drop(day, t, who) {
+    const d = this._drag || this.state.drag; if (!d) return; this.snapshot();
+    const s = this.state;
+    if (d.kind === 'u') {
+      const u = s.backlog.find(x => x.id === d.id); if (!u) return;
+      let person = who;
+      if (!person) { const pool = PEOPLE.filter(p => p[2] === u.team); person = (pool.length ? pool : PEOPLE).map(p => p[0]).sort((a, b) => this.loadOf(a, day) - this.loadOf(b, day))[0]; }
+      const ev = { id: 'e' + seq++, day, start: t, dur: u.dur, asset: u.asset, task: u.task, who: person, type: u.type, prio: u.prio, fresh: true };
+      this.setState({ events: [...s.events, ev], backlog: s.backlog.filter(x => x.id !== u.id), drag: null, over: null });
+      const load = this.loadOf(person, day) + u.dur;
+      this.flash(`Scheduled ${dayName(day)} ${hm(t)} · ${P[person][1]}${load > CAP ? ` — now ${fmtH(load)} / ${CAP} h` : ''}`);
+    } else {
+      const e0 = s.events.find(x => x.id === d.id); if (!e0) return;
+      this.setState({ events: s.events.map(x => x.id === d.id ? { ...x, day, start: t, ...(who ? { who } : {}), status: x.status === 'Waiting for parts' ? x.status : undefined, fresh: true } : x), drag: null, over: null });
+      this.flash(`Moved to ${dayName(day)} ${hm(t)}${who && who !== e0.who ? ' · ' + P[who][1] : ''}`);
+    }
+    this._drag = null;
   }
+  unschedule() {
+    const d = this._drag || this.state.drag; if (!d || d.kind !== 'e') return; this.snapshot();
+    const s = this.state, e = s.events.find(x => x.id === d.id); if (!e) return;
+    const item = { id: 'u' + seq++, asset: e.asset, task: e.task, type: e.type, prio: e.prio, dur: e.dur, team: P[e.who][2], age: 'Unscheduled just now', fresh: true };
+    this._drag = null;
+    this.setState({ events: s.events.filter(x => x.id !== e.id), backlog: [item, ...s.backlog], drag: null, over: null, panelHot: false });
+    this.flash(`${e.asset} — ${e.task} moved back to Not scheduled`);
+  }
+  setType(t) { this.setState(s => ({ F: { ...s.F, type: s.F.type.length === 1 && s.F.type[0] === t ? [] : [t] } })); }
   renderVals() {
-    const s = this.state, f = s.form;
-    const whoMatch = (e, who) => !who || e.who === who || (TEAMS.find(t => t[0] === who) || [0, []])[1].includes(e.who);
-    const weekStart = s.week * 7;
-    const inWeek = s.events.filter(e => e.day >= weekStart && e.day < weekStart + 7);
-    const hoursOf = n => inWeek.filter(e => e.who === n).reduce((a, e) => a + e.dur, 0);
-    const totalH = inWeek.reduce((a, e) => a + e.dur, 0);
-    const fmtH = h => `${Math.floor(h)} h ${String(Math.round(h % 1 * 60)).padStart(2, '0')}`;
-    const kpis = [['Scheduled', inWeek.length, 'this week', '#1E2430'], ['Overdue', 8, 'to reschedule', '#B42318'], ['Critical', inWeek.filter(e => e.prio === 'Critical').length + 2, 'priority', '#1E2430'], ['Planned load', fmtH(totalH), 'of 200 h capacity', '#1E2430'], ['Avg. utilization', Math.round(totalH / (TECHS.length * 8)) * 0 + 92 + '%', 'target 85%', '#B54708']]
-      .map(([label, value, sub, color]) => ({ label, value, sub, color }));
-    const resources = [{ name: 'Everyone', ini: 'groups', avBg: '#F2F4F7', avFg: '#475467', avFont: "18px/1 'Material Symbols Outlined'", key: '' },
-      ...TECHS.map(([n, ini, avBg, avFg]) => { const pct = Math.round(hoursOf(n) / 12 * 100); return { name: n, ini, avBg, avFg, avFont: "600 10.5px 'IBM Plex Sans',sans-serif", key: n, hasLoad: true, load: pct + '%', loadW: Math.min(100, pct) + '%', loadColor: pct > 100 ? '#B42318' : pct > 80 ? '#B54708' : '#0B6B4A' }; }),
-      ...TEAMS.map(([n]) => ({ name: n, ini: 'groups', avBg: '#F2F4F7', avFg: '#475467', avFont: "17px/1 'Material Symbols Outlined'", key: n }))]
-      .map(r => ({ ...r, bg: s.who === r.key ? '#FBF1F2' : '#fff', border: s.who === r.key ? '#C00018' : '#E4E7EC', select: () => this.setState({ who: r.key }) }));
+    const s = this.state, F = s.F, drag = s.drag;
+    const teamOf = who => (P[who] || [])[2];
+    const match = (x, skip) => (skip === 'team' || !F.team.length || F.team.includes(x.team)) && (skip === 'type' || !F.type.length || F.type.includes(x.type))
+      && (skip === 'asset' || !F.asset.length || F.asset.includes(x.asset) || F.asset.includes(LINE[x.asset])) && (skip === 'prio' || !F.prio.length || F.prio.includes(x.prio))
+      && (x.backlog || skip === 'status' || !F.status.length || F.status.includes(x.status));
+    const EV = s.events.map(e => ({ ...e, team: teamOf(e.who), status: statusOf(e) }));
+    const ws = s.week * 7;
+    let range;
+    if (s.mode === 'week') range = e => e.day >= ws && e.day < ws + 7;
+    else if (s.mode === 'day') range = e => e.day === s.dayIdx;
+    else { const m0 = new Date(2026, 8 + s.week, 1), m1 = new Date(2026, 9 + s.week, 1); const a = Math.round((m0 - BASE) / 864e5), b = Math.round((m1 - BASE) / 864e5); range = e => e.day >= a && e.day < b; }
+    const inRange = EV.filter(range);
+    const BL = s.backlog.map(u => ({ ...u, backlog: true }));
+    const cnt = (k, v) => inRange.filter(e => match(e, k) && (k === 'asset' ? e.asset === v || LINE[e.asset] === v : e[k] === v)).length + (k !== 'status' ? BL.filter(u => match(u, k) && (k === 'asset' ? u.asset === v || LINE[u.asset] === v : u[k] === v)).length : 0);
 
-    const evView = e => {
-      const [bg, fg, border] = TYPE[e.type];
-      return { asset: e.asset, title: e.title, who: e.who, time: hm(e.start), bg, fg, border, critical: e.prio === 'Critical',
-        top: (e.start - H0) * ROW + 2 + 'px', h: e.dur * ROW - 4 + 'px', op: s.dragId === e.id ? 0.4 : 1, shadow: e.fresh ? '0 0 0 3px rgba(192,0,24,.18)' : 'none',
-        drag: ev => { ev.dataTransfer.setData('text/plain', e.id); this.setState({ dragId: e.id }); }, click: ev => ev.stopPropagation() };
-    };
+    const typeChips = Object.keys(TYPE).map(t => { const on = F.type.includes(t), [icon, fg, bg] = TYPE[t], c = cnt('type', t);
+      return { label: t, icon, count: c, tip: on ? `Showing ${t} only — click to show all` : `Show only ${t}`, bg: on ? bg : 'transparent', border: on ? fg : 'transparent', color: on ? fg : '#344054', tileBg: on ? '#fff' : bg, tileFg: fg, op: F.type.length && !on ? 0.55 : 1,
+        toggle: () => this.setState(st => ({ F: { ...st.F, type: on ? st.F.type.filter(x => x !== t) : [...st.F.type, t] } })) }; });
+
+    const opt = (k, key, label, extra = {}) => { const on = F[k].includes(key);
+      return { label, pad: extra.pad || '8px', font: extra.line ? bold : "400 13px 'IBM Plex Sans',sans-serif", count: cnt(k, key), hasDot: !!extra.dot, dot: extra.dot, hasIcon: !!extra.icon, icon: extra.icon,
+        boxBorder: on ? '#C00018' : '#C4CAD4', boxBg: on ? '#C00018' : '#fff', boxIcon: on ? 'check' : '',
+        toggle: () => this.setState(st => ({ F: { ...st.F, [k]: on ? st.F[k].filter(x => x !== key) : [...st.F[k], key] } })) }; };
+    const aq = s.aq.trim().toLowerCase();
+    const assetOpts = [];
+    LINES.forEach(([l, as]) => { const kids = as.filter(a => !aq || a.toLowerCase().includes(aq) || l.toLowerCase().includes(aq)); if (!kids.length) return;
+      assetOpts.push(opt('asset', l, l, { line: true, icon: 'account_tree' })); kids.forEach(a => assetOpts.push(opt('asset', a, a, { pad: '30px' }))); });
+    const FDEF = [
+      ['team', 'Team', 'groups', TEAMS.map(t => opt('team', t, t))],
+      ['asset', 'Asset', 'precision_manufacturing', assetOpts, true],
+      ['prio', 'Priority', 'flag', ['Critical', 'High', 'Medium', 'Low'].map(p => opt('prio', p, p, { dot: PRIO[p][2] }))],
+      ['status', 'Status', 'donut_large', ['Scheduled', 'In progress', 'Waiting for parts', 'Completed'].map(p => opt('status', p, p))],
+    ];
+    const filters = FDEF.map(([k, label, icon, options, hasSearch]) => { const v = F[k], open = s.dd === k;
+      return { label, icon, options, hasSearch: !!hasSearch, open, hasValue: v.length > 0, valueLabel: v.length === 1 ? v[0] : `${v.length} selected`,
+        bg: v.length ? '#FBF7F7' : '#fff', border: open || v.length ? '#98A2B3' : '#D0D5DD',
+        toggle: () => this.setState({ dd: open ? null : k, aq: '' }), clear: () => this.setState(st => ({ F: { ...st.F, [k]: [] } })) }; });
+    const anyFilter = Object.values(F).some(v => v.length);
+
     const hours = []; for (let h = H0; h < H1; h++) hours.push({ label: hm(h) });
-    const mkSlots = (day, who) => hours.map((_, i) => ({ title: `Schedule at ${hm(H0 + i)}`, bg: 'transparent',
-      click: () => this.openSlot(day, H0 + i, who),
-      over: ev => ev.preventDefault(),
-      drop: ev => { ev.preventDefault(); const id = ev.dataTransfer.getData('text/plain'); this.setState(st => ({ dragId: null, events: st.events.map(x => x.id === id ? { ...x, day, start: H0 + i, ...(who ? { who } : {}) } : x) })); this.flash(`Rescheduled to ${DAYS[((day % 7) + 7) % 7]} ${hm(H0 + i)}${who ? ' · ' + who : ''}`); } }));
-    let columns = [], gridCols = '';
+    const evView = (e, lay, inDay) => {
+      const [icon, fg, bg, border] = TYPE[e.type], p = P[e.who], L = lay[e.id] || { lane: 0, n: 1 }, done = e.status === 'Completed';
+      const qs = new URLSearchParams({ wo: 'plan-' + e.id, task: e.task, asset: e.asset, loc: LINE[e.asset] || '', type: e.type, prio: e.prio, status: e.status === 'Completed' ? 'Completed' : e.status === 'Waiting for parts' ? 'Waiting for parts' : e.status === 'In progress' ? 'In progress' : 'Scheduled' }).toString();
+      return { asset: e.asset, task: e.task, icon, fg, bg: done ? '#F9FAFB' : bg, border: done ? '#E4E7EC' : border, time: `${hm(e.start)}–${hm(e.start + e.dur)}`,
+        tip: `${e.asset} — ${e.task}\n${e.type} · ${e.prio} · ${hm(e.start)}–${hm(e.start + e.dur)}\n${p[1]} · ${e.status}`,
+        typeTip: `${e.type} — click to show only ${e.type}`,
+        urgent: !done && (e.prio === 'Critical' || e.prio === 'High'), prioColor: PRIO[e.prio][2], done, waiting: e.status === 'Waiting for parts',
+        showMeta: e.dur >= 1.25, showWho: !inDay, ini: p[0], avBg: p[3], avFg: p[4],
+        top: (e.start - H0) * ROW + 1 + 'px', h: e.dur * ROW - 2 + 'px', left: `calc(${L.lane / L.n * 100}% + 2px)`, width: `calc(${100 / L.n}% - 4px)`,
+        op: drag && drag.id === e.id ? 0.35 : done ? 0.7 : 1, pe: drag ? 'none' : 'auto', shadow: e.fresh ? '0 0 0 2px rgba(192,0,24,.35)' : 'none',
+        dragStart: ev => this.startDrag(ev, 'e', e), dragEnd: () => this.endDrag(),
+        open: () => { window.location.href = 'Work Order.dc.html?' + qs; },
+        filterType: ev => { ev.stopPropagation(); this.setType(e.type); } };
+    };
+    const mkCol = (ci, day, who) => ({
+      slots: Array.from({ length: (H1 - H0) * 2 }, (_, i) => { const t = H0 + i / 2;
+        return { line: i % 2 ? '#F8F9FA' : '#EEF0F3',
+          over: ev => { ev.preventDefault(); if (!s.over || s.over.ci !== ci || s.over.t !== t) this.setState({ over: { ci, t } }); },
+          drop: ev => { ev.preventDefault(); this.drop(day, t, who); } }; }),
+      hasPreview: !!(drag && s.over && s.over.ci === ci), pvTop: s.over ? (s.over.t - H0) * ROW + 1 + 'px' : '0px', pvH: drag ? drag.dur * ROW - 2 + 'px' : '0px',
+      pvLabel: drag && s.over ? `${hm(s.over.t)}–${hm(s.over.t + drag.dur)}${who ? ' · ' + P[who][1].split(' ')[0] : ''}` : '',
+      leave: () => {} });
+    let columns = [], gridCols = '', gridMin = '0px';
     if (s.mode === 'week') {
-      columns = DAYS.map((dn, i) => { const day = weekStart + i, d = dateOf(day), today = day === TODAY, wk = i >= 5;
-        const evs = inWeek.filter(e => e.day === day && whoMatch(e, s.who));
-        return { top: dn, main: d.getDate(), meta: evs.length ? `${evs.length} WO` : '', isToday: today, subColor: today ? '#C00018' : '#667085', mainColor: today ? '#C00018' : '#1E2430',
-          headBg: today ? '#FFF8F8' : '#fff', bodyBg: wk ? '#FAFAFB' : today ? '#FFFCFC' : '#fff', slots: mkSlots(day), events: evs.map(evView) }; });
-      gridCols = '56px repeat(5,minmax(140px,1fr)) repeat(2,minmax(96px,.6fr))';
+      const tracks = [];
+      columns = DAYS.map((dn, i) => { const day = ws + i, d = dateOf(day), today = day === TODAY, wk = i >= 5;
+        const evs = inRange.filter(e => e.day === day && match(e)), lay = layout(evs), lanes = Math.max(1, ...evs.map(e => lay[e.id].n));
+        const h = evs.reduce((a, e) => a + e.dur, 0);
+        tracks.push(wk ? `minmax(${Math.max(56, lanes * 42)}px,${0.45 + (lanes - 1) * 0.3}fr)` : `minmax(${Math.max(116, lanes * 44)}px,${1 + Math.max(0, lanes - 2) * 0.35}fr)`);
+        return { isDay: true, top: dn, main: d.getDate(), meta: evs.length ? (wk ? `${evs.length}` : `${evs.length} · ${fmtH(h)}`) : '', isToday: today, subColor: today ? '#C00018' : '#667085', mainColor: today ? '#C00018' : '#1E2430',
+          headBg: today ? '#FFF8F8' : '#fff', bodyBg: wk ? '#FAFAFB' : today ? '#FFFCFC' : '#fff', ...mkCol(i, day), events: evs.map(e => evView(e, lay, false)) }; });
+      gridCols = '52px ' + tracks.join(' ');
     } else if (s.mode === 'day') {
-      const day = s.dayIdx, techs = s.who ? TECHS.filter(([n]) => whoMatch({ who: n }, s.who)) : TECHS;
-      columns = techs.map(([n, ini, avBg, avFg]) => { const evs = s.events.filter(e => e.day === day && e.who === n); const h = evs.reduce((a, e) => a + e.dur, 0);
-        return { isPerson: true, ini, avBg, avFg, top: '', main: n, meta: `${fmtH(h)} / 8 h`, isToday: day === TODAY, subColor: '#667085', mainColor: '#1E2430', headBg: '#fff', bodyBg: '#fff', slots: mkSlots(day, n), events: evs.map(evView) }; });
-      gridCols = `56px repeat(${columns.length},minmax(150px,1fr))`;
+      const day = s.dayIdx, people = PEOPLE.filter(p => !F.team.length || F.team.includes(p[2]));
+      columns = people.map(([ini, name, team, avBg, avFg], i) => {
+        const all = inRange.filter(e => e.who === ini), evs = all.filter(e => match(e)), lay = layout(evs), h = all.reduce((a, e) => a + e.dur, 0), pct = h / CAP;
+        const loadColor = pct > 1 ? '#B42318' : pct >= 0.85 ? '#B54708' : '#0B6B4A';
+        return { isPerson: true, ini, main: name, team: team.replace(' team', ''), avBg, avFg, load: `${fmtH(h)} / ${CAP} h`, loadW: Math.min(100, pct * 100) + '%', loadColor,
+          isToday: day === TODAY, headBg: pct > 1 ? '#FEF6F6' : '#fff', bodyBg: '#fff', ...mkCol(i, day, ini), events: evs.map(e => evView(e, lay, true)) }; });
+      gridCols = `52px repeat(${columns.length},minmax(150px,1fr))`; gridMin = 52 + columns.length * 150 + 'px';
     }
     const monthDays = [];
     if (s.mode === 'month') {
       const first = new Date(2026, 8 + s.week, 1), off = (first.getDay() + 6) % 7, start = new Date(first.getFullYear(), first.getMonth(), 1 - off);
       for (let i = 0; i < 35; i++) {
         const d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), idx = Math.round((d - BASE) / 864e5);
-        const evs = s.events.filter(e => e.day === idx && whoMatch(e, s.who)).sort((a, b) => a.start - b.start);
-        const inMonth = d.getMonth() === first.getMonth(), today = idx === TODAY;
-        monthDays.push({ n: d.getDate(), bg: inMonth ? '#fff' : '#FAFAFB', numBg: today ? '#C00018' : 'transparent', numColor: today ? '#fff' : inMonth ? '#1E2430' : '#98A2B3',
-          events: evs.slice(0, 3).map(e => ({ label: `${hm(e.start)} ${e.asset}`, bg: TYPE[e.type][0], fg: TYPE[e.type][1] })), more: evs.length > 3 ? `+${evs.length - 3} more` : '', click: () => this.openSlot(idx, 9) });
+        const evs = EV.filter(e => e.day === idx && match(e)).sort((a, b) => a.start - b.start), inMonth = d.getMonth() === first.getMonth(), today = idx === TODAY;
+        monthDays.push({ n: d.getDate(), bg: inMonth ? '#fff' : '#FAFAFB', numBg: today ? '#C00018' : 'transparent', numColor: today ? '#fff' : inMonth ? '#1E2430' : '#98A2B3', load: evs.length ? fmtH(evs.reduce((a, e) => a + e.dur, 0)) : '',
+          events: evs.slice(0, 3).map(e => ({ label: `${hm(e.start)} ${e.asset}`, icon: TYPE[e.type][0], fg: TYPE[e.type][1], bg: TYPE[e.type][2] })), more: evs.length > 3 ? `+${evs.length - 3} more` : '',
+          click: () => this.setState({ mode: 'day', dayIdx: idx }), over: ev => ev.preventDefault(), drop: ev => { ev.preventDefault(); this.drop(idx, 9); } });
       }
     }
-    const ws = dateOf(weekStart), we = dateOf(weekStart + 6), dd = dateOf(s.dayIdx);
-    const rangeLabel = s.mode === 'week' ? `${M[ws.getMonth()]} ${ws.getDate()} – ${ws.getMonth() !== we.getMonth() ? M[we.getMonth()] + ' ' : ''}${we.getDate()}, ${we.getFullYear()}`
-      : s.mode === 'day' ? `${DAYS[((s.dayIdx % 7) + 7) % 7]}, ${M[dd.getMonth()]} ${dd.getDate()}, ${dd.getFullYear()}` : `${M[(8 + s.week) % 12]} ${2026 + Math.floor((8 + s.week) / 12)}`;
+
+    const blShown = BL.filter(u => match(u)).sort((a, b) => (b.fresh ? 1 : 0) - (a.fresh ? 1 : 0) || PORD[a.prio] - PORD[b.prio]);
+    const backlog = blShown.map(u => { const [icon, fg, bg] = TYPE[u.type], urgent = u.prio === 'Critical' || u.prio === 'High', [pbg, pfg] = PRIO[u.prio];
+      return { asset: u.asset, task: u.task, type: u.type, icon, typeFg: fg, typeBg: bg, typeTip: `Show only ${u.type}`, prio: u.prio, urgent, normal: !urgent, pbg, pfg,
+        dur: fmtH(u.dur), team: u.team.replace(' team', ''), age: u.age, ageColor: u.soon ? '#B42318' : '#98A2B3',
+        border: u.fresh ? '#F3A3AC' : '#E4E7EC', shadow: u.fresh ? '0 0 0 3px rgba(192,0,24,.08)' : 'none', op: drag && drag.id === u.id ? 0.4 : 1,
+        dragStart: ev => this.startDrag(ev, 'u', u), dragEnd: () => this.endDrag(), filterType: ev => { ev.stopPropagation(); this.setType(u.type); } }; });
+    const hidden = BL.length - blShown.length;
+
+    const weekEv = EV.filter(e => e.day >= ws && e.day < ws + 5);
+    const pctTeam = Math.round(weekEv.reduce((a, e) => a + e.dur, 0) / (PEOPLE.length * CAP * 5) * 100);
+    const blH = s.backlog.reduce((a, u) => a + u.dur, 0);
+    const wsD = dateOf(ws), weD = dateOf(ws + 6), dd = dateOf(s.dayIdx);
+    const rangeLabel = s.mode === 'week' ? `${M[wsD.getMonth()]} ${wsD.getDate()} – ${wsD.getMonth() !== weD.getMonth() ? M[weD.getMonth()] + ' ' : ''}${weD.getDate()}, ${weD.getFullYear()}`
+      : s.mode === 'day' ? `${dayName(s.dayIdx)}, ${M[dd.getMonth()]} ${dd.getDate()}, ${dd.getFullYear()}` : `${M[(8 + s.week) % 12]} ${2026 + Math.floor((8 + s.week) / 12)}`;
     const step = d => s.mode === 'day' ? this.setState({ dayIdx: s.dayIdx + d }) : this.setState({ week: s.week + d });
-    const E = k => s.errors[k] ? '#F04438' : '#D0D5DD';
-    let conflict = '';
-    if (s.drawer && f.who && f.dt) {
-      const [ymd, t] = f.dt.split('T'), [y, mo, d0] = ymd.split('-').map(Number), [hh, mm] = t.split(':').map(Number);
-      const day = Math.round((new Date(y, mo - 1, d0) - BASE) / 864e5), st = hh + mm / 60, en = st + +f.dur;
-      const c = s.events.find(e => e.who === f.who && e.day === day && e.start < en && e.start + e.dur > st);
-      if (c) conflict = `${f.who} already has "${c.asset} — ${c.title}" at ${hm(c.start)}. You can still schedule it.`;
-    }
-    const sd = s.drawer ? dateOf(s.drawer.day) : null;
+    const hot = drag && drag.kind === 'e';
     return {
-      kpis, resources, hours, columns, gridCols, nowTop: (NOW - H0) * ROW + 'px', monthDays, monthHead: DAYS,
-      isGrid: s.mode !== 'month', isMonth: s.mode === 'month',
-      modes: [['day', 'Day'], ['week', 'Week'], ['month', 'Month']].map(([k, label]) => ({ label, bg: s.mode === k ? '#fff' : 'transparent', shadow: s.mode === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.mode === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: s.mode === k ? '#1E2430' : '#667085', select: () => this.setState({ mode: k, week: 0 }) })),
-      legend: Object.entries(TYPE).map(([label, [bg, fg]]) => ({ label, bg, fg })),
+      summary: `${weekEv.length} work orders scheduled this week · ${s.backlog.length} not scheduled (${fmtH(blH)}) · team at ${pctTeam}% of capacity`,
+      typeChips, filters, anyFilter, closeDd: () => this.setState({ dd: null }), aq: s.aq, setAq: e => this.setState({ aq: e.target.value }),
+      clearAll: () => this.setState({ F: EMPTY, dd: null }),
+      modes: [['day', 'Day'], ['week', 'Week'], ['month', 'Month']].map(([k, label]) => ({ label, bg: s.mode === k ? '#fff' : 'transparent', shadow: s.mode === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.mode === k ? bold : reg, color: s.mode === k ? '#1E2430' : '#667085', select: () => this.setState({ mode: k, week: 0 }) })),
       rangeLabel, prev: () => step(-1), next: () => step(1), today: () => this.setState({ week: 0, dayIdx: TODAY }),
-      openBlank: () => { this.openSlot(TODAY, 11); this.setState({ drawer: { day: TODAY, hour: 11, slot: false } }); },
-      drawerOpen: !!s.drawer, closeDrawer: () => this.setState({ drawer: null }), fromSlot: s.drawer && s.drawer.slot,
-      slotLabel: sd ? `${DAYS[((s.drawer.day % 7) + 7) % 7]}, ${M[sd.getMonth()]} ${sd.getDate()} at ${hm(s.drawer.hour)}` : '',
-      f, on: Object.fromEntries(['asset', 'title', 'prio', 'who', 'checklist', 'dt', 'dur', 'desc'].map(k => [k, e => { const v = e.target.value; this.setState(st => ({ form: { ...st.form, [k]: v }, errors: { ...st.errors, [k]: 0 } })); }])),
-      err: { asset: E('asset'), title: E('title'), prio: E('prio'), who: E('who'), dt: E('dt') },
-      assetOpts: ASSETS, whoOpts: [...TECHS.map(t => t[0]), ...TEAMS.map(t => t[0])],
-      types: Object.entries(TYPE).map(([t, [, , , icon]]) => ({ label: t, icon, bg: f.type === t ? '#FBF1F2' : '#fff', border: f.type === t ? '#C00018' : '#D0D5DD', color: f.type === t ? '#A30014' : '#344054', font: f.type === t ? "600 12.5px 'IBM Plex Sans',sans-serif" : "500 12.5px 'IBM Plex Sans',sans-serif", select: () => this.setState(st => ({ form: { ...st.form, type: t } })) })),
-      descCount: (f.desc || '').length, conflict,
-      toggleAnother: () => this.setState({ another: !s.another }), anotherBorder: s.another ? '#C00018' : '#C4CAD4', anotherBg: s.another ? '#C00018' : '#fff', anotherIcon: s.another ? 'check' : '',
-      create: () => this.create(), toast: s.toast,
+      isGrid: s.mode !== 'month', isMonth: s.mode === 'month', hours, columns, gridCols, gridMin, nowTop: (NOW - H0) * ROW + 'px', monthDays, monthHead: DAYS,
+      panelW: s.panel ? '304px' : '44px', panelOpen: s.panel, panelClosed: !s.panel, togglePanel: () => this.setState({ panel: !s.panel }),
+      panelBg: hot && s.panelHot ? '#FFF8F8' : '#fff', panelBorder: hot ? '#C00018' : '#E4E7EC', panelBorderStyle: hot ? 'dashed' : 'solid', dropHint: !!hot,
+      panelOver: e => { if (this._drag && this._drag.kind === 'e') { e.preventDefault(); if (!s.panelHot) this.setState({ panelHot: true }); } },
+      panelLeave: () => { if (s.panelHot) this.setState({ panelHot: false }); },
+      panelDrop: e => { e.preventDefault(); this.unschedule(); },
+      backlog, backlogCount: s.backlog.length, backlogHours: fmtH(blH) + ' total', hiddenByFilter: hidden > 0, hiddenLabel: `${hidden} hidden by filters`, backlogEmpty: s.backlog.length === 0,
+      createWo: () => window.CMMSCreateWO ? window.CMMSCreateWO({}) : window.dispatchEvent(new CustomEvent('cmms-create-wo', { detail: {} })),
+      hasToast: !!s.toast, toastText: s.toast ? s.toast.text : '', canUndo: !!(s.toast && s.toast.undo && this._undo), toastIcon: 'check_circle', toastIconColor: '#6CE9A6',
+      undo: () => { if (this._undo) this.setState({ ...this._undo, toast: null }); this._undo = null; },
     };
   }
 }

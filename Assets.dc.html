@@ -386,6 +386,7 @@
     </div>
   </sc-if>
 </div>
+<dc-import name="WorkOrderPanel" hint-size="0px,0px"></dc-import>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;list&quot;,&quot;tree&quot;],&quot;default&quot;:&quot;list&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const PEOPLE = {
@@ -515,7 +516,7 @@ class Component extends DCLogic {
         menu: e => { e.stopPropagation(); this.setState({ menu: open ? null : r.code, globalMenu: false }); },
         edit: e => { e.stopPropagation(); this.openForm(r); },
         qr: e => { e.stopPropagation(); this.setState({ drawer: { kind: 'qr', code: r.code }, menu: null }); },
-        newWo: e => { e.stopPropagation(); window.location.href = 'Work Orders.dc.html?new=1&asset=' + encodeURIComponent(r.code); },
+        newWo: e => { e.stopPropagation(); window.CMMSCreateWO({ asset: r.code }); this.setState({ menu: null }); },
         oosLabel: r.status === 'Out of service' ? 'Put back in service' : 'Put out of service',
         oos: e => { e.stopPropagation(); const ns = r.status === 'Out of service' ? 'In service' : 'Out of service'; this.setState(st => ({ menu: null, rows: st.rows.map(x => x.code === r.code ? { ...x, status: ns } : x) })); this.flash(`${r.name} is now ${ns.toLowerCase()}`); },
         del: e => { e.stopPropagation(); this.setState({ confirm: r, menu: null }); },

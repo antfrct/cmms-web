@@ -232,6 +232,7 @@
     <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.24);font:500 13px 'IBM Plex Sans',sans-serif"><span style="font:18px/1 'Material Symbols Outlined';color:#6CE9A6">check_circle</span>{{ toast }}</div>
   </sc-if>
 </div>
+<dc-import name="WorkOrderPanel" hint-size="0px,0px"></dc-import>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;filter&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;low&quot;,&quot;out&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;list&quot;,&quot;catalog&quot;],&quot;default&quot;:&quot;list&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const CATS = { Bearings: 'settings', Belts: 'conveyor_belt', Filters: 'filter_alt', Sensors: 'sensors', Seals: 'radio_button_unchecked', Lubricants: 'water_drop', Electrical: 'bolt', Drives: 'memory' };
@@ -263,7 +264,7 @@ class Component extends DCLogic {
     const rows = list.map((p, i) => {
       const [status, sbg, sfg, dot] = st(p), mo = s.menu === p.ref, scale = p.max * 1.1;
       return { ...p, icon: CATS[p.cat], status, sbg, sfg, cost: eur(p.cost), avail: Math.max(0, p.qty - p.reserved), needsReorder: p.qty < p.min, canReserve: p.qty >= p.min, cardBorder: s.detail === p.ref ? '#C00018' : '#E4E7EC',
-        reserve: e => { e.stopPropagation(); window.location.href = 'Work Orders.dc.html?new=1'; }, qtyColor: p.qty === 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430',
+        reserve: e => { e.stopPropagation(); window.CMMSCreateWO({}); }, qtyColor: p.qty === 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430',
         barW: Math.min(100, p.qty / scale * 100) + '%', minX: (p.min / scale * 100) + '%', barColor: dot, bg: s.detail === p.ref ? '#FBF7F7' : '#fff',
         open: e => { e.stopPropagation(); this.setState({ detail: p.ref, menu: null, adjQty: '1' }); },
         menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > list.length - 4 && list.length > 5 ? '-172px' : '34px',

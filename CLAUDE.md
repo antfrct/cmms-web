@@ -1,6 +1,7 @@
-# CMMS Web MVP — design system (keep consistent)
+# Relix (CMMS Web MVP) — design system (keep consistent)
 - All UI in English. Target 1440×900 desktop.
-- Shell: TopBar.dc.html (56px, #34050D, live search) + Sidebar.dc.html (232px / 64px collapsed, #34050D, prop `active`; collapse state in localStorage `cmms.nav.collapsed`, event `cmms-nav`). Page grid `auto minmax(0,1fr)`; sidebar mount `<div style="display:flex;min-height:0"><dc-import name="Sidebar" style="height:100%">`.
+- App name: Relix (white logo relix-logo-white.svg). Shell: TopBar.dc.html (56px, #34050D; left Logo·Collapse toggle·Relix; center global search Ctrl+K across equipment/WOs/parts/people/sites/locations; right Language (UI only, `cmms.lang`) · Notifications (`cmms.notif.read`) · Profile (contains site switcher)) + Sidebar.dc.html (232px / 64px collapsed with hover tooltips, #34050D, prop `active`; collapse state in localStorage `cmms.nav.collapsed`, event `cmms-nav`; toggle lives in TopBar). Menu: Home, Site dashboard, Assets, Work orders, Planning, Spare parts, Maintenance setup (Maintenance plans, Checklists), Documents · Teams & users, Site configuration.
+- Create pattern: creating a work order anywhere opens WorkOrderPanel.dc.html (right side panel) via `window.CMMSCreateWO({asset})` / event `cmms-create-wo`; links to `Work Orders.dc.html?new=1` are intercepted. Page grid `auto minmax(0,1fr)`; sidebar mount `<div style="display:flex;min-height:0"><dc-import name="Sidebar" style="height:100%">`.
 - Font: IBM Plex Sans (UI), IBM Plex Mono (IDs/codes). Icons: Material Symbols Outlined via font (inline `font:20px/1 'Material Symbols Outlined'`).
 - Colors: accent #C00018 (primary CTA, active tab underline), bg #F6F7F9, surface #FFF, border #E4E7EC, text #1E2430, text-2 #667085, text-3 #98A2B3, success #0B6B4A, info #2456B8, warning #B54708, critical #B42318.
 - Priority badges: Critical solid #C00018/#fff · High #FDECEC/#B42318 · Medium #FEF3E2/#B54708 · Low #EEF1F4/#475467.
