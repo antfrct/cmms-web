@@ -17,13 +17,17 @@
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="admin" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
-  <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Administration">
-    <header style="flex:none">
-      <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Site configuration</h1>
-      <p style="margin:2px 0 0;color:#667085;font-size:13px">Reference data used in forms, filters and reports across the application</p>
+  <main style="position:relative;min-height:0;overflow:hidden;padding:20px 28px 0;display:flex;flex-direction:column;gap:16px" data-screen-label="Administration">
+    <header style="flex:none;display:flex;align-items:center;gap:12px">
+      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+      <div style="flex:1;min-width:0">
+        <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Site configuration</h1>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px">Reference data used in forms, filters and reports across the application</p>
+      </div>
     </header>
 
-    <div style="flex:none;display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;align-items:start">
+    <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px;margin:0 -28px;padding:0 28px 28px">
+<div style="flex:none;display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;align-items:start">
       <nav style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:1px;position:sticky;top:0">
         <sc-for list="{{ nav }}" as="g" hint-placeholder-count="4">
           <div style="padding:10px 10px 4px;font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#98A2B3">{{ g.label }}</div>
@@ -81,6 +85,7 @@
         </div>
       </section>
     </div>
+  </div>
   </main>
 
   <sc-if value="{{ toast }}">
@@ -88,12 +93,12 @@
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;section&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;types&quot;,&quot;locations&quot;,&quot;crit&quot;,&quot;wotypes&quot;,&quot;failures&quot;,&quot;prio&quot;,&quot;status&quot;,&quot;stores&quot;,&quot;partcats&quot;,&quot;sites&quot;,&quot;labels&quot;],&quot;default&quot;:&quot;types&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;section&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;types&quot;,&quot;locations&quot;,&quot;crit&quot;,&quot;wotypes&quot;,&quot;failures&quot;,&quot;prio&quot;,&quot;status&quot;,&quot;partcats&quot;,&quot;skills&quot;,&quot;sites&quot;,&quot;labels&quot;],&quot;default&quot;:&quot;types&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const SECTIONS = {
   types: { group: 'Assets', label: 'Asset types', icon: 'category', add: 'Add type', extraHead: 'Default criticality', extraDefault: 'Medium', desc: 'Types classify equipment in the asset list, filters and QR labels.', note: 'Types in use cannot be deleted — deactivate them instead.',
     rows: [['Furnace', 'FUR', 'Critical', 12], ['Conveyor', 'CNV', 'High', 86], ['Pump', 'PMP', 'High', 41], ['Fan', 'FAN', 'Medium', 33], ['Compressor', 'CMP', 'Medium', 8], ['Robot', 'ROB', 'High', 14], ['Press', 'PRS', 'High', 6], ['Dryer', 'DRY', 'Medium', 5], ['Cutter', 'CUT', 'Medium', 4], ['Electrical cabinet', 'ELC', 'Medium', 57]] },
-  locations: { group: 'Assets', label: 'Locations', icon: 'account_tree', add: 'Add location', extraHead: 'Level', extraDefault: 'Area', desc: 'Up to 5 levels: Plant › Line › Area › Machine › Sub-assembly. Machines and below are managed as assets.', note: 'Moving a location also moves the assets it contains.',
-    rows: [['Thourotte Plant', 'US-THO', 'Plant', 1248, 0], ['Float Line', 'LF-001', 'Line', 412, 1], ['Furnace Zone', 'ZF-001', 'Area', 38, 2], ['Forming Zone', 'ZF-002', 'Area', 44, 2], ['Annealing Zone', 'ZF-003', 'Area', 29, 2], ['Tempering Line', 'LT-001', 'Line', 286, 1], ['Heating Zone', 'ZC-001', 'Area', 31, 2], ['Cooling Zone', 'ZR-002', 'Area', 27, 2], ['Packaging', 'EMB-001', 'Line', 198, 1], ['Utilities', 'UT-001', 'Line', 96, 1]] },
+  locations: { group: 'Assets', label: 'Plant hierarchy', icon: 'account_tree', add: 'Add location', extraHead: 'Level', extraDefault: 'Step', desc: 'Saint-Gobain convention: Plant › Zone › Line › Step. Equipment, mobile assets and storage areas are all located on a step.', note: 'Storage areas are steps flagged as storage — Spare Parts uses them as stock locations.',
+    rows: [['Thourotte Plant', 'FR-THO', 'Plant', 29, 0], ['Melting', 'MEL', 'Zone', 4, 1], ['Batch House', 'MEL-BH', 'Line', 2, 2], ['Furnace F1', 'MEL-FU', 'Line', 2, 2], ['Fiberizing & Forming', 'FOR', 'Zone', 11, 1], ['Float Line', 'FOR-FL', 'Line', 6, 2], ['Tin bath', 'FOR-FL-TB', 'Step', 2, 3], ['Float Line store', 'FOR-FL-ST', 'Storage', 412, 3], ['Tempering Line', 'FOR-TL', 'Line', 4, 2], ['Cutting Line', 'FOR-CL', 'Line', 1, 2], ['Utilities', 'UTL', 'Zone', 8, 1], ['Compressed Air', 'UTL-CA', 'Line', 3, 2], ['Maintenance Workshop', 'UTL-WS', 'Line', 3, 2], ['Workshop store', 'UTL-WS-ST', 'Storage', 208, 3], ['Warehousing', 'WHS', 'Zone', 7, 1], ['Packaging', 'WHS-PK', 'Line', 3, 2], ['Main store', 'WHS-SP-MS', 'Storage', 1320, 3], ['Equipment bay', 'WHS-ME-BY', 'Bay', 4, 3]] },
   crit: { group: 'Assets', label: 'Criticality levels', icon: 'crisis_alert', add: 'Add level', extraHead: 'Response target', extraDefault: '—', desc: 'Criticality reflects the impact of a failure on production and safety.', note: 'Criticality sets the default priority of new work orders.', badge: 'crit',
     rows: [['Critical', 'C1', '< 2 h', 64], ['High', 'C2', '< 8 h', 312], ['Medium', 'C3', '< 3 days', 628], ['Low', 'C4', '< 2 weeks', 244]] },
   wotypes: { group: 'Work orders', label: 'Work order types', icon: 'build', add: 'Add type', extraHead: 'Strategy', extraDefault: '—', desc: 'Types describe the purpose of a work order.', note: 'Types are aligned with the maintenance strategy reference.',
@@ -104,24 +109,35 @@ const SECTIONS = {
     rows: [['Critical', 'P1', '4 h', 3], ['High', 'P2', '24 h', 21], ['Medium', 'P3', '7 days', 24], ['Low', 'P4', '30 days', 9]] },
   status: { group: 'Work orders', label: 'Statuses', icon: 'swap_horiz', add: 'Add status', extraHead: 'Stage', extraDefault: 'Open', desc: 'Statuses drive the board columns and the work order lifecycle.', note: 'System statuses are locked. Overdue is computed from the scheduled date.', badge: 'status', locked: true,
     rows: [['Requested', 'REQ', 'Open', 12], ['Scheduled', 'SCH', 'Open', 18], ['Overdue', 'OVD', 'Computed', 8], ['In progress', 'INP', 'Open', 18], ['Waiting for parts', 'WFP', 'Open', 7], ['Completed', 'CMP', 'Closed', 1204]] },
-  stores: { group: 'Spare parts', label: 'Storerooms', icon: 'warehouse', add: 'Add storeroom', extraHead: 'Manager', extraDefault: '—', desc: 'Physical stock locations for spare parts.', note: 'Bin locations are defined on each part.',
-    rows: [['Main store', 'ST-MAIN', 'Claire Moreau', 1320], ['Float Line store', 'ST-LF', 'Julie Martin', 412], ['Workshop store', 'ST-WS', 'Marc Dupont', 208]] },
   partcats: { group: 'Spare parts', label: 'Part categories', icon: 'inventory_2', add: 'Add category', extraHead: 'Default unit', extraDefault: 'pcs', desc: 'Categories group spare parts in the catalog and reports.', note: 'Units can be changed per part.',
     rows: [['Bearings', 'BRG', 'pcs', 184], ['Belts', 'BLT', 'pcs', 96], ['Filters', 'FLT', 'pcs', 142], ['Sensors', 'SEN', 'pcs', 210], ['Seals', 'SEAL', 'pcs', 128], ['Lubricants', 'LUB', 'cartridges', 38], ['Electrical', 'ELE', 'pcs', 612], ['Drives', 'DRV', 'pcs', 44]] },
+  skills: { group: 'People', label: 'Skills', icon: 'engineering', add: 'Add skill', extraHead: 'Category', extraDefault: 'Trade', desc: 'Skills are held by users and required by checklist steps. They drive assignment suggestions and greyed-out slots in Planning.', note: 'Skills held by someone cannot be deleted — deactivate them instead. Categories: Trade, Technique, Certification.',
+    rows: [['Electrical', 'ELE', 'Trade', 4], ['Mechanical', 'MEC', 'Trade', 5]] },
   sites: { group: 'Organization', label: 'Sites & plants', icon: 'factory', add: 'Add site', extraHead: 'Time zone', extraDefault: 'Europe/Paris', desc: 'Each site has its own assets, stock and planning. Users can access one or more sites.', note: 'Switch site from the top bar.',
     rows: [['Thourotte Plant', 'THO', 'Europe/Paris', 42], ['Saultain Plant', 'SAU', 'Europe/Paris', 28]] },
   labels: { group: 'Organization', label: 'QR label formats', icon: 'qr_code_2', add: 'Add format', extraHead: 'Size', extraDefault: '—', desc: 'Label formats offered when printing asset QR codes.', note: 'Formats match standard thermal label rolls.',
     rows: [['Square label', 'SQ-50', '50 × 50 mm', 'Default'], ['Wide label', 'WD-70', '70 × 35 mm', '—'], ['Large label', 'LG-100', '100 × 50 mm', '—']] },
 };
 const ICON = { types: 'precision_manufacturing', locations: null };
-const LVL_ICON = ['factory', 'conveyor_belt', 'grid_view'];
+const LVL_ICON = ['factory', 'grid_view', 'conveyor_belt', 'subdirectory_arrow_right'];
 const BADGE = {
   prio: { Critical: ['#C00018', '#fff'], High: ['#FDECEC', '#B42318'], Medium: ['#FEF3E2', '#B54708'], Low: ['#EEF1F4', '#475467'] },
   crit: { Critical: ['#FDECEC', '#B42318'], High: ['#FEF0E6', '#C4320A'], Medium: ['#FEF3E2', '#B54708'], Low: ['#EEF1F4', '#475467'] },
   status: { Requested: ['#F3EEFC', '#6941C6'], Scheduled: ['#EAF1FD', '#2456B8'], Overdue: ['#FDECEC', '#B42318'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting for parts': ['#FEF3E2', '#B54708'], Completed: ['#EEF1F4', '#475467'] },
 };
 class Component extends DCLogic {
-  state = { sec: this.props.section ?? 'types', data: Object.fromEntries(Object.entries(SECTIONS).map(([k, v]) => [k, v.rows.map(r => ({ name: r[0], code: r[1], extra: r[2], used: r[3], depth: r[4] || 0, active: true }))])), q: '', adding: false, newName: '', newCode: '', toast: null };
+  state = { sec: new URLSearchParams(location.search).get('section') || (this.props.section ?? 'types'), data: Object.fromEntries(Object.entries(SECTIONS).map(([k, v]) => [k, v.rows.map(r => ({ name: r[0], code: r[1], extra: r[2], used: r[3], depth: r[4] || 0, active: true }))])), q: '', adding: false, newName: '', newCode: '', toast: null };
+  componentDidMount() {
+    import('./people-model.js').then(PM => { this.PM = PM; this.loadSkills(); });
+    this._sk = () => this.loadSkills(); window.addEventListener('cmms-profile', this._sk);
+  }
+  componentWillUnmount() { window.removeEventListener('cmms-profile', this._sk); }
+  loadSkills() { const PM = this.PM; if (!PM) return; this._loading = true; this.setState(z => ({ data: { ...z.data, skills: PM.skills().map(k => ({ name: k.name, code: k.id, extra: k.cat, used: PM.TECHS.filter(t => PM.skillLevel(t, k.id) > 0).length, depth: 0, active: k.active !== false })) } }), () => { this._loading = false; }); }
+  componentDidUpdate(pp, ps) {
+    if (!this.PM || this._loading || ps.data.skills === this.state.data.skills) return;
+    const prev = this.PM.skills(), cats = Object.keys(this.PM.SKILL_CATS);
+    this.PM.saveSkills(this.state.data.skills.map(r => { const o = prev.find(k => k.id === r.code); const cat = cats.includes(r.extra) ? r.extra : 'Trade'; return o ? { ...o, name: r.name, cat, active: r.active } : { id: r.code, name: r.name, cat, icon: cat === 'Certification' ? 'verified_user' : 'handyman', fg: '#475467', bg: '#EEF1F4', active: r.active }; }));
+  }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   add() {
     const s = this.state; if (!s.newName.trim()) return;

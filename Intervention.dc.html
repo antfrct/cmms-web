@@ -13,9 +13,9 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..24,300..500,0..1,0&amp;display=block" />
 <style>body{margin:0;background:#F6F7F9;color:#1E2430;-webkit-font-smoothing:antialiased}a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}*{box-sizing:border-box}input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}</style>
 </helmet>
-<div style="height:100vh;min-width:1024px;display:flex;flex-direction:column;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;color:#1E2430;background:#F6F7F9" data-screen-label="Intervention">
+<div style="height:100vh;min-width:1024px;display:flex;flex-direction:column;padding-right:{{ chatPad }};font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;color:#1E2430;background:#F6F7F9" data-screen-label="Intervention">
 
-  <header style="position:relative;flex:none;height:64px;background:#34050D;color:#fff;display:flex;align-items:center;gap:14px;padding:0 20px">
+  <header style="position:relative;flex:none;height:64px;margin-right:{{ chatPadNeg }};background:#34050D;color:#fff;display:flex;align-items:center;gap:14px;padding:0 20px">
     <button onClick="{{ exit }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:rgba(255,255,255,.08)"><span style="font:20px/1 'Material Symbols Outlined'">arrow_back</span>{{ backLabel }}</button>
     <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
       <span style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ task }}</span><sc-if value="{{ isPreview }}"><span style="flex:none;height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:10px;background:#F79009;color:#fff;font-size:11.5px;font-weight:600">Preview</span></sc-if><sc-if value="{{ isQuick }}"><a href="{{ woHref }}" title="Complete the work order later" style="flex:none;height:20px;display:inline-flex;align-items:center;gap:3px;padding:0 8px;border-radius:10px;background:rgba(247,144,9,.22);color:#FEC84B;font-size:11.5px;font-weight:600"><span style="font:13px/1 'Material Symbols Outlined'">edit_note</span>Information incomplete</a></sc-if></span>
@@ -24,9 +24,6 @@
     <span style="display:flex;align-items:center;gap:8px;font-size:12.5px;opacity:.85;white-space:nowrap"><span style="width:8px;height:8px;border-radius:50%;background:{{ timerDot }}"></span>{{ stateLabel }}</span>
     <span title="Time spent" style="height:32px;display:flex;align-items:center;padding:0 12px;border-radius:16px;background:rgba(255,255,255,.1);font:600 14px 'IBM Plex Mono',monospace">{{ elapsed }}</span>
     <button onClick="{{ toggleDetails }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:{{ detailsBg }};border:0;border-radius:8px;color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:rgba(255,255,255,.12)"><span style="font:20px/1 'Material Symbols Outlined'">info</span>Details</button>
-    <sc-if value="{{ hasChat }}" hint-placeholder-val="{{ true }}">
-      <button onClick="{{ toggleChat }}" style="position:relative;height:40px;display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;background:{{ chatBtnBg }};border:0;border-radius:8px;color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:rgba(255,255,255,.12)"><span style="font:20px/1 'Material Symbols Outlined'">forum</span>Chat<sc-if value="{{ chatUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#E0243A;color:#fff;font:700 11px/18px 'IBM Plex Sans',sans-serif">{{ chatUnread }}</span></sc-if></button>
-    </sc-if>
     <sc-if value="{{ canPause }}" hint-placeholder-val="{{ true }}">
       <button onClick="{{ pause }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#fff;border:0;border-radius:8px;color:#34050D;font:600 14px 'IBM Plex Sans',sans-serif;cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">pause</span>Pause</button>
     </sc-if>
@@ -340,11 +337,11 @@
   </sc-if>
 
   <sc-if value="{{ chatOpen }}">
-    <aside style="position:fixed;top:64px;right:0;bottom:0;width:440px;z-index:45;background:#fff;border-left:1px solid #E4E7EC;box-shadow:-12px 0 32px rgba(16,24,40,.12);display:flex;flex-direction:column">
+    <aside style="position:fixed;top:64px;right:0;bottom:0;width:400px;z-index:45;background:#fff;border-left:1px solid #E4E7EC;display:flex;flex-direction:column">
       <div style="flex:none;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 18px;border-bottom:1px solid #EEF0F3">
         <span style="font:20px/1 'Material Symbols Outlined';color:#475467">forum</span>
         <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;font-size:15px">Work order chat</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chatSub }}</span></div>
-        <button onClick="{{ toggleChat }}" title="Close chat" style="width:44px;height:44px;display:grid;place-items:center;background:#F2F4F7;border:0;border-radius:22px;color:#1E2430;cursor:pointer"><span style="font:22px/1 'Material Symbols Outlined'">close</span></button>
+        <sc-if value="{{ chatUnread }}"><span style="min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#C00018;color:#fff;font:700 12px/22px 'IBM Plex Sans',sans-serif;text-align:center">{{ chatUnread }} new</span></sc-if>
       </div>
       <dc-import name="ChatThread" channel="{{ woKey }}" size="lg" style="flex:1;min-height:0" hint-size="100%,100%"></dc-import>
     </aside>
@@ -395,6 +392,7 @@
     </div>
   </sc-if>
 </div>
+<dc-import name="ProfilePanel" hint-size="0px,0px"></dc-import>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
 const QS = new URLSearchParams(window.location.search);
@@ -497,14 +495,14 @@ class Component extends DCLogic {
     const woHref = PREVIEW ? 'Checklist Editor.dc.html?id=' + (s.cl ? s.cl.id : '') : 'Work Order.dc.html' + window.location.search;
     const base = {
       loading: !s.ready, isWizard: false, isReview: false, isDone: false, isPreview: PREVIEW,
-      task: PREVIEW ? WO.task : WO.task, subline: `${PREVIEW ? '' : WO0.key + ' · '}${WO.asset} · ${WO.loc} · ${WO.prio} priority`,
+      task: PREVIEW ? WO.task : WO.task, subline: `${PREVIEW ? '' : (this.C ? this.C.displayId(WO0.key) : WO0.key) + ' · '}${WO.asset} · ${WO.loc} · ${WO.prio} priority`,
       backLabel: PREVIEW ? 'Exit preview' : 'Back', elapsed: hms(this.elapsed()),
       stateLabel: s.mode === 'done' ? 'Closed' : s.paused ? `Paused · started ${clock(s.startedAt)}` : `In progress · started ${clock(s.startedAt)}`,
       timerDot: s.mode === 'done' ? '#98A2B3' : s.paused ? '#F79009' : '#12A06E', canPause: s.ready && s.mode !== 'done',
       pause: () => this.pause(), resume: () => { this.setState({ paused: false, since: Date.now() }); if (this.C && !PREVIEW) this.C.post(WO0.key, 'sys', 'Intervention resumed'); },
       paused: s.paused && s.mode !== 'done', woHref,
-      hasChat: !PREVIEW, woKey: WO0.key, isQuick: QS.get('quick') === '1' && !!(this.C && (this.C.getWo(WO0.key) || {}).quick), chatOpen: !!s.chat && !PREVIEW, toggleChat: () => this.setState({ chat: !s.chat, details: false }), chatBtnBg: s.chat ? 'rgba(255,255,255,.16)' : 'transparent',
-      chatUnread: this.C && !s.chat ? this.C.unread(WO0.key) : 0, chatSub: this.C ? `${WO0.key} · ${this.C.participantsOf(WO0.key).length || 1} people · your step stays open` : WO0.key,
+      hasChat: !PREVIEW, woKey: WO0.key, isQuick: QS.get('quick') === '1' && !!(this.C && (this.C.getWo(WO0.key) || {}).quick), chatOpen: !PREVIEW, chatPad: PREVIEW ? '0px' : '400px', chatPadNeg: PREVIEW ? '0px' : '-400px', toggleChat: () => this.setState({ chat: !s.chat, details: false }), chatBtnBg: s.chat ? 'rgba(255,255,255,.16)' : 'transparent',
+      chatUnread: 0, chatSub: this.C ? `${this.C.displayId(WO0.key)} · ${this.C.participantsOf(WO0.key).length || 1} people · your step stays open` : WO0.key,
       handover: s.handover || '', setHandover: e => this.setState({ handover: e.target.value }), postHandover: () => this.postHandover(), postBg: (s.handover || '').trim() ? '#C00018' : '#D0D5DD',
       noteNotPosted: !s.notePosted, notePosted: !!s.notePosted,
       pauseReasons: ['Waiting for parts', 'Called to another breakdown', 'End of shift', 'Need a specialist'].map(l => { const on = (s.handover || '').startsWith(l); return { label: l, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', pick: () => this.setState({ handover: l + ' — ' }) }; }),

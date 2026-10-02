@@ -72,16 +72,8 @@
       <sc-if value="{{ isS2 }}">
         <div style="display:flex;flex-direction:column;gap:18px">
           <div style="display:flex;flex-direction:column;gap:8px">
-            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Assigned to</span><span style="font-size:12px;color:#98A2B3">Responsible for execution</span></span>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              <sc-for list="{{ assignOpts }}" as="o">
-                <button onClick="{{ o.pick }}" style="height:48px;display:flex;align-items:center;gap:9px;padding:0 10px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430">
-                  <span style="flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:{{ o.avBg }};color:{{ o.avFg }};font:600 10px 'IBM Plex Sans',sans-serif">{{ o.initials }}</span>
-                  <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.name }}</span><span style="font-size:11.5px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.sub }}</span></span>
-                  <sc-if value="{{ o.on }}"><span style="flex:none;font:18px/1 'Material Symbols Outlined';color:#C00018">check_circle</span></sc-if>
-                </button>
-              </sc-for>
-            </div>
+            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Assigned to</span><span style="font-size:12px;color:#98A2B3">Responsible for execution · one person per part</span></span>
+            <dc-import name="AssignmentEditor" checklists="{{ f.checklists }}" assignments="{{ f.assignments }}" onChange="{{ setAssignments }}" type="{{ f.type }}" date="{{ f.due }}" dur="{{ f.dur }}" preferred="{{ f.assignee }}" hint-size="100%,260px"></dc-import>
           </div>
           <div style="display:flex;flex-direction:column;gap:8px">
             <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Participants</span><span style="font-size:12px;color:#98A2B3">Involved or following · they see the work order chat</span></span>
@@ -187,11 +179,11 @@ const ASSETS = [['FT2-FR-001', 'Tempering Furnace 2', 'Tempering Line'], ['FT1-F
 const PARTS = [['BRG-6205', 'Ball bearing 6205-2RS', 42, 10], ['BLT-BPU280', 'Drive belt BPU280', 2, 5], ['FLT-HX10', 'Hydraulic filter HX-10', 0, 4], ['SEN-PT100', 'Temperature probe PT100', 6, 3], ['SEAL-M45', 'Mechanical seal 45 mm', 3, 2], ['GRS-LT2', 'Lithium grease LT2 400 g', 18, 6], ['VFD-ATV320', 'Variable speed drive ATV320', 0, 1]];
 const TYPES = [['Corrective', 'build', '#B54708', '#FEF3E2'], ['Preventive', 'event_repeat', '#2456B8', '#EAF1FD'], ['Predictive', 'insights', '#6941C6', '#F3EEFC'], ['Inspection', 'visibility', '#0E7490', '#E3F4F7']];
 const PRIOS = [['Critical', '#C00018'], ['High', '#E0591B'], ['Medium', '#E3A008'], ['Low', '#98A2B3']];
-const STEPS = [['Essentials', 'edit_note', 'Required'], ['People', 'group', 'Optional'], ['Checklists', 'checklist', 'Optional'], ['Details', 'tune', 'Optional']];
+const STEPS = [['Essentials', 'edit_note', 'Required'], ['Checklists', 'checklist', 'Optional'], ['People', 'group', 'Suggested'], ['Details', 'tune', 'Optional']];
 const TECHS = ['GD', 'PL', 'MD', 'AM', 'SM', 'SB', 'JM'];
 const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = d => { if (!d) return ''; const [ymd, t] = d.split('T'); const [, m, dd] = ymd.split('-'); return `${M[+m - 1]} ${+dd}${t ? ', ' + t : ''}`; };
-const blank = () => ({ asset: '', type: 'Corrective', prio: '', assignee: '', participants: [['GD', 'Maintenance manager']], checklists: [], req: '2026-09-29', due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], docs: [] });
+const blank = () => ({ asset: '', type: 'Corrective', prio: '', assignee: '', assignments: [], participants: [['GD', 'Maintenance manager']], checklists: [], req: '2026-09-29', due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], docs: [] });
 const stock = (q0, min) => q0 === 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${q0} in stock`, '#B54708'] : [`${q0} in stock`, '#0B6B4A'];
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
 class Component extends DCLogic {
@@ -215,9 +207,10 @@ class Component extends DCLogic {
     if (Object.keys(errors).length) return this.setState({ errors, step: 0 });
     const a = ASSETS.find(x => x[0] === f.asset) || [f.asset, f.asset, ''];
     const status = f.due ? 'Scheduled' : 'Requested';
-    const wo = { task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: f.assignee, participants: f.participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD' };
+    const asg0 = ((f.assignments || []).find(x => x.key) || {}).key || '';
+    const wo = { task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: asg0 || f.assignee, assignments: (f.assignments || []).filter(x => x.key), participants: f.participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD' };
     const key = C ? C.createWo(wo) : 'WO-1339912';
-    const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: f.assignee && C ? C.person(f.assignee).name : '', date: f.due, stop: f.stop };
+    const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: (asg0 || f.assignee) && C ? C.person(asg0 || f.assignee).name : '', assignments: (f.assignments || []).filter(x => x.key), tools: window.CMMSChecklist && window.CMMSChecklist.toolsOf ? window.CMMSChecklist.toolsOf(f.checklists.map(id => window.CMMSChecklist.load(id)).filter(Boolean)) : [], date: f.due, stop: f.stop };
     window.dispatchEvent(new CustomEvent('cmms-wo-created', { detail: row }));
     if (this.props.onCreated) this.props.onCreated(row);
     this.setState({ drawer: false, errors: {}, picker: false });
@@ -230,12 +223,14 @@ class Component extends DCLogic {
     const E = k => s.errors[k] ? '#F04438' : '#D0D5DD';
     const ok = !Object.keys(this.valid()).length;
     const inPart = k => f.participants.some(p => p[0] === k);
+    const asg = [...new Set((f.assignments || []).map(x => x.key).filter(Boolean))];
     return {
       drawerOpen: s.drawer, closeDrawer: () => this.setState({ drawer: false, picker: false }),
       drawerSub: s.prefilled && a ? `For ${a[1]} · only 3 fields required` : 'Only 3 fields required — everything else can wait',
-      steps: STEPS.map(([label, icon, hint], i) => ({ label, icon, hint: i === 1 && f.assignee ? P(f.assignee).name : i === 2 && f.checklists.length ? `${f.checklists.length} selected` : hint,
+      steps: STEPS.map(([label, icon, hint], i) => ({ label, icon, hint: i === 2 && asg.length ? (asg.length > 1 ? `${asg.length} people` : P(asg[0]).name) : i === 1 && f.checklists.length ? `${f.checklists.length} selected` : hint,
         bar: i === step ? '#C00018' : i < step || (i === 0 && ok) ? '#1E2430' : '#E4E7EC', color: i === step ? '#1E2430' : '#667085', weight: i === step ? 600 : 500, go: () => this.setState({ step: i }) })),
-      isS1: step === 0, isS2: step === 1, isS3: step === 2, isS4: step === 3,
+      isS1: step === 0, isS2: step === 2, isS3: step === 1, isS4: step === 3,
+      setAssignments: list => this.setState(st => ({ form: { ...st.form, assignments: list, participants: st.form.participants.filter(x => !list.some(y => y.key === x[0])) } })),
       f, err: { asset: E('asset'), title: E('title') }, prioErrBorder: s.errors.prio ? '#F04438' : 'transparent', prefilled: s.prefilled && !!f.asset, assetName: a ? a[1] : '',
       on: Object.fromEntries(['asset', 'title', 'due', 'dur', 'desc', 'cat'].map(k => [k, e => this.setF(k, e.target.value)])),
       assetOpts: ASSETS.map(([code, name, line]) => ({ code, label: `${name} · ${line}` })),
@@ -245,7 +240,7 @@ class Component extends DCLogic {
       assignOpts: [...TECHS.map(k => { const p = P(k); return { initials: k, name: k === 'GD' ? p.name + ' (you)' : p.name, sub: `${p.role} · ${p.team.replace(' team', '')}`, avBg: p.avBg, avFg: p.avFg, on: f.assignee === k, bg: f.assignee === k ? '#FBF7F7' : '#fff', border: f.assignee === k ? '#C00018' : '#E4E7EC', pick: () => this.setState(st => ({ form: { ...st.form, assignee: st.form.assignee === k ? '' : k, participants: st.form.participants.filter(x => x[0] !== k) } })) }; }),
         { initials: '–', name: 'Leave unassigned', sub: 'Planner assigns later', avBg: '#F2F4F7', avFg: '#98A2B3', on: !f.assignee, bg: !f.assignee ? '#F9FAFB' : '#fff', border: !f.assignee ? '#98A2B3' : '#E4E7EC', pick: () => this.setF('assignee', '') }],
       parts2: f.participants.map(([k, role]) => { const p = P(k); return { ...p, job: p.role, role, setRole: e => this.setF('participants', f.participants.map(x => x[0] === k ? [k, e.target.value] : x)), remove: () => this.setF('participants', f.participants.filter(x => x[0] !== k)) }; }),
-      roleOpts: C ? C.ROLES : [], addOpts: C ? Object.keys(C.PEOPLE).filter(k => k !== f.assignee && !inPart(k)).map(k => { const p = P(k); return { ...p, short: p.name.split(' ')[0] + ' · ' + p.role, add: () => this.setF('participants', [...f.participants, [k, ['SL', 'CM'].includes(k) ? 'Specialist' : ['LB', 'ER', 'HP'].includes(k) ? 'Follower' : 'Additional technician']]) }; }) : [],
+      roleOpts: C ? C.ROLES : [], addOpts: C ? Object.keys(C.PEOPLE).filter(k => !asg.includes(k) && !inPart(k)).map(k => { const p = P(k); return { ...p, short: p.name.split(' ')[0] + ' · ' + p.role, add: () => this.setF('participants', [...f.participants, [k, ['SL', 'CM'].includes(k) ? 'Specialist' : ['LB', 'ER', 'HP'].includes(k) ? 'Follower' : 'Additional technician']]) }; }) : [],
       setChecklists: ids => this.setF('checklists', ids), clCount: f.checklists.length ? `${f.checklists.length} selected` : '',
       descCount: (f.desc || '').length,
       parts: f.parts.map(p => { const [sl, sc] = stock(p.stock, p.min); return { ...p, stockLabel: sl, stockColor: sc,

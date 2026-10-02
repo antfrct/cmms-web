@@ -9,9 +9,8 @@
 <x-dc>
 <div style="position:relative;z-index:80;height:56px;background:#34050D;display:grid;grid-template-columns:232px minmax(0,1fr) auto;align-items:center;gap:16px;padding:0 16px 0 0;color:#fff;font-family:'IBM Plex Sans',system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.06)">
   <div style="display:flex;align-items:center;gap:6px;padding-left:16px;min-width:0">
-    <a href="Home.dc.html" title="Relix home" style="flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:6px" style-hover="background:rgba(255,255,255,.08)"><img src="relix-logo-white.svg" alt="Relix" style="width:26px;height:auto;display:block" /></a>
-    <button onClick="{{ toggleNav }}" title="{{ navTip }}" aria-label="{{ navTip }}" style="flex:none;width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:rgba(255,255,255,.7);cursor:pointer" style-hover="background:rgba(255,255,255,.1);color:#fff"><span style="font:20px/1 'Material Symbols Outlined'">{{ navIcon }}</span></button>
-    <a href="Home.dc.html" style="color:#fff;font-weight:700;font-size:18px;letter-spacing:.01em;text-decoration:none">Relix</a>
+    <a href="Home.dc.html" title="Relix home" style="flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:6px" style-hover="background:rgba(255,255,255,.08)"><img src="relix-logo-white.svg" alt="Relix" style="width:30px;height:auto;display:block" /></a>
+    <a href="Home.dc.html" style="margin-left:4px;color:#fff;font-weight:700;font-size:23px;line-height:1;letter-spacing:.01em;text-decoration:none">Relix</a>
   </div>
 
   <div style="position:relative;justify-self:center;width:100%;max-width:640px">
@@ -103,7 +102,7 @@
                   <span style="position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0;background:{{ n.edge }}"></span>
                   <span style="width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:{{ n.ibg }};color:{{ n.ifg }};font:17px/1 'Material Symbols Outlined'">{{ n.icon }}</span>
                   <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
-                    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ n.kindColor }};font-weight:600">{{ n.kind }}<sc-if value="{{ n.isCrit }}"><span style="height:17px;display:inline-flex;align-items:center;padding:0 6px;border-radius:4px;background:#C00018;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.02em">CRITICAL</span></sc-if><span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ n.ago }}</span></span>
+                    <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:{{ n.kindColor }};font-weight:600">{{ n.kind }}<sc-if value="{{ n.isImp }}"><span style="height:17px;display:inline-flex;align-items:center;padding:0 6px;border-radius:4px;background:#FEF3E2;color:#B54708;font-size:10.5px;font-weight:600">Action needed</span></sc-if><sc-if value="{{ n.isCrit }}"><span style="height:17px;display:inline-flex;align-items:center;padding:0 6px;border-radius:4px;background:#C00018;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.02em">CRITICAL</span></sc-if><span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ n.ago }}</span></span>
                     <span style="font-weight:{{ n.weight }};line-height:1.35;text-wrap:pretty">{{ n.title }}</span>
                     <span style="font-size:12px;color:#667085;line-height:1.35">{{ n.sub }}</span>
                   </span>
@@ -115,7 +114,7 @@
             </sc-for>
             <sc-if value="{{ noNotif }}"><div style="padding:36px 16px;text-align:center;color:#667085"><span style="display:block;font:28px/1 'Material Symbols Outlined';color:#98A2B3;margin-bottom:8px">notifications_off</span>You're all caught up.</div></sc-if>
           </div>
-          <a href="Work Orders.dc.html" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12.5px;font-weight:600;color:#475467"><span style="font:16px/1 'Material Symbols Outlined'">tune</span>Notification settings</a>
+          <a href="Notification Settings.dc.html" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12.5px;font-weight:600;color:#475467"><span style="font:16px/1 'Material Symbols Outlined'">tune</span>Notification settings</a>
         </div>
       </sc-if>
     </div>
@@ -135,7 +134,7 @@
         <div onClick="{{ closeAll }}" style="position:fixed;inset:0;z-index:90"></div>
         <div style="position:absolute;right:0;top:48px;z-index:91;width:300px;padding:6px;background:#fff;border:1px solid #E4E7EC;border-radius:10px;box-shadow:0 16px 40px rgba(16,24,40,.2);color:#1E2430;font-size:13px">
           <div style="display:flex;align-items:center;gap:10px;padding:8px 8px 10px;border-bottom:1px solid #EEF0F3;margin-bottom:4px">
-            <span style="width:36px;height:36px;border-radius:50%;background:#7A1E2C;color:#fff;display:grid;place-items:center;font:600 13px 'IBM Plex Sans',sans-serif">GD</span>
+            <span data-person="GD" title="View my profile" style="width:36px;height:36px;border-radius:50%;background:#7A1E2C;color:#fff;display:grid;place-items:center;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">GD</span>
             <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">Gaudéric Durand</span><span style="font-size:12px;color:#667085">{{ role }} · Mechanical team</span></span>
           </div>
           <button onClick="{{ openSites }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px;background:transparent;border:0;border-radius:6px;cursor:pointer;text-align:left;font-family:inherit" style-hover="background:#F2F4F7">
@@ -143,7 +142,8 @@
             <span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-size:11.5px;color:#98A2B3">Current site</span><span style="font-weight:600;color:#1E2430">{{ siteName }}</span></span>
             <span style="font-size:12px;font-weight:600;color:#C00018">Switch</span>
           </button>
-          <a href="Teams and Users.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">person</span>My profile</a>
+          <button onClick="{{ openMyProfile }}" style="width:100%;display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;background:transparent;border:0;border-radius:6px;color:#1E2430;font:13px 'IBM Plex Sans',sans-serif;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">person</span>My profile<span style="margin-left:auto;font-size:11.5px;color:#98A2B3">skills, availability</span></button>
+          <a href="Notification Settings.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">notifications_active</span>Notification settings</a>
           <a href="Administration.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">help</span>Help &amp; support</a>
           <div style="height:1px;background:#EEF0F3;margin:4px 0"></div>
           <a href="Home.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">logout</span>Sign out</a>
@@ -175,6 +175,23 @@
   </div>
 
   <dc-import name="QuickIntervention" hint-size="0px,0px"></dc-import>
+  <dc-import name="ProfilePanel" hint-size="0px,0px"></dc-import>
+  <div style="position:fixed;top:66px;right:16px;z-index:96;width:384px;display:flex;flex-direction:column;gap:8px;pointer-events:none">
+    <sc-for list="{{ toasts }}" as="n">
+      <div onClick="{{ n.open }}" onMouseEnter="{{ n.hold }}" onMouseLeave="{{ n.release }}" style="pointer-events:auto;position:relative;display:grid;grid-template-columns:34px minmax(0,1fr) 28px;gap:10px;padding:12px 10px 12px 16px;background:{{ n.bg }};border:1px solid {{ n.border }};border-radius:10px;box-shadow:0 12px 32px rgba(16,24,40,.2);color:#1E2430;font:13px 'IBM Plex Sans',sans-serif;cursor:pointer;overflow:hidden">
+        <span style="position:absolute;left:0;top:0;bottom:0;width:4px;background:{{ n.edge }}"></span>
+        <span style="width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:{{ n.tileBg }};color:{{ n.tileFg }};font:19px/1 'Material Symbols Outlined'">{{ n.icon }}</span>
+        <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:{{ n.kindColor }}">{{ n.kind }}<sc-if value="{{ n.isCrit }}"><span style="height:17px;display:inline-flex;align-items:center;padding:0 6px;border-radius:4px;background:#C00018;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.02em">CRITICAL</span></sc-if><span style="margin-left:auto;font-weight:400;color:#98A2B3">now</span></span>
+          <span style="font-weight:600;line-height:1.35;text-wrap:pretty">{{ n.title }}</span>
+          <sc-if value="{{ n.hasSub }}"><span style="font-size:12px;color:#667085;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ n.sub }}</span></sc-if>
+          <span style="display:flex;gap:12px;margin-top:4px;font-size:12.5px;font-weight:600"><span style="color:#C00018">{{ n.cta }}</span><button onClick="{{ n.markRead }}" style="padding:0;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Mark as read</button></span>
+        </span>
+        <button onClick="{{ n.dismiss }}" title="Dismiss" style="width:28px;height:28px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#475467"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
+        <sc-if value="{{ n.timed }}"><span style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#F2F4F7"><span style="display:block;height:100%;width:{{ n.left }};background:{{ n.edge }};transition:width .25s linear"></span></span></sc-if>
+      </div>
+    </sc-for>
+  </div>
   <sc-if value="{{ toast }}">
     <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;font:500 13px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24)"><span style="font:18px/1 'Material Symbols Outlined';color:#4ADE9B">check_circle</span>{{ toast }}</div>
   </sc-if>
@@ -219,6 +236,7 @@ const NOTIF = [
   ['n9', 'info', 'event', 'Planning change', 'Palletizing Robot — Lubrication', 'Moved to Wed 30, 10:00 · by Hugo Petit', 'Yesterday', 'earlier', 'Planning.dc.html', 1],
   ['n10', 'info', 'subdirectory_arrow_right', 'Follow-up intervention created', 'Conveyor Line 3 — Belt replacement', 'From the completed sensor check · Sophie Martin', 'Yesterday', 'earlier', woHref('Conveyor Line 3 — Belt replacement', 'Float Line', 'Corrective', 'Medium', 'Requested'), 1],
 ];
+const NTYPE = { n1: 'eq-critical', n2: 'int-overdue', n3: 'wo-assigned', n4: 'part-unavailable', n5: 'int-paused', n6: 'wo-priority', n8: 'part-low', n9: 'plan-change', n10: 'wo-followup' };
 const norm = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || '');
 class Component extends DCLogic {
@@ -227,7 +245,7 @@ class Component extends DCLogic {
     let read = {}, lang = 'EN', collapsed = false;
     try { read = JSON.parse(localStorage.getItem(NKEY) || '{}'); lang = localStorage.getItem(LKEY) || 'EN'; collapsed = localStorage.getItem(KEY) === '1'; } catch (e) {}
     NOTIF.forEach(n => { if (n[9] && read[n[0]] === undefined) read[n[0]] = true; });
-    this.state = { q: '', focus: false, active: 0, cat: '', collapsed, read, lang, menu: null, nfilter: 'all', siteQ: '', site: null, toast: null };
+    this.state = { q: '', focus: false, active: 0, cat: '', collapsed, read, lang, menu: null, nfilter: 'all', siteQ: '', site: null, toast: null, toasts: [] };
   }
   inputRef = React.createRef();
   componentDidMount() {
@@ -237,10 +255,21 @@ class Component extends DCLogic {
     import((window.__resources && window.__resources.sitesModel) || './sites-model.js').then(S => this.setState({ site: S.current().id }));
     this._site = e => this.setState({ site: e.detail }); this._siteOpen = () => this.setState({ menu: 'sites', siteQ: '' });
     window.addEventListener('cmms-site', this._site); window.addEventListener('cmms-site-open', this._siteOpen);
-    import('./collab-model.js').then(C => this.setState({ C }));
-    this._notif = () => this.setState(s => ({ nv: (s.nv || 0) + 1 })); window.addEventListener('cmms-notif', this._notif);
+    Promise.all([import('./collab-model.js'), import('./notif-model.js')]).then(([C, N]) => { this.setState({ C, N });
+      try { if (!sessionStorage.getItem('cmms.notif.demo') && !/Intervention|Notification Settings/.test(decodeURIComponent(location.pathname))) { sessionStorage.setItem('cmms.notif.demo', '1'); this._demo = setTimeout(() => C.post('team', 'PL', '@Gaudéric the BPU280 belts just arrived at the Float Line store — shall I fit one on Dryer S-01 this afternoon?'), 7000); } } catch (e) {} });
+    this._notif = e => { this.setState(s => ({ nv: (s.nv || 0) + 1 })); if (e && e.detail) this.pushToast(e.detail); };
+    this._prefs = () => this.setState(s => ({ nv: (s.nv || 0) + 1 }));
+    window.addEventListener('cmms-notif', this._notif); window.addEventListener('cmms-notif-prefs', this._prefs);
+    this._tick = setInterval(() => { const now = Date.now(); const ts = this.state.toasts.filter(x => !x.ttl || x.hold || now < x.until); if (ts.length !== this.state.toasts.length || ts.some(x => x.ttl)) this.setState({ toasts: ts }); }, 250);
   }
-  componentWillUnmount() { ['cmms-nav', 'keydown', 'cmms-site', 'cmms-site-open'].forEach((k, i) => window.removeEventListener(k, [this._nav, this._key, this._site, this._siteOpen][i])); clearTimeout(this._t); }
+  componentWillUnmount() { clearInterval(this._tick); clearTimeout(this._demo); window.removeEventListener('cmms-notif', this._notif); window.removeEventListener('cmms-notif-prefs', this._prefs); ['cmms-nav', 'keydown', 'cmms-site', 'cmms-site-open'].forEach((k, i) => window.removeEventListener(k, [this._nav, this._key, this._site, this._siteOpen][i])); clearTimeout(this._t); }
+  pushToast(d) {
+    const N = this.state.N; if (!N) return;
+    const type = d.type || 'wo-message'; if (N.levelOf(type) !== 'toast') return;
+    const L = N.look(type), now = Date.now();
+    const item = { id: d.id || 't' + now, type, kind: d.kind || N.typeOf(type).label, title: d.title || '', sub: d.sub || '', href: d.href || '#', icon: d.icon || L.icon, ttl: L.ttl, until: now + L.ttl, start: now, hold: false };
+    this.setState(s => ({ toasts: [item, ...s.toasts.filter(x => x.id !== item.id)].slice(0, 3) }));
+  }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2800); }
   setRead(read) { try { localStorage.setItem(NKEY, JSON.stringify(read)); } catch (e) {} this.setState({ read }); }
   toggleNav() { const c = !this.state.collapsed; try { localStorage.setItem(KEY, c ? '1' : '0'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-nav', { detail: c })); this.setState({ collapsed: c }); }
@@ -284,14 +313,16 @@ class Component extends DCLogic {
     const cats = [['', 'All', 'apps', r.total]].concat(Object.keys(CAT).map(t => [t, CAT[t][0], CAT[t][1], r.counts[t] || 0])).map(([k, label, icon, count]) => {
       const on = st.cat === k; return { label, icon, count, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#E4E7EC', color: on ? '#fff' : '#344054', countColor: on ? 'rgba(255,255,255,.7)' : '#98A2B3', op: count || on ? 1 : 0.45, select: () => this.setState({ cat: on ? '' : k, active: 0 }) }; });
 
-    const chatN = st.C ? st.C.notifications().map(n => ({ id: n.id, lvl: n.lvl, icon: n.icon, kind: n.kind, title: n.title, sub: n.sub, ago: n.ago, grp: 'today', href: st.C.notifHref(n), unread: !st.read[n.id] })) : [];
-    const nList = [...chatN.filter(n => n.ago === 'now'), ...NOTIF.map(([id, lvl, icon, kind, title, sub, ago, grp, href]) => ({ id, lvl, icon, kind, title, sub, ago, grp, href, unread: !st.read[id] })), ...chatN.filter(n => n.ago !== 'now')];
+    const chatN = st.C ? st.C.notifications().map(n => ({ type: n.type || (n.icon === 'swap_horiz' ? 'reassign' : n.icon === 'alternate_email' ? 'mention' : 'wo-message'), id: n.id, lvl: n.lvl, icon: n.icon, kind: n.kind, title: n.title, sub: n.sub, ago: n.ago, grp: 'today', href: st.C.notifHref(n), unread: !st.read[n.id] })) : [];
+    const nList = [...chatN.filter(n => n.ago === 'now'), ...NOTIF.map(([id, lvl, icon, kind, title, sub, ago, grp, href]) => ({ id, type: NTYPE[id], lvl, icon, kind, title, sub, ago, grp, href, unread: !st.read[id] })), ...chatN.filter(n => n.ago !== 'now')];
     const order = { now: 0, '2 min': 1, '15 min': 2, '20 min': 3, '28 min': 4, '40 min': 5, '45 min': 6, '1 h': 7, '2 h': 8, Yesterday: 9 };
     nList.sort((a, b) => (order[a.ago] ?? 8) - (order[b.ago] ?? 8));
+    if (st.N) { for (let i = nList.length - 1; i >= 0; i--) if (st.N.levelOf(nList[i].type) === 'activity') nList.splice(i, 1); }
     const unread = nList.filter(n => n.unread).length;
     const shown = nList.filter(n => st.nfilter === 'all' || n.unread);
-    const notifGroups = [['today', 'Today'], ['earlier', 'Earlier']].map(([g, label]) => ({ label, items: shown.filter(n => n.grp === g).map(n => { const [ibg, ifg, edge] = LVL[n.lvl];
-      return { ...n, ibg, ifg, edge: n.unread ? edge : 'transparent', isCrit: n.lvl === 'crit', kindColor: n.lvl === 'crit' ? '#B42318' : n.lvl === 'imp' ? '#B54708' : '#667085', weight: n.unread ? 600 : 400, bg: n.unread ? (n.lvl === 'crit' ? '#FEF6F6' : '#FFFFFF') : '#FBFBFC',
+    const notifGroups = [['today', 'Today'], ['earlier', 'Earlier']].map(([g, label]) => ({ label, items: shown.filter(n => n.grp === g).map(n => { let [ibg, ifg, edge] = LVL[n.lvl], bg0 = null;
+      if (st.N && n.type) { const L = st.N.look(n.type); ibg = L.tileBg; ifg = L.tileFg; edge = L.edge; bg0 = n.unread && L.imp === 'crit' ? L.rowBg : null; }
+      return { ...n, ibg, ifg, edge: n.unread ? edge : 'transparent', isCrit: n.lvl === 'crit', isImp: n.lvl === 'imp' && n.unread, kindColor: n.lvl === 'crit' ? '#B42318' : n.lvl === 'imp' ? '#B54708' : '#667085', weight: n.unread ? 600 : 400, bg: n.unread ? (n.lvl === 'crit' ? '#FEF6F6' : '#FFFFFF') : '#FBFBFC',
         markRead: e => { e.stopPropagation(); this.setRead({ ...this.state.read, [n.id]: true }); },
         open: () => { this.setRead({ ...this.state.read, [n.id]: true }); window.location.href = n.href; } }; }) })).filter(g => g.items.length);
 
@@ -328,7 +359,17 @@ class Component extends DCLogic {
       notifGroups, noNotif: !notifGroups.length,
       profileOpen: menu === 'profile', toggleProfile: toggle('profile'), profileBg: menu === 'profile' || menu === 'sites' ? 'rgba(255,255,255,.12)' : 'transparent',
       openSites: () => this.setState({ menu: 'sites', siteQ: '' }), sitesOpen: menu === 'sites', siteQ: st.siteQ, setSiteQ: e => this.setState({ siteQ: e.target.value }),
+      openMyProfile: () => { this.setState({ menu: null }); window.dispatchEvent(new CustomEvent('cmms-profile-open', { detail: { key: 'GD' } })); },
       toast: st.toast,
+      toasts: st.toasts.map(x => { const L = st.N ? st.N.look(x.type) : {}, crit = L.imp === 'crit';
+        const done = () => this.setState(s => ({ toasts: s.toasts.filter(y => y.id !== x.id) }));
+        return { ...x, ...L, isCrit: crit, hasSub: !!x.sub, bg: crit ? '#FFFBFB' : '#fff', border: crit ? '#F3A3AC' : '#E4E7EC', cta: crit ? 'Open now' : 'Open',
+          timed: !!x.ttl, left: x.ttl ? Math.max(0, (x.until - Date.now()) / x.ttl * 100) + '%' : '0%',
+          open: () => { done(); this.setRead({ ...this.state.read, [x.id]: true }); window.location.href = x.href; },
+          markRead: e => { e.stopPropagation(); done(); this.setRead({ ...this.state.read, [x.id]: true }); },
+          dismiss: e => { e.stopPropagation(); done(); },
+          hold: () => this.setState(s => ({ toasts: s.toasts.map(y => y.id === x.id ? { ...y, hold: true } : y) })),
+          release: () => this.setState(s => ({ toasts: s.toasts.map(y => y.id === x.id ? { ...y, hold: false, until: Date.now() + (y.ttl || 0) } : y) })) }; }),
     };
   }
 }

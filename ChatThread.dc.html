@@ -15,10 +15,10 @@
       </sc-if>
       <sc-if value="{{ m.isMsg }}">
         <div data-msg="{{ m.id }}" style="display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;padding:7px 16px;background:{{ m.bg }};border-left:3px solid {{ m.edge }}">
-          <span style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:{{ m.avBg }};color:{{ m.avFg }};font:600 10.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span>
+          <span data-person="{{ m.initials }}" title="View profile" style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:{{ m.avBg }};color:{{ m.avFg }};font:600 10.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ m.initials }}</span>
           <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
-            <span style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span style="font-weight:600">{{ m.name }}</span><span style="font-size:11.5px;color:#98A2B3">{{ m.role }} · {{ m.t }}</span><sc-if value="{{ m.hasTag }}"><span style="height:18px;display:inline-flex;align-items:center;gap:3px;padding:0 6px;border-radius:4px;background:{{ m.tagBg }};color:{{ m.tagFg }};font-size:11px;font-weight:600"><span style="font:12px/1 'Material Symbols Outlined'">{{ m.tagIcon }}</span>{{ m.tag }}</span></sc-if></span>
-            <span style="line-height:1.45;text-wrap:pretty;font-size:{{ fontSize }}"><sc-for list="{{ m.parts }}" as="p"><span style="color:{{ p.color }};font-weight:{{ p.weight }};background:{{ p.bg }};border-radius:3px;padding:{{ p.pad }}">{{ p.t }}</span></sc-for></span>
+            <span style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap"><span data-person="{{ m.initials }}" style="font-weight:600;cursor:pointer">{{ m.name }}</span><span style="font-size:11.5px;color:#98A2B3">{{ m.role }} · {{ m.t }}</span><sc-if value="{{ m.hasTag }}"><span style="height:18px;display:inline-flex;align-items:center;gap:3px;padding:0 6px;border-radius:4px;background:{{ m.tagBg }};color:{{ m.tagFg }};font-size:11px;font-weight:600;white-space:nowrap"><span style="font:12px/1 'Material Symbols Outlined'">{{ m.tagIcon }}</span>{{ m.tag }}</span></sc-if></span>
+            <span style="line-height:1.45;text-wrap:pretty;font-size:{{ fontSize }}"><sc-for list="{{ m.parts }}" as="p"><span data-person="{{ p.who }}" style="color:{{ p.color }};font-weight:{{ p.weight }};background:{{ p.bg }};border-radius:3px;padding:{{ p.pad }};cursor:{{ p.cursor }}">{{ p.t }}</span></sc-for></span>
             <sc-if value="{{ m.photo }}"><span style="width:180px;height:104px;margin-top:2px;border-radius:6px;border:1px solid #E4E7EC;background:repeating-linear-gradient(135deg,#F2F4F7 0 6px,#E9ECF0 6px 12px);display:grid;place-items:center;font:11px 'IBM Plex Mono',monospace;color:#98A2B3">photo</span></sc-if>
             <sc-if value="{{ m.hasRef }}">
               <a href="{{ m.ref.href }}" style="align-self:flex-start;max-width:100%;display:flex;align-items:center;gap:8px;margin-top:2px;padding:5px 10px 5px 6px;border:1px solid #E4E7EC;border-radius:6px;background:#fff;color:#1E2430" style-hover="border-color:#98A2B3">
@@ -121,7 +121,7 @@ class Component extends DCLogic {
       const k = m.ref && KIND[m.ref.kind];
       return { id: m.id, isSys: false, isMsg: true, t: m.t, name: m.who === C.ME ? 'You' : p.name, role: p.role, initials: m.who, avBg: p.avBg, avFg: p.avFg,
         bg: hl ? '#FFF8E6' : 'transparent', edge: hl ? '#F79009' : 'transparent', hasTag: !!m.tag, tag: m.tag, tagBg: tbg, tagFg: tfg, tagIcon: ticon, photo: !!m.photo,
-        parts: C.parse(m.text || '').map(x => ({ t: x.t, color: x.mention ? (x.mention === C.ME ? '#A30014' : '#2456B8') : 'inherit', weight: x.mention ? 600 : 400, bg: x.mention ? (x.mention === C.ME ? '#FBE7EA' : '#EAF1FD') : 'transparent', pad: x.mention ? '0 3px' : '0' })),
+        parts: C.parse(m.text || '').map(x => ({ who: x.mention || undefined, cursor: x.mention ? 'pointer' : 'inherit', t: x.t, color: x.mention ? (x.mention === C.ME ? '#A30014' : '#2456B8') : 'inherit', weight: x.mention ? 600 : 400, bg: x.mention ? (x.mention === C.ME ? '#FBE7EA' : '#EAF1FD') : 'transparent', pad: x.mention ? '0 3px' : '0' })),
         hasRef: !!m.ref, ref: m.ref ? { ...m.ref, icon: k[0], fg: k[1], bg: k[2] } : {} };
     });
     const mq = s.focus ? this.mentionQuery() : null;
