@@ -34,36 +34,6 @@
     </button>
   </div>
 
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;background:#F9FAFB;border:1px solid #EEF0F3;border-radius:8px">
-    <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#475467;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">engineering</span>Required skills</span>
-    <sc-for list="{{ stepSkills }}" as="k">
-      <span style="height:26px;display:inline-flex;align-items:center;gap:4px;padding:0 3px 0 7px;border-radius:13px;background:{{ k.bg }};color:{{ k.fg }};font-size:12px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}<button onClick="{{ k.remove }}" title="Remove skill" style="width:20px;height:20px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:10px;color:inherit;cursor:pointer;opacity:.7"><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></span>
-    </sc-for>
-    <sc-if value="{{ noStepSkills }}"><span style="font-size:12px;color:#98A2B3">Any technician</span></sc-if>
-    <span style="position:relative;display:flex">
-      <select value="" onChange="{{ addSkill }}" style="appearance:none;-webkit-appearance:none;height:26px;padding:0 24px 0 8px;border:1px dashed #C4CAD4;border-radius:13px;font:600 12px 'IBM Plex Sans',sans-serif;color:#344054;background:#fff;outline:none;cursor:pointer">
-        <option value="">+ Skill</option>
-        <sc-for list="{{ skillChoices }}" as="c"><option value="{{ c.id }}">{{ c.name }}</option></sc-for>
-      </select>
-      <span style="position:absolute;right:4px;top:4px;pointer-events:none;font:16px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
-    </span>
-    <span style="width:1px;height:20px;background:#E4E7EC;margin:0 4px"></span>
-    <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#475467;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">timer</span>Duration</span>
-    <span style="display:flex;align-items:center;height:28px;border:1px solid #D0D5DD;border-radius:6px;background:#fff">
-      <input type="number" min="0" step="5" value="{{ minutes }}" onInput="{{ setMinutes }}" placeholder="—" style="width:52px;height:26px;padding:0 6px;border:0;outline:none;font:600 13px 'IBM Plex Mono',monospace;text-align:right;background:transparent" />
-      <span style="padding:0 8px 0 2px;font-size:12px;color:#667085">min</span>
-    </span>
-    <sc-if value="{{ hasSameAsPrev }}"><button onClick="{{ sameAsPrev }}" title="Copy skills from the previous step" style="height:26px;padding:0 8px;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#2456B8;cursor:pointer;white-space:nowrap">Same as previous step</button></sc-if>
-  </div>
-
-  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:-6px;padding:8px 10px;background:#F9FAFB;border:1px solid #EEF0F3;border-radius:8px">
-    <span style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#475467;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">forklift</span>Mobile assets</span>
-    <sc-for list="{{ stepTools }}" as="k"><span title="Reserved while this work order is scheduled" style="height:26px;display:inline-flex;align-items:center;gap:4px;padding:0 3px 0 7px;border-radius:13px;background:#EAF1FD;color:#2456B8;font-size:12px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}<button onClick="{{ k.remove }}" style="width:20px;height:20px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:10px;color:inherit;cursor:pointer;opacity:.7"><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></span></sc-for>
-    <sc-if value="{{ noTools }}"><span style="font-size:12px;color:#98A2B3">None needed</span></sc-if>
-    <span style="position:relative;display:flex"><select value="" onChange="{{ addTool }}" style="appearance:none;-webkit-appearance:none;height:26px;padding:0 24px 0 8px;border:1px dashed #C4CAD4;border-radius:13px;font:600 12px 'IBM Plex Sans',sans-serif;color:#344054;background:#fff;outline:none;cursor:pointer"><option value="">+ Mobile asset</option><sc-for list="{{ toolChoices }}" as="c"><option value="{{ c.id }}">{{ c.name }}</option></sc-for></select><span style="position:absolute;right:4px;top:4px;pointer-events:none;font:16px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
-    <span style="font-size:11.5px;color:#98A2B3">reserved in Planning when the work order is scheduled</span>
-  </div>
-
   <sc-if value="{{ hasOptions }}">
     <div style="display:flex;flex-direction:column;gap:6px">
       <span style="font-size:12px;font-weight:600;color:#667085">{{ optionsLabel }}</span>
@@ -208,8 +178,7 @@ class Component extends DCLogic {
     if (this.props.focusNonce && this.props.focusNonce !== prev.focusNonce && this.props.focus) this.setState(s => ({ open: { ...s.open, [this.props.focus]: true } }));
     if (prev.step && this.props.step && prev.step.id !== this.props.step.id) this.setState({ open: this.props.focus ? { [this.props.focus]: true } : {}, typesOpen: false });
   }
-  componentDidMount() { if (this.props.focus) this.setState({ open: { [this.props.focus]: true } }); import('./people-model.js').then(PM => this.setState({ PM })); import('./plant-model.js').then(PL => this.setState({ PL })); this._sk = () => this.forceUpdate(); window.addEventListener('cmms-skills', this._sk); }
-  componentWillUnmount() { window.removeEventListener('cmms-skills', this._sk); }
+  componentDidMount() { if (this.props.focus) this.setState({ open: { [this.props.focus]: true } }); }
   renderVals() {
     const M = window.CMMSChecklist, st = this.props.step;
     if (!M || !st) return { ready: false };
@@ -236,16 +205,7 @@ class Component extends DCLogic {
     if (!show('logic')) chips.push(['logic', ans ? 'Condition' : 'Next step']);
     if (!show('media')) chips.push(['media', 'Supporting content']);
     if (validable && !show('valid')) chips.push(['valid', 'Validation']);
-    const PM = this.state.PM, sk = st.skills || [], prev = idx > 0 ? steps[idx - 1] : null;
     return {
-      stepSkills: PM ? sk.map(id => { const k = PM.skill(id); return { name: k.name, icon: k.icon, fg: k.fg, bg: k.bg, remove: () => ch({ skills: sk.filter(x => x !== id) }) }; }) : [],
-      ...(() => { const PL = this.state.PL, tl = st.tools || []; if (!PL) return { stepTools: [], noTools: true, toolChoices: [] };
-        return { stepTools: tl.map(id => { const a = PL.asset(id) || { name: id, type: '' }; return { name: a.name, icon: PL.typeIcon(a.type), remove: () => ch({ tools: tl.filter(x => x !== id) }) }; }), noTools: !tl.length,
-          toolChoices: PL.mobileAssets().filter(a => !tl.includes(a.id)).map(a => ({ id: a.id, name: a.name })), addTool: e => { const v = e.target.value; if (v) ch({ tools: [...tl, v] }); e.target.value = ''; } }; })(),
-      noStepSkills: !sk.length, skillChoices: PM ? PM.skills().filter(k => k.active && !sk.includes(k.id)).map(k => ({ id: k.id, name: k.name })) : [],
-      addSkill: e => { const v = e.target.value; if (v) ch({ skills: [...sk, v] }); e.target.value = ''; },
-      minutes: st.minutes ?? '', setMinutes: e => ch({ minutes: e.target.value === '' ? '' : Math.max(0, +e.target.value) }),
-      hasSameAsPrev: !!(prev && (prev.skills || []).length && (prev.skills || []).join() !== sk.join()), sameAsPrev: () => ch({ skills: [...(prev.skills || [])] }),
       ready: true, title: st.title, setTitle: e => ch({ title: e.target.value }),
       typeLabel: T.label, typeIcon: T.icon, typeBg: tbg, typeFg: tfg,
       typesOpen: this.state.typesOpen, toggleTypes: () => this.setState({ typesOpen: !this.state.typesOpen }), closeTypes: () => this.setState({ typesOpen: false }),

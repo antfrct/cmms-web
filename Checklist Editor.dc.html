@@ -23,7 +23,6 @@
         <a href="Checklists.dc.html" style="display:flex;align-items:center;gap:4px;color:#475467;font-weight:500"><span style="font:16px/1 'Material Symbols Outlined'">arrow_back</span>Checklists</a>
       </nav>
       <div style="display:flex;align-items:center;gap:10px">
-        <dc-import name="BackButton" fallback="Checklists.dc.html" hint-size="34px,34px"></dc-import>
         <input value="{{ name }}" onInput="{{ setName }}" placeholder="Checklist name" style="flex:1;min-width:0;height:36px;margin-left:-8px;padding:0 8px;border:1px solid transparent;border-radius:6px;font:600 22px 'IBM Plex Sans',sans-serif;letter-spacing:-.01em;color:#1E2430;background:transparent;outline:none" style-hover="border-color:#E4E7EC" style-focus="border-color:#C00018;background:#fff" />
         <span style="display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:12px;font-size:12px;font-weight:600;background:{{ statusBg }};color:{{ statusFg }};white-space:nowrap"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ statusLabel }}</span>
         <sc-if value="{{ dirty }}"><span style="font-size:12.5px;color:#B54708;white-space:nowrap">Unsaved changes</span></sc-if>
@@ -53,15 +52,6 @@
     <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
       <div style="flex:none;padding:20px 28px 40px">
         <div style="max-width:880px;margin:0 auto;display:flex;flex-direction:column;gap:8px">
-          <sc-if value="{{ hasSegs }}">
-            <div style="display:flex;flex-direction:column;gap:8px;padding:12px 14px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;margin-bottom:4px">
-              <div style="display:flex;align-items:center;gap:8px"><span style="font:17px/1 'Material Symbols Outlined';color:#475467">engineering</span><span style="font-weight:600">Who is needed</span><span style="font-size:12px;color:#667085">{{ segSummary }}</span><span style="margin-left:auto;font:600 13px 'IBM Plex Mono',monospace">{{ totalLabel }}</span></div>
-              <div style="display:flex;gap:3px;height:30px">
-                <sc-for list="{{ segs }}" as="g"><span title="{{ g.tip }}" style="flex:{{ g.flex }};min-width:0;display:flex;align-items:center;gap:5px;padding:0 8px;border-radius:5px;background:{{ g.bg }};color:{{ g.fg }};font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden"><span style="font:14px/1 'Material Symbols Outlined'">{{ g.icon }}</span><span style="overflow:hidden;text-overflow:ellipsis">{{ g.name }} · {{ g.dur }}</span></span></sc-for>
-              </div>
-              <span style="font-size:12px;color:#98A2B3">Used to suggest the right people and plan each part of the work order. Branch-only steps are not counted.</span>
-            </div>
-          </sc-if>
           <sc-for list="{{ rows }}" as="s" hint-placeholder-count="6">
             <div draggable="{{ s.draggable }}" onDragStart="{{ s.drag }}" onDragOver="{{ s.over }}" onDrop="{{ s.drop }}" onDragEnd="{{ s.end }}" style="position:relative;margin-left:{{ s.indent }};opacity:{{ s.op }}">
               <sc-if value="{{ s.isBranch }}"><span style="position:absolute;left:-22px;top:-8px;width:16px;height:36px;border-left:2px solid #BCD0F5;border-bottom:2px solid #BCD0F5;border-bottom-left-radius:8px"></span></sc-if>
@@ -78,10 +68,6 @@
                       <sc-if value="{{ s.isBranch }}"><span style="display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:10px;background:#F2F4F7;color:#475467;font-weight:500;white-space:nowrap">Only when sent here</span></sc-if>
                       <sc-if value="{{ s.hasMedia }}"><span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">perm_media</span>{{ s.mediaCount }}</span></sc-if>
                     </span>
-                  </span>
-                  <span style="flex:none;display:flex;align-items:center;gap:4px">
-                    <sc-for list="{{ s.skillChips }}" as="k"><span title="{{ k.name }} required" style="height:22px;display:inline-flex;align-items:center;gap:3px;padding:0 7px 0 5px;border-radius:11px;background:{{ k.bg }};color:{{ k.fg }};font-size:11.5px;font-weight:600;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}</span></sc-for>
-                    <sc-if value="{{ s.hasMin }}"><span style="min-width:52px;text-align:right;font:500 12px 'IBM Plex Mono',monospace;color:#475467">{{ s.minLabel }}</span></sc-if>
                   </span>
                   <span style="font:20px/1 'Material Symbols Outlined';color:#98A2B3">{{ s.chev }}</span>
                 </div>
@@ -241,7 +227,6 @@ class Component extends DCLogic {
       const cl = M.load(id) || M.fromName(id, URLQ.get('name') || 'New checklist');
       this.setState({ ready: true, cl, saved: JSON.stringify(cl) });
     });
-    import('./people-model.js').then(PM => { this.PM = PM; this.forceUpdate(); });
     this._mv = e => { if (!this._link) return; const p = this.toCanvas(e); this.setState(z => ({ link: { ...z.link, x2: p.x, y2: p.y } })); };
     this._up = e => { const L = this._link; if (!L) return; this._link = null; const el = document.elementFromPoint(e.clientX, e.clientY), t = el && el.closest('[data-node-id]'); this.setState({ link: null }); if (t) this.applyLink(L.from, L.when, t.getAttribute('data-node-id')); };
     window.addEventListener('pointermove', this._mv); window.addEventListener('pointerup', this._up);
@@ -379,7 +364,6 @@ class Component extends DCLogic {
     const rows = steps.map((st, i) => {
       const T = M.TYPES[st.type], [ibg, ifg] = M.GROUP_COLORS[T.group], open = s.expanded === st.id, logic = M.logicSummary(cl, st);
       return { ...mk(st, i), n: i + 1, title: st.title || 'Untitled step', titleColor: st.title ? '#1E2430' : '#98A2B3', icon: T.icon, ibg, ifg,
-        skillChips: this.PM ? (st.skills || []).map(id => this.PM.skill(id)) : [], hasMin: !!+st.minutes, minLabel: +st.minutes ? st.minutes + ' min' : '',
         meta: `${T.label} · ${st.required ? 'Required' : 'Optional'}`, hasLogic: !!logic, logic, isBranch: st.conditional, indent: st.conditional ? '36px' : '0',
         hasMedia: st.media.length > 0, mediaCount: st.media.length, open, chev: open ? 'expand_less' : 'expand_more',
         border: open ? '#C00018' : '#E4E7EC', ring: open ? '0 0 0 3px rgba(192,0,24,.08)' : 'none', op: s.drag === i ? 0.4 : 1, draggable: open ? 'false' : 'true',
@@ -401,9 +385,6 @@ class Component extends DCLogic {
       preview: () => { M.savePreview(cl); window.location.href = 'Intervention.dc.html?preview=1'; },
       allSteps: steps, focus: s.focus, focusNonce: s.focusNonce,
       rows, empty: !steps.length,
-      ...(() => { const PM = this.PM; if (!PM) return { hasSegs: false, segs: [] }; const sg = PM.segmentsOf([cl]), tot = sg.reduce((a, g) => a + g.minutes, 0);
-        return { hasSegs: sg.length > 0 && tot > 0, totalLabel: PM.dur(tot), segSummary: sg.length > 1 ? `${sg.length} parts · can be split between people` : 'One part',
-          segs: sg.map(g => { const k = g.skills.length ? PM.skill(g.skills[0]) : { icon: 'person', fg: '#475467', bg: '#EEF1F4' }; return { name: PM.skillNames(g.skills), dur: PM.dur(g.minutes), icon: k.icon, fg: k.fg, bg: k.bg, flex: Math.max(1, g.minutes), tip: `${g.label} · ${PM.skillNames(g.skills)} · ${PM.dur(g.minutes)}` }; }) }; })(),
       quickRef: this.quickRef, quick: s.quick, setQuick: e => this.setState({ quick: e.target.value }), quickKey: e => { if (e.key === 'Enter') { e.preventDefault(); this.addQuick(); } },
       quickType: s.quickType, setQuickType: e => this.setState({ quickType: e.target.value }), autoLabel: `Auto · ${M.TYPES[guess].label}`,
       typeOpts: Object.entries(M.TYPES).map(([v, t]) => ({ v, l: t.label })), addQuick: () => this.addQuick(),

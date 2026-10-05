@@ -17,7 +17,7 @@
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="workorders" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
-  <main ref="{{ mainRef }}" style="position:relative;min-height:0;overflow:hidden;padding:16px 28px 0;display:flex;flex-direction:column;gap:16px" data-screen-label="Work order detail">
+  <main ref="{{ mainRef }}" style="position:relative;overflow:auto;padding:16px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Work order detail">
     <sc-if value="{{ editing }}">
       <div style="position:sticky;top:-16px;z-index:20;margin:-16px -28px 0;padding:10px 28px;background:#1E2430;color:#fff;display:flex;align-items:center;gap:12px">
         <span style="font:20px/1 'Material Symbols Outlined'">edit</span>
@@ -30,11 +30,10 @@
 
     <nav style="flex:none;display:flex;align-items:center;gap:6px;font-size:12.5px;color:#667085">
       <a href="Work Orders.dc.html" style="display:flex;align-items:center;gap:4px;color:#475467;font-weight:500;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">arrow_back</span>Work orders</a>
-      <span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">chevron_right</span><span style="font-family:'IBM Plex Mono',monospace;color:#667085">{{ woId }}</span>
+      <span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">chevron_right</span><span style="font-family:'IBM Plex Mono',monospace;color:#667085">{{ wo.key }}</span>
     </nav>
 
-    <header style="flex:none;display:flex;align-items:flex-start;gap:14px">
-      <dc-import name="BackButton" fallback="Work Orders.dc.html" hint-size="34px,34px"></dc-import>
+    <header style="flex:none;display:flex;align-items:flex-start;gap:16px">
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
         <sc-if value="{{ viewing }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -54,7 +53,7 @@
           </div>
         </sc-if>
         <div style="display:flex;align-items:center;gap:16px;color:#667085;flex-wrap:wrap">
-          <button onClick="{{ copyId }}" title="Copy work order ID" style="height:22px;display:flex;align-items:center;gap:4px;padding:0 6px;background:#F2F4F7;border:0;border-radius:4px;font:500 12px 'IBM Plex Mono',monospace;color:#475467;cursor:pointer;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">content_copy</span>{{ woId }}</button>
+          <button onClick="{{ copyId }}" title="Copy work order ID" style="height:22px;display:flex;align-items:center;gap:4px;padding:0 6px;background:#F2F4F7;border:0;border-radius:4px;font:500 12px 'IBM Plex Mono',monospace;color:#475467;cursor:pointer;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">content_copy</span>{{ wo.key }}</button>
           <sc-if value="{{ viewing }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;gap:5px;color:{{ ty.fg }};font-weight:600"><span style="font:16px/1 'Material Symbols Outlined'">{{ ty.icon }}</span>{{ wo.type }}</span></sc-if>
           <sc-if value="{{ editing }}"><span style="display:flex;gap:4px"><sc-for list="{{ typeOpts }}" as="t"><button onClick="{{ t.select }}" style="height:28px;display:flex;align-items:center;gap:4px;padding:0 9px 0 6px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:6px;font:{{ t.font }};color:{{ t.color }};cursor:pointer"><span style="font:15px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}</button></sc-for></span></sc-if>
           <span style="display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined'">location_on</span>{{ wo.loc }}</span>
@@ -97,8 +96,8 @@
       </section>
     </sc-if>
 
-    <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(360px,1fr);gap:16px;margin:0 -28px;padding:0 28px">
-      <div style="min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px;min-width:0;padding-bottom:24px">
+    <div style="flex:none;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(360px,1fr);gap:16px;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px">
           <h2 style="margin:0;font-size:14px;font-weight:600">Description</h2>
           <sc-if value="{{ viewing }}" hint-placeholder-val="{{ true }}">
@@ -177,47 +176,29 @@
         </section>
       </div>
 
-      <div style="min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px;min-width:0;padding-bottom:24px">
-        <section ref="{{ chatRef }}" style="background:#fff;border:1px solid {{ chatBorder }};border-radius:8px;overflow:hidden;display:flex;flex-direction:column;flex:none;height:500px">
+      <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+        <section ref="{{ chatRef }}" style="background:#fff;border:1px solid {{ chatBorder }};border-radius:8px;overflow:hidden;display:flex;flex-direction:column;height:520px">
           <div style="flex:none;display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #EEF0F3">
             <span style="font:18px/1 'Material Symbols Outlined';color:#475467">forum</span>
             <h2 style="margin:0;font-size:14px;font-weight:600">Discussion</h2>
             <span style="font-size:12px;color:#98A2B3;white-space:nowrap">{{ chatSub }}</span>
-            <span style="margin-left:auto;display:flex"><sc-for list="{{ avatars }}" as="m"><span data-person="{{ m.key }}" title="{{ m.name }}" style="cursor:pointer;width:24px;height:24px;margin-left:-5px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;background:{{ m.avBg }};color:{{ m.avFg }};font:600 8.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span></sc-for></span>
+            <span style="margin-left:auto;display:flex"><sc-for list="{{ avatars }}" as="m"><span title="{{ m.name }}" style="width:24px;height:24px;margin-left:-5px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;background:{{ m.avBg }};color:{{ m.avFg }};font:600 8.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span></sc-for></span>
           </div>
-          <dc-import name="ChatThread" channel="{{ chatKey }}" highlight="{{ highlight }}" style="flex:1;min-height:0" hint-size="100%,460px"></dc-import>
+          <dc-import name="ChatThread" channel="{{ wo.key }}" highlight="{{ highlight }}" style="flex:1;min-height:0" hint-size="100%,460px"></dc-import>
         </section>
 
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
           <div style="display:flex;align-items:center;padding:14px 16px 6px"><h2 style="margin:0;font-size:14px;font-weight:600">People</h2><span style="margin-left:8px;font-size:12px;color:#98A2B3">{{ peopleCount }}</span></div>
-          <div style="display:flex;flex-direction:column;gap:6px;padding:4px 16px 10px">
-            <span style="font-size:12px;font-weight:600;color:#667085">Assigned to · who does which part</span>
-            <sc-if value="{{ viewing }}" hint-placeholder-val="{{ true }}">
-              <sc-for list="{{ asgView }}" as="a" hint-placeholder-count="2">
-                <div style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;background:#FBFBFC;border:1px solid #EEF0F3;border-radius:8px">
-                  <span data-person="{{ a.key }}" title="View profile" style="flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:{{ a.avBg }};color:{{ a.avFg }};font:600 11px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ a.key }}</span>
-                  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
-                    <span style="display:flex;align-items:baseline;gap:6px"><span data-person="{{ a.key }}" style="font-weight:600;cursor:pointer">{{ a.name }}</span><span style="font-size:12px;color:#667085">{{ a.role }}</span><span style="margin-left:auto;font:500 12px 'IBM Plex Mono',monospace;color:#344054">{{ a.total }}</span></span>
-                    <span style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{ a.parts }}" as="g"><span title="{{ g.tip }}" style="height:22px;display:inline-flex;align-items:center;gap:4px;padding:0 7px 0 5px;border-radius:11px;background:{{ g.bg }};color:{{ g.fg }};font-size:11.5px;font-weight:600;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">{{ g.icon }}</span>{{ g.text }}</span></sc-for></span>
-                  </span>
-                </div>
-              </sc-for>
-              <sc-if value="{{ noAsg }}"><span style="color:#B54708;display:flex;align-items:center;gap:5px"><span style="font:16px/1 'Material Symbols Outlined'">person_alert</span>Nobody assigned yet — click Edit to get suggestions.</span></sc-if>
-            </sc-if>
-            <sc-if value="{{ editing }}">
-              <dc-import name="AssignmentEditor" checklists="{{ e.checklists }}" assignments="{{ e.assignments }}" onChange="{{ setAssignments }}" type="{{ e.type }}" date="{{ e.due }}" dur="{{ e.dur }}" auto-on-empty="{{ true }}" hint-size="100%,260px"></dc-import>
-            </sc-if>
-            <span style="margin-top:6px;font-size:12px;font-weight:600;color:#667085">Participants · following the work order</span>
-          </div>
-          <div style="display:flex;flex-direction:column;padding:0 0 8px">
+          <div style="display:flex;flex-direction:column;padding:2px 0 8px">
             <sc-for list="{{ people }}" as="p" hint-placeholder-count="3">
               <div style="display:flex;align-items:center;gap:10px;padding:7px 16px;background:{{ p.bg }}">
-                <span data-person="{{ p.key }}" title="View profile" style="flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:{{ p.avBg }};color:{{ p.avFg }};font:600 10.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ p.initials }}</span>
+                <span style="flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:{{ p.avBg }};color:{{ p.avFg }};font:600 10.5px 'IBM Plex Sans',sans-serif">{{ p.initials }}</span>
                 <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600">{{ p.name }}</span><span style="font-size:12px;color:#667085">{{ p.job }}</span></span>
                 <sc-if value="{{ p.isAssignee }}"><span style="flex:none;height:22px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:11px;background:#1E2430;color:#fff;font-size:11.5px;font-weight:600"><span style="font:13px/1 'Material Symbols Outlined'">engineering</span>Assigned to</span></sc-if>
                 <sc-if value="{{ p.showRole }}"><span style="flex:none;font-size:12px;color:#475467;font-weight:500">{{ p.role }}</span></sc-if>
                 <sc-if value="{{ p.editRole }}">
                   <span style="position:relative;display:flex"><select value="{{ p.role }}" onChange="{{ p.setRole }}" style="appearance:none;-webkit-appearance:none;height:32px;padding:0 26px 0 8px;border:1px solid #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><sc-for list="{{ roleOpts }}" as="r"><option value="{{ r }}">{{ r }}</option></sc-for></select><span style="position:absolute;right:5px;top:7px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+                  <button onClick="{{ p.makeAssignee }}" title="Make responsible" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined'">engineering</span></button>
                   <button onClick="{{ p.remove }}" title="Remove" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
                 </sc-if>
               </div>
@@ -239,6 +220,7 @@
           </sc-if>
           <sc-if value="{{ editing }}">
             <div style="display:grid;grid-template-columns:120px minmax(0,1fr);row-gap:10px;column-gap:12px;align-items:center;padding:4px 16px 16px">
+              <span style="color:#667085">Assigned to</span><span style="position:relative;display:flex"><select value="{{ e.assignee }}" onChange="{{ setAssignee }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">Unassigned</option><sc-for list="{{ assignOpts }}" as="o"><option value="{{ o.k }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
               <span style="color:#667085">Scheduled</span><input type="datetime-local" value="{{ e.due }}" onInput="{{ on.due }}" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" />
               <span style="color:#667085">Estimated</span><span style="position:relative;display:flex"><select value="{{ e.dur }}" onChange="{{ on.dur }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1 h 30</option><option value="2">2 h</option><option value="3">3 h</option><option value="4">4 h</option></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
             </div>
@@ -283,7 +265,6 @@ class Component extends DCLogic {
     run: (() => { try { return JSON.parse(localStorage.getItem('cmms.intervention.v3.' + Q0.key)); } catch (e) { return null; } })() };
   mainRef = React.createRef(); chatRef = React.createRef();
   componentDidMount() {
-    import('./people-model.js').then(PM => this.setState({ PM }));
     Promise.all([import('./collab-model.js'), import('./checklist-model.js')]).then(([C, CL]) => {
       const stored = C.getWo(Q0.key) || {};
       const w = { ...Q0, assignee: SEAL ? 'PL' : 'PL', participants: [['GD', 'Maintenance manager']], checklists: [CL.checklistFor(Q0.asset)], due: '', dur: SEAL ? 1.5 : 1, desc: '', cat: SEAL ? 'Mechanical' : '', stop: SEAL, ...stored, key: Q0.key };
@@ -295,12 +276,12 @@ class Component extends DCLogic {
     window.addEventListener('cmms-wo', this._wo); window.addEventListener('cmms-chat', this._chat);
   }
   componentWillUnmount() { window.removeEventListener('cmms-wo', this._wo); window.removeEventListener('cmms-chat', this._chat); clearTimeout(this._t); }
-  scrollToChat() { const c = this.chatRef.current, m = c && c.parentElement; if (m && c) m.scrollTop = Math.max(0, c.offsetTop - m.offsetTop); this.setState({ chatFlash: true }); setTimeout(() => this.setState({ chatFlash: false }), 1600); }
+  scrollToChat() { const m = this.mainRef.current, c = this.chatRef.current; if (m && c) m.scrollTop = Math.max(0, c.offsetTop - 80); this.setState({ chatFlash: true }); setTimeout(() => this.setState({ chatFlash: false }), 1600); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   setE(k, v) { this.setState(s => ({ e: { ...s.e, [k]: v } })); }
   save() {
     const { C, e, w } = this.state; if (!C || !e) return;
-    const patch = { task: e.task.trim() || w.task, type: e.type, prio: e.prio, status: e.status, assignee: ((e.assignments || []).find(x => x.key) || {}).key || e.assignee, assignments: (e.assignments || []).filter(x => x.key), participants: e.participants, checklists: e.checklists, due: e.due, dur: +e.dur, desc: e.desc, cat: e.cat, stop: e.stop, asset: w.asset, loc: w.loc };
+    const patch = { task: e.task.trim() || w.task, type: e.type, prio: e.prio, status: e.status, assignee: e.assignee, participants: e.participants, checklists: e.checklists, due: e.due, dur: +e.dur, desc: e.desc, cat: e.cat, stop: e.stop, asset: w.asset, loc: w.loc };
     if (patch.prio && patch.assignee && patch.cat && w.quick) patch.quick = false;
     C.saveWo(Q0.key, patch);
     const changes = [];
@@ -321,21 +302,18 @@ class Component extends DCLogic {
     const overdue = status === 'Overdue';
     const missing = C && w.quick ? C.missingInfo(w) : (!w.prio ? ['Priority'] : []);
     const cls = CL ? (e.checklists || []).map(id => CL.load(id) || (EXTRA[id] ? CL.fromName(id, EXTRA[id]) : null)).filter(Boolean) : [];
-    const asgList = (e.assignments && e.assignments.length ? e.assignments : e.assignee ? [{ key: e.assignee, skills: [], minutes: Math.round((+e.dur || 1) * 60), offset: 0, label: 'Whole work order' }] : []).filter(x => x.key);
-    const asgKeys = [...new Set(asgList.map(x => x.key))];
-    const people = (e.participants || []).filter(p => !asgKeys.includes(p[0]));
-    const PM = this.state.PM;
+    const people = (() => { const out = []; const a = e.assignee; if (a) out.push([a, 'Assigned to']); (e.participants || []).forEach(p => { if (p[0] !== a) out.push(p); }); return out; })();
     const nMsg = C ? C.messages(Q0.key).filter(m => m.who !== 'sys').length : 0, un = C ? C.unread(Q0.key) : 0;
     const typeOf = TYPE[ed ? e.type : w.type] || TYPE.Corrective;
     const descText = w.desc || (SEAL ? 'Operators reported a major leak at the pump shaft during the night shift. The mechanical seal is suspected. Pump is running on the backup line — replace the seal and check the discharge pressure before handing back.' : w.quick ? 'No description yet.' : `Carry out the ${w.type.toLowerCase()} work on ${w.asset}: ${w.task.toLowerCase()}. Follow the checklist and record parts used.`);
     return {
       mainRef: this.mainRef, chatRef: this.chatRef,
-      wo: w, woId: C ? C.displayId(Q0.key) : Q0.key, title: `${w.asset} — ${w.task}`, editing: !!ed, viewing: !ed, e: ed ? e : {},
+      wo: w, title: `${w.asset} — ${w.task}`, editing: !!ed, viewing: !ed, e: ed ? e : {},
       st: { label: done && sum.final !== 'completed' ? fin[0] : status, bg: done && sum.final !== 'completed' ? fin[3] : sbg, fg: done && sum.final !== 'completed' ? fin[2] : sfg },
       pr: { label: w.prio || 'No priority', bg: pbg, fg: pfg, urgent: w.prio === 'Critical' || w.prio === 'High' }, ty: { icon: typeOf[0], fg: typeOf[1] },
-      assigneeName: (() => { const ks = C ? C.assigneesOf(w) : (w.assignee ? [w.assignee] : []); return ks.length ? ks.map(k => P(k).name.replace(/^(\S+) (\S)\S*$/, '$1 $2.')).join(' + ') : 'Unassigned'; })(),
+      assigneeName: w.assignee ? P(w.assignee).name : 'Unassigned',
       dueLabel: w.due ? `Scheduled ${fmtDue(w.due)}` : overdue ? 'Due Sep 27 · 3 d late' : w.quick ? 'Started today' : status === 'Requested' ? 'Not scheduled' : 'Scheduled today, 09:00', dueColor: overdue ? '#B42318' : '#667085',
-      chatKey: Q0.key, copyId: () => { const id = C ? C.displayId(Q0.key) : Q0.key; try { navigator.clipboard.writeText(id); } catch (x) {} this.flash(`${id} copied`); },
+      copyId: () => { try { navigator.clipboard.writeText(Q0.key); } catch (x) {} this.flash(`${Q0.key} copied`); },
       canStart: !done && status !== 'Requested', startLabel: going ? 'Resume intervention' : 'Start intervention', runHref: 'Intervention.dc.html' + window.location.search.replace(/&?(edit|chat|msg)=[^&]*/g, ''),
       incomplete: missing.length > 0, missingLabel: `Missing: ${missing.join(', ')}. You can complete it during or after the intervention.`,
       inProgress: !!going, run: going ? { stepNo: sum.stepNo, total: sum.total, stepTitle: sum.mode === 'review' ? 'Review' : sum.stepTitle, pct: Math.round((sum.stepNo - 1) / sum.total * 100) + '%', elapsed: hms(sum.elapsed) } : {},
@@ -352,12 +330,7 @@ class Component extends DCLogic {
       parts: SEAL ? [{ name: 'Mechanical seal 45 mm', ref: 'SEAL-M45', stock: 'Reserved by Sarah Lambert', color: '#0B6B4A', qty: 1 }] : (w.parts || []).map(p => ({ ...p, stock: 'To reserve', color: '#B54708' })), noParts: !SEAL && !(w.parts || []).length,
       chatBorder: s.chatFlash ? '#F79009' : '#E4E7EC', chatSub: nMsg ? `${nMsg} message${nMsg > 1 ? 's' : ''}` : 'No messages yet', highlight: QS.get('msg') || '',
       hasUnread: un > 0, unreadN: un, openChat: () => this.scrollToChat(),
-      avatars: [...asgKeys, ...people.map(p => p[0])].slice(0, 6).map(k => P(k)), peopleCount: `${people.length + asgKeys.length} ${people.length + asgKeys.length === 1 ? 'person' : 'people'}`,
-      noAsg: !asgKeys.length, setAssignments: list => this.setE('assignments', list),
-      asgView: asgKeys.map(k => { const p = P(k), mine = asgList.filter(x => x.key === k), all = asgList.length > 1 && mine.length < asgList.length;
-        return { key: k, name: k === 'GD' ? p.name + ' (you)' : p.name, role: p.role, avBg: p.avBg, avFg: p.avFg, total: PM ? PM.dur(mine.reduce((a, x) => a + (+x.minutes || 0), 0)) : '',
-          parts: mine.map(x => { const sk = PM && x.skills && x.skills.length ? PM.skill(x.skills[0]) : { icon: 'person', fg: '#475467', bg: '#EEF1F4' }; const i = asgList.indexOf(x);
-            return { icon: sk.icon, fg: sk.fg, bg: sk.bg, text: `${all ? 'Part ' + (i + 1) + ' · ' : ''}${PM ? PM.skillNames(x.skills) : ''} · ${PM ? PM.dur(+x.minutes || 0) : ''}`, tip: `${x.label} · starts at +${PM ? PM.hm((x.offset || 0) / 60) : ''}` }; }) }; }),
+      avatars: people.slice(0, 6).map(([k]) => P(k)), peopleCount: `${people.length} ${people.length === 1 ? 'person' : 'people'}`,
       people: people.map(([k, role]) => { const p = P(k), isA = role === 'Assigned to'; return { ...p, name: k === 'GD' ? p.name + ' (you)' : p.name, job: p.role, role, isAssignee: isA, showRole: !isA && !ed, editRole: !isA && !!ed, bg: isA ? '#FBFBFC' : 'transparent',
         setRole: ev => this.setE('participants', e.participants.map(x => x[0] === k ? [k, ev.target.value] : x)),
         remove: () => this.setE('participants', e.participants.filter(x => x[0] !== k)),
@@ -371,7 +344,7 @@ class Component extends DCLogic {
         ...(done ? [['task_alt', `Intervention ${fin[0].toLowerCase()}`, 'Gaudéric Durand', 'Today']] : going ? [['play_arrow', 'Intervention started', 'Gaudéric Durand', 'Today']] : []),
         ...(w.quick ? [['bolt', 'Created from a quick intervention', 'Gaudéric Durand', 'Today']] : w.created ? [['add', 'Work order created', 'Gaudéric Durand', 'Today']] : [['event', 'Scheduled', 'Hugo Petit · Planner', 'Sep 26'], ['check', 'Request approved', 'Gaudéric Durand', 'Sep 26'], ['campaign', 'Request created', 'L. Petit · Night shift', 'Sep 26']]),
       ].map(([icon, text, who, when]) => ({ icon, text, who, when })),
-      startEdit: () => this.setState({ editing: true, e: { ...w, status, desc: w.desc || (SEAL || !w.quick ? descText : ''), participants: [...(w.participants || [])], checklists: [...(w.checklists || [])], assignments: (w.assignments || []).map(x => ({ ...x })) } }),
+      startEdit: () => this.setState({ editing: true, e: { ...w, status, desc: w.desc || (SEAL || !w.quick ? descText : ''), participants: [...(w.participants || [])], checklists: [...(w.checklists || [])] } }),
       cancelEdit: () => this.setState({ editing: false, e: null }), saveEdit: () => this.save(),
       on: Object.fromEntries(['task', 'status', 'desc', 'cat', 'due', 'dur'].map(k => [k, ev => this.setE(k, ev.target.value)])),
       prioOpts: Object.keys(PRIO).map(p => { const on = e.prio === p; return { label: p, dot: PRIO[p][2], bg: on ? (p === 'Critical' ? '#C00018' : '#FBF1F2') : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? (p === 'Critical' ? '#fff' : '#A30014') : '#344054', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", select: () => this.setE('prio', p) }; }),

@@ -18,8 +18,7 @@
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="planning" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
   <main style="position:relative;min-height:0;overflow:hidden;padding:18px 24px 18px;display:flex;flex-direction:column;gap:12px" data-screen-label="Planning">
-    <header style="flex:none;display:flex;align-items:center;gap:16px">
-      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+    <header style="flex:none;display:flex;align-items:flex-end;gap:16px">
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Planning</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ summary }}</p>
@@ -88,29 +87,20 @@
           </span>
         </div>
 
-        <sc-if value="{{ dragInfo }}">
-          <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px;background:#F5F8FE;border-bottom:1px solid #D6E2F8;font-size:12.5px;color:#1E3A8A;flex-wrap:wrap">
-            <span style="font:17px/1 'Material Symbols Outlined'">auto_awesome</span>
-            <span style="font-weight:600">{{ dragTitle }}</span>
-            <sc-for list="{{ dragSegs }}" as="g"><span style="height:22px;display:inline-flex;align-items:center;gap:3px;padding:0 7px 0 5px;border-radius:11px;background:{{ g.bg }};color:{{ g.fg }};font-size:11.5px;font-weight:600;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">{{ g.icon }}</span>{{ g.text }}</span></sc-for>
-            <sc-for list="{{ dragTools }}" as="t"><span style="height:22px;display:inline-flex;align-items:center;gap:3px;padding:0 7px 0 5px;border-radius:11px;background:#fff;border:1px solid #C9D8F5;color:#2456B8;font-size:11.5px;font-weight:600;white-space:nowrap"><span style="font:13px/1 'Material Symbols Outlined'">forklift</span>{{ t }}</span></sc-for>
-            <span style="margin-left:auto;display:flex;align-items:center;gap:12px;color:#475467"><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:12px;border-radius:2px;background:repeating-linear-gradient(135deg,#E4E7EC 0 3px,#D0D5DD 3px 6px)"></span>No qualified person</span><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:12px;border-radius:2px;background:repeating-linear-gradient(135deg,#E7EEFB 0 3px,#C9D8F5 3px 6px)"></span>Mobile asset reserved</span></span>
-          </div>
-        </sc-if>
         <sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;min-height:0;overflow:auto;position:relative">
             <div style="min-width:{{ gridMin }}">
               <div style="display:grid;grid-template-columns:{{ gridCols }};position:sticky;top:0;z-index:8;background:#fff;border-bottom:1px solid #E4E7EC">
                 <span></span>
                 <sc-for list="{{ columns }}" as="c">
-                  <div onClick="{{ c.openDay }}" title="{{ c.dayTip }}" style="min-width:0;display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-left:1px solid #F2F4F7;background:{{ c.headBg }};cursor:{{ c.headCursor }}" style-hover="background:{{ c.headHover }}">
+                  <div style="min-width:0;display:flex;flex-direction:column;gap:5px;padding:8px 10px;border-left:1px solid #F2F4F7;background:{{ c.headBg }}">
                     <sc-if value="{{ c.isDay }}">
                       <span style="display:flex;align-items:baseline;gap:6px;min-width:0"><span style="font-size:12px;color:{{ c.subColor }};font-weight:500">{{ c.top }}</span><span style="font-size:15px;font-weight:600;color:{{ c.mainColor }}">{{ c.main }}</span><span style="margin-left:auto;font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.meta }}</span></span>
                     </sc-if>
                     <sc-if value="{{ c.isPerson }}">
                       <span style="display:flex;align-items:center;gap:8px;min-width:0">
-                        <span data-person="{{ c.ini }}" title="View profile" style="flex:none;width:26px;height:26px;border-radius:50%;background:{{ c.avBg }};color:{{ c.avFg }};display:grid;place-items:center;font:600 10px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ c.ini }}</span>
-                        <span style="min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.main }}</span><span title="{{ c.team }}" style="font-size:11.5px;color:{{ c.teamColor }};font-weight:{{ c.teamWeight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.team }}</span></span>
+                        <span style="flex:none;width:26px;height:26px;border-radius:50%;background:{{ c.avBg }};color:{{ c.avFg }};display:grid;place-items:center;font:600 10px 'IBM Plex Sans',sans-serif">{{ c.ini }}</span>
+                        <span style="min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.main }}</span><span style="font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.team }}</span></span>
                       </span>
                       <span style="display:flex;align-items:center;gap:8px">
                         <span style="flex:1;height:6px;border-radius:3px;background:#EEF0F3;overflow:hidden;position:relative"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ c.loadW }};background:{{ c.loadColor }};border-radius:3px"></span></span>
@@ -126,8 +116,7 @@
                 </div>
                 <sc-for list="{{ columns }}" as="c">
                   <div onDragLeave="{{ c.leave }}" style="position:relative;min-width:0;border-left:1px solid #F2F4F7;background:{{ c.bodyBg }}">
-                    <sc-for list="{{ c.slots }}" as="sl"><div onDragOver="{{ sl.over }}" onDrop="{{ sl.drop }}" style="height:26px;border-top:1px solid {{ sl.line }};background:{{ sl.bg }}"></div></sc-for>
-                    <sc-for list="{{ c.blocks }}" as="b"><div title="{{ b.label }}" style="position:absolute;left:0;right:0;top:{{ b.top }};height:{{ b.h }};background:repeating-linear-gradient(135deg,#F6F7F9 0 6px,#ECEEF2 6px 12px);pointer-events:none;z-index:1;display:flex;justify-content:center;padding-top:6px;overflow:hidden"><span style="font-size:11.5px;font-weight:600;color:#98A2B3;white-space:nowrap">{{ b.text }}</span></div></sc-for>
+                    <sc-for list="{{ c.slots }}" as="sl"><div onDragOver="{{ sl.over }}" onDrop="{{ sl.drop }}" style="height:26px;border-top:1px solid {{ sl.line }}"></div></sc-for>
                     <sc-for list="{{ c.events }}" as="e">
                       <div draggable="true" onDragStart="{{ e.dragStart }}" onDragEnd="{{ e.dragEnd }}" onClick="{{ e.open }}" title="{{ e.tip }}" style="position:absolute;top:{{ e.top }};height:{{ e.h }};left:{{ e.left }};width:{{ e.width }};padding:4px 6px 4px 5px;background:{{ e.bg }};border:1px solid {{ e.border }};border-left:3px solid {{ e.fg }};border-radius:6px;overflow:hidden;cursor:grab;display:flex;flex-direction:column;gap:1px;opacity:{{ e.op }};z-index:2;pointer-events:{{ e.pe }};box-shadow:{{ e.shadow }}" style-hover="z-index:7;min-width:190px;box-shadow:0 6px 16px rgba(16,24,40,.16)">
                         <span style="display:flex;align-items:center;gap:4px;min-width:0">
@@ -135,21 +124,19 @@
                           <span style="flex:1;min-width:0;font-size:12px;font-weight:600;color:#1E2430;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.asset }}</span>
                           <sc-if value="{{ e.urgent }}"><span style="flex:none;font:14px/1 'Material Symbols Outlined';color:{{ e.prioColor }}">bolt</span></sc-if>
                           <sc-if value="{{ e.done }}"><span style="flex:none;font:14px/1 'Material Symbols Outlined';color:#0B6B4A">check_circle</span></sc-if>
-                          <sc-if value="{{ e.hasTool }}"><span title="{{ e.toolTip }}" style="flex:none;font:13px/1 'Material Symbols Outlined';color:#2456B8">forklift</span></sc-if>
                           <sc-if value="{{ e.waiting }}"><span title="Waiting for parts" style="flex:none;font:14px/1 'Material Symbols Outlined';color:#B54708">inventory_2</span></sc-if>
                         </span>
                         <span style="font-size:11.5px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ e.task }}</span>
-                        <sc-if value="{{ e.isPart }}"><span style="display:flex;align-items:center;gap:3px;font-size:11px;font-weight:600;color:{{ e.skFg }};white-space:nowrap;overflow:hidden"><span style="font:12px/1 'Material Symbols Outlined'">{{ e.skIcon }}</span>{{ e.partLabel }}</span></sc-if>
                         <sc-if value="{{ e.showMeta }}">
                           <span style="margin-top:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:#667085;white-space:nowrap;overflow:hidden">
                             <span style="font-family:'IBM Plex Mono',monospace">{{ e.time }}</span>
-                            <sc-if value="{{ e.showWho }}"><span data-person="{{ e.ini }}" title="{{ e.whoName }}" style="flex:none;width:16px;height:16px;border-radius:50%;background:{{ e.avBg }};color:{{ e.avFg }};display:grid;place-items:center;font:600 7.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ e.ini }}</span></sc-if>
+                            <sc-if value="{{ e.showWho }}"><span style="flex:none;width:16px;height:16px;border-radius:50%;background:{{ e.avBg }};color:{{ e.avFg }};display:grid;place-items:center;font:600 7.5px 'IBM Plex Sans',sans-serif">{{ e.ini }}</span></sc-if>
                           </span>
                         </sc-if>
                       </div>
                     </sc-for>
                     <sc-if value="{{ c.hasPreview }}">
-                      <div style="position:absolute;left:2px;right:2px;top:{{ c.pvTop }};height:{{ c.pvH }};border:2px dashed {{ c.pvBorder }};background:{{ c.pvBg }};border-radius:6px;pointer-events:none;z-index:6;padding:3px 6px;display:flex;flex-direction:column;gap:2px;font:600 11.5px 'IBM Plex Sans',sans-serif;color:{{ c.pvColor }};overflow:hidden"><span style="display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ c.pvIcon }}</span>{{ c.pvLabel }}</span><sc-for list="{{ c.pvParts }}" as="q"><span style="display:flex;align-items:center;gap:4px;font-weight:500;color:#344054;white-space:nowrap;background:rgba(255,255,255,.8);border-radius:4px;padding:1px 4px;align-self:flex-start"><span style="width:14px;height:14px;border-radius:50%;display:grid;place-items:center;background:{{ q.avBg }};color:{{ q.avFg }};font:600 7px 'IBM Plex Sans',sans-serif">{{ q.key }}</span>{{ q.text }}</span></sc-for></div>
+                      <div style="position:absolute;left:2px;right:2px;top:{{ c.pvTop }};height:{{ c.pvH }};border:2px dashed #C00018;background:rgba(192,0,24,.06);border-radius:6px;pointer-events:none;z-index:6;padding:3px 6px;font:600 11.5px 'IBM Plex Sans',sans-serif;color:#A30014;white-space:nowrap;overflow:hidden">{{ c.pvLabel }}</div>
                     </sc-if>
                     <sc-if value="{{ c.isToday }}"><div style="position:absolute;left:0;right:0;top:{{ nowTop }};height:0;border-top:2px solid #C00018;z-index:5;pointer-events:none"><span style="position:absolute;left:-5px;top:-6px;width:10px;height:10px;border-radius:50%;background:#C00018"></span></div></sc-if>
                   </div>
@@ -203,13 +190,6 @@
                   <span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.asset }}</span>
                   <span style="font-size:12.5px;color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.task }}</span>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:4px;padding-left:23px">
-                  <div style="display:flex;gap:2px;height:20px">
-                    <sc-for list="{{ u.segs }}" as="g"><span title="{{ g.tip }}" style="flex:{{ g.flex }};min-width:0;display:flex;align-items:center;gap:3px;padding:0 5px;border-radius:4px;background:{{ g.bg }};color:{{ g.fg }};font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden"><span style="flex:none;font:12px/1 'Material Symbols Outlined'">{{ g.icon }}</span><span style="overflow:hidden;text-overflow:ellipsis">{{ g.text }}</span><sc-if value="{{ g.hasWho }}"><span data-person="{{ g.who }}" style="flex:none;margin-left:auto;width:14px;height:14px;border-radius:50%;display:grid;place-items:center;background:{{ g.avBg }};color:{{ g.avFg }};font:600 7px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ g.who }}</span></sc-if></span></sc-for>
-                  </div>
-                  <span style="font-size:11.5px;color:{{ u.whoColor }}">{{ u.whoNote }}</span>
-                  <sc-if value="{{ u.hasTools }}"><span style="display:flex;gap:4px;flex-wrap:wrap"><sc-for list="{{ u.tools }}" as="t"><span title="Mobile asset — reserved for the scheduled period" style="height:20px;display:inline-flex;align-items:center;gap:3px;padding:0 6px 0 4px;border-radius:10px;background:#EAF1FD;color:#2456B8;font-size:11px;font-weight:600;white-space:nowrap"><span style="font:12px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.name }}</span></sc-for></span></sc-if>
-                </div>
                 <div style="display:flex;align-items:center;gap:10px;padding-left:23px;font-size:12px;color:#667085;white-space:nowrap;min-width:0">
                   <span style="display:flex;align-items:center;gap:3px;font-weight:600;color:#344054"><span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">timer</span>{{ u.dur }}</span>
                   <span style="display:flex;align-items:center;gap:3px;min-width:0;overflow:hidden;text-overflow:ellipsis"><span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">groups</span>{{ u.team }}</span>
@@ -241,7 +221,7 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;day&quot;,&quot;week&quot;,&quot;month&quot;],&quot;default&quot;:&quot;week&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const TYPE = { Preventive: ['event_repeat', '#2456B8', '#EAF1FD', '#C9D8F5'], Corrective: ['build', '#B54708', '#FEF3E2', '#F5D3A6'], Predictive: ['insights', '#6941C6', '#F3EEFC', '#D9CCF5'], Inspection: ['visibility', '#0E7490', '#E3F4F7', '#B5DDE6'] };
 const PRIO = { Critical: ['#C00018', '#fff', '#C00018'], High: ['#FDECEC', '#B42318', '#B42318'], Medium: [0, 0, '#E3A008'], Low: [0, 0, '#98A2B3'] };
-const PEOPLE = [['GD', 'Gaudéric Durand', 'Mechanical team', '#FBE7EA', '#A30014'], ['MD', 'Marc Dupont', 'Mechanical team', '#E6F4EE', '#0B6B4A'], ['PL', 'Pierre Leroy', 'Mechanical team', '#E8EEF9', '#2456B8'], ['AM', 'Alex Martin', 'Mechanical team', '#FEF3E2', '#B54708'], ['SM', 'Sophie Martin', 'Electrical team', '#F3EEFC', '#6941C6'], ['SB', 'Sofia Benali', 'Electrical team', '#E3F4F7', '#0E7490'], ['JM', 'Julie Martin', 'Float Line team', '#FDECEC', '#B42318']];
+const PEOPLE = [['MD', 'Marc Dupont', 'Mechanical team', '#E6F4EE', '#0B6B4A'], ['PL', 'Pierre Leroy', 'Mechanical team', '#E8EEF9', '#2456B8'], ['AM', 'Alex Martin', 'Mechanical team', '#FEF3E2', '#B54708'], ['SM', 'Sophie Martin', 'Electrical team', '#F3EEFC', '#6941C6'], ['SB', 'Sofia Benali', 'Electrical team', '#E3F4F7', '#0E7490'], ['JM', 'Julie Martin', 'Float Line team', '#FDECEC', '#B42318']];
 const P = Object.fromEntries(PEOPLE.map(p => [p[0], p]));
 const TEAMS = ['Mechanical team', 'Electrical team', 'Float Line team'];
 const NAME_TEAM = { 'Pierre Leroy': 'Mechanical team', 'Marc Dupont': 'Mechanical team', 'Sophie Martin': 'Electrical team', 'Sofia Benali': 'Electrical team', 'Julie Martin': 'Float Line team' };
@@ -280,19 +260,18 @@ const SEED = [
   [4, 9, 1, 'Pump P-101', 'Oil analysis', 'SB', 'Predictive', 'Low'], [4, 10.5, 1.5, 'Conveyor Line 3', 'Greasing', 'JM', 'Preventive', 'Low'],
   [4, 13, 2, 'Tin Bath', 'Roller inspection', 'AM', 'Inspection', 'High'], [4, 14, 1.5, 'Mixer 02', 'Motor current analysis', 'SB', 'Predictive', 'Low'],
   [7, 9, 2, 'Compressor C-01', 'Annual overhaul', 'SM', 'Preventive', 'Medium'], [8, 13, 1.5, 'Fan V-12', 'Vibration analysis', 'PL', 'Predictive', 'High'],
-].map(([day, start, dur, asset, task, who, type, prio, status]) => ({ id: 'e' + seq++, day, start, dur, asset, task, who, type, prio, status, skills: who === 'SM' || who === 'SB' ? ['ELE'] : ['MEC'],
-  tools: ({ 'Tin Bath|Roller replacement': ['MC-01'], 'Tempering Furnace 2|Thermal imaging': ['TC-01'], 'Tin Bath|Thermal imaging': ['TC-01'], 'Annealing Lehr|Roller alignment': ['LA-01'], 'Fan V-12|Bearing lubrication': ['SL-01'], 'Compressor C-01|Annual inspection': ['SL-01'], 'Mixer 02|Vibration analysis': ['VA-02'], 'Fan V-12|Vibration analysis': ['VA-02'] })[asset + '|' + task] || [] }));
+].map(([day, start, dur, asset, task, who, type, prio, status]) => ({ id: 'e' + seq++, day, start, dur, asset, task, who, type, prio, status }));
 const BACKLOG = [
-  ['Tin Bath', 'Roller drive replacement', 'Corrective', 'Critical', [[['ELE'], 0.5], [['MEC'], 3], [['ELE'], 0.5]], 'Mechanical team', 'Reported 20 min ago', 1],
-  ['Fan V-08', 'Noisy bearing', 'Corrective', 'High', [[['MEC'], 1.5, 'AM']], 'Mechanical team', 'Requested 2 d ago'],
-  ['Cooling Tower', 'Legionella sampling', 'Inspection', 'High', [[['INS'], 1]], 'Float Line team', 'Due by Oct 2', 1],
-  ['Annealing Lehr', 'Safety guard repair', 'Corrective', 'Medium', [[['ELE'], 0.5], [['MEC'], 1.5]], 'Float Line team', 'Requested today'],
-  ['Tempering Furnace 1', 'Gas detector calibration', 'Inspection', 'Medium', [[['INS'], 1]], 'Electrical team', 'Due by Oct 6'],
-  ['Hydraulic Press PH-030', 'Hose replacement', 'Corrective', 'Medium', [[['HYD'], 2.5]], 'Mechanical team', 'Requested 1 d ago'],
-  ['Conveyor Line 2', 'Motor thermography', 'Predictive', 'Medium', [[['THM'], 1]], 'Electrical team', 'Requested 3 d ago'],
-  ['Packaging Line 1', 'Quarterly lubrication', 'Preventive', 'Low', [[['LUB'], 1.5]], 'Mechanical team', 'Due by Oct 9'],
-  ['Mixer 02', 'Vibration trend review', 'Predictive', 'Low', [[['VIB'], 0.5, 'SB']], 'Electrical team', 'Requested 5 d ago'],
-].map(([asset, task, type, prio, segs, team, age, soon]) => ({ id: 'u' + seq++, tools: ({ 'Tin Bath': ['MC-01'], 'Fan V-08': ['LA-01', 'SL-01'], 'Conveyor Line 2': ['TC-01'], 'Mixer 02': ['VA-02'] })[asset] || [], asset, task, type, prio, segs: segs.map(([skills, h, who]) => ({ skills, h, who: who || '' })), dur: segs.reduce((a, x) => a + x[1], 0), team, age, soon: !!soon }));
+  ['Tin Bath', 'Roller drive replacement', 'Corrective', 'Critical', 4, 'Mechanical team', 'Reported 20 min ago', 1],
+  ['Fan V-08', 'Noisy bearing', 'Corrective', 'High', 1.5, 'Mechanical team', 'Requested 2 d ago'],
+  ['Cooling Tower', 'Legionella sampling', 'Inspection', 'High', 1, 'Float Line team', 'Due by Oct 2', 1],
+  ['Annealing Lehr', 'Safety guard repair', 'Corrective', 'Medium', 2, 'Float Line team', 'Requested today'],
+  ['Tempering Furnace 1', 'Gas detector calibration', 'Inspection', 'Medium', 1, 'Electrical team', 'Due by Oct 6'],
+  ['Hydraulic Press PH-030', 'Hose replacement', 'Corrective', 'Medium', 2.5, 'Mechanical team', 'Requested 1 d ago'],
+  ['Conveyor Line 2', 'Motor thermography', 'Predictive', 'Medium', 1, 'Electrical team', 'Requested 3 d ago'],
+  ['Packaging Line 1', 'Quarterly lubrication', 'Preventive', 'Low', 1.5, 'Mechanical team', 'Due by Oct 9'],
+  ['Mixer 02', 'Vibration trend review', 'Predictive', 'Low', 0.5, 'Electrical team', 'Requested 5 d ago'],
+].map(([asset, task, type, prio, dur, team, age, soon]) => ({ id: 'u' + seq++, asset, task, type, prio, dur, team, age, soon: !!soon }));
 const PORD = { Critical: 0, High: 1, Medium: 2, Low: 3 };
 const statusOf = e => e.status || (e.day < TODAY || (e.day === TODAY && e.start + e.dur <= NOW) ? 'Completed' : e.day === TODAY && e.start <= NOW ? 'In progress' : 'Scheduled');
 const layout = list => {
@@ -308,52 +287,11 @@ const EMPTY = { team: [], type: [], asset: [], prio: [], status: [] };
 class Component extends DCLogic {
   state = { mode: this.props.mode ?? 'week', week: 0, dayIdx: TODAY, events: SEED, backlog: BACKLOG, F: EMPTY, dd: null, aq: '', drag: null, over: null, panel: true, panelHot: false, toast: null };
   componentDidMount() {
-    this._wo = e => { const r = e.detail || {}; const asg = (r.assignments || []).filter(x => x.minutes), segs = asg.length ? asg.map(x => ({ skills: x.skills || [], h: Math.max(0.5, Math.round(x.minutes / 30) / 2), who: x.key || '' })) : [{ skills: [], h: 1, who: '' }];
-      const item = { id: 'u' + seq++, tools: r.tools || [], asset: r.assetName || r.asset || 'New asset', task: r.title, type: TYPE[r.type] ? r.type : 'Corrective', prio: r.prio || 'Medium', segs, dur: segs.reduce((a, x) => a + x.h, 0), team: NAME_TEAM[r.who] || (TEAMS.includes(r.who) ? r.who : 'Mechanical team'), age: 'Created just now', fresh: true };
+    this._wo = e => { const r = e.detail || {}; const item = { id: 'u' + seq++, asset: r.assetName || r.asset || 'New asset', task: r.title, type: TYPE[r.type] ? r.type : 'Corrective', prio: r.prio || 'Medium', dur: 1, team: NAME_TEAM[r.who] || (TEAMS.includes(r.who) ? r.who : 'Mechanical team'), age: 'Created just now', fresh: true };
       this.setState(s => ({ backlog: [item, ...s.backlog], panel: true, F: EMPTY })); this.flash('Added to Not scheduled — drag it onto the planning', false); };
     window.addEventListener('cmms-wo-created', this._wo);
-    import('./people-model.js').then(PM => { this.PM = PM; this.forceUpdate(); });
-    import('./plant-model.js').then(PL => { this.PL = PL; this._feas = null; this.forceUpdate(); });
-    this._prof = () => { this._feas = null; this.forceUpdate(); }; window.addEventListener('cmms-profile', this._prof);
   }
-  componentWillUnmount() { window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-profile', this._prof); clearTimeout(this._t); }
-  toolBusy(tools, day, a, b, ignore) { for (const t of tools || []) { const e = this.state.events.find(x => x.day === day && (x.tools || []).includes(t) && !(ignore && (x.id === ignore || (x.wo && x.wo === ignore))) && x.start < b && x.start + x.dur > a); if (e) { const nm = this.PL && this.PL.asset(t) ? this.PL.asset(t).name : t; return `${nm} reserved ${hm(e.start)}–${hm(e.start + e.dur)} (${e.asset})`; } } return null; }
-  busyAt(key, day, a, b, ignore) { return this.state.events.some(e => e.who === key && e.day === day && e.id !== ignore && e.start < b && e.start + e.dur > a); }
-  // Feasibility of dropping the dragged item at (day, t) — optionally on a person column
-  plan(d, day, t, col) {
-    const PM = this.PM, s = this.state; if (!PM || !d) return { ok: true, parts: [] };
-    const date = PM.dayIso(day), nm = k => P[k] ? P[k][1].split(' ')[0] : k;
-    if (day < TODAY || (day === TODAY && t < NOW)) return { ok: false, reason: 'In the past' };
-    if (d.kind === 'e') {
-      const e = s.events.find(x => x.id === d.id); if (!e) return { ok: false, reason: '' };
-      const who = col || e.who;
-      if (t + e.dur > H1) return { ok: false, reason: 'Ends after 18:00' };
-      const tb = this.toolBusy(e.tools, day, t, t + e.dur, e.wo || e.id); if (tb) return { ok: false, reason: tb, tool: true };
-      if (!PM.hasSkills(who, e.skills)) return { ok: false, reason: `${nm(who)} lacks ${PM.skillNames(e.skills)}` };
-      const av = PM.availability(who, date, t, t + e.dur); if (!av.ok) return { ok: false, reason: `${nm(who)}: ${av.reason}` };
-      return { ok: true, parts: [{ key: who, start: t, dur: e.dur, skills: e.skills }], overlap: this.busyAt(who, day, t, t + e.dur, e.id) };
-    }
-    const u = s.backlog.find(x => x.id === d.id); if (!u) return { ok: false, reason: '' };
-    const segs = u.segs || [{ skills: [], h: u.dur, who: '' }];
-    if (t + u.dur > H1) return { ok: false, reason: 'Ends after 18:00' };
-    const tb = this.toolBusy(u.tools, day, t, t + u.dur); if (tb) return { ok: false, reason: tb, tool: true };
-    let cur = t, prev = null, overlap = false; const parts = [];
-    for (const g of segs) {
-      const a = cur, b = cur + g.h;
-      let pool = g.who ? [g.who] : PEOPLE.map(p => p[0]).filter(k => PM.hasSkills(k, g.skills));
-      if (!pool.length) return { ok: false, reason: `Nobody has ${PM.skillNames(g.skills)}` };
-      if (col && !g.who && pool.includes(col)) pool = [col];
-      const okP = pool.filter(k => PM.availability(k, date, a, b).ok);
-      if (!okP.length) { const k0 = pool[0], av = PM.availability(k0, date, a, b); return { ok: false, reason: g.who || pool.length === 1 ? `${nm(k0)}: ${av.reason}` : `No ${PM.skillNames(g.skills)} available ${hm(a)}–${hm(b)}` }; }
-      const free = okP.filter(k => !this.busyAt(k, day, a, b));
-      const cand = free.length ? free : okP; if (!free.length) overlap = true;
-      const pick = cand.includes(prev) ? prev : cand.slice().sort((x, y) => this.loadOf(x, day) - this.loadOf(y, day))[0];
-      parts.push({ key: pick, start: a, dur: g.h, skills: g.skills }); prev = pick; cur = b;
-    }
-    if (col && !parts.some(p => p.key === col)) return { ok: false, reason: `${nm(col)} lacks ${segs.map(g => PM.skillNames(g.skills)).join(' / ')}` };
-    return { ok: true, parts, overlap };
-  }
-  feas(d, day, t, col) { const k = [d.kind, d.id, day, t, col || ''].join('|'); if (!this._feas || this._feas.d !== d) this._feas = { d, m: {} }; return this._feas.m[k] || (this._feas.m[k] = this.plan(d, day, t, col)); }
+  componentWillUnmount() { window.removeEventListener('cmms-wo-created', this._wo); clearTimeout(this._t); }
   flash(text, undo = true) { this.setState({ toast: { text, undo } }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 5000); }
   snapshot() { this._undo = { events: this.state.events, backlog: this.state.backlog }; }
   loadOf(who, day, events = this.state.events) { return events.filter(e => e.who === who && e.day === day).reduce((a, e) => a + e.dur, 0); }
@@ -362,28 +300,27 @@ class Component extends DCLogic {
   drop(day, t, who) {
     const d = this._drag || this.state.drag; if (!d) return; this.snapshot();
     const s = this.state;
-    const pl = this.plan(d, day, t, who);
-    if (!pl.ok) { this._drag = null; this.setState({ drag: null, over: null }); this._undo = null; return this.flash(`Can't schedule here — ${pl.reason}`, false); }
-    const nm = k => P[k][1].split(' ')[0], PM = this.PM;
     if (d.kind === 'u') {
       const u = s.backlog.find(x => x.id === d.id); if (!u) return;
-      const n = pl.parts.length;
-      const evs = pl.parts.map((p, i) => ({ id: 'e' + seq++, day, start: p.start, dur: p.dur, asset: u.asset, task: u.task, who: p.key, type: u.type, prio: u.prio, skills: p.skills, tools: u.tools || [], wo: u.id, part: i + 1, parts: n, src: u, fresh: true }));
-      this.setState({ events: [...s.events, ...evs], backlog: s.backlog.filter(x => x.id !== u.id), drag: null, over: null });
-      this.flash(`Scheduled ${dayName(day)} ${hm(t)} · ${pl.parts.map(p => `${nm(p.key)} (${PM ? PM.skillNames(p.skills) : ''} ${fmtH(p.dur)})`).join(' → ')}${pl.overlap ? ' · overlaps existing work' : ''}`);
+      let person = who;
+      if (!person) { const pool = PEOPLE.filter(p => p[2] === u.team); person = (pool.length ? pool : PEOPLE).map(p => p[0]).sort((a, b) => this.loadOf(a, day) - this.loadOf(b, day))[0]; }
+      const ev = { id: 'e' + seq++, day, start: t, dur: u.dur, asset: u.asset, task: u.task, who: person, type: u.type, prio: u.prio, fresh: true };
+      this.setState({ events: [...s.events, ev], backlog: s.backlog.filter(x => x.id !== u.id), drag: null, over: null });
+      const load = this.loadOf(person, day) + u.dur;
+      this.flash(`Scheduled ${dayName(day)} ${hm(t)} · ${P[person][1]}${load > CAP ? ` — now ${fmtH(load)} / ${CAP} h` : ''}`);
     } else {
       const e0 = s.events.find(x => x.id === d.id); if (!e0) return;
       this.setState({ events: s.events.map(x => x.id === d.id ? { ...x, day, start: t, ...(who ? { who } : {}), status: x.status === 'Waiting for parts' ? x.status : undefined, fresh: true } : x), drag: null, over: null });
-      this.flash(`Moved to ${dayName(day)} ${hm(t)}${who && who !== e0.who ? ' · ' + P[who][1] : ''}${pl.overlap ? ' · overlaps existing work' : ''}`);
+      this.flash(`Moved to ${dayName(day)} ${hm(t)}${who && who !== e0.who ? ' · ' + P[who][1] : ''}`);
     }
     this._drag = null;
   }
   unschedule() {
     const d = this._drag || this.state.drag; if (!d || d.kind !== 'e') return; this.snapshot();
     const s = this.state, e = s.events.find(x => x.id === d.id); if (!e) return;
-    const item = e.src ? { ...e.src, age: 'Unscheduled just now', fresh: true } : { id: 'u' + seq++, asset: e.asset, task: e.task, type: e.type, prio: e.prio, dur: e.dur, segs: [{ skills: e.skills || [], h: e.dur, who: e.who }], tools: e.tools || [], team: P[e.who][2], age: 'Unscheduled just now', fresh: true };
+    const item = { id: 'u' + seq++, asset: e.asset, task: e.task, type: e.type, prio: e.prio, dur: e.dur, team: P[e.who][2], age: 'Unscheduled just now', fresh: true };
     this._drag = null;
-    this.setState({ events: s.events.filter(x => e.wo ? x.wo !== e.wo : x.id !== e.id), backlog: [item, ...s.backlog], drag: null, over: null, panelHot: false });
+    this.setState({ events: s.events.filter(x => x.id !== e.id), backlog: [item, ...s.backlog], drag: null, over: null, panelHot: false });
     this.flash(`${e.asset} — ${e.task} moved back to Not scheduled`);
   }
   setType(t) { this.setState(s => ({ F: { ...s.F, type: s.F.type.length === 1 && s.F.type[0] === t ? [] : [t] } })); }
@@ -432,31 +369,24 @@ class Component extends DCLogic {
       const [icon, fg, bg, border] = TYPE[e.type], p = P[e.who], L = lay[e.id] || { lane: 0, n: 1 }, done = e.status === 'Completed';
       const qs = new URLSearchParams({ wo: 'plan-' + e.id, task: e.task, asset: e.asset, loc: LINE[e.asset] || '', type: e.type, prio: e.prio, status: e.status === 'Completed' ? 'Completed' : e.status === 'Waiting for parts' ? 'Waiting for parts' : e.status === 'In progress' ? 'In progress' : 'Scheduled' }).toString();
       return { asset: e.asset, task: e.task, icon, fg, bg: done ? '#F9FAFB' : bg, border: done ? '#E4E7EC' : border, time: `${hm(e.start)}–${hm(e.start + e.dur)}`,
-        tip: `${e.asset} — ${e.task}${e.parts > 1 ? ` (part ${e.part}/${e.parts})` : ''}\n${e.type} · ${e.prio} · ${hm(e.start)}–${hm(e.start + e.dur)}\n${p[1]} · ${e.status}`,
+        tip: `${e.asset} — ${e.task}\n${e.type} · ${e.prio} · ${hm(e.start)}–${hm(e.start + e.dur)}\n${p[1]} · ${e.status}`,
         typeTip: `${e.type} — click to show only ${e.type}`,
         urgent: !done && (e.prio === 'Critical' || e.prio === 'High'), prioColor: PRIO[e.prio][2], done, waiting: e.status === 'Waiting for parts',
-        hasTool: !!(e.tools && e.tools.length), toolTip: this.PL && e.tools ? 'Reserves ' + e.tools.map(t => (this.PL.asset(t) || { name: t }).name).join(', ') : '',
-        showMeta: e.dur >= 1.25, showWho: !inDay, ini: p[0], avBg: p[3], avFg: p[4], whoName: p[1],
-        isPart: !!e.parts && e.parts > 1 && e.dur >= 0.75, partLabel: e.parts > 1 && this.PM ? `Part ${e.part}/${e.parts} · ${this.PM.skillNames(e.skills)}` : '', skIcon: this.PM && e.skills && e.skills[0] ? this.PM.skill(e.skills[0]).icon : 'person', skFg: this.PM && e.skills && e.skills[0] ? this.PM.skill(e.skills[0]).fg : '#475467',
+        showMeta: e.dur >= 1.25, showWho: !inDay, ini: p[0], avBg: p[3], avFg: p[4],
         top: (e.start - H0) * ROW + 1 + 'px', h: e.dur * ROW - 2 + 'px', left: `calc(${L.lane / L.n * 100}% + 2px)`, width: `calc(${100 / L.n}% - 4px)`,
         op: drag && drag.id === e.id ? 0.35 : done ? 0.7 : 1, pe: drag ? 'none' : 'auto', shadow: e.fresh ? '0 0 0 2px rgba(192,0,24,.35)' : 'none',
         dragStart: ev => this.startDrag(ev, 'e', e), dragEnd: () => this.endDrag(),
         open: () => { window.location.href = 'Work Order.dc.html?' + qs; },
         filterType: ev => { ev.stopPropagation(); this.setType(e.type); } };
     };
-    const STRIPE = 'repeating-linear-gradient(135deg,#E9ECF0 0 5px,#DDE1E7 5px 10px)', TOOLSTRIPE = 'repeating-linear-gradient(135deg,#E7EEFB 0 5px,#D3DFF5 5px 10px)';
-    const mkCol = (ci, day, who) => {
-      const pv = drag && s.over && s.over.ci === ci ? this.feas(drag, day, s.over.t, who) : null;
-      return {
-      slots: Array.from({ length: (H1 - H0) * 2 }, (_, i) => { const t = H0 + i / 2, f = drag ? this.feas(drag, day, t, who) : null, ok = !f || f.ok;
-        return { line: i % 2 ? '#F8F9FA' : '#EEF0F3', bg: ok ? 'transparent' : f.tool ? TOOLSTRIPE : STRIPE,
-          over: ev => { if (ok) ev.preventDefault(); if (!s.over || s.over.ci !== ci || s.over.t !== t) this.setState({ over: { ci, t } }); },
-          drop: ev => { ev.preventDefault(); if (ok) this.drop(day, t, who); } }; }),
-      hasPreview: !!pv, pvTop: s.over ? (s.over.t - H0) * ROW + 1 + 'px' : '0px', pvH: drag ? Math.max(1, drag.dur) * ROW - 2 + 'px' : '0px',
-      pvBorder: pv && !pv.ok ? '#98A2B3' : '#C00018', pvBg: pv && !pv.ok ? 'rgba(242,244,247,.92)' : 'rgba(192,0,24,.06)', pvColor: pv && !pv.ok ? '#475467' : '#A30014', pvIcon: pv && !pv.ok ? 'block' : 'event_available',
-      pvLabel: pv ? (pv.ok ? `${hm(s.over.t)}–${hm(s.over.t + drag.dur)}${pv.overlap ? ' · overlaps' : ''}` : pv.reason) : '',
-      pvParts: pv && pv.ok && this.PM ? pv.parts.map(q => ({ key: q.key, avBg: P[q.key][3], avFg: P[q.key][4], text: `${P[q.key][1].split(' ')[0]} · ${this.PM.skillNames(q.skills)} ${hm(q.start)}` })) : [],
-      blocks: [], leave: () => {} }; };
+    const mkCol = (ci, day, who) => ({
+      slots: Array.from({ length: (H1 - H0) * 2 }, (_, i) => { const t = H0 + i / 2;
+        return { line: i % 2 ? '#F8F9FA' : '#EEF0F3',
+          over: ev => { ev.preventDefault(); if (!s.over || s.over.ci !== ci || s.over.t !== t) this.setState({ over: { ci, t } }); },
+          drop: ev => { ev.preventDefault(); this.drop(day, t, who); } }; }),
+      hasPreview: !!(drag && s.over && s.over.ci === ci), pvTop: s.over ? (s.over.t - H0) * ROW + 1 + 'px' : '0px', pvH: drag ? drag.dur * ROW - 2 + 'px' : '0px',
+      pvLabel: drag && s.over ? `${hm(s.over.t)}–${hm(s.over.t + drag.dur)}${who ? ' · ' + P[who][1].split(' ')[0] : ''}` : '',
+      leave: () => {} });
     let columns = [], gridCols = '', gridMin = '0px';
     if (s.mode === 'week') {
       const tracks = [];
@@ -464,25 +394,16 @@ class Component extends DCLogic {
         const evs = inRange.filter(e => e.day === day && match(e)), lay = layout(evs), lanes = Math.max(1, ...evs.map(e => lay[e.id].n));
         const h = evs.reduce((a, e) => a + e.dur, 0);
         tracks.push(wk ? `minmax(${Math.max(56, lanes * 42)}px,${0.45 + (lanes - 1) * 0.3}fr)` : `minmax(${Math.max(116, lanes * 44)}px,${1 + Math.max(0, lanes - 2) * 0.35}fr)`);
-        return { isDay: true, openDay: () => this.setState({ mode: 'day', dayIdx: day }), dayTip: `Open ${dn} ${d.getDate()} in Day view`, headCursor: 'pointer', headHover: '#F2F4F7', top: dn, main: d.getDate(), meta: evs.length ? (wk ? `${evs.length}` : `${evs.length} · ${fmtH(h)}`) : '', isToday: today, subColor: today ? '#C00018' : '#667085', mainColor: today ? '#C00018' : '#1E2430',
+        return { isDay: true, top: dn, main: d.getDate(), meta: evs.length ? (wk ? `${evs.length}` : `${evs.length} · ${fmtH(h)}`) : '', isToday: today, subColor: today ? '#C00018' : '#667085', mainColor: today ? '#C00018' : '#1E2430',
           headBg: today ? '#FFF8F8' : '#fff', bodyBg: wk ? '#FAFAFB' : today ? '#FFFCFC' : '#fff', ...mkCol(i, day), events: evs.map(e => evView(e, lay, false)) }; });
       gridCols = '52px ' + tracks.join(' ');
     } else if (s.mode === 'day') {
       const day = s.dayIdx, people = PEOPLE.filter(p => !F.team.length || F.team.includes(p[2]));
-      const PM = this.PM, date = PM ? PM.dayIso(day) : '';
       columns = people.map(([ini, name, team, avBg, avFg], i) => {
-        const all = inRange.filter(e => e.who === ini), evs = all.filter(e => match(e)), lay = layout(evs), h = all.reduce((a, e) => a + e.dur, 0);
-        const cap = PM ? PM.hoursOn(ini, date) : CAP, pct = cap ? h / cap : (h ? 2 : 0);
-        const sh = PM && PM.shiftOn(ini, date), ab = PM && PM.absenceOn(ini, date), other = sh && sh.site !== 'THO';
-        const loadColor = !cap ? '#98A2B3' : pct > 1 ? '#B42318' : pct >= 0.85 ? '#B54708' : '#0B6B4A';
-        const blocks = [];
-        const blk = (a, b, text) => { a = Math.max(H0, a); b = Math.min(H1, b); if (b > a) blocks.push({ top: (a - H0) * ROW + 'px', h: (b - a) * ROW + 'px', text: b - a >= 1 ? text : '', label: text }); };
-        if (PM) { if (!sh || other || (ab && !PM.partDay(ab))) blk(H0, H1, ab && !PM.partDay(ab) ? ab.label : other ? 'At ' + PM.SITES[sh.site] : 'Not working');
-          else { blk(H0, sh.from, 'Off shift'); blk(sh.to, H1, 'Off shift'); if (ab && PM.partDay(ab)) blk(ab.from, ab.to, ab.label); } }
-        const sub = !PM ? team.replace(' team', '') : ab && !PM.partDay(ab) ? ab.label : other ? 'At ' + PM.SITES[sh.site] : !sh ? 'Not working' : `${hm(sh.from)}–${hm(sh.to)}${ab ? ' · ' + ab.label + ' ' + hm(ab.from) : ''}`;
-        const c0 = mkCol(i, day, ini);
-        return { isPerson: true, headCursor: 'default', headHover: pct > 1 ? '#FEF6F6' : '#fff', ini, main: name, team: sub, teamColor: (ab || other || !sh) && PM ? '#B54708' : '#98A2B3', teamWeight: (ab || other) && PM ? 600 : 400, avBg, avFg, load: cap ? `${fmtH(h)} / ${fmtH(cap)}` : 'Unavailable', loadW: Math.min(100, pct * 100) + '%', loadColor,
-          isToday: day === TODAY, headBg: cap && pct > 1 ? '#FEF6F6' : '#fff', bodyBg: '#fff', ...c0, blocks, events: evs.map(e => evView(e, lay, true)) }; });
+        const all = inRange.filter(e => e.who === ini), evs = all.filter(e => match(e)), lay = layout(evs), h = all.reduce((a, e) => a + e.dur, 0), pct = h / CAP;
+        const loadColor = pct > 1 ? '#B42318' : pct >= 0.85 ? '#B54708' : '#0B6B4A';
+        return { isPerson: true, ini, main: name, team: team.replace(' team', ''), avBg, avFg, load: `${fmtH(h)} / ${CAP} h`, loadW: Math.min(100, pct * 100) + '%', loadColor,
+          isToday: day === TODAY, headBg: pct > 1 ? '#FEF6F6' : '#fff', bodyBg: '#fff', ...mkCol(i, day, ini), events: evs.map(e => evView(e, lay, true)) }; });
       gridCols = `52px repeat(${columns.length},minmax(150px,1fr))`; gridMin = 52 + columns.length * 150 + 'px';
     }
     const monthDays = [];
@@ -499,12 +420,7 @@ class Component extends DCLogic {
 
     const blShown = BL.filter(u => match(u)).sort((a, b) => (b.fresh ? 1 : 0) - (a.fresh ? 1 : 0) || PORD[a.prio] - PORD[b.prio]);
     const backlog = blShown.map(u => { const [icon, fg, bg] = TYPE[u.type], urgent = u.prio === 'Critical' || u.prio === 'High', [pbg, pfg] = PRIO[u.prio];
-      const PM = this.PM, sg = u.segs || [{ skills: [], h: u.dur, who: '' }], pre = sg.filter(g => g.who);
-      const qual = PM ? sg.map(g => PEOPLE.filter(p => PM.hasSkills(p[0], g.skills)).length) : [];
-      const segsV = sg.map(g => { const k = PM && g.skills[0] ? PM.skill(g.skills[0]) : { icon: 'person', fg: '#475467', bg: '#EEF1F4' }; return { icon: k.icon, fg: k.fg, bg: k.bg, flex: g.h, text: `${PM ? PM.skillNames(g.skills) : ''} ${fmtH(g.h)}`, tip: `${PM ? PM.skillNames(g.skills) : ''} · ${fmtH(g.h)}${g.who ? ' · assigned to ' + P[g.who][1] : ''}`, hasWho: !!g.who, who: g.who, avBg: g.who ? P[g.who][3] : '', avFg: g.who ? P[g.who][4] : '' }; });
-      const whoNote = pre.length ? `Assigned · ${[...new Set(pre.map(g => P[g.who][1]))].join(', ')}` : PM ? (Math.min(...qual) === 0 ? 'No qualified person on site' : sg.length > 1 ? `${sg.length} parts · split between people on drop` : `${qual[0]} qualified people`) : '';
-      const PL = this.PL, toolsV = PL ? (u.tools || []).map(id => { const x = PL.asset(id) || { name: id, type: '' }; return { name: x.name, icon: PL.typeIcon(x.type) }; }) : [];
-      return { hasTools: toolsV.length > 0, tools: toolsV, segs: segsV, whoNote, whoColor: PM && !pre.length && Math.min(...qual) === 0 ? '#B42318' : '#667085', asset: u.asset, task: u.task, type: u.type, icon, typeFg: fg, typeBg: bg, typeTip: `Show only ${u.type}`, prio: u.prio, urgent, normal: !urgent, pbg, pfg,
+      return { asset: u.asset, task: u.task, type: u.type, icon, typeFg: fg, typeBg: bg, typeTip: `Show only ${u.type}`, prio: u.prio, urgent, normal: !urgent, pbg, pfg,
         dur: fmtH(u.dur), team: u.team.replace(' team', ''), age: u.age, ageColor: u.soon ? '#B42318' : '#98A2B3',
         border: u.fresh ? '#F3A3AC' : '#E4E7EC', shadow: u.fresh ? '0 0 0 3px rgba(192,0,24,.08)' : 'none', op: drag && drag.id === u.id ? 0.4 : 1,
         dragStart: ev => this.startDrag(ev, 'u', u), dragEnd: () => this.endDrag(), filterType: ev => { ev.stopPropagation(); this.setType(u.type); } }; });
@@ -524,11 +440,6 @@ class Component extends DCLogic {
       clearAll: () => this.setState({ F: EMPTY, dd: null }),
       modes: [['day', 'Day'], ['week', 'Week'], ['month', 'Month']].map(([k, label]) => ({ label, bg: s.mode === k ? '#fff' : 'transparent', shadow: s.mode === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.mode === k ? bold : reg, color: s.mode === k ? '#1E2430' : '#667085', select: () => this.setState({ mode: k, week: 0 }) })),
       rangeLabel, prev: () => step(-1), next: () => step(1), today: () => this.setState({ week: 0, dayIdx: TODAY }),
-      ...(() => { const PM = this.PM; if (!drag || !PM) return { dragInfo: false, dragSegs: [], dragTools: [] }; const it = drag.kind === 'u' ? s.backlog.find(x => x.id === drag.id) : s.events.find(x => x.id === drag.id); if (!it) return { dragInfo: false, dragSegs: [], dragTools: [] };
-        const sg = drag.kind === 'u' ? (it.segs || []) : [{ skills: it.skills || [], h: it.dur, who: it.who }];
-        const PL = this.PL, dragTools = PL ? (it.tools || []).map(id => (PL.asset(id) || { name: id }).name) : [];
-        return { dragTools, dragInfo: true, dragTitle: drag.kind === 'u' ? `${it.asset} — ${it.task} needs` : `Moving ${it.asset} · ${P[it.who][1]}`,
-          dragSegs: sg.map((g, i) => { const k = g.skills[0] ? PM.skill(g.skills[0]) : { icon: 'person', fg: '#475467', bg: '#EEF1F4' }; return { icon: k.icon, fg: k.fg, bg: k.bg, text: `${i ? '→ ' : ''}${PM.skillNames(g.skills)} ${fmtH(g.h)}${g.who ? ' · ' + P[g.who][1].split(' ')[0] : ''}` }; }) }; })(),
       isGrid: s.mode !== 'month', isMonth: s.mode === 'month', hours, columns, gridCols, gridMin, nowTop: (NOW - H0) * ROW + 'px', monthDays, monthHead: DAYS,
       panelW: s.panel ? '304px' : '44px', panelOpen: s.panel, panelClosed: !s.panel, togglePanel: () => this.setState({ panel: !s.panel }),
       panelBg: hot && s.panelHot ? '#FFF8F8' : '#fff', panelBorder: hot ? '#C00018' : '#E4E7EC', panelBorderStyle: hot ? 'dashed' : 'solid', dropHint: !!hot,

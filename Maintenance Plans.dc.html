@@ -17,9 +17,8 @@
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="plans" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
-  <main style="position:relative;min-height:0;overflow:hidden;padding:20px 28px 20px;display:flex;flex-direction:column;gap:16px" data-screen-label="Maintenance plans">
-    <header style="flex:none;display:flex;align-items:center;gap:16px">
-      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+  <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Maintenance plans">
+    <header style="flex:none;display:flex;align-items:flex-end;gap:16px">
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Maintenance plans</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Preventive rules that generate work orders automatically</p>
@@ -27,8 +26,8 @@
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New plan</button>
     </header>
 
-    <section style="flex:0 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-      <div style="flex:none;display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #EEF0F3">
+    <section style="flex:none;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #EEF0F3">
         <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
           <sc-for list="{{ statusTabs }}" as="t" hint-placeholder-count="3">
             <button onClick="{{ t.select }}" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 12px;background:{{ t.bg }};border:0;border-radius:5px;box-shadow:{{ t.shadow }};font:{{ t.font }};color:{{ t.color }};cursor:pointer">{{ t.label }}<span style="font-size:11.5px;color:#98A2B3;font-weight:600">{{ t.count }}</span></button>
@@ -43,8 +42,7 @@
           <span style="position:absolute;right:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
         </label>
       </div>
-      <div style="flex:1;min-height:0;overflow:auto">
-      <div style="position:sticky;top:0;z-index:3;display:grid;grid-template-columns:minmax(240px,2fr) minmax(150px,1.2fr) 130px minmax(150px,1.1fr) 90px 120px 96px 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
+      <div style="display:grid;grid-template-columns:minmax(240px,2fr) minmax(150px,1.2fr) 130px minmax(150px,1.1fr) 90px 120px 96px 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
         <span>Plan</span><span>Assets</span><span>Frequency</span><span>Checklist</span><span>Duration</span><span>Next work order</span><span>Active</span><span></span>
       </div>
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
@@ -74,7 +72,6 @@
         </div>
       </sc-for>
       <div style="padding:10px 16px;color:#667085;font-size:12.5px">{{ rangeLabel }}</div>
-    </div>
     </section>
     <sc-if value="{{ menuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:30"></div></sc-if>
   </main>

@@ -17,9 +17,8 @@
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="parts" style="height:100%" hint-size="232px,100%"></dc-import></div>
 
-  <main style="position:relative;min-height:0;overflow:hidden;padding:20px 28px 20px;display:flex;flex-direction:column;gap:16px" data-screen-label="Spare parts">
-    <header style="flex:none;display:flex;align-items:center;gap:12px">
-      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+  <main style="position:relative;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Spare parts">
+    <header style="flex:none;display:flex;align-items:flex-end;gap:8px">
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Spare parts</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Stock levels, storerooms and consumption · Thourotte Plant</p>
@@ -38,8 +37,8 @@
       </sc-for>
     </section>
 
-    <section style="flex:0 1 auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-      <div style="flex:none;display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #EEF0F3;flex-wrap:wrap">
+    <section style="flex:none;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+      <div style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #EEF0F3;flex-wrap:wrap">
         <label style="width:300px;height:34px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px">
           <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span>
           <input value="{{ q }}" onInput="{{ setQ }}" placeholder="Search by name, reference, supplier…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif;background:transparent" />
@@ -57,16 +56,9 @@
         <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
           <sc-for list="{{ views }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.select }}" title="{{ v.label }}" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 10px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">{{ v.icon }}</span>{{ v.label }}</button></sc-for>
         </div>
-        <div style="flex-basis:100%;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-          <span title="Storage areas are defined in the plant hierarchy (Assets)" style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#667085;margin-right:2px"><span style="font:16px/1 'Material Symbols Outlined'">warehouse</span>Storage area</span>
-          <sc-for list="{{ storeChips }}" as="c" hint-placeholder-count="4">
-            <button onClick="{{ c.select }}" title="{{ c.path }}" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 12px;background:{{ c.bg }};border:1px solid {{ c.border }};border-radius:15px;font:{{ c.font }};color:{{ c.color }};cursor:pointer;white-space:nowrap">{{ c.label }}<span style="font-weight:500;color:{{ c.countColor }};font-variant-numeric:tabular-nums">{{ c.count }}</span><sc-if value="{{ c.hasAlert }}"><span title="{{ c.alertTip }}" style="width:7px;height:7px;border-radius:50%;background:#D92D20"></span></sc-if></button>
-          </sc-for>
-        </div>
       </div>
-      <div style="flex:1;min-height:0;overflow:auto">
       <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
-      <div style="position:sticky;top:0;z-index:3;display:grid;grid-template-columns:minmax(240px,2fr) 120px 150px 190px 118px 90px minmax(120px,1fr) 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
+      <div style="display:grid;grid-template-columns:minmax(240px,2fr) 120px 150px 190px 118px 90px minmax(120px,1fr) 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
         <span>Part</span><span>Category</span><span>Location</span><span>Stock</span><span>Status</span><span style="text-align:right;padding-right:16px">Unit cost</span><span>Supplier</span><span></span>
       </div>
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="10">
@@ -76,7 +68,7 @@
             <span style="min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ r.ref }}</span></span>
           </span>
           <span style="color:#475467">{{ r.cat }}</span>
-          <span title="{{ r.storePath }}" style="display:flex;flex-direction:column;gap:1px"><span style="color:#344054">{{ r.store }}</span><span style="font:11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ r.bin }}</span></span>
+          <span style="display:flex;flex-direction:column;gap:1px"><span style="color:#344054">{{ r.store }}</span><span style="font:11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ r.bin }}</span></span>
           <span style="display:flex;flex-direction:column;gap:4px;padding-right:18px">
             <span style="display:flex;align-items:baseline;gap:6px"><span style="font-weight:600;font-size:14px;font-variant-numeric:tabular-nums;color:{{ r.qtyColor }}">{{ r.qty }}</span><span style="font-size:12px;color:#667085">{{ r.unit }}</span><span style="margin-left:auto;font-size:11.5px;color:#98A2B3">min {{ r.min }} · max {{ r.max }}</span></span>
             <span style="position:relative;height:4px;border-radius:2px;background:#EEF0F3"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ r.barW }};border-radius:2px;background:{{ r.barColor }}"></span><span style="position:absolute;left:{{ r.minX }};top:-2px;width:1.5px;height:8px;background:#667085"></span></span>
@@ -90,7 +82,6 @@
               <div style="position:absolute;right:6px;top:{{ r.menuTop }};z-index:40;width:210px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14);padding:6px;cursor:default">
                 <button onClick="{{ r.open }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">swap_vert</span>Adjust stock</button>
                 <button onClick="{{ r.reorder }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">shopping_cart</span>Request reorder</button>
-                <button onClick="{{ r.reserve }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bookmark_add</span>Reserve for a work order</button>
                 <button onClick="{{ r.edit }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit part</button>
                 <div style="height:1px;background:#EEF0F3;margin:6px 4px"></div>
                 <button onClick="{{ r.del }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer;text-align:left" style-hover="background:#FEF3F2"><span style="font:18px/1 'Material Symbols Outlined'">delete</span>Delete part</button>
@@ -124,13 +115,12 @@
                   <span style="position:relative;height:5px;border-radius:3px;background:#EEF0F3"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ r.barW }};border-radius:3px;background:{{ r.barColor }}"></span><span style="position:absolute;left:{{ r.minX }};top:-2px;width:1.5px;height:9px;background:#667085"></span></span>
                   <span style="display:flex;align-items:center;gap:4px;font-size:12px;color:#667085"><span style="font:14px/1 'Material Symbols Outlined'">location_on</span>{{ r.store }} · <span style="font-family:'IBM Plex Mono',monospace">{{ r.bin }}</span></span>
                 </div>
-                <div style="margin-top:auto;display:flex;flex-direction:column;gap:6px">
-                  <span style="display:flex;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:{{ r.hintColor }}"><span style="font:14px/1 'Material Symbols Outlined'">{{ r.hintIcon }}</span>{{ r.hint }}</span>
-                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-                    <button onClick="{{ r.reserve }}" title="{{ r.resTip }}" style="height:32px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 6px;background:{{ r.resBg }};border:1px solid {{ r.resBorder }};border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:{{ r.resColor }};cursor:pointer;white-space:nowrap" style-hover="filter:brightness(.97)"><span style="font:16px/1 'Material Symbols Outlined'">bookmark_add</span>{{ r.resLabel }}</button>
-                    <button onClick="{{ r.reorder }}" title="{{ r.reqTip }}" style="height:32px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 6px;background:{{ r.reqBg }};border:1px solid {{ r.reqBorder }};border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:{{ r.reqColor }};cursor:pointer;white-space:nowrap" style-hover="filter:brightness(.97)"><span style="font:16px/1 'Material Symbols Outlined'">{{ r.reqIcon }}</span>{{ r.reqLabel }}</button>
-                  </div>
-                </div>
+                <sc-if value="{{ r.needsReorder }}">
+                  <button onClick="{{ r.reorder }}" style="margin-top:auto;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:1px solid #F1A7A7;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer" style-hover="background:#FEF6F6"><span style="font:17px/1 'Material Symbols Outlined'">shopping_cart</span>Request reorder</button>
+                </sc-if>
+                <sc-if value="{{ r.canReserve }}">
+                  <button onClick="{{ r.reserve }}" style="margin-top:auto;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:17px/1 'Material Symbols Outlined';color:#667085">bookmark_add</span>Reserve for a work order</button>
+                </sc-if>
               </div>
             </div>
           </sc-for>
@@ -138,7 +128,6 @@
       </sc-if>
       <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;color:#667085">No parts match these filters.</div></sc-if>
       <div style="display:flex;align-items:center;padding:10px 14px;color:#667085;font-size:12.5px">{{ rangeLabel }}</div>
-    </div>
     </section>
     <sc-if value="{{ menuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:30"></div></sc-if>
   </main>
@@ -200,7 +189,6 @@
       </div>
       <div style="display:flex;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3">
         <button onClick="{{ reorderCurrent }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">shopping_cart</span>Request reorder</button>
-                <button onClick="{{ r.reserve }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bookmark_add</span>Reserve for a work order</button>
         <a href="Work Orders.dc.html?new=1" style="margin-left:auto;height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:500"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bookmark_add</span>Reserve for a work order</a>
       </div>
     </aside>
@@ -265,7 +253,6 @@ const st = p => p.qty === 0 ? ['Out of stock', '#FDECEC', '#B42318', '#D92D20'] 
 const eur = n => '€' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 class Component extends DCLogic {
   state = { rows: SEED, q: new URLSearchParams(window.location.search).get('q') || '', view: this.props.view ?? 'list', cat: '', store: '', kpi: this.props.filter ?? '', menu: null, detail: null, form: null, f: {}, errors: {}, adj: 'out', adjQty: '1', adjReason: 'Consumed on work order', toast: null };
-  componentDidMount() { import('./plant-model.js').then(PL => { this.PL = PL; const st = new URLSearchParams(location.search).get('store'); this.setState(st && STORES.includes(st) ? { store: st } : {}); }); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   renderVals() {
     const s = this.state, q = s.q.toLowerCase();
@@ -276,17 +263,8 @@ class Component extends DCLogic {
       && (!s.kpi || (s.kpi === 'low' ? p.qty > 0 && p.qty < p.min : p.qty === 0)));
     const rows = list.map((p, i) => {
       const [status, sbg, sfg, dot] = st(p), mo = s.menu === p.ref, scale = p.max * 1.1;
-      return { ...p, storePath: this.PL && this.PL.storageByName(p.store) ? this.PL.pathOf(this.PL.storageByName(p.store).id) : p.store, icon: CATS[p.cat], status, sbg, sfg, cost: eur(p.cost), avail: Math.max(0, p.qty - p.reserved), needsReorder: p.qty < p.min, canReserve: p.qty >= p.min, cardBorder: s.detail === p.ref ? '#C00018' : '#E4E7EC',
-        reserve: e => { e.stopPropagation(); this.setState({ menu: null }); this.flash(p.qty === 0 ? `Reservation queued · ${p.ref} — you'll be served first on delivery` : `1 × ${p.ref} reserved · pick the work order in the reservation list`); },
-        ...(p.qty === 0 ? { hint: 'Out of stock · next delivery not planned', hintColor: '#B42318', hintIcon: 'error',
-            resLabel: 'Reserve on arrival', resTip: 'Queue a reservation — served first when stock arrives', resBg: '#fff', resBorder: '#D0D5DD', resColor: '#344054',
-            reqLabel: 'Request urgently', reqTip: `Request ${p.max} × ${p.ref}`, reqIcon: 'priority_high', reqBg: '#C00018', reqBorder: '#C00018', reqColor: '#fff' }
-          : p.qty < p.min ? { hint: `${p.min - p.qty} below minimum (min ${p.min})`, hintColor: '#B54708', hintIcon: 'warning',
-            resLabel: 'Reserve', resTip: `${Math.max(0, p.qty - p.reserved)} available to reserve`, resBg: '#fff', resBorder: '#D0D5DD', resColor: '#1E2430',
-            reqLabel: 'Request reorder', reqTip: `Request ${p.max - p.qty} × ${p.ref} to reach max`, reqIcon: 'shopping_cart', reqBg: '#FFFAF2', reqBorder: '#F8C98B', reqColor: '#B54708' }
-          : { hint: `Above minimum · ${p.qty - p.min} spare`, hintColor: '#0B6B4A', hintIcon: 'check_circle',
-            resLabel: 'Reserve', resTip: 'Reserve for a work order', resBg: '#1E2430', resBorder: '#1E2430', resColor: '#fff',
-            reqLabel: 'Request more', reqTip: 'Order extra stock (not required)', reqIcon: 'add_shopping_cart', reqBg: '#fff', reqBorder: '#D0D5DD', reqColor: '#475467' }), qtyColor: p.qty === 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430',
+      return { ...p, icon: CATS[p.cat], status, sbg, sfg, cost: eur(p.cost), avail: Math.max(0, p.qty - p.reserved), needsReorder: p.qty < p.min, canReserve: p.qty >= p.min, cardBorder: s.detail === p.ref ? '#C00018' : '#E4E7EC',
+        reserve: e => { e.stopPropagation(); window.CMMSCreateWO({}); }, qtyColor: p.qty === 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430',
         barW: Math.min(100, p.qty / scale * 100) + '%', minX: (p.min / scale * 100) + '%', barColor: dot, bg: s.detail === p.ref ? '#FBF7F7' : '#fff',
         open: e => { e.stopPropagation(); this.setState({ detail: p.ref, menu: null, adjQty: '1' }); },
         menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > list.length - 4 && list.length > 5 ? '-172px' : '34px',
@@ -302,7 +280,7 @@ class Component extends DCLogic {
       const [status, sbg, sfg] = st(dp);
       d = { ...dp, icon: CATS[dp.cat], status, sbg, sfg,
         stats: [['On hand', dp.qty, dp.qty === 0 ? '#B42318' : '#1E2430'], ['Reserved', dp.reserved, '#1E2430'], ['Available', Math.max(0, dp.qty - dp.reserved), '#1E2430'], ['Min / max', `${dp.min} / ${dp.max}`, '#475467']].map(([k, v, color]) => ({ k, v, color })),
-        details: [['Storage area', `${this.PL && this.PL.storageByName(dp.store) ? this.PL.pathOf(this.PL.storageByName(dp.store).id) : dp.store} · bin ${dp.bin}`], ['Unit', dp.unit], ['Unit cost', eur(dp.cost)], ['Stock value', eur(dp.cost * dp.qty)], ['Supplier', dp.supplier], ['Lead time', '5 business days']].map(([k, v]) => ({ k, v })),
+        details: [['Storeroom', `${dp.store} · ${dp.bin}`], ['Unit', dp.unit], ['Unit cost', eur(dp.cost)], ['Stock value', eur(dp.cost * dp.qty)], ['Supplier', dp.supplier], ['Lead time', '5 business days']].map(([k, v]) => ({ k, v })),
         moves: (dp.moves || []).concat([
           ['remove', 'Consumed', 'Conveyor Line 3 — Sensor check · S. Martin', '−2', 'Today', '#B42318'],
           ['add', 'Received', 'PO-44821 · ' + dp.supplier, '+20', 'Sep 18', '#0B6B4A'],
@@ -315,11 +293,7 @@ class Component extends DCLogic {
       onInput: e => { const v = e.target.value; this.setState(z => ({ f: { ...z.f, [k]: v }, errors: { ...z.errors, [k]: 0 } })); } });
     return {
       kpis, rows, empty: !rows.length, isList: s.view !== 'catalog', isCatalog: s.view === 'catalog',
-      views: [['list', 'List', 'table_rows'], ['catalog', 'Catalog', 'grid_view']].map(([k, label, icon]) => { const on = (s.view === 'catalog') === (k === 'catalog'); return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) }; }), selects: [sel('cat', 'All categories', Object.keys(CATS))],
-      storeChips: [['', 'All storage areas'], ...STORES.map(x => [x, x])].map(([k, label]) => { const on = s.store === k, inS = s.rows.filter(p => !k || p.store === k), alerts = inS.filter(p => p.qty === 0).length;
-        const sn = this.PL && k ? this.PL.storageByName(k) : null;
-        return { path: sn ? this.PL.pathOf(sn.id) : 'All storage areas in the plant hierarchy', label: sn ? `${label} · ${this.PL.zoneOf(sn.id).name}` : label, count: k ? inS.length : s.rows.length, hasAlert: alerts > 0, alertTip: `${alerts} out of stock`, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', countColor: on ? 'rgba(255,255,255,.7)' : '#98A2B3',
-          font: on ? "600 12.5px 'IBM Plex Sans',sans-serif" : "500 12.5px 'IBM Plex Sans',sans-serif", select: () => this.setState({ store: k }) }; }),
+      views: [['list', 'List', 'table_rows'], ['catalog', 'Catalog', 'grid_view']].map(([k, label, icon]) => { const on = (s.view === 'catalog') === (k === 'catalog'); return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) }; }), selects: [sel('cat', 'All categories', Object.keys(CATS)), sel('store', 'All storerooms', STORES)],
       q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters: !!(q || s.cat || s.store || s.kpi), resetFilters: () => this.setState({ q: '', cat: '', store: '', kpi: '' }),
       countLabel: `${s.q || s.cat || s.store || s.kpi ? list.length : '1,940'} parts`, rangeLabel: `Showing 1–${list.length} of ${s.q || s.cat || s.store || s.kpi ? list.length : '1,940'}`,
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }), doExport: () => this.flash('Exporting stock list…'),
