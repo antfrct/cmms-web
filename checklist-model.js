@@ -29,7 +29,7 @@ export const CATALOG = {
 
 let n = 0;
 export const uid = () => 's' + Date.now().toString(36) + (n++).toString(36);
-const base = (id, title, type, o = {}) => ({ id, title, type, required: false, desc: '', expected: '', unit: '', min: '', max: '', options: [], media: [], parts: [], rules: [], after: 'next', afterTarget: '', conditional: false, flagWhen: '', outOfRange: 'warn', minPhotos: '', minChars: '', ...o });
+const base = (id, title, type, o = {}) => ({ id, title, type, skills: [], minutes: '', tools: [], required: false, desc: '', expected: '', unit: '', min: '', max: '', options: [], media: [], parts: [], rules: [], after: 'next', afterTarget: '', conditional: false, flagWhen: '', outOfRange: 'warn', minPhotos: '', minChars: '', ...o });
 export const defaultsFor = type => type === 'confirm' ? { options: ['Done'] } : (type === 'single' || type === 'multi') ? { options: ['Option 1', 'Option 2'] } : {};
 export const newStep = (title, type, o = {}) => base(uid(), title, type, { ...defaultsFor(type), ...o });
 export const clone = x => JSON.parse(JSON.stringify(x));
@@ -38,46 +38,54 @@ export const SEEDS = {
   'pump-seal': {
     id: 'pump-seal', name: 'Pump seal replacement', desc: 'Mechanical seal replacement on centrifugal pumps, with pressure and leak test.', status: 'published', est: 90, updated: '2026-09-29T09:12', updatedBy: 'G. Durand',
     steps: [
-      base('s1', 'Secure the pump', 'confirm', { required: true, desc: 'Isolate the pump before any work.', options: ['Pump stopped and valves closed', 'Lockout / tagout applied', 'Zero energy verified at the motor'], media: [{ kind: 'pdf', name: 'Lockout procedure.pdf' }] }),
-      base('s2', 'Is a leak visible?', 'yesno', { required: true, desc: 'Look at the seal area and the pump body for drips or damage.', flagWhen: 'yes', rules: [{ when: 'yes', action: 'require', need: 'photo' }, { when: 'yes', action: 'goto', target: 's3' }, { when: 'no', action: 'goto', target: 's7' }] }),
-      base('s3', 'Where does the leak come from?', 'single', { required: true, conditional: true, desc: 'A cracked casing cannot be repaired on site — the checklist ends and a follow-up is planned.', options: ['Mechanical seal', 'Pipe fitting', 'Pump casing', 'Other'], flagWhen: 'Pump casing', rules: [{ when: 'Pump casing', action: 'finish' }] }),
-      base('s4', 'Replace the mechanical seal', 'instruction', { desc: 'Drain the pump casing into the retention tray\nRemove the coupling guard and the motor coupling\nReplace the mechanical seal and the O-rings\nTighten the flange bolts to 45 N·m in a cross pattern', expected: 'New seal fitted, shaft turns freely by hand', media: [{ kind: 'video', name: 'Seal replacement — 4 min.mp4' }, { kind: 'image', name: 'Seal exploded view.png' }, { kind: 'pdf', name: 'Seal replacement procedure.pdf' }] }),
-      base('s5', 'Spare parts used', 'parts', { parts: [{ ref: 'SEAL-M45', qty: 1 }] }),
-      base('s6', 'Consumables used', 'consumables'),
-      base('s7', 'Discharge pressure', 'number', { required: true, desc: 'Remove your lockout, restart the pump and measure after 5 minutes.', unit: 'bar', min: '3.5', max: '4.5', outOfRange: 'comment', media: [{ kind: 'image', name: 'Gauge location.png' }] }),
-      base('s8', 'Any leak after 10 minutes?', 'yesno', { required: true, desc: 'Watch the seal area with the pump running.', flagWhen: 'yes', rules: [{ when: 'yes', action: 'goto', target: 's9' }] }),
-      base('s9', 'Tighten the flange and re-test', 'instruction', { conditional: true, desc: 'Stop the pump\nRe-tighten the flange bolts to 45 N·m\nRestart and watch for 5 minutes' }),
-      base('s10', 'Photo after repair', 'photo'),
-      base('s11', 'Clean up and hand over', 'confirm', { required: true, options: ['Tools and old parts removed', 'Area cleaned, retention tray emptied', 'Operator informed the pump is back in service'] }),
+      base('s1', 'Secure the pump', 'confirm', { skills: ['ELE'], minutes: 15, required: true, desc: 'Isolate the pump before any work.', options: ['Pump stopped and valves closed', 'Lockout / tagout applied', 'Zero energy verified at the motor'], media: [{ kind: 'pdf', name: 'Lockout procedure.pdf' }] }),
+      base('s2', 'Is a leak visible?', 'yesno', { skills: ['MEC'], minutes: 5, required: true, desc: 'Look at the seal area and the pump body for drips or damage.', flagWhen: 'yes', rules: [{ when: 'yes', action: 'require', need: 'photo' }, { when: 'yes', action: 'goto', target: 's3' }, { when: 'no', action: 'goto', target: 's7' }] }),
+      base('s3', 'Where does the leak come from?', 'single', { skills: ['MEC'], minutes: 5, required: true, conditional: true, desc: 'A cracked casing cannot be repaired on site — the checklist ends and a follow-up is planned.', options: ['Mechanical seal', 'Pipe fitting', 'Pump casing', 'Other'], flagWhen: 'Pump casing', rules: [{ when: 'Pump casing', action: 'finish' }] }),
+      base('s4', 'Replace the mechanical seal', 'instruction', { skills: ['MEC'], minutes: 35, tools: ['LA-01'], desc: 'Drain the pump casing into the retention tray\nRemove the coupling guard and the motor coupling\nReplace the mechanical seal and the O-rings\nTighten the flange bolts to 45 N·m in a cross pattern', expected: 'New seal fitted, shaft turns freely by hand', media: [{ kind: 'video', name: 'Seal replacement — 4 min.mp4' }, { kind: 'image', name: 'Seal exploded view.png' }, { kind: 'pdf', name: 'Seal replacement procedure.pdf' }] }),
+      base('s5', 'Spare parts used', 'parts', { skills: ['MEC'], minutes: 3, parts: [{ ref: 'SEAL-M45', qty: 1 }, { ref: 'GSK-P101', qty: 1 }, { ref: 'ORG-KIT', qty: 1 }] }),
+      base('s6', 'Consumables used', 'consumables', { skills: ['MEC'], minutes: 2 }),
+      base('s7', 'Discharge pressure', 'number', { skills: ['ELE'], minutes: 10, required: true, desc: 'Remove your lockout, restart the pump and measure after 5 minutes.', unit: 'bar', min: '3.5', max: '4.5', outOfRange: 'comment', media: [{ kind: 'image', name: 'Gauge location.png' }] }),
+      base('s8', 'Any leak after 10 minutes?', 'yesno', { skills: ['MEC'], minutes: 10, required: true, desc: 'Watch the seal area with the pump running.', flagWhen: 'yes', rules: [{ when: 'yes', action: 'goto', target: 's9' }] }),
+      base('s9', 'Tighten the flange and re-test', 'instruction', { skills: ['MEC'], minutes: 10, conditional: true, desc: 'Stop the pump\nRe-tighten the flange bolts to 45 N·m\nRestart and watch for 5 minutes' }),
+      base('s10', 'Photo after repair', 'photo', { skills: ['MEC'], minutes: 2 }),
+      base('s11', 'Clean up and hand over', 'confirm', { skills: ['MEC'], minutes: 8, required: true, options: ['Tools and old parts removed', 'Area cleaned, retention tray emptied', 'Operator informed the pump is back in service'] }),
     ],
   },
   standard: {
     id: 'standard', name: 'Standard intervention', desc: 'Default checklist for corrective work orders.', status: 'published', est: 60, updated: '2026-09-18T14:30', updatedBy: 'C. Moreau',
     steps: [
-      base('t1', 'Secure the equipment', 'confirm', { required: true, options: ['Equipment stopped', 'Lockout / tagout applied'], media: [{ kind: 'pdf', name: 'Lockout procedure.pdf' }] }),
-      base('t2', 'Is the equipment in normal condition?', 'yesno', { required: true, flagWhen: 'no', rules: [{ when: 'no', action: 'require', need: 'photo' }] }),
-      base('t3', 'Carry out the work', 'instruction', { desc: 'Follow the work order description\nReplace worn parts if needed\nReassemble and check all fixings' }),
-      base('t4', 'Spare parts used', 'parts'),
-      base('t5', 'Does it run normally after restart?', 'yesno', { required: true, flagWhen: 'no', rules: [{ when: 'no', action: 'require', need: 'comment' }] }),
-      base('t6', 'Clean up and hand over', 'confirm', { required: true, options: ['Tools removed', 'Area cleaned', 'Operator informed'] }),
+      base('t1', 'Secure the equipment', 'confirm', { skills: ['ELE'], minutes: 15, required: true, options: ['Equipment stopped', 'Lockout / tagout applied'], media: [{ kind: 'pdf', name: 'Lockout procedure.pdf' }] }),
+      base('t2', 'Is the equipment in normal condition?', 'yesno', { skills: ['ELE'], minutes: 15, required: true, flagWhen: 'no', rules: [{ when: 'no', action: 'require', need: 'photo' }] }),
+      base('t3', 'Carry out the work', 'instruction', { skills: ['MEC'], minutes: 20, desc: 'Follow the work order description\nReplace worn parts if needed\nReassemble and check all fixings' }),
+      base('t4', 'Spare parts used', 'parts', { skills: ['MEC'], minutes: 2 }),
+      base('t5', 'Does it run normally after restart?', 'yesno', { skills: ['MEC'], minutes: 5, required: true, flagWhen: 'no', rules: [{ when: 'no', action: 'require', need: 'comment' }] }),
+      base('t6', 'Clean up and hand over', 'confirm', { skills: ['MEC'], minutes: 3, required: true, options: ['Tools removed', 'Area cleaned', 'Operator informed'] }),
     ],
   },
 };
 
 const readAll = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
-export const load = id => { const all = readAll(); return all[id] ? clone(all[id]) : SEEDS[id] ? clone(SEEDS[id]) : null; };
+const norm = cl => { if (!cl) return cl; const seed = SEEDS[cl.id]; cl.steps.forEach(st => { const ss = seed && seed.steps.find(x => x.id === st.id); if (!Array.isArray(st.skills)) st.skills = ss ? [...ss.skills] : []; if (st.minutes == null) st.minutes = ss ? ss.minutes : ''; if (!Array.isArray(st.tools)) st.tools = ss ? [...(ss.tools || [])] : []; }); return cl; };
+export const toolsOf = cls => [...new Set((cls || []).flatMap(cl => (cl.steps || []).flatMap(s => s.tools || [])))];
+export const totalMinutes = cl => (cl.steps || []).filter(s => !s.conditional).reduce((a, s) => a + (+s.minutes || 0), 0);
+export const load = id => { const all = readAll(); return norm(all[id] ? clone(all[id]) : SEEDS[id] ? clone(SEEDS[id]) : null); };
 export const save = cl => { const all = readAll(); all[cl.id] = cl; try { localStorage.setItem(KEY, JSON.stringify(all)); } catch (e) {} };
 export const savePreview = cl => { try { localStorage.setItem(PREVIEW_KEY, JSON.stringify(cl)); } catch (e) {} };
 export const loadPreview = () => { try { return JSON.parse(localStorage.getItem(PREVIEW_KEY)); } catch (e) { return null; } };
 export const checklistFor = asset => /P-101/.test(asset || '') ? 'pump-seal' : 'standard';
+const PARTS_FOR = { conveyor: [{ ref: 'BRG-6205', qty: 2 }, { ref: 'BLT-BPU280', qty: 1 }], press: [{ ref: 'FLT-HX10', qty: 1 }], electrical: [{ ref: 'CTR-LC1D', qty: 1 }] };
+// Required spare parts declared in checklist 'parts' steps, merged by ref → [{ ref, name, unit, stock, qty, from: [checklist names] }]
+export const partsOf = cls => { const out = []; (cls || []).forEach(cl => (cl.steps || []).filter(st => st.type === 'parts' && !st.conditional || st.type === 'parts' && (st.parts || []).length).forEach(st => (st.parts || []).forEach(p => { const c = CATALOG.parts.find(x => x[0] === p.ref) || [p.ref, p.ref, 'pcs', 0]; const ex = out.find(x => x.ref === p.ref); if (ex) { ex.qty = Math.max(ex.qty, +p.qty || 1); if (!ex.from.includes(cl.name)) ex.from.push(cl.name); } else out.push({ ref: p.ref, name: c[1], unit: c[2], stock: c[3], qty: +p.qty || 1, from: [cl.name] }); }))); return out; };
 export const fromName = (id, name) => {
   if (id === 'new') return { id: uid(), name: 'New checklist', desc: '', status: 'draft', est: '', updated: null, updatedBy: '', steps: [] };
+  const SK = { conveyor: [['ELE'], ['MEC']], press: [['ELE'], ['HYD']], electrical: [['ELE'], ['ELE']], safety: [[], []] }[id] || [[], []];
   return { id, name, desc: '', status: 'published', est: 45, updated: '2026-09-22T10:00', updatedBy: 'P. Leroy', steps: [
-    newStep('Secure the equipment', 'confirm', { required: true, options: ['Equipment stopped', 'Lockout / tagout applied'] }),
-    newStep('Check general condition', 'yesno', { required: true, flagWhen: 'no' }),
-    newStep('Clean and lubricate', 'instruction', { desc: 'Clean surfaces\nGrease lubrication points' }),
-    newStep('Take a photo', 'photo'),
-    newStep('Confirm equipment is operational', 'yesno', { required: true, flagWhen: 'no' }),
+    newStep('Secure the equipment', 'confirm', { required: true, options: ['Equipment stopped', 'Lockout / tagout applied'], skills: SK[0], minutes: 10 }),
+    newStep('Check general condition', 'yesno', { required: true, flagWhen: 'no', skills: SK[0], minutes: 10 }),
+    newStep('Clean and lubricate', 'instruction', { desc: 'Clean surfaces\nGrease lubrication points', skills: SK[1], minutes: 15 }),
+    ...(PARTS_FOR[id] ? [newStep('Spare parts used', 'parts', { skills: SK[1], minutes: 3, parts: PARTS_FOR[id] })] : []),
+    newStep('Take a photo', 'photo', { skills: SK[1], minutes: 2 }),
+    newStep('Confirm equipment is operational', 'yesno', { required: true, flagWhen: 'no', skills: SK[1], minutes: 8 }),
   ] };
 };
 
@@ -151,4 +159,4 @@ export const cleanRefs = (cl, removedId) => {
   return cl;
 };
 
-if (typeof window !== 'undefined') window.CMMSChecklist = { TYPES, GROUP_COLORS, GROUPS, MEDIA, CATALOG, uid, newStep, defaultsFor, clone, SEEDS, load, save, savePreview, loadPreview, checklistFor, fromName, guessType, whenOptions, whenLabel, isOut, matches, rangeText, firstStep, defaultNext, afterTarget, nextStep, requirements, flagged, predictPath, logicSummary, cleanRefs };
+if (typeof window !== 'undefined') window.CMMSChecklist = { totalMinutes, TYPES, GROUP_COLORS, GROUPS, MEDIA, CATALOG, uid, newStep, defaultsFor, clone, SEEDS, load, save, savePreview, loadPreview, checklistFor, fromName, guessType, whenOptions, whenLabel, isOut, matches, rangeText, firstStep, defaultNext, afterTarget, nextStep, requirements, flagged, predictPath, logicSummary, cleanRefs };

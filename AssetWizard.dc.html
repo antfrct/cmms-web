@@ -96,6 +96,10 @@
       </sc-if>
 
       <sc-if value="{{ isSpecs }}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Cost center</span><span style="position:relative;display:flex"><select value="{{ f.costCenter }}" onChange="{{ setCc }}" style="appearance:none;-webkit-appearance:none;width:100%;height:38px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;background:#fff;outline:none"><option value="">Not allocated</option><sc-for list="{{ ccOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></label>
+          <sc-for list="{{ cfs }}" as="c"><label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">{{ c.label }}<sc-if value="{{ c.req }}"><span style="color:#C00018"> *</span></sc-if></span><span style="position:relative;display:flex"><sc-if value="{{ c.isInput }}"><input type="{{ c.type }}" value="{{ c.value }}" onInput="{{ c.onInput }}" style="width:100%;height:38px;padding:0 {{ c.padR }} 0 10px;border:1px solid {{ c.border }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><sc-if value="{{ c.hasUnit }}"><span style="position:absolute;right:10px;top:10px;font-weight:600;color:#667085;pointer-events:none">{{ c.unit }}</span></sc-if></sc-if><sc-if value="{{ c.isSelect }}"><select value="{{ c.value }}" onChange="{{ c.onInput }}" style="appearance:none;-webkit-appearance:none;width:100%;height:38px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;background:#fff;outline:none"><sc-for list="{{ c.options }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select></sc-if></span></label></sc-for>
+        </div>
         <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Key specifications</span><span style="font-size:12px;color:#98A2B3">shown on the asset page and used in checklists</span></span>
         <sc-for list="{{ specs }}" as="p">
           <div style="display:grid;grid-template-columns:1fr 1fr 34px;gap:8px;align-items:center">
@@ -130,7 +134,7 @@
     </div>
 
     <div style="flex:none;display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3">
-      <sc-if value="{{ canBack }}"><button onClick="{{ back }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 12px 0 8px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">chevron_left</span>Back</button></sc-if>
+      <button onClick="{{ backOrClose }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 14px 0 10px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined'">{{ backIcon }}</span>{{ backLabel }}</button>
       <span style="font-size:12.5px;color:{{ hintColor }}">{{ hint }}</span>
       <span style="flex:1"></span>
       <sc-if value="{{ canNext }}"><button onClick="{{ next }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 10px 0 14px;background:{{ nextBg }};border:1px solid {{ nextBorder }};border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ nextColor }};cursor:pointer;white-space:nowrap">{{ nextLabel }}<span style="font:18px/1 'Material Symbols Outlined'">chevron_right</span></button></sc-if>
@@ -147,7 +151,7 @@ const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sa
 class Component extends DCLogic {
   state = { open: false, step: 0, f: blank(), edit: null, nav: { zone: '', line: '' }, lq: '', codeTouched: false, PM: null, C: null, tried: false };
   componentDidMount() {
-    Promise.all([import('./plant-model.js'), import('./collab-model.js')]).then(([PM, C]) => this.setState({ PM, C }));
+    Promise.all([import('./plant-model.js'), import('./collab-model.js'), import('./config-model.js')]).then(([PM, C, CFG]) => this.setState({ PM, C, CFG }));
     this._open = e => { const id = e.detail && e.detail.id, PM = this.state.PM, a = id && PM ? PM.asset(id) : null;
       const pre = (e.detail && e.detail.loc) || '';
       const preNode = PM && pre ? PM.node(pre) : null;
@@ -192,7 +196,7 @@ class Component extends DCLogic {
       isType: step === 0, isLoc: step === 1, isIdentity: step === 2, isSpecs: step === 3, isDocs: step === 4,
       classes: [['fixed', 'Equipment', 'precision_manufacturing', 'Installed at a fixed place on a line — furnace, pump, conveyor…'], ['mobile', 'Mobile asset', 'forklift', 'Moved between jobs — crane, lift, instrument. Reserved when a work order needs it.']]
         .map(([k, label, icon, desc]) => { const on = f.cls === k; return { label, icon, desc, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : '#E4E7EC', tileBg: on ? '#C00018' : '#F2F4F7', tileFg: on ? '#fff' : '#475467', pick: () => this.setF({ cls: k, type: '' }) }; }),
-      types: PM.TYPES[f.cls].map(([t, icon]) => { const on = f.type === t; return { label: t, icon, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : okErr(0) ? '#F8C98B' : '#E4E7EC', color: on ? '#A30014' : '#344054', font: on ? bold : reg, pick: () => this.setF({ type: t }) }; }),
+      types: (s.CFG ? s.CFG.assetTypes(f.cls).map(t => [t.name, t.icon]) : PM.TYPES[f.cls]).map(([t, icon]) => { const on = f.type === t; return { label: t, icon, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : okErr(0) ? '#F8C98B' : '#E4E7EC', color: on ? '#A30014' : '#344054', font: on ? bold : reg, pick: () => this.setF({ type: t }) }; }),
       locTitle: mobile ? 'Home location — where it is kept when not in use' : 'Where is it installed?',
       crumbs: (n ? ch : [PM.node(zSel), PM.node(lSel)].filter(Boolean)).map((x, i) => ({ name: x.name, level: ['Zone', 'Line', 'Step'][i], bg: i === 2 || (n && i === ch.length - 1) ? '#1E2430' : '#fff', color: i === 2 || (n && i === ch.length - 1) ? '#fff' : '#344054',
         go: () => this.setState({ nav: { zone: i >= 0 ? (ch[0] || PM.node(zSel) || {}).id || '' : '', line: i >= 1 ? (ch[1] || PM.node(lSel) || {}).id || '' : '' } }) })),
@@ -221,7 +225,14 @@ class Component extends DCLogic {
       canBack: step > 0, back: () => this.setState({ step: step - 1 }),
       canNext: step < 4, next: () => this.valid(step) ? this.setState({ step: step + 1, tried: false }) : this.setState({ tried: true }), nextLabel: `Next: ${STEPS[Math.min(4, step + 1)][0]}`,
       nextBg: step >= 2 ? '#fff' : '#1E2430', nextBorder: step >= 2 ? '#D0D5DD' : '#1E2430', nextColor: step >= 2 ? '#1E2430' : '#fff',
-      canSave: step >= 2 || !!s.edit, save: () => this.save(), saveLabel: s.edit ? 'Save changes' : 'Create asset',
+      ...(() => { const CFG = s.CFG; if (!CFG) return { ccOpts: [], cfs: [] }; const site = CFG.currentSite(), setC = (k, v) => this.setState(z => ({ f: { ...z.f, custom: { ...(z.f.custom || {}), [k]: v } } }));
+        return { ccOpts: CFG.list('costCenters', { active: true }).map(c => ({ v: c.code, l: `${c.code} · ${c.name}` })), setCc: e => this.setState(z => ({ f: { ...z.f, costCenter: e.target.value } })),
+          cfs: CFG.fieldsFor('Asset', { type: f.type }).map(c => { const v = (f.custom || {})[c.code] ?? '', u = CFG.fieldUnit(c, site), err = v !== '' && CFG.validate(c, v);
+            return { label: c.name, req: !!c.required, isInput: c.type !== 'choice' && c.type !== 'boolean', isSelect: c.type === 'choice' || c.type === 'boolean', type: c.type === 'date' ? 'date' : c.type === 'text' ? 'text' : 'number', value: v, hasUnit: !!u, unit: u, padR: u ? '56px' : '10px', border: err ? '#F04438' : '#D0D5DD',
+              options: [{ v: '', l: 'Select…' }, ...(c.type === 'boolean' ? [{ v: 'yes', l: 'Yes' }, { v: 'no', l: 'No' }] : (c.options || []).filter(Boolean).map(o => ({ v: o, l: o })))], onInput: e => setC(c.code, e.target.value) }; }) }; })(),
+      backIcon: step > 0 ? 'chevron_left' : 'close', backLabel: step > 0 ? 'Previous' : 'Cancel', backOrClose: () => step > 0 ? this.setState({ step: step - 1, tried: false }) : this.setState({ open: false }),
+      nextBg: this.valid(step) ? '#C00018' : '#F2F4F7', nextBorder: this.valid(step) ? '#C00018' : '#F2F4F7', nextColor: this.valid(step) ? '#fff' : '#98A2B3', nextLabel: 'Next step',
+      canSave: step === 4 || !!s.edit, save: () => this.save(), saveLabel: s.edit ? 'Save changes' : 'Create asset',
       hint: s.tried && !this.valid(step) ? ['Choose a type', 'Choose a step in the plant', 'Name and code are required'][step] : step >= 2 && !s.edit ? 'Specifications and documents are optional' : '', hintColor: s.tried && !this.valid(step) ? '#B42318' : '#98A2B3',
     };
   }

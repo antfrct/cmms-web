@@ -22,7 +22,17 @@ const H = [
   ['WHS-SP', 'Spare parts stores', 'line', 'WHS'], ['WHS-SP-MS', 'Main store', 'step', 'WHS-SP', 'storage'],
   ['WHS-ME', 'Mobile equipment', 'line', 'WHS'], ['WHS-ME-BY', 'Equipment bay', 'step', 'WHS-ME', 'bay'],
 ];
-export const NODES = H.map(([id, name, kind, parent, extra]) => ({ id, name, kind, parent: parent || 'THO', storage: extra === 'storage', bay: extra === 'bay' }));
+const NKEY = 'cmms.plant.v1';
+const BASE_NODES = H.map(([id, name, kind, parent, extra]) => ({ id, name, kind, parent: parent || 'THO', storage: extra === 'storage', bay: extra === 'bay' }));
+// NODES is rebuilt in place from the seed + edits stored in cmms.plant.v1 ({ edits: {id: patch}, added: [node], removed: [id] }).
+export const NODES = [];
+const rebuild = () => { const o = rd(NKEY, {}); const rm = o.removed || [], ed = o.edits || {}; NODES.length = 0; [...BASE_NODES, ...(o.added || [])].filter(n => !rm.includes(n.id)).forEach(n => NODES.push({ ...n, ...(ed[n.id] || {}) })); };
+rebuild();
+export const saveNode = n => { const o = rd(NKEY, {}); o.added = o.added || []; o.edits = o.edits || {}; const isBase = BASE_NODES.some(b => b.id === n.id), ai = o.added.findIndex(a => a.id === n.id);
+  if (isBase) o.edits[n.id] = { ...(o.edits[n.id] || {}), name: n.name, storage: !!n.storage, bay: !!n.bay }; else if (ai >= 0) o.added[ai] = { ...o.added[ai], ...n }; else o.added.push({ storage: false, bay: false, ...n });
+  wr(NKEY, o); rebuild(); emit('cmms-plant', { id: n.id }); };
+export const removeNode = id => { const o = rd(NKEY, {}); o.added = (o.added || []).filter(a => a.id !== id); if (BASE_NODES.some(b => b.id === id)) o.removed = [...new Set([...(o.removed || []), id])]; wr(NKEY, o); rebuild(); emit('cmms-plant', { id, removed: true }); };
+export const resetPlant = () => { wr(NKEY, {}); rebuild(); emit('cmms-plant', {}); };
 export const node = id => NODES.find(n => n.id === id) || null;
 export const children = id => NODES.filter(n => n.parent === id);
 export const zones = () => children('THO');
@@ -114,6 +124,18 @@ export const RESERVATIONS = [
   ['SL-01', 1, 15.5, 16.5, 'Fan V-12 — Bearing lubrication', 'JM'], ['SL-01', 3, 13, 15, 'Compressor C-01 — Annual inspection', 'SM'],
   ['VA-02', 1, 13, 14, 'Mixer 02 — Vibration analysis', 'SB'], ['VA-02', 2, 15, 16, 'Fan V-12 — Vibration analysis', 'SB'],
 ].map(([tool, day, from, to, wo, who]) => ({ tool, day, from, to, wo, who }));
+const RKEY = 'cmms.reservations.v1';
+rd(RKEY, []).forEach(r => RESERVATIONS.push(r));
 export const reservationsOf = tool => RESERVATIONS.filter(r => r.tool === tool);
+export const BASE_DAY = new Date(2026, 8, 28);
+export const dayOf = iso => { if (!iso) return null; const d = new Date(iso.slice(0, 10) + 'T12:00'); return Math.round((d - new Date(2026, 8, 28, 12)) / 86400000); };
+export const isoOfDay = day => { const d = new Date(2026, 8, 28 + day); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+export const hourOf = iso => iso && iso.length > 11 ? +iso.slice(11, 13) + (+iso.slice(14, 16)) / 60 : null;
+// Conflicts of required mobile assets on a time window. ignore = work order key whose own reservations are skipped.
+export const toolConflicts = (tools, day, from, to, ignore) => (tools || []).map(t => ({ tool: t, r: RESERVATIONS.find(r => r.tool === t && r.day === day && r.from < to && r.to > from && (!ignore || r.woKey !== ignore)) })).filter(x => x.r);
+export const nextFreeSlot = (tools, day, from, dur, ignore) => { for (let d = day; d < day + 7; d++) { const wd = new Date(2026, 8, 28 + d).getDay(); if (wd === 0 || wd === 6) continue; for (let h = d === day ? Math.max(7, from) : 7; h + dur <= 18; h += 0.25) if (!toolConflicts(tools, d, h, h + dur, ignore).length) return { day: d, from: h }; } return null; };
+export const reserve = (woKey, tools, day, from, to, label, who) => { const keep = rd(RKEY, []).filter(r => r.woKey !== woKey); const add = (tools || []).map(tool => ({ tool, day, from, to, wo: label, who: who || 'GD', woKey })); wr(RKEY, [...keep, ...add]);
+  for (let i = RESERVATIONS.length - 1; i >= 0; i--) if (RESERVATIONS[i].woKey === woKey) RESERVATIONS.splice(i, 1); add.forEach(r => RESERVATIONS.push(r)); emit('cmms-asset', { reservations: true }); };
+export const releaseReservations = woKey => reserve(woKey, [], 0, 0, 0);
 
-if (typeof window !== 'undefined') window.RelixPlant = { PLANT, ZONE_LOOK, NODES, node, children, zones, chain, pathOf, zoneOf, lineOf, storages, storageByName, TYPES, typeIcon, SPEC_SUGGEST, DOC_KINDS, STATUS, CRIT, assets, asset, saveAsset, mobileAssets, suggestCode, openWizard, RESERVATIONS, reservationsOf };
+if (typeof window !== 'undefined') window.RelixPlant = { saveNode, removeNode, resetPlant, dayOf, isoOfDay, hourOf, toolConflicts, nextFreeSlot, reserve, releaseReservations, PLANT, ZONE_LOOK, NODES, node, children, zones, chain, pathOf, zoneOf, lineOf, storages, storageByName, TYPES, typeIcon, SPEC_SUGGEST, DOC_KINDS, STATUS, CRIT, assets, asset, saveAsset, mobileAssets, suggestCode, openWizard, RESERVATIONS, reservationsOf };

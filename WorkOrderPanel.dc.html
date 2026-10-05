@@ -14,41 +14,42 @@
 <sc-if value="{{ drawerOpen }}">
   <div onClick="{{ closeDrawer }}" style="position:fixed;inset:56px 0 0 0;background:rgba(16,24,40,.28);z-index:50"></div>
   <aside style="position:fixed;top:56px;right:0;bottom:0;width:560px;z-index:51;background:#fff;box-shadow:-12px 0 32px rgba(16,24,40,.14);display:flex;flex-direction:column;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430">
-    <div style="flex:none;display:flex;align-items:center;gap:12px;padding:14px 20px 12px">
+    <div style="flex:none;display:flex;align-items:center;gap:12px;padding:16px 20px 14px">
+      <span style="flex:none;width:36px;height:36px;border-radius:8px;background:#F2F4F7;color:#344054;display:grid;place-items:center;font:20px/1 'Material Symbols Outlined'">assignment_add</span>
       <div style="flex:1;min-width:0"><h2 style="margin:0;font-size:16px;font-weight:600">New work order</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">{{ drawerSub }}</p></div>
-      <button onClick="{{ closeDrawer }}" style="width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">close</span></button>
+      <button onClick="{{ closeDrawer }}" title="Close" style="width:36px;height:36px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">close</span></button>
     </div>
     <div style="flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 20px 12px;border-bottom:1px solid #EEF0F3">
       <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
-        <button onClick="{{ st.go }}" style="display:flex;flex-direction:column;gap:6px;padding:0;background:transparent;border:0;cursor:pointer;text-align:left;font-family:inherit">
+        <button onClick="{{ st.go }}" style="display:flex;flex-direction:column;gap:6px;padding:0;background:transparent;border:0;cursor:{{ st.cursor }};text-align:left;font-family:inherit">
           <span style="height:4px;border-radius:2px;background:{{ st.bar }}"></span>
           <span style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:{{ st.weight }};color:{{ st.color }};white-space:nowrap"><span style="font:15px/1 'Material Symbols Outlined'">{{ st.icon }}</span>{{ st.label }}</span>
-          <span style="font-size:11px;color:#98A2B3">{{ st.hint }}</span>
+          <span style="font-size:11px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ st.hint }}</span>
         </button>
       </sc-for>
     </div>
 
-    <div style="flex:1;min-height:0;overflow:auto;padding:18px 20px 20px;display:flex;flex-direction:column">
+    <div style="flex:1;min-height:0;overflow:auto;padding:20px 20px 24px;display:flex;flex-direction:column">
       <sc-if value="{{ isS1 }}" hint-placeholder-val="{{ true }}">
-        <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:18px">
           <label style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:13px;font-weight:600;color:#344054">Asset<span style="color:#C00018"> *</span></span>
             <span style="position:relative;display:flex">
-              <select value="{{ f.asset }}" onChange="{{ on.asset }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 34px 0 12px;border:1px solid {{ err.asset }};border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
+              <select value="{{ f.asset }}" onChange="{{ on.asset }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 34px 0 12px;border:1px solid #D0D5DD;border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none">
                 <option value="">Select an asset</option>
                 <sc-for list="{{ assetOpts }}" as="o"><option value="{{ o.code }}">{{ o.label }}</option></sc-for>
               </select>
               <span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
             </span>
-            <sc-if value="{{ prefilled }}"><span style="font-size:12px;color:#667085;display:flex;align-items:center;gap:4px"><span style="font:14px/1 'Material Symbols Outlined'">link</span>Prefilled from the asset record</span></sc-if>
+            <sc-if value="{{ hasAssetPath }}"><span style="font-size:12px;color:#667085;display:flex;align-items:center;gap:4px"><span style="font:14px/1 'Material Symbols Outlined'">account_tree</span>{{ assetPath }}</span></sc-if>
           </label>
           <label style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:13px;font-weight:600;color:#344054">What needs to be done?<span style="color:#C00018"> *</span></span>
-            <input value="{{ f.title }}" onInput="{{ on.title }}" placeholder="e.g. Replace conveyor bearing" style="height:44px;padding:0 12px;border:1px solid {{ err.title }};border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" style-focus="border-color:#98A2B3" />
+            <input value="{{ f.title }}" onInput="{{ on.title }}" placeholder="e.g. Replace conveyor bearing" style="height:44px;padding:0 12px;border:1px solid #D0D5DD;border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" style-focus="border-color:#98A2B3" />
           </label>
           <div style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:13px;font-weight:600;color:#344054">Maintenance type</span>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px">
               <sc-for list="{{ types }}" as="t" hint-placeholder-count="4">
                 <button onClick="{{ t.select }}" style="height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:8px;font:{{ t.font }};color:{{ t.color }};cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}</button>
               </sc-for>
@@ -56,7 +57,7 @@
           </div>
           <div style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:13px;font-weight:600;color:#344054">Priority<span style="color:#C00018"> *</span></span>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:2px;border-radius:9px;border:1px solid {{ prioErrBorder }}">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px">
               <sc-for list="{{ prios }}" as="p" hint-placeholder-count="4">
                 <button onClick="{{ p.select }}" style="height:44px;display:flex;align-items:center;justify-content:center;gap:6px;background:{{ p.bg }};border:1px solid {{ p.border }};border-radius:8px;font:{{ p.font }};color:{{ p.color }};cursor:pointer"><span style="width:8px;height:8px;border-radius:2px;background:{{ p.dot }}"></span>{{ p.label }}</button>
               </sc-for>
@@ -65,40 +66,14 @@
           <button onClick="{{ toggleStop }}" style="align-self:flex-start;height:40px;display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;cursor:pointer;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430">
             <span style="position:relative;width:40px;height:22px;border-radius:11px;background:{{ stopTrack }};transition:background .15s"><span style="position:absolute;top:2px;left:{{ stopKnob }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s"></span></span>Production is stopped
           </button>
-          <div style="display:flex;gap:10px;padding:12px 14px;background:#F6F7F9;border-radius:8px;color:#475467;font-size:12.5px;line-height:1.5"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">info</span><span>That's all that's required. People, checklists and details are optional — you can create now and complete them later.</span></div>
         </div>
       </sc-if>
 
       <sc-if value="{{ isS2 }}">
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Assigned to</span><span style="font-size:12px;color:#98A2B3">Responsible for execution</span></span>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-              <sc-for list="{{ assignOpts }}" as="o">
-                <button onClick="{{ o.pick }}" style="height:48px;display:flex;align-items:center;gap:9px;padding:0 10px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430">
-                  <span style="flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:{{ o.avBg }};color:{{ o.avFg }};font:600 10px 'IBM Plex Sans',sans-serif">{{ o.initials }}</span>
-                  <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.name }}</span><span style="font-size:11.5px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.sub }}</span></span>
-                  <sc-if value="{{ o.on }}"><span style="flex:none;font:18px/1 'Material Symbols Outlined';color:#C00018">check_circle</span></sc-if>
-                </button>
-              </sc-for>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Participants</span><span style="font-size:12px;color:#98A2B3">Involved or following · they see the work order chat</span></span>
-            <sc-for list="{{ parts2 }}" as="p">
-              <div style="display:flex;align-items:center;gap:10px;padding:6px 6px 6px 10px;border:1px solid #E4E7EC;border-radius:8px">
-                <span style="flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:{{ p.avBg }};color:{{ p.avFg }};font:600 10px 'IBM Plex Sans',sans-serif">{{ p.initials }}</span>
-                <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600">{{ p.name }}</span><span style="font-size:11.5px;color:#667085">{{ p.job }}</span></span>
-                <span style="position:relative;display:flex"><select value="{{ p.role }}" onChange="{{ p.setRole }}" style="appearance:none;-webkit-appearance:none;height:34px;padding:0 28px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><sc-for list="{{ roleOpts }}" as="r"><option value="{{ r }}">{{ r }}</option></sc-for></select><span style="position:absolute;right:6px;top:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
-                <button onClick="{{ p.remove }}" title="Remove" style="width:34px;height:34px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
-              </div>
-            </sc-for>
-            <div style="display:flex;flex-wrap:wrap;gap:6px">
-              <sc-for list="{{ addOpts }}" as="o">
-                <button onClick="{{ o.add }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 10px 0 4px;background:#fff;border:1px dashed #C4CAD4;border-radius:17px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer" style-hover="border-color:#98A2B3;background:#F9FAFB"><span style="width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:{{ o.avBg }};color:{{ o.avFg }};font:600 9.5px 'IBM Plex Sans',sans-serif">{{ o.initials }}</span>{{ o.short }}<span style="font:15px/1 'Material Symbols Outlined';color:#98A2B3">add</span></button>
-              </sc-for>
-            </div>
-          </div>
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <dc-import name="PeopleSelect" label="Assigned users" hint="Responsible for performing the work" placeholder="Select who does the work…" mode="assign" value="{{ f.assigned }}" onChange="{{ setAssigned }}" skills="{{ reqSkills }}" suggested="{{ suggested }}" date="{{ f.due }}" hint-size="100%,96px"></dc-import>
+          <dc-import name="PeopleSelect" label="Include in follow-up" hint="Follow progress, join the chat, get updates" placeholder="Add people to keep informed…" mode="follow" value="{{ f.followers }}" onChange="{{ setFollowers }}" exclude="{{ f.assigned }}" exclude-note="Assigned to this work order" date="{{ f.due }}" hint-size="100%,76px"></dc-import>
+          <div style="display:flex;gap:10px;padding:12px 14px;background:#F6F7F9;border-radius:8px;color:#475467;font-size:12.5px;line-height:1.5"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">info</span><span>{{ peopleNote }}</span></div>
         </div>
       </sc-if>
 
@@ -106,35 +81,81 @@
         <div style="flex:1;min-height:420px;display:flex;flex-direction:column;gap:10px">
           <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Checklists</span><span style="font-size:12px;color:#98A2B3">Select one or more · preview before adding</span><span style="margin-left:auto;font-size:12px;font-weight:600;color:#344054">{{ clCount }}</span></span>
           <dc-import name="ChecklistPicker" selected="{{ f.checklists }}" onChange="{{ setChecklists }}" asset="{{ assetName }}" style="flex:1;min-height:0" hint-size="100%,400px"></dc-import>
+          <sc-if value="{{ hasAutoParts }}"><div style="flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#E6F4EE;border-radius:8px;color:#0B6B4A;font-size:12.5px"><span style="font:18px/1 'Material Symbols Outlined'">inventory_2</span><span style="flex:1">{{ autoPartsNote }}</span></div></sc-if>
         </div>
       </sc-if>
 
       <sc-if value="{{ isS4 }}">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:600;color:#344054">Desired date &amp; time</span>
-            <input type="datetime-local" value="{{ f.due }}" onInput="{{ on.due }}" style="height:40px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
-            <span style="font-size:11.5px;color:#98A2B3">Leave empty to plan it later from Planning</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px 14px">
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:600;color:#344054">Desired date &amp; time</span>
+            <input type="datetime-local" value="{{ f.due }}" onInput="{{ on.due }}" style="height:44px;padding:0 10px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
+            <span style="font-size:11.5px;color:{{ dueHintColor }}">{{ dueHint }}</span>
           </label>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:600;color:#344054">Estimated duration</span>
-            <span style="position:relative;display:flex"><select value="{{ f.dur }}" onChange="{{ on.dur }}" style="appearance:none;-webkit-appearance:none;width:100%;height:40px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1 h 30</option><option value="2">2 h</option><option value="3">3 h</option><option value="4">4 h</option></select><span style="position:absolute;right:8px;top:11px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:600;color:#344054">Estimated duration</span>
+            <span style="position:relative;display:flex"><select value="{{ f.dur }}" onChange="{{ on.dur }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1 h 30</option><option value="2">2 h</option><option value="3">3 h</option><option value="4">4 h</option></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </label>
-          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:5px">
-            <span style="display:flex;font-size:12.5px;font-weight:600;color:#344054">Description<span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ descCount }} / 500</span></span>
-            <textarea value="{{ f.desc }}" onInput="{{ on.desc }}" maxlength="500" rows="4" placeholder="Context, symptoms, actions to carry out…" style="padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px/1.5 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;resize:vertical"></textarea>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px">
+            <span style="display:flex;font-size:13px;font-weight:600;color:#344054">Description<span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ descCount }} / 500</span></span>
+            <textarea value="{{ f.desc }}" onInput="{{ on.desc }}" maxlength="500" rows="4" placeholder="Context, symptoms, actions to carry out…" style="padding:10px 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px/1.5 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;resize:vertical"></textarea>
           </label>
-          <label style="display:flex;flex-direction:column;gap:5px">
-            <span style="font-size:12.5px;font-weight:600;color:#344054">Failure category</span>
-            <span style="position:relative;display:flex"><select value="{{ f.cat }}" onChange="{{ on.cat }}" style="appearance:none;-webkit-appearance:none;width:100%;height:40px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">Select a category</option><option>Mechanical</option><option>Electrical</option><option>Hydraulic</option><option>Pneumatic</option><option>Instrumentation</option><option>Software / PLC</option></select><span style="position:absolute;right:8px;top:11px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:600;color:#344054">Failure category</span>
+            <span style="position:relative;display:flex"><select value="{{ f.cat }}" onChange="{{ on.cat }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">Select a category</option><sc-for list="{{ failOpts }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </label>
-          <span></span>
+          <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:600;color:#344054">Cost center</span>
+            <span style="position:relative;display:flex"><select value="{{ f.cc }}" onChange="{{ on.cc }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">{{ ccDefault }}</option><sc-for list="{{ ccOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+          </label>
+          <sc-if value="{{ hasCf }}">
+            <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px;padding-top:4px">
+              <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Additional information</span><span style="font-size:12px;color:#98A2B3">Custom fields · units of {{ siteName }}</span></span>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 14px">
+                <sc-for list="{{ cfs }}" as="c">
+                  <div style="display:flex;flex-direction:column;gap:5px;min-width:0">
+                    <span style="font-size:12.5px;font-weight:600;color:#344054">{{ c.label }}<sc-if value="{{ c.req }}"><span style="color:#C00018"> *</span></sc-if></span>
+                    <sc-if value="{{ c.isInput }}"><span style="position:relative;display:flex"><input type="{{ c.type }}" value="{{ c.value }}" onInput="{{ c.onInput }}" placeholder="{{ c.ph }}" style="width:100%;height:44px;padding:0 {{ c.padR }} 0 12px;border:1px solid {{ c.border }};border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" /><sc-if value="{{ c.hasUnit }}"><span style="position:absolute;right:12px;top:13px;font-weight:600;color:#667085;pointer-events:none">{{ c.unit }}</span></sc-if></span></sc-if>
+                    <sc-if value="{{ c.isSelect }}"><span style="position:relative;display:flex"><select value="{{ c.value }}" onChange="{{ c.onInput }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px solid {{ c.border }};border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><sc-for list="{{ c.options }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></sc-if>
+                    <sc-if value="{{ c.isBool }}"><div style="display:flex;gap:6px"><sc-for list="{{ c.options }}" as="o"><button onClick="{{ o.select }}" style="height:40px;padding:0 16px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;font:{{ o.font }};color:{{ o.color }};cursor:pointer">{{ o.l }}</button></sc-for></div></sc-if>
+                    <sc-if value="{{ c.hasError }}"><span style="font-size:12px;color:#B42318">{{ c.error }}</span></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
           <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px">
-            <span style="font-size:12.5px;font-weight:600;color:#344054">Required parts</span>
+            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Required equipment</span><span style="font-size:12px;color:#98A2B3">{{ toolsHint }}</span></span>
+            <sc-for list="{{ toolRows }}" as="t">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid {{ t.border }};border-radius:8px;background:{{ t.bg }}">
+                <span style="flex:none;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:#EAF1FD;color:#2456B8;font:17px/1 'Material Symbols Outlined'">{{ t.icon }}</span>
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px">
+                  <span style="display:flex;align-items:center;gap:6px;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.name }}</span><span style="flex:none;font:11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ t.id }}</span><sc-if value="{{ t.auto }}"><span style="flex:none;height:18px;display:inline-flex;align-items:center;gap:3px;padding:0 6px 0 4px;border-radius:9px;background:#E6F4EE;color:#0B6B4A;font-size:10.5px;font-weight:600"><span style="font:12px/1 'Material Symbols Outlined'">checklist</span>From checklist</span></sc-if></span>
+                  <span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:500;color:{{ t.color }}"><span style="font:14px/1 'Material Symbols Outlined'">{{ t.sicon }}</span>{{ t.status }}</span>
+                </span>
+                <button onClick="{{ t.remove }}" title="Remove" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
+              </div>
+            </sc-for>
+            <sc-if value="{{ hasConflict }}">
+              <div style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;background:#FEF6F6;border:1px solid #FBD5D5;border-radius:8px">
+                <span style="display:flex;align-items:flex-start;gap:8px;color:#B42318;font-size:12.5px;line-height:1.45"><span style="font:18px/1 'Material Symbols Outlined'">event_busy</span><span><b style="font-weight:600">Scheduling blocked.</b> {{ conflictText }}</span></span>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <sc-if value="{{ hasNextSlot }}"><button onClick="{{ useNextSlot }}" style="height:32px;display:flex;align-items:center;gap:5px;padding:0 12px 0 8px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:16px/1 'Material Symbols Outlined';color:#0B6B4A">event_available</span>{{ nextSlotLabel }}</button></sc-if>
+                  <button onClick="{{ planLater }}" style="height:32px;padding:0 12px;background:transparent;border:1px solid transparent;border-radius:6px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#475467;cursor:pointer" style-hover="background:#fff">Clear the date — plan later</button>
+                </div>
+              </div>
+            </sc-if>
+            <span style="position:relative;display:flex;align-self:flex-start;min-width:260px"><select value="" onChange="{{ addTool }}" style="appearance:none;-webkit-appearance:none;width:100%;height:34px;padding:0 30px 0 32px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;outline:none"><option value="">Add reservable equipment…</option><sc-for list="{{ toolOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;left:8px;top:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#667085">add</span><span style="position:absolute;right:8px;top:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+          </div>
+          <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px">
+            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Required spare parts</span><span style="font-size:12px;color:#98A2B3">{{ partsHint }}</span></span>
             <sc-for list="{{ parts }}" as="p">
-              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:6px">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:8px">
                 <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">inventory_2</span>
-                <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ p.name }}</span><span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · <span style="color:{{ p.stockColor }};font-weight:500">{{ p.stockLabel }}</span></span></span>
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="display:flex;align-items:center;gap:6px;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span><sc-if value="{{ p.auto }}"><span title="{{ p.fromTip }}" style="flex:none;height:18px;display:inline-flex;align-items:center;gap:3px;padding:0 6px 0 4px;border-radius:9px;background:#E6F4EE;color:#0B6B4A;font-size:10.5px;font-weight:600"><span style="font:12px/1 'Material Symbols Outlined'">checklist</span>From checklist</span></sc-if></span>
+                  <span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · <span style="color:{{ p.stockColor }};font-weight:500">{{ p.stockLabel }}</span></span>
+                </span>
                 <span style="display:flex;align-items:center;border:1px solid #D0D5DD;border-radius:6px;height:32px">
                   <button onClick="{{ p.dec }}" style="width:30px;height:30px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">remove</button>
                   <span style="width:28px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums">{{ p.qty }}</span>
@@ -143,9 +164,10 @@
                 <button onClick="{{ p.remove }}" title="Remove" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
               </div>
             </sc-for>
+            <sc-if value="{{ hasDismissed }}"><button onClick="{{ restoreParts }}" style="align-self:flex-start;height:24px;padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">{{ restoreLabel }}</button></sc-if>
             <sc-if value="{{ partPicker }}">
-              <div style="flex:none;border:1px solid #D0D5DD;border-radius:6px;overflow:hidden">
-                <label style="height:38px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #EEF0F3"><span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ pq }}" onInput="{{ setPq }}" placeholder="Search spare parts by name or reference…" style="flex:1;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label>
+              <div style="flex:none;border:1px solid #D0D5DD;border-radius:8px;overflow:hidden">
+                <label style="height:40px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #EEF0F3"><span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ pq }}" onInput="{{ setPq }}" placeholder="Search spare parts by name or reference…" style="flex:1;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label>
                 <div style="max-height:180px;overflow:auto">
                   <sc-for list="{{ partOpts }}" as="o">
                     <button onClick="{{ o.add }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;background:transparent;border:0;text-align:left;cursor:pointer;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="background:#F9FAFB"><span style="flex:1">{{ o.name }} <span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ o.ref }}</span></span><span style="font-size:12px;color:{{ o.stockColor }};font-weight:500">{{ o.stockLabel }}</span></button>
@@ -154,11 +176,11 @@
               </div>
             </sc-if>
             <div style="display:flex;gap:8px">
-              <button onClick="{{ togglePicker }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span>Add part</button>
+              <button onClick="{{ togglePicker }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span>Add spare part</button>
               <button onClick="{{ addDoc }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">attach_file</span>Add document</button>
             </div>
             <sc-for list="{{ docs }}" as="d">
-              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:6px">
+              <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:8px">
                 <span style="width:28px;height:28px;border-radius:6px;background:#FDECEC;color:#B42318;display:grid;place-items:center;font:600 9.5px 'IBM Plex Mono',monospace">PDF</span>
                 <span style="flex:1;font-weight:500">{{ d.name }}</span>
                 <button onClick="{{ d.remove }}" style="width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
@@ -169,12 +191,11 @@
       </sc-if>
     </div>
 
-    <div style="flex:none;display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3">
-      <sc-if value="{{ canBack }}"><button onClick="{{ back }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 12px 0 8px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">chevron_left</span>Back</button></sc-if>
-      <sc-if value="{{ hasErrors }}"><span style="font-size:12.5px;color:#B42318;display:flex;align-items:center;gap:4px"><span style="font:16px/1 'Material Symbols Outlined'">error</span>Complete the required fields</span></sc-if>
-      <span style="flex:1"></span>
-      <sc-if value="{{ canNext }}"><button onClick="{{ next }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 10px 0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">{{ nextLabel }}<span style="font:18px/1 'Material Symbols Outlined'">chevron_right</span></button></sc-if>
-      <button onClick="{{ create }}" style="height:40px;padding:0 18px;background:{{ createBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Create work order</button>
+    <div style="flex:none;display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid #EEF0F3">
+      <button onClick="{{ back }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 14px 0 10px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">{{ backIcon }}</span>{{ backLabel }}</button>
+      <span style="flex:1;min-width:0;font-size:12.5px;color:#667085;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ footNote }}</span>
+      <sc-if value="{{ canNext }}" hint-placeholder-val="{{ true }}"><button onClick="{{ next }}" disabled="{{ nextDisabled }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 12px 0 16px;background:{{ nextBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ nextColor }};cursor:{{ nextCursor }};white-space:nowrap">Next step<span style="font:18px/1 'Material Symbols Outlined'">chevron_right</span></button></sc-if>
+      <sc-if value="{{ isLast }}"><button onClick="{{ create }}" disabled="{{ createDisabled }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 18px 0 14px;background:{{ createBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ createColor }};cursor:{{ createCursor }};white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined'">check</span>Create work order</button></sc-if>
     </div>
   </aside>
 </sc-if>
@@ -183,23 +204,27 @@
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;onCreated&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(row: object) =&gt; void&quot;}}">
-const ASSETS = [['FT2-FR-001', 'Tempering Furnace 2', 'Tempering Line'], ['FT1-FR-001', 'Tempering Furnace 1', 'Tempering Line'], ['CV-L3', 'Conveyor Line 3', 'Float Line'], ['CV-L2', 'Conveyor Line 2', 'Float Line'], ['P-101', 'Pump P-101', 'Tempering Line'], ['V-12', 'Fan V-12', 'Float Line'], ['V-08', 'Fan V-08', 'Float Line'], ['TB-01', 'Tin Bath', 'Float Line'], ['C-01', 'Compressor C-01', 'Utilities'], ['RP-01', 'Palletizing Robot 1', 'Packaging'], ['PH-030', 'Hydraulic Press PH-030', 'Workshop'], ['S-01', 'Dryer S-01', 'Utilities'], ['MX-02', 'Mixer 02', 'Batch House'], ['BC-548', 'Bottero 548 Cutter', 'Cutting Line']];
-const PARTS = [['BRG-6205', 'Ball bearing 6205-2RS', 42, 10], ['BLT-BPU280', 'Drive belt BPU280', 2, 5], ['FLT-HX10', 'Hydraulic filter HX-10', 0, 4], ['SEN-PT100', 'Temperature probe PT100', 6, 3], ['SEAL-M45', 'Mechanical seal 45 mm', 3, 2], ['GRS-LT2', 'Lithium grease LT2 400 g', 18, 6], ['VFD-ATV320', 'Variable speed drive ATV320', 0, 1]];
+const ASSETS = [['FT2-FR-001', 'Tempering Furnace 2', 'Tempering Line'], ['FT1-FR-001', 'Tempering Furnace 1', 'Tempering Line'], ['CV-L3', 'Conveyor Line 3', 'Float Line'], ['P-101', 'Pump P-101', 'Tempering Line'], ['V-12', 'Fan V-12', 'Float Line'], ['TB-01', 'Tin Bath', 'Float Line'], ['C-01', 'Compressor C-01', 'Compressed Air']];
+const PARTS = [['BRG-6205', 'Ball bearing 6205-2RS', 42, 10], ['BLT-BPU280', 'Drive belt BPU280', 2, 5], ['FLT-HX10', 'Hydraulic filter HX-10', 0, 4], ['SEN-PT100', 'Temperature probe PT100', 6, 3], ['SEAL-M45', 'Mechanical seal 45 mm', 3, 2], ['GSK-P101', 'Pump casing gasket', 4, 2], ['ORG-KIT', 'O-ring kit NBR', 12, 4], ['CTR-LC1D', 'Contactor LC1D18', 11, 4], ['GRS-LT2', 'Lithium grease LT2 400 g', 18, 6], ['VFD-ATV320', 'Variable speed drive ATV320', 0, 1]];
+const EXTRA = { conveyor: 'Conveyor maintenance', press: 'Hydraulic press service', electrical: 'Electrical check', safety: 'Safety inspection' };
 const TYPES = [['Corrective', 'build', '#B54708', '#FEF3E2'], ['Preventive', 'event_repeat', '#2456B8', '#EAF1FD'], ['Predictive', 'insights', '#6941C6', '#F3EEFC'], ['Inspection', 'visibility', '#0E7490', '#E3F4F7']];
 const PRIOS = [['Critical', '#C00018'], ['High', '#E0591B'], ['Medium', '#E3A008'], ['Low', '#98A2B3']];
-const STEPS = [['Essentials', 'edit_note', 'Required'], ['People', 'group', 'Optional'], ['Checklists', 'checklist', 'Optional'], ['Details', 'tune', 'Optional']];
-const TECHS = ['GD', 'PL', 'MD', 'AM', 'SM', 'SB', 'JM'];
+const STEPS = [['Essentials', 'edit_note', 'Required'], ['Checklists', 'checklist', 'Optional'], ['People', 'group', 'Recommended'], ['Details', 'tune', 'Optional']];
+const REQ = [['asset', 'asset'], ['title', 'title'], ['prio', 'priority']];
 const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = d => { if (!d) return ''; const [ymd, t] = d.split('T'); const [, m, dd] = ymd.split('-'); return `${M[+m - 1]} ${+dd}${t ? ', ' + t : ''}`; };
-const blank = () => ({ asset: '', type: 'Corrective', prio: '', assignee: '', participants: [['GD', 'Maintenance manager']], checklists: [], req: '2026-09-29', due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], docs: [] });
+const blank = () => ({ tools: [], dismissedTools: [], cc: '', custom: {}, asset: '', type: 'Corrective', prio: '', assigned: [], followers: ['GD'], checklists: [], due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], dismissed: [], docs: [] });
 const stock = (q0, min) => q0 === 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${q0} in stock`, '#B54708'] : [`${q0} in stock`, '#0B6B4A'];
+let LIVE_PARTS = null;
+const partsList = () => LIVE_PARTS ? LIVE_PARTS().map(p => [p.ref, p.name, p.qty, p.min]) : PARTS;
+const partMeta = (ref, fb = {}) => { const p = partsList().find(x => x[0] === ref); return p ? { name: p[1], stock: p[2], min: p[3] } : { name: fb.name || ref, stock: fb.stock ?? 0, min: 1 }; };
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
 class Component extends DCLogic {
-  state = { drawer: false, step: 0, form: blank(), prefilled: false, errors: {}, picker: false, pq: '', toast: null, toastHref: '#', C: null };
+  state = { drawer: false, step: 0, form: blank(), prefilled: false, picker: false, pq: '', toast: null, toastHref: '#', C: null, CL: null, PE: null, PL: null };
   componentDidMount() {
-    import('./collab-model.js').then(C => this.setState({ C }));
-    this._open = e => { const d = { ...((e && e.detail) || {}) }; if (d.asset) { const m = ASSETS.find(a => a[0] === d.asset || a[1] === d.asset); d.asset = m ? m[0] : ''; }
-      this.setState({ drawer: true, step: 0, form: { ...blank(), ...d }, prefilled: !!d.asset, errors: {}, picker: false }); };
+    Promise.all([import('./collab-model.js'), import('./checklist-model.js'), import('./people-model.js'), import('./plant-model.js'), import('./config-model.js'), import('./parts-model.js')]).then(([C, CL, PE, PL, CFG, PA]) => { LIVE_PARTS = PA.parts; this.setState({ C, CL, PE, PL, CFG, PA }); });
+    this._open = e => { const d = { ...((e && e.detail) || {}) }; if (d.asset) { const list = this.assetList(); const m = list.find(a => a[0] === d.asset || a[1] === d.asset); d.asset = m ? m[0] : ''; }
+      this.setState({ drawer: true, step: 0, form: { ...blank(), ...d }, prefilled: !!d.asset, picker: false }); };
     this._key = e => { if (e.key === 'Escape' && this.state.drawer) this.setState({ drawer: false }); };
     window.addEventListener('cmms-create-wo', this._open); window.addEventListener('keydown', this._key);
     this._click = e => { const a = e.target.closest && e.target.closest('a[href*="Work Orders.dc.html?new=1"]'); if (!a) return; e.preventDefault(); e.stopPropagation(); const q = new URLSearchParams(a.getAttribute('href').split('?')[1]); this._open({ detail: { asset: q.get('asset') || '' } }); };
@@ -207,57 +232,121 @@ class Component extends DCLogic {
     window.CMMSCreateWO = d => window.dispatchEvent(new CustomEvent('cmms-create-wo', { detail: d || {} }));
   }
   componentWillUnmount() { document.removeEventListener('click', this._click, true); window.removeEventListener('cmms-create-wo', this._open); window.removeEventListener('keydown', this._key); }
+  assetList() { const PL = this.state.PL; return PL ? PL.assets().map(a => [a.id, a.name, (PL.lineOf(a.loc) || {}).name || '', a.loc]) : ASSETS; }
   flash(t, href) { this.setState({ toast: t, toastHref: href || '#' }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 4200); }
-  setF(k, v) { this.setState(s => ({ form: { ...s.form, [k]: v }, errors: { ...s.errors, [k]: 0 } })); }
-  valid() { const f = this.state.form, errors = {}; ['asset', 'title', 'prio'].forEach(k => { if (!f[k]) errors[k] = 1; }); return errors; }
+  setF(k, v) { this.setState(s => ({ form: { ...s.form, [k]: v } })); }
+  missing() { const f = this.state.form; return REQ.filter(([k]) => !f[k]).map(x => x[1]); }
+  cls(ids) { const CL = this.state.CL; return CL ? (ids || []).map(id => CL.load(id) || (EXTRA[id] ? CL.fromName(id, EXTRA[id]) : null)).filter(Boolean) : []; }
+  segs() { const PE = this.state.PE, f = this.state.form; if (!PE) return []; let sg = PE.segmentsOf(this.cls(f.checklists)).filter(g => g.minutes > 0);
+    if (!sg.length) sg = [{ skills: PE.TYPE_SKILL[f.type] || [], minutes: Math.round((+f.dur || 1) * 60), offset: 0, label: 'Whole work order' }]; return sg; }
+  ctx() { const d = this.state.form.due || '', [ymd, t] = d.split('T'); return { date: ymd || (this.state.PE ? this.state.PE.dayIso(1) : ''), from: t ? +t.slice(0, 2) + (+t.slice(3, 5)) / 60 : null }; }
+  setChecklists(ids) {
+    const CL = this.state.CL;
+    this.setState(st => { const f = st.form, auto = CL && CL.partsOf ? CL.partsOf(this.cls(ids)) : [];
+      const manual = f.parts.filter(p => !p.auto).map(p => { const a = auto.find(x => x.ref === p.ref); return { ...p, from: a ? a.from : [] }; });
+      const added = auto.filter(a => !f.dismissed.includes(a.ref) && !manual.some(p => p.ref === a.ref)).map(a => { const prev = f.parts.find(p => p.ref === a.ref); return { ref: a.ref, ...partMeta(a.ref, a), qty: prev ? prev.qty : a.qty, auto: true, from: a.from }; });
+      const autoT = CL ? CL.toolsOf(this.cls(ids)) : [], tools = [...autoT.filter(id => !(f.dismissedTools || []).includes(id)).map(id => ({ id, auto: true })), ...(f.tools || []).filter(t => !t.auto && !autoT.includes(t.id))];
+      return { form: { ...f, checklists: ids, tools, parts: [...added, ...manual], dismissed: f.dismissed.filter(r => auto.some(a => a.ref === r)) } }; });
+  }
+  slot() { const f = this.state.form, PL = this.state.PL; if (!PL || !f.due || f.due.length < 16) return null; const day = PL.dayOf(f.due), from = PL.hourOf(f.due); return { day, from, to: from + (+f.dur || 1) }; }
+  conflicts() { const PL = this.state.PL, sl = this.slot(), f = this.state.form; return PL && sl ? PL.toolConflicts((f.tools || []).map(t => t.id), sl.day, sl.from, sl.to) : []; }
+  cfErrors() { const CFG = this.state.CFG, f = this.state.form; if (!CFG) return {}; const e = {}; CFG.fieldsFor('Work order').forEach(c => { const m = CFG.validate(c, (f.custom || {})[c.code]); if (m) e[c.code] = m; }); return e; }
+  assignments() {
+    const f = this.state.form, PE = this.state.PE; if (!f.assigned.length || !PE) return [];
+    return this.segs().map(g => { const k = f.assigned.find(k => PE.hasSkills(k, g.skills)) || f.assigned[0]; return { key: k, skills: g.skills, minutes: g.minutes, offset: g.offset, label: g.label }; });
+  }
   create() {
-    const f = this.state.form, errors = this.valid(), C = this.state.C;
-    if (Object.keys(errors).length) return this.setState({ errors, step: 0 });
-    const a = ASSETS.find(x => x[0] === f.asset) || [f.asset, f.asset, ''];
-    const status = f.due ? 'Scheduled' : 'Requested';
-    const wo = { task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: f.assignee, participants: f.participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD' };
+    const f = this.state.form, C = this.state.C;
+    if (this.missing().length) return this.setState({ step: 0 });
+    if (this.conflicts().length || Object.keys(this.cfErrors()).length) return this.setState({ tried: true });
+    const a = this.assetList().find(x => x[0] === f.asset) || [f.asset, f.asset, ''];
+    const status = f.due ? 'Scheduled' : 'Requested', asg = this.assignments(), asg0 = f.assigned[0] || '';
+    const participants = [...f.assigned.slice(1).map(k => [k, 'Additional technician']), ...f.followers.filter(k => !f.assigned.includes(k)).map(k => [k, 'Follow-up'])];
+    const wo = { task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: asg0, assignments: asg, participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD', tools: (f.tools || []).map(t => t.id), costCenter: f.cc || ((this.state.PL && this.state.PL.asset(f.asset)) || {}).costCenter || '', custom: f.custom || {} };
     const key = C ? C.createWo(wo) : 'WO-1339912';
-    const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: f.assignee && C ? C.person(f.assignee).name : '', date: f.due, stop: f.stop };
+    const sl = this.slot(); if (sl && this.state.PL && (f.tools || []).length) this.state.PL.reserve(key, f.tools.map(t => t.id), sl.day, sl.from, sl.to, `${a[1]} — ${f.title}`, asg0 || 'GD');
+    const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: asg0 && C ? C.person(asg0).name : '', assignments: asg, tools: (f.tools || []).map(t => t.id), date: f.due, stop: f.stop };
     window.dispatchEvent(new CustomEvent('cmms-wo-created', { detail: row }));
     if (this.props.onCreated) this.props.onCreated(row);
-    this.setState({ drawer: false, errors: {}, picker: false });
+    this.setState({ drawer: false, picker: false });
     this.flash(`${key} · ${a[1]} — ${f.title} created${f.due ? ' · ' + fmtDate(f.due) : ''}`, C ? C.woHref(key) : '#');
   }
+  detailVals() {
+    const s = this.state, f = s.form, PL = s.PL, CFG = s.CFG, PE = s.PE;
+    if (!PL || !CFG) return { failOpts: ['Mechanical', 'Electrical', 'Hydraulic', 'Pneumatic', 'Instrumentation', 'Software / PLC'], ccOpts: [], ccDefault: 'Not allocated', cfs: [], hasCf: false, toolRows: [], toolOpts: [], toolsHint: '', hasConflict: false, dueHint: 'Leave empty to plan it later from Planning', dueHintColor: '#98A2B3' };
+    const site = CFG.currentSite(), sl = this.slot(), confl = this.conflicts(), ids = (f.tools || []).map(t => t.id), cfe = this.cfErrors();
+    const asset = PL.asset(f.asset), assetCc = asset && asset.costCenter ? CFG.get('costCenters', asset.costCenter) : null;
+    const dn = d => PL.isoOfDay(d) ? new Date(2026, 8, 28 + d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
+    const nxt = sl && confl.length ? PL.nextFreeSlot(ids, sl.day, sl.from, sl.to - sl.from) : null;
+    const setC = (k, v) => this.setState(st => ({ form: { ...st.form, custom: { ...(st.form.custom || {}), [k]: v } } }));
+    return {
+      failOpts: CFG.names('failures'), ccOpts: CFG.list('costCenters', { active: true }).map(c => ({ v: c.code, l: `${c.code} · ${c.name}` })), ccDefault: assetCc ? `Asset default · ${assetCc.code}` : 'Not allocated',
+      siteName: (CFG.list('sites').find(x => x.code === site) || {}).name || site, hasCf: CFG.fieldsFor('Work order').length > 0,
+      cfs: CFG.fieldsFor('Work order').map(c => { const v = (f.custom || {})[c.code] ?? '', u = CFG.fieldUnit(c, site), err = s.tried || (v !== '' && v != null) ? cfe[c.code] : '';
+        return { label: c.name, req: !!c.required, isInput: ['decimal', 'integer', 'text', 'date'].includes(c.type), isSelect: c.type === 'choice', isBool: c.type === 'boolean', type: c.type === 'date' ? 'date' : c.type === 'text' ? 'text' : 'number', value: v,
+          ph: c.type === 'decimal' ? (0).toFixed(c.decimals || 0) : '', hasUnit: !!u && (c.type === 'decimal' || c.type === 'integer'), unit: u, padR: u ? '60px' : '12px', border: err ? '#F04438' : '#D0D5DD', hasError: !!err, error: err || '', onInput: e => setC(c.code, e.target.value),
+          options: c.type === 'choice' ? [{ v: '', l: 'Select…' }, ...c.options.filter(Boolean).map(o => ({ v: o, l: o }))] : c.type === 'boolean' ? [['yes', 'Yes'], ['no', 'No']].map(([k, l]) => ({ l, bg: v === k ? '#FBF1F2' : '#fff', border: v === k ? '#C00018' : '#D0D5DD', color: v === k ? '#A30014' : '#344054', font: v === k ? bold : reg, select: () => setC(c.code, v === k ? '' : k) })) : [] }; }),
+      toolsHint: ids.length ? (sl ? `Availability checked for ${dn(sl.day)} ${PE ? PE.hm(sl.from) : ''}–${PE ? PE.hm(sl.to) : ''}` : 'Set a date to check availability and reserve them') : 'Cranes, lifts, instruments… reserved for the intervention',
+      toolRows: (f.tools || []).map(t => { const a = PL.asset(t.id) || { name: t.id, type: '' }, c = confl.find(x => x.tool === t.id), busy = PL.reservationsOf(t.id).filter(r => !sl || r.day === sl.day);
+        return { id: t.id, name: a.name, icon: PL.typeIcon(a.type), auto: !!t.auto, border: c ? '#FDA29B' : '#E4E7EC', bg: c ? '#FFFBFA' : '#fff',
+          status: c ? `Reserved ${PE.hm(c.r.from)}–${PE.hm(c.r.to)} for ${c.r.wo}` : sl ? `Available — will be reserved ${PE.hm(sl.from)}–${PE.hm(sl.to)}` : busy.length ? `${busy.length} reservation${busy.length > 1 ? 's' : ''} this week · pick a date` : 'Free this week',
+          color: c ? '#B42318' : sl ? '#0B6B4A' : '#667085', sicon: c ? 'event_busy' : sl ? 'event_available' : 'schedule',
+          remove: () => this.setState(st => ({ form: { ...st.form, tools: st.form.tools.filter(x => x.id !== t.id), dismissedTools: t.auto ? [...(st.form.dismissedTools || []), t.id] : st.form.dismissedTools } })) }; }),
+      toolOpts: PL.mobileAssets().filter(a => !ids.includes(a.id)).map(a => ({ v: a.id, l: `${a.name} · ${a.type}` })),
+      addTool: e => { const v = e.target.value; e.target.value = ''; if (v) this.setState(st => ({ form: { ...st.form, tools: [...(st.form.tools || []), { id: v, auto: false }] } })); },
+      hasConflict: confl.length > 0, conflictText: confl.map(c => `${(PL.asset(c.tool) || { name: c.tool }).name} is reserved ${PE.hm(c.r.from)}–${PE.hm(c.r.to)} (${c.r.wo}).`).join(' ') + ' Pick another time or remove the equipment.',
+      hasNextSlot: !!nxt, nextSlotLabel: nxt ? `Use next free slot · ${dn(nxt.day)} ${PE.hm(nxt.from)}` : '',
+      useNextSlot: () => { if (!nxt) return; const t = PE.hm(nxt.from); this.setF('due', `${PL.isoOfDay(nxt.day)}T${t}`); },
+      planLater: () => this.setF('due', ''),
+      dueHint: confl.length ? 'Required equipment is not available at this time' : sl && ids.length ? 'Required equipment available ✓' : 'Leave empty to plan it later from Planning', dueHintColor: confl.length ? '#B42318' : sl && ids.length ? '#0B6B4A' : '#98A2B3',
+    };
+  }
   renderVals() {
-    const s = this.state, f = s.form, C = s.C, pq = s.pq.toLowerCase(), step = s.step;
-    const a = ASSETS.find(x => x[0] === f.asset);
-    const P = k => C ? C.person(k) : { key: k, name: k, role: '', avBg: '#F2F4F7', avFg: '#475467', handle: k, team: '', initials: k };
-    const E = k => s.errors[k] ? '#F04438' : '#D0D5DD';
-    const ok = !Object.keys(this.valid()).length;
-    const inPart = k => f.participants.some(p => p[0] === k);
+    const s = this.state, f = s.form, C = s.C, PE = s.PE, PL = s.PL, pq = s.pq.toLowerCase(), step = s.step;
+    const list = this.assetList(), a = list.find(x => x[0] === f.asset);
+    const miss = this.missing(), ok0 = !miss.length, stepOk = step !== 0 || ok0;
+    const sg = this.segs(), reqSkills = [...new Set(sg.flatMap(g => g.skills))];
+    const suggested = PE ? [...new Set(PE.autoAssign(sg, this.ctx()).filter(Boolean))] : [];
+    const autoN = f.parts.filter(p => p.auto).length, dism = f.dismissed.length;
+    const hintFor = i => i === 1 && f.checklists.length ? `${f.checklists.length} selected` : i === 2 && f.assigned.length ? `${f.assigned.length} assigned${f.followers.length ? ' · ' + f.followers.length + ' following' : ''}` : i === 3 && f.parts.length ? `${f.parts.length} spare part${f.parts.length > 1 ? 's' : ''}` : i === 0 && ok0 && step > 0 ? 'Complete' : STEPS[i][2];
     return {
       drawerOpen: s.drawer, closeDrawer: () => this.setState({ drawer: false, picker: false }),
-      drawerSub: s.prefilled && a ? `For ${a[1]} · only 3 fields required` : 'Only 3 fields required — everything else can wait',
-      steps: STEPS.map(([label, icon, hint], i) => ({ label, icon, hint: i === 1 && f.assignee ? P(f.assignee).name : i === 2 && f.checklists.length ? `${f.checklists.length} selected` : hint,
-        bar: i === step ? '#C00018' : i < step || (i === 0 && ok) ? '#1E2430' : '#E4E7EC', color: i === step ? '#1E2430' : '#667085', weight: i === step ? 600 : 500, go: () => this.setState({ step: i }) })),
-      isS1: step === 0, isS2: step === 1, isS3: step === 2, isS4: step === 3,
-      f, err: { asset: E('asset'), title: E('title') }, prioErrBorder: s.errors.prio ? '#F04438' : 'transparent', prefilled: s.prefilled && !!f.asset, assetName: a ? a[1] : '',
-      on: Object.fromEntries(['asset', 'title', 'due', 'dur', 'desc', 'cat'].map(k => [k, e => this.setF(k, e.target.value)])),
-      assetOpts: ASSETS.map(([code, name, line]) => ({ code, label: `${name} · ${line}` })),
-      types: TYPES.map(([t, icon, fg, bg]) => { const on = f.type === t; return { label: t, icon, bg: on ? bg : '#fff', border: on ? fg : '#D0D5DD', color: on ? fg : '#344054', font: on ? bold : reg, select: () => this.setF('type', t) }; }),
+      drawerSub: `Step ${step + 1} of ${STEPS.length} · ${STEPS[step][0]}${s.prefilled && a ? ' · ' + a[1] : ''}`,
+      steps: STEPS.map(([label, icon], i) => { const reach = i <= step || ok0; return { label, icon, hint: hintFor(i), cursor: reach ? 'pointer' : 'not-allowed',
+        bar: i === step ? '#C00018' : i < step || (i === 0 && ok0) ? '#1E2430' : '#E4E7EC', color: i === step ? '#1E2430' : reach ? '#667085' : '#98A2B3', weight: i === step ? 600 : 500, go: () => reach && this.setState({ step: i, picker: false }) }; }),
+      isS1: step === 0, isS3: step === 1, isS2: step === 2, isS4: step === 3,
+      f, assetName: a ? a[1] : '', hasAssetPath: !!(a && PL && a[3]), assetPath: a && PL && a[3] ? PL.pathOf(a[3]) : '',
+      on: Object.fromEntries(['asset', 'title', 'due', 'dur', 'desc', 'cat', 'cc'].map(k => [k, e => this.setF(k, e.target.value)])),
+      assetOpts: list.map(([code, name, line]) => ({ code, label: `${name} · ${line}` })),
+      ...this.detailVals(),
+      types: (s.CFG ? s.CFG.woTypes().map(t => [t.name, t.icon, t.fg, t.bg]) : TYPES).map(([t, icon, fg, bg]) => { const on = f.type === t; return { label: t, icon, bg: on ? bg : '#fff', border: on ? fg : '#D0D5DD', color: on ? fg : '#344054', font: on ? bold : reg, select: () => this.setF('type', t) }; }),
       prios: PRIOS.map(([p, dot]) => { const on = f.prio === p; return { label: p, dot, bg: on ? (p === 'Critical' ? '#C00018' : '#FBF1F2') : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? (p === 'Critical' ? '#fff' : '#A30014') : '#344054', font: on ? bold : reg, select: () => this.setF('prio', p) }; }),
       toggleStop: () => this.setF('stop', !f.stop), stopTrack: f.stop ? '#C00018' : '#D0D5DD', stopKnob: f.stop ? '20px' : '2px',
-      assignOpts: [...TECHS.map(k => { const p = P(k); return { initials: k, name: k === 'GD' ? p.name + ' (you)' : p.name, sub: `${p.role} · ${p.team.replace(' team', '')}`, avBg: p.avBg, avFg: p.avFg, on: f.assignee === k, bg: f.assignee === k ? '#FBF7F7' : '#fff', border: f.assignee === k ? '#C00018' : '#E4E7EC', pick: () => this.setState(st => ({ form: { ...st.form, assignee: st.form.assignee === k ? '' : k, participants: st.form.participants.filter(x => x[0] !== k) } })) }; }),
-        { initials: '–', name: 'Leave unassigned', sub: 'Planner assigns later', avBg: '#F2F4F7', avFg: '#98A2B3', on: !f.assignee, bg: !f.assignee ? '#F9FAFB' : '#fff', border: !f.assignee ? '#98A2B3' : '#E4E7EC', pick: () => this.setF('assignee', '') }],
-      parts2: f.participants.map(([k, role]) => { const p = P(k); return { ...p, job: p.role, role, setRole: e => this.setF('participants', f.participants.map(x => x[0] === k ? [k, e.target.value] : x)), remove: () => this.setF('participants', f.participants.filter(x => x[0] !== k)) }; }),
-      roleOpts: C ? C.ROLES : [], addOpts: C ? Object.keys(C.PEOPLE).filter(k => k !== f.assignee && !inPart(k)).map(k => { const p = P(k); return { ...p, short: p.name.split(' ')[0] + ' · ' + p.role, add: () => this.setF('participants', [...f.participants, [k, ['SL', 'CM'].includes(k) ? 'Specialist' : ['LB', 'ER', 'HP'].includes(k) ? 'Follower' : 'Additional technician']]) }; }) : [],
-      setChecklists: ids => this.setF('checklists', ids), clCount: f.checklists.length ? `${f.checklists.length} selected` : '',
+      reqSkills, suggested,
+      setAssigned: keys => this.setState(st => ({ form: { ...st.form, assigned: keys, followers: st.form.followers.filter(k => !keys.includes(k)) } })),
+      setFollowers: keys => this.setF('followers', keys),
+      peopleNote: f.assigned.length > 1 ? `Checklist parts are split between assigned users by skill. Everyone in follow-up sees the work order chat and gets status updates.` : 'Assigned users perform the work. People in follow-up are not assigned — they see the work order chat and get status updates.',
+      setChecklists: ids => this.setChecklists(ids), clCount: f.checklists.length ? `${f.checklists.length} selected` : '',
+      hasAutoParts: autoN > 0, autoPartsNote: `${autoN} spare part${autoN > 1 ? 's' : ''} required by the selected checklists ${autoN > 1 ? 'were' : 'was'} added to Required spare parts.`,
       descCount: (f.desc || '').length,
-      parts: f.parts.map(p => { const [sl, sc] = stock(p.stock, p.min); return { ...p, stockLabel: sl, stockColor: sc,
+      partsHint: autoN ? 'Prefilled from the selected checklists · edit freely' : 'Add the parts to reserve for this job',
+      parts: f.parts.map(p => { const [sl, sc] = stock(p.stock, p.min); return { ...p, auto: !!p.auto, fromTip: (p.from || []).join(', '), stockLabel: sl, stockColor: sc,
         inc: () => this.setF('parts', f.parts.map(x => x.ref === p.ref ? { ...x, qty: x.qty + 1 } : x)), dec: () => this.setF('parts', f.parts.map(x => x.ref === p.ref ? { ...x, qty: Math.max(1, x.qty - 1) } : x)),
-        remove: () => this.setF('parts', f.parts.filter(x => x.ref !== p.ref)) }; }),
+        remove: () => this.setState(st => ({ form: { ...st.form, parts: st.form.parts.filter(x => x.ref !== p.ref), dismissed: p.auto || (p.from || []).length ? [...st.form.dismissed, p.ref] : st.form.dismissed } })) }; }),
+      hasDismissed: dism > 0, restoreLabel: `Restore ${dism} removed checklist part${dism > 1 ? 's' : ''}`,
+      restoreParts: () => this.setState(st => ({ form: { ...st.form, dismissed: [] } }), () => this.setChecklists(this.state.form.checklists)),
       partPicker: s.picker, togglePicker: () => this.setState({ picker: !s.picker, pq: '' }), pq: s.pq, setPq: e => this.setState({ pq: e.target.value }),
-      partOpts: PARTS.filter(([ref, name]) => !f.parts.some(p => p.ref === ref) && (!pq || (ref + name).toLowerCase().includes(pq))).map(([ref, name, st, min]) => { const [sl, sc] = stock(st, min); return { ref, name, stockLabel: sl, stockColor: sc, add: () => { this.setF('parts', [...f.parts, { ref, name, stock: st, min, qty: 1 }]); this.setState({ picker: false }); } }; }),
+      partOpts: partsList().filter(([ref, name]) => !f.parts.some(p => p.ref === ref) && (!pq || (ref + name).toLowerCase().includes(pq))).map(([ref, name, st, min]) => { const [sl, sc] = stock(st, min); return { ref, name, stockLabel: sl, stockColor: sc, add: () => { this.setF('parts', [...f.parts, { ref, name, stock: st, min, qty: 1 }]); this.setState({ picker: false }); } }; }),
       docs: f.docs.map((name, i) => ({ name, remove: () => this.setF('docs', f.docs.filter((_, j) => j !== i)) })),
       addDoc: () => this.setF('docs', [...f.docs, ['Repair procedure.pdf', 'Electrical drawing.pdf', 'Manufacturer manual.pdf'][f.docs.length % 3]]),
-      canBack: step > 0, back: () => this.setState({ step: step - 1 }), canNext: step < 3, next: () => this.setState({ step: step + 1 }), nextLabel: `Next: ${STEPS[Math.min(3, step + 1)][0]}`,
-      hasErrors: Object.values(s.errors).some(Boolean), create: () => this.create(), createBg: ok ? '#C00018' : '#E08A94',
-      toast: s.toast, toastHref: s.toastHref,
+      backIcon: step > 0 ? 'chevron_left' : 'close', backLabel: step > 0 ? 'Previous' : 'Cancel',
+      back: () => step > 0 ? this.setState({ step: step - 1, picker: false }) : this.setState({ drawer: false }),
+      footNote: !stepOk ? `Required: ${miss.join(', ')}` : step < 3 ? `Next: ${STEPS[step + 1][0]}` : '',
+      canNext: step < 3, isLast: step === 3, nextDisabled: !stepOk, next: () => stepOk && this.setState({ step: step + 1, picker: false }),
+      nextBg: stepOk ? '#C00018' : '#F2F4F7', nextColor: stepOk ? '#fff' : '#98A2B3', nextCursor: stepOk ? 'pointer' : 'not-allowed',
+      create: () => this.create(), toast: s.toast, toastHref: s.toastHref,
+      ...(() => { const blocked = step === 3 && (this.conflicts().length > 0 || Object.keys(this.cfErrors()).length > 0); return { createDisabled: blocked, createBg: blocked ? '#F2F4F7' : '#C00018', createColor: blocked ? '#98A2B3' : '#fff', createCursor: blocked ? 'not-allowed' : 'pointer',
+        footNote: step === 3 && this.conflicts().length ? 'Required equipment is not available at that time' : step === 3 && Object.keys(this.cfErrors()).length ? 'Complete the required custom fields' : !stepOk ? `Required: ${miss.join(', ')}` : step < 3 ? `Next: ${STEPS[step + 1][0]}` : '' }; })(),
     };
   }
 }

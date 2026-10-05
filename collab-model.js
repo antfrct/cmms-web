@@ -28,22 +28,33 @@ export const clock = () => { const d = new Date(); return `${pad(d.getHours())}:
 
 // ---------- Work orders ----------
 const SEED_WO = {
-  'WO-1339859': { task: 'Seal replacement', asset: 'Pump P-101', loc: 'Tempering Line', type: 'Corrective', prio: 'Critical', status: 'Overdue', assignee: 'PL', participants: [['GD', 'Maintenance manager'], ['SL', 'Specialist'], ['LB', 'Follower']], checklists: ['pump-seal'] },
+  'WO-1339859': { task: 'Seal replacement', asset: 'Pump P-101', loc: 'Tempering Line', type: 'Corrective', prio: 'Critical', status: 'Overdue', assignee: 'SM', assignments: [{ key: 'SM', skills: ['ELE'], minutes: 15, offset: 0, label: 'Step 1' }, { key: 'PL', skills: ['MEC'], minutes: 50, offset: 15, label: 'Steps 2–6' }, { key: 'SM', skills: ['ELE'], minutes: 10, offset: 65, label: 'Step 7' }, { key: 'PL', skills: ['MEC'], minutes: 20, offset: 75, label: 'Steps 8–11' }], participants: [['GD', 'Maintenance manager'], ['SL', 'Specialist'], ['LB', 'Follower']], checklists: ['pump-seal'] },
   'WO-1339850': { task: 'Abnormal fan noise', asset: 'Fan V-12', loc: 'Float Line', type: 'Corrective', prio: 'High', status: 'In progress', assignee: 'AM', participants: [['GD', 'Maintenance manager'], ['MD', 'Additional technician']], checklists: ['standard'] },
   'home-p2': { task: 'Filter replacement', asset: 'Compressor C-01', loc: 'Utilities', type: 'Preventive', prio: 'Medium', status: 'In progress', assignee: 'SM', participants: [['GD', 'Maintenance manager'], ['SL', 'Specialist']], checklists: ['standard'] },
   'home-p1': { task: 'Abnormal vibration', asset: 'Fan V-12', loc: 'Float Line', type: 'Corrective', prio: 'High', status: 'In progress', assignee: 'GD', participants: [['MD', 'Additional technician'], ['CM', 'Specialist']], checklists: ['standard'] },
 };
+const DISPLAY = { 'home-p1': 'WO-1339852', 'home-p2': 'WO-1339844' };
+export const displayId = key => { if (!key) return ''; if (/^WO-/.test(key)) return key; if (DISPLAY[key]) return DISPLAY[key]; let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) % 9000; return 'WO-133' + String(1000 + h).padStart(4, '0'); };
 export const woHref = (key, w) => { w = w || getWo(key) || {}; return 'Work Order.dc.html?' + new URLSearchParams({ wo: key, task: w.task || '', asset: w.asset || '', loc: w.loc || '', type: w.type || 'Corrective', prio: w.prio || 'Medium', status: w.status || 'Scheduled' }).toString(); };
 export const getWo = key => { const st = read(WKEY, {}); return st[key] ? { ...(SEED_WO[key] || {}), ...st[key], key } : SEED_WO[key] ? { ...SEED_WO[key], key } : null; };
 export const saveWo = (key, patch) => { const st = read(WKEY, {}); st[key] = { ...(st[key] || SEED_WO[key] || {}), ...patch }; write(WKEY, st); emit('cmms-wo', { key }); return getWo(key); };
 export const createdWos = () => { const st = read(WKEY, {}); return Object.keys(st).filter(k => st[k].created).map(k => ({ ...st[k], key: k })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); };
 export const nextKey = () => { const st = read(WKEY, {}); const n = Object.keys(st).filter(k => st[k].created).length; return 'WO-' + (1339912 + n); };
 export const createWo = w => { const key = w.key || nextKey(); saveWo(key, { ...w, created: true, createdAt: Date.now() }); return key; };
-export const participantsOf = key => { const w = getWo(key); if (!w) return []; const out = []; if (w.assignee) out.push([w.assignee, 'Assigned to']); (w.participants || []).forEach(p => { if (p[0] !== w.assignee) out.push(p); }); return out; };
+export const assigneesOf = w => [...new Set([...(w.assignments || []).map(a => a.key), w.assignee].filter(Boolean))];
+export const participantsOf = key => { const w = getWo(key); if (!w) return []; const out = []; assigneesOf(w).forEach(k => out.push([k, 'Assigned to'])); (w.participants || []).forEach(p => { if (!out.some(o => o[0] === p[0])) out.push(p); }); return out; };
 export const missingInfo = w => { if (!w) return []; const m = []; if (!w.prio) m.push('Priority'); if (!w.assignee) m.push('Assigned to'); if (!w.desc && w.quick) m.push('Description'); if (w.quick && !w.cat) m.push('Failure category'); return m; };
 
 // ---------- Chat ----------
-export const CHANNELS = { team: { title: 'Mechanical team', icon: 'groups', members: ['GD', 'MD', 'PL', 'AM', 'SL', 'HP'] }, site: { title: 'Site channel', icon: 'factory', members: Object.keys(PEOPLE) } };
+export const CHANNELS = {
+  team: { kind: 'team', title: 'Mechanical team', icon: 'groups', members: ['GD', 'MD', 'PL', 'AM', 'SL', 'HP'], info: '6 members · 4 on shift' },
+  'team-leads': { kind: 'team', title: 'Maintenance leads', icon: 'groups', members: ['GD', 'HP', 'CM', 'LB', 'SL'], info: 'Managers, planning, reliability, stores' },
+  'team-elec': { kind: 'team', title: 'Electrical team', icon: 'groups', members: ['SM', 'SB', 'JM', 'HP'], info: '4 members' },
+  site: { kind: 'site', title: 'Site channel', icon: 'factory', members: Object.keys(PEOPLE), info: 'Thourotte Plant · maintenance, production, HSE' },
+};
+export const isDm = ch => /^dm-/.test(ch || '');
+export const dmKey = k => 'dm-' + k;
+export const myTeams = (me = ME) => Object.keys(CHANNELS).filter(k => CHANNELS[k].kind === 'team' && CHANNELS[k].members.includes(me)).map(k => ({ key: k, ...CHANNELS[k] }));
 export const REFS = [
   ['Equipment', 'Pump P-101', 'Tempering Line', 'Asset Detail.dc.html'],
   ['Equipment', 'Conveyor Line 3', 'Float Line', 'Asset Detail.dc.html'],
@@ -64,6 +75,28 @@ const SEED_CHAT = {
     S('t5', 'SL', '09:20', 'Only 2 BPU280 belts left — I reserved one for Dryer S-01.', { ref: R('Drive belt BPU280') }),
     S('t6', 'AM', '09:48', "Called to the Tin Bath breakdown — I've asked for someone to take over Fan V-12.", { ref: R('Fan V-12 — Abnormal fan noise') }),
   ],
+  'team-leads': [
+    S('l1', 'HP', '07:45', 'Backlog review moved to 15:00 today. I added the Tin Bath roller replacement — needs a decision on overtime.', { ref: R('Pump P-101 — Seal replacement') }),
+    S('l2', 'CM', '08:20', 'Vibration trend on Fan V-12 keeps climbing. Suggest we switch it to predictive monitoring weekly.', { ref: R('Fan V-12 — Abnormal vibration') }),
+    S('l3', 'SL', '08:52', 'Supplier confirms ATV320 drive delivery Oct 6. I will reserve it on the Conveyor 3 work order.'),
+  ],
+  'team-elec': [S('e1', 'SM', '08:10', 'Thermography on cabinet E-4 moved to 16:00.')],
+  'dm-MD': [
+    S('d1', 'MD', '07:58', 'Morning — can I take the Annealing Lehr alignment after lunch instead? The dial gauge is with the electrical team until noon.'),
+    S('d2', 'GD', '08:02', 'Yes, go ahead. Keep me posted if it slips again.', { ref: R('Pump P-101') }),
+    S('d3', 'MD', '09:34', 'Done with the press cones. I left the absorbent next to PH-030, can you sign the waste form when you pass by?'),
+  ],
+  'dm-PL': [
+    S('d4', 'GD', '07:35', 'Pierre, P-101 is now critical — please start right after Conveyor 3.', { ref: R('Pump P-101 — Seal replacement') }),
+    S('d5', 'PL', '07:41', 'Understood. Lockout around 09:30.'),
+  ],
+  'dm-SL': [
+    S('d6', 'SL', '08:47', 'Supplier says the ATV320 drive ships Oct 6. Do you want me to reserve it for Conveyor 3 straight away?'),
+    S('d7', 'GD', '08:51', 'Yes please, and flag it on the work order.'),
+    S('d8', 'SL', '09:15', 'Done. Also: only 2 BPU280 belts left — I raised a reorder.', { ref: R('Drive belt BPU280') }),
+  ],
+  'dm-HP': [S('d9', 'HP', 'Yesterday', 'Can you review next week\'s plan before Thursday? Two preventive jobs overlap on the Float Line.')],
+  'dm-CM': [S('d10', 'CM', 'Yesterday', 'Sending you the vibration trend for Fan V-12 — worth discussing at the leads meeting.', { ref: R('Fan V-12 — Abnormal vibration') })],
   site: [
     S('s1', 'LB', '07:30', 'Float Line speed reduced to 80% from 14:00 for the glass thickness change.', { ref: R('Conveyor Line 3') }),
     S('s2', 'ER', '08:05', 'Reminder: hot work permits required in the Tempering zone all week.'),
@@ -95,46 +128,57 @@ const chatState = () => read(CKEY, { msgs: {}, seen: {} });
 export const messages = ch => { const st = chatState(); return st.msgs[ch] || SEED_CHAT[ch] || []; };
 export const channelInfo = ch => {
   if (CHANNELS[ch]) return { kind: ch, ...CHANNELS[ch] };
+  if (isDm(ch)) { const k = ch.slice(3), p = person(k); return { kind: 'dm', title: p.name, icon: 'person', other: k, members: [ME, k], info: `${p.role} · ${p.team}`, href: `Home.dc.html?chat=${ch}` }; }
   const w = getWo(ch);
-  return { kind: 'wo', title: w ? `${w.asset} — ${w.task}` : ch, icon: 'build', woKey: ch, href: woHref(ch, w), members: participantsOf(ch).map(p => p[0]), status: w && w.status };
+  return { kind: 'wo', title: w ? `${w.asset} — ${w.task}` : displayId(ch), icon: 'build', woKey: ch, displayId: displayId(ch), href: woHref(ch, w), members: participantsOf(ch).map(p => p[0]), status: w && w.status };
 };
-export const unread = ch => { const st = chatState(); const n = messages(ch).length; const seen = st.seen[ch] != null ? st.seen[ch] : (ch === 'team' ? n - 2 : ch === 'site' ? n - 1 : ch === 'WO-1339850' ? n - 1 : n); return Math.max(0, n - seen); };
+export const unread = ch => { const st = chatState(); const n = messages(ch).length; const seen = st.seen[ch] != null ? st.seen[ch] : (ch === 'dm-MD' || ch === 'dm-SL' ? n - 1 : isDm(ch) ? n : ch === 'team' ? n - 2 : ch === 'team-leads' ? n - 1 : ch === 'team-elec' ? n : ch === 'site' ? n - 1 : ch === 'WO-1339850' ? n - 1 : n); return Math.max(0, n - seen); };
 export const markSeen = ch => { const st = chatState(); st.seen[ch] = messages(ch).length; write(CKEY, st); emit('cmms-chat', { ch, seen: true }); };
 export const woThreads = (me = ME) => {
-  const keys = new Set([...Object.keys(SEED_CHAT).filter(k => !CHANNELS[k]), ...Object.keys(chatState().msgs).filter(k => !CHANNELS[k])]);
+  const keys = new Set([...Object.keys(SEED_CHAT).filter(k => !CHANNELS[k] && !isDm(k)), ...Object.keys(chatState().msgs).filter(k => !CHANNELS[k] && !isDm(k))]);
   return [...keys].filter(k => participantsOf(k).some(p => p[0] === me)).map(k => { const m = messages(k), last = m[m.length - 1]; return { key: k, ...channelInfo(k), last, unread: unread(k) }; })
     .sort((a, b) => (b.unread - a.unread) || ((b.last && b.last.t) || '').localeCompare((a.last && a.last.t) || ''));
 };
+const allChannels = () => [...new Set([...Object.keys(SEED_CHAT), ...Object.keys(chatState().msgs)])];
+// Direct conversations of ME, newest/unread first. withMessages=false also lists people never messaged.
+export const dmThreads = () => allChannels().filter(isDm).map(ch => { const m = messages(ch), last = m[m.length - 1]; return { key: ch, other: ch.slice(3), person: person(ch.slice(3)), last, unread: unread(ch), n: m.length }; })
+  .filter(t => t.n).sort((a, b) => (b.unread - a.unread) || ((b.last && b.last.at) || 0) - ((a.last && a.last.at) || 0) || ((b.last && b.last.t) || '').localeCompare((a.last && a.last.t) || ''));
+// Everything exchanged with person k outside the direct conversation: channels where they wrote or were mentioned with ME present.
+export const sharedWith = k => allChannels().filter(ch => !isDm(ch)).map(ch => { const info = channelInfo(ch); if (!(info.members || []).includes(ME) && info.kind !== 'site') return null;
+  const ms = messages(ch).filter(m => m.who === k || (m.who === ME && mentionsOf(m.text || '').includes(k)) || (m.who !== 'sys' && mentionsOf(m.text || '').includes(k)));
+  return ms.length ? { key: ch, kind: info.kind, title: info.title, icon: info.icon, href: info.href, msgs: ms, last: ms[ms.length - 1] } : null; }).filter(Boolean);
 export const parse = text => { const out = []; const re = /@([A-Za-zÀ-ÿ]+)/g; let i = 0, m; while ((m = re.exec(text))) { const k = Object.keys(PEOPLE).find(p => PEOPLE[p][4].toLowerCase() === m[1].toLowerCase()); if (!k) continue; if (m.index > i) out.push({ t: text.slice(i, m.index) }); out.push({ t: '@' + PEOPLE[k][4], mention: k }); i = m.index + m[0].length; } if (i < text.length) out.push({ t: text.slice(i) }); return out; };
 export const mentionsOf = text => parse(text).filter(s => s.mention).map(s => s.mention);
 const linkTo = (ch, id) => { const info = channelInfo(ch); return info.kind === 'wo' ? `${info.href}&chat=1&msg=${id}` : `Home.dc.html?chat=${ch}&msg=${id}`; };
 
 // ---------- Notifications from chat ----------
 const SEED_NOTIF = [
-  { id: 'c-t3', lvl: 'imp', icon: 'alternate_email', kind: 'Pierre Leroy mentioned you', title: '“Can someone check this pump after the current intervention?”', sub: 'Mechanical team · Pump P-101', ago: '45 min', ch: 'team', msg: 't3' },
-  { id: 'c-f3', lvl: 'imp', icon: 'swap_horiz', kind: 'Reassignment requested', title: 'Fan V-12 — Abnormal fan noise', sub: 'Alex Martin: “Can someone take this intervention?”', ago: '20 min', ch: 'WO-1339850', msg: 'f3' },
-  { id: 'c-h2', lvl: 'info', icon: 'forum', kind: 'New message in your work order', title: 'Fan V-12 — Abnormal vibration', sub: 'Marc Dupont: “Puller is on the cart next to the press…”', ago: '1 h', ch: 'home-p1', msg: 'h2' },
+  { id: 'c-t3', type: 'mention', lvl: 'imp', icon: 'alternate_email', kind: 'Pierre Leroy mentioned you', title: '“Can someone check this pump after the current intervention?”', sub: 'Mechanical team · Pump P-101', ago: '45 min', ch: 'team', msg: 't3' },
+  { id: 'c-f3', type: 'reassign', lvl: 'imp', icon: 'swap_horiz', kind: 'Reassignment requested', title: 'Fan V-12 — Abnormal fan noise', sub: 'Alex Martin: “Can someone take this intervention?”', ago: '20 min', ch: 'WO-1339850', msg: 'f3' },
+  { id: 'c-h2', type: 'wo-message', lvl: 'info', icon: 'forum', kind: 'New message in your work order', title: 'Fan V-12 — Abnormal vibration', sub: 'Marc Dupont: “Puller is on the cart next to the press…”', ago: '1 h', ch: 'home-p1', msg: 'h2' },
 ];
 export const notifications = () => read(NKEY, null) || SEED_NOTIF.map(n => ({ ...n }));
 export const notifHref = n => linkTo(n.ch, n.msg);
-const pushNotif = n => { const all = notifications(); all.unshift({ ...n, ago: 'now', id: 'c-' + n.msg + '-' + Date.now().toString(36) }); write(NKEY, all.slice(0, 30)); emit('cmms-notif', n); };
+const pushNotif = n => { const all = notifications(); const item = { ...n, ago: 'now', id: 'c-' + n.msg + '-' + Date.now().toString(36) }; all.unshift(item); write(NKEY, all.slice(0, 30)); emit('cmms-notif', { ...item, href: linkTo(n.ch, n.msg) }); };
 
 let mid = 0;
 export const post = (ch, who, text, x = {}) => {
   const st = chatState(); const list = (st.msgs[ch] || SEED_CHAT[ch] || []).slice();
-  const msg = { id: 'm' + Date.now().toString(36) + (mid++), who, t: clock(), text, ...x };
+  const msg = { id: 'm' + Date.now().toString(36) + (mid++), who, t: clock(), at: Date.now(), text, ...x };
   list.push(msg); st.msgs[ch] = list; if (who === ME) st.seen[ch] = list.length; write(CKEY, st);
   const info = channelInfo(ch), where = info.kind === 'wo' ? info.title : info.title, p = person(who);
   const mentioned = mentionsOf(text);
   if (who !== ME) {
-    if (mentioned.includes(ME)) pushNotif({ lvl: 'imp', icon: 'alternate_email', kind: `${p.name} mentioned you`, title: `“${text.length > 80 ? text.slice(0, 78) + '…' : text}”`, sub: where, ch, msg: msg.id });
-    else if (x.tag === 'Reassignment') pushNotif({ lvl: 'imp', icon: 'swap_horiz', kind: 'Reassignment requested', title: where, sub: `${p.name}: “${text.slice(0, 60)}…”`, ch, msg: msg.id });
-    else if (info.kind === 'wo' && participantsOf(ch).some(q => q[0] === ME) && (x.tag || x.photo)) pushNotif({ lvl: 'info', icon: 'forum', kind: 'New message in your work order', title: where, sub: `${p.name}: “${text.slice(0, 60)}”`, ch, msg: msg.id });
+    if (info.kind === 'dm') pushNotif({ type: 'dm', lvl: 'imp', icon: 'chat', kind: `Message from ${p.name}`, title: `“${text.length > 80 ? text.slice(0, 78) + '…' : text}”`, sub: 'Direct message', ch, msg: msg.id });
+    else if (mentioned.includes(ME)) pushNotif({ type: 'mention', lvl: 'imp', icon: 'alternate_email', kind: `${p.name} mentioned you`, title: `“${text.length > 80 ? text.slice(0, 78) + '…' : text}”`, sub: where, ch, msg: msg.id });
+    else if (x.tag === 'Reassignment') pushNotif({ type: 'reassign', lvl: 'imp', icon: 'swap_horiz', kind: 'Reassignment requested', title: where, sub: `${p.name}: “${text.slice(0, 60)}…”`, ch, msg: msg.id });
+    else if (info.kind === 'wo' && participantsOf(ch).some(q => q[0] === ME) && (x.tag || x.photo)) pushNotif({ type: 'wo-message', lvl: 'info', icon: 'forum', kind: 'New message in your work order', title: where, sub: `${p.name}: “${text.slice(0, 60)}”`, ch, msg: msg.id });
   }
   emit('cmms-chat', { ch, id: msg.id });
   // Demo: people you @mention answer back a moment later.
-  if (who === ME) mentioned.filter(k => k !== ME).slice(0, 1).forEach(k => setTimeout(() => post(ch, k, k === 'SL' ? '@Gaudéric checking the store now — I\'ll reserve it on this work order if we have it.' : '@Gaudéric seen — I\'ll get back to you here in a few minutes.'), 2600));
+  if (who === ME && info.kind === 'dm') { clearTimeout(post._dm); post._dm = setTimeout(() => post(ch, info.other, ['OK, noted.', 'Thanks — I\'ll take a look shortly.', 'Got it, I\'ll come back to you.'][Math.floor(Math.random() * 3)]), 3000); }
+  if (who === ME && info.kind !== 'dm') mentioned.filter(k => k !== ME).slice(0, 1).forEach(k => setTimeout(() => post(ch, k, k === 'SL' ? '@Gaudéric checking the store now — I\'ll reserve it on this work order if we have it.' : '@Gaudéric seen — I\'ll get back to you here in a few minutes.'), 2600));
   return msg;
 };
 
-if (typeof window !== 'undefined') window.RelixCollab = { ME, PEOPLE, ROLES, byName, person, woHref, getWo, saveWo, createdWos, nextKey, createWo, participantsOf, missingInfo, CHANNELS, REFS, messages, channelInfo, unread, markSeen, woThreads, parse, mentionsOf, notifications, notifHref, post, clock };
+if (typeof window !== 'undefined') window.RelixCollab = { isDm, dmKey, dmThreads, sharedWith, assigneesOf, myTeams, displayId, ME, PEOPLE, ROLES, byName, person, woHref, getWo, saveWo, createdWos, nextKey, createWo, participantsOf, missingInfo, CHANNELS, REFS, messages, channelInfo, unread, markSeen, woThreads, parse, mentionsOf, notifications, notifHref, post, clock };

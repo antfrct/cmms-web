@@ -28,6 +28,7 @@ const T = [
   ['part-unavailable', 'parts', 'Required part unavailable', 'A part reserved on your work order is out of stock', 'imp', 'block', 'toast', 1, 0],
   ['part-low', 'parts', 'Low stock', 'A part drops below its minimum stock', 'imp', 'inventory_2', 'bell', 0, 0],
   ['plan-change', 'plan', 'Planning change', 'Your scheduled work is moved or reassigned', 'info', 'event', 'bell', 1, 0],
+  ['dm', 'chat', 'Direct messages', 'Someone sends you a personal message', 'imp', 'chat', 'toast', 0, 1],
   ['mention', 'chat', 'Mentions', 'Someone @mentions you in any conversation', 'imp', 'alternate_email', 'toast', 0, 1],
   ['reassign', 'chat', 'Reassignment request', 'A technician asks for someone to take over', 'imp', 'swap_horiz', 'toast', 0, 1],
   ['wo-message', 'chat', 'Messages on my work orders', 'Tagged messages (help, missing part, handover, photos)', 'info', 'forum', 'bell', 0, 0],
