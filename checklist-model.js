@@ -22,10 +22,12 @@ export const GROUPS = [
   ['Action', ['instruction', 'confirm', 'photo', 'file', 'parts', 'consumables']],
 ];
 export const MEDIA = { image: ['Image', 'image'], video: ['Video', 'smart_display'], pdf: ['PDF / document', 'picture_as_pdf'] };
-export const CATALOG = {
-  parts: [['SEAL-M45', 'Mechanical seal 45 mm', 'pcs', 3], ['GSK-P101', 'Pump casing gasket', 'pcs', 4], ['ORG-KIT', 'O-ring kit NBR', 'kit', 12], ['BRG-6205', 'Ball bearing 6205-2RS', 'pcs', 42], ['SEN-PT100', 'Temperature probe PT100', 'pcs', 6], ['BLT-BPU280', 'Drive belt BPU280', 'pcs', 2], ['FLT-HX10', 'Hydraulic filter HX-10', 'pcs', 0], ['CTR-LC1D', 'Contactor LC1D18', 'pcs', 11]],
-  consumables: [['GRS-LT2', 'Lithium grease LT2 400 g', 'cartridge', 18], ['SEAL-TH', 'Thread sealant 50 ml', 'tube', 9], ['CLN-RAG', 'Cleaning cloths', 'pack', 24], ['OIL-H46', 'Hydraulic oil HLP 46', 'L', 120], ['GLV-NIT', 'Nitrile gloves', 'pair', 200]],
-};
+// Materials catalogue for checklist steps & interventions — read live from the Spare parts module (parts-model). Rows: [ref, name, unit, stock, kind].
+import * as PA from './parts-model.js';
+const rows = f => PA.parts().filter(f).map(p => [p.ref, p.name, p.unit, p.qty, PA.kindOf(p)]);
+export const CATALOG = { get parts() { return rows(p => !PA.isConsumable(p)); }, get consumables() { return rows(PA.isConsumable); }, get all() { return rows(() => true); } };
+export const item = ref => PA.part(ref);
+export const usageOf = ref => PA.usageOf(PA.part(ref));
 
 let n = 0;
 export const uid = () => 's' + Date.now().toString(36) + (n++).toString(36);
@@ -75,7 +77,8 @@ export const loadPreview = () => { try { return JSON.parse(localStorage.getItem(
 export const checklistFor = asset => /P-101/.test(asset || '') ? 'pump-seal' : 'standard';
 const PARTS_FOR = { conveyor: [{ ref: 'BRG-6205', qty: 2 }, { ref: 'BLT-BPU280', qty: 1 }], press: [{ ref: 'FLT-HX10', qty: 1 }], electrical: [{ ref: 'CTR-LC1D', qty: 1 }] };
 // Required spare parts declared in checklist 'parts' steps, merged by ref → [{ ref, name, unit, stock, qty, from: [checklist names] }]
-export const partsOf = cls => { const out = []; (cls || []).forEach(cl => (cl.steps || []).filter(st => st.type === 'parts' && !st.conditional || st.type === 'parts' && (st.parts || []).length).forEach(st => (st.parts || []).forEach(p => { const c = CATALOG.parts.find(x => x[0] === p.ref) || [p.ref, p.ref, 'pcs', 0]; const ex = out.find(x => x.ref === p.ref); if (ex) { ex.qty = Math.max(ex.qty, +p.qty || 1); if (!ex.from.includes(cl.name)) ex.from.push(cl.name); } else out.push({ ref: p.ref, name: c[1], unit: c[2], stock: c[3], qty: +p.qty || 1, from: [cl.name] }); }))); return out; };
+// Required materials (spare parts AND consumables) declared in checklist 'parts' / 'consumables' steps, merged by ref → [{ ref, name, kind, unit (usage unit), mode, stock, qty (expected, usage unit), from }]
+export const partsOf = cls => { const out = []; (cls || []).forEach(cl => (cl.steps || []).filter(st => (st.type === 'parts' || st.type === 'consumables') && (!st.conditional || (st.parts || []).length)).forEach(st => (st.parts || []).forEach(p => { const it = PA.part(p.ref), u = PA.usageOf(it), q = p.qty === '' || p.qty == null ? u.def : +p.qty; const ex = out.find(x => x.ref === p.ref); if (ex) { ex.qty = Math.max(ex.qty, q); if (!ex.from.includes(cl.name)) ex.from.push(cl.name); } else out.push({ ref: p.ref, name: it ? it.name : p.ref, kind: PA.kindOf(it), unit: u.unit, mode: u.mode, stock: it ? it.qty : 0, stockLabel: it ? PA.fmtStock(it) : '', qty: q, from: [cl.name] }); }))); return out; };
 export const fromName = (id, name) => {
   if (id === 'new') return { id: uid(), name: 'New checklist', desc: '', status: 'draft', est: '', updated: null, updatedBy: '', steps: [] };
   const SK = { conveyor: [['ELE'], ['MEC']], press: [['ELE'], ['HYD']], electrical: [['ELE'], ['ELE']], safety: [[], []] }[id] || [[], []];
@@ -186,4 +189,4 @@ export const reachable = cl => { const seen = new Set(), q = [firstStep(cl)]; wh
 // Marks steps outside the Start → End flow as detached (kept as drafts, never executed).
 export const markDetached = cl => { const r = reachable(cl); cl.steps.forEach(s => { s.detached = !r.has(s.id); }); return cl; };
 
-if (typeof window !== 'undefined') window.CMMSChecklist = { endsOf, isEnd, portsOf, outputsOf, reachable, markDetached, totalMinutes, TYPES, GROUP_COLORS, GROUPS, MEDIA, CATALOG, uid, newStep, defaultsFor, clone, SEEDS, load, save, savePreview, loadPreview, checklistFor, fromName, guessType, whenOptions, whenLabel, isOut, matches, rangeText, firstStep, defaultNext, afterTarget, nextStep, requirements, flagged, predictPath, logicSummary, cleanRefs };
+if (typeof window !== 'undefined') window.CMMSChecklist = { item, usageOf, endsOf, isEnd, portsOf, outputsOf, reachable, markDetached, totalMinutes, TYPES, GROUP_COLORS, GROUPS, MEDIA, CATALOG, uid, newStep, defaultsFor, clone, SEEDS, load, save, savePreview, loadPreview, checklistFor, fromName, guessType, whenOptions, whenLabel, isOut, matches, rangeText, firstStep, defaultNext, afterTarget, nextStep, requirements, flagged, predictPath, logicSummary, cleanRefs };

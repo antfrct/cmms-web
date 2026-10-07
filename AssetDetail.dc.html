@@ -83,6 +83,9 @@
         </div>
       </sc-if>
 
+      <sc-if value="{{ isLife }}"><dc-import name="AssetAdvanced" view="lifecycle" asset-id="{{ a.id }}" hint-size="100%,640px"></dc-import></sc-if>
+      <sc-if value="{{ isLive }}"><dc-import name="AssetAdvanced" view="live" asset-id="{{ a.id }}" hint-size="100%,640px"></dc-import></sc-if>
+
       <sc-if value="{{ isDocs }}">
         <dc-import name="DocLinks" kind="asset" target="{{ a.id }}" title="Documents linked to this asset" empty-text="No documents linked yet. Link existing documents from the library or upload new ones — the same document can be shared with other assets, work orders and checklist steps." hint-size="100%,300px"></dc-import>
       </sc-if>
@@ -134,7 +137,7 @@ function qrPath(seed) { let h = 2166136261; for (const ch of seed) { h ^= ch.cha
   [[0, 0], [N - 7, 0], [0, N - 7]].forEach(([a, b]) => { d += `M${a} ${b}h7v7h-7zM${a + 1} ${b + 1}v5h5v-5zM${a + 2} ${b + 2}h3v3h-3z`; });
   for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) if (!inF(x, y) && rnd() > 0.52) d += `M${x} ${y}h1v1h-1z`; return d; }
 class Component extends DCLogic {
-  state = { PM: null, C: null, tab: 'overview', kind: '', qr: false, toast: null, v: 0 };
+  state = { PM: null, C: null, tab: new URLSearchParams(location.search).get('tab') || 'overview', kind: '', qr: false, toast: null, v: 0 };
   componentDidMount() {
     Promise.all([import('./plant-model.js'), import('./collab-model.js')]).then(([PM, C]) => this.setState({ PM, C }));
     Promise.all([import('./config-model.js'), import('./parts-model.js'), import('./docs-model.js')]).then(([CFG, P, D]) => this.setState({ CFG, P, D }));
@@ -143,6 +146,14 @@ class Component extends DCLogic {
   }
   componentWillUnmount() { window.removeEventListener('cmms-asset', this._a); window.removeEventListener('cmms-docs', this._d); clearTimeout(this._t); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
+  advVals() {
+    if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
+    let adv = true; try { adv = localStorage.getItem('cmms.advanced') !== '0'; } catch (e) {}
+    const open = k => () => window.RelixAdvanced && window.RelixAdvanced(k);
+    return { adv, advOptimize: open('optimize'), advForecast: open('forecast'), advChecklist: open('checklist'), advPlan: open('plan'), advFleet: open('fleet'),
+      toggleAdv: () => { try { localStorage.setItem('cmms.advanced', adv ? '0' : '1'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-advanced', { detail: { on: !adv } })); },
+      advSub: adv ? 'Shown in purple across the app' : 'Hidden on all pages', advTrack: adv ? '#800080' : '#D0D5DD', advKnob: adv ? '18px' : '2px', advBorder: adv ? '#E2C4E2' : '#D0D5DD' };
+  }
   renderVals() {
     const s = this.state, PM = s.PM, C = s.C;
     if (!PM || !C) return { a: {}, crumbs: [], tabs: [], details: [], specs: [], docsTop: [], docsAll: [], docKinds: [], wos: [], resRows: [], week: [], hourTicks: [], isOverview: true };
@@ -159,12 +170,13 @@ class Component extends DCLogic {
     const cc = CFG ? (CFG.get('costCenters', a.costCenter) || (!a.costCenter && CFG.list('costCenters').find(c => c.zone === z.id))) : null;
     const cfs = CFG ? CFG.fieldsFor('Asset', { type: a.type }).map(f => { const v = (a.custom || {})[f.code]; return { k: f.name, v: v === '' || v == null ? 'Not set' : CFG.fmt(f, v, site), color: v === '' || v == null ? '#98A2B3' : '#1E2430' }; }) : [];
     const lp = P ? P.parts().filter(x => (x.assets || []).includes(a.id)) : [];
+    const adv = this.advVals().adv;
     const docN = s.D ? s.D.linkedTo('asset', a.id).length : a.docs.length;
     return {
       a, icon: PM.typeIcon(a.type), zfg, zbg, mobile, sbg, sfg, statusLabel: now ? `Reserved until ${hm(now.to)}` : a.status, critColor: PM.CRIT[a.crit], locIcon: zi,
       crumbs: PM.chain(a.loc).map((n, i, arr) => ({ name: n.name, level: ['Zone', 'Line', 'Step'][i], href: 'Assets.dc.html?loc=' + n.id, color: i === arr.length - 1 ? '#1E2430' : '#475467', weight: i === arr.length - 1 ? 600 : 400 })),
-      tabs: [['overview', 'Overview'], ['wo', 'Work orders', 3], ['docs', 'Documents', docN], ...(mobile ? [['res', 'Reservations', res.length]] : [])].map(([k, label, count]) => ({ label, count, hasCount: count != null, font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: s.tab === k ? '#1E2430' : '#667085', bar: s.tab === k ? '#C00018' : 'transparent', select: () => this.setState({ tab: k }) })),
-      isOverview: s.tab === 'overview', isDocs: s.tab === 'docs', isRes: s.tab === 'res', isWo: s.tab === 'wo',
+      tabs: [['overview', 'Overview'], ['wo', 'Work orders', 3], ['docs', 'Documents', docN], ...(mobile ? [['res', 'Reservations', res.length]] : []), ...(adv ? [['lifecycle', 'Lifecycle', null, 1], ['live', 'Live monitoring', null, 1]] : [])].map(([k, label, count, x]) => ({ label, count, hasCount: count != null, font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: x ? '#800080' : s.tab === k ? '#1E2430' : '#667085', bar: s.tab === k ? (x ? '#800080' : '#C00018') : 'transparent', select: () => this.setState({ tab: k }) })),
+      isOverview: s.tab === 'overview' || (!adv && (s.tab === 'lifecycle' || s.tab === 'live')), isLife: adv && s.tab === 'lifecycle', isLive: adv && s.tab === 'live', isDocs: s.tab === 'docs', isRes: s.tab === 'res', isWo: s.tab === 'wo',
       details: [['Type', a.type], ['Class', mobile ? 'Mobile asset · reservable' : 'Fixed equipment'], [mobile ? 'Home location' : 'Location', PM.pathOf(a.loc)], ['Manufacturer', a.manufacturer], ['Model', a.model], ['Serial number', a.serial], ['Year installed', a.year], ['Owner', p.name], ['Criticality', a.crit], ['Cost center', cc ? `${cc.code} · ${cc.name}` : '']]
         .map(([k, v]) => ({ k, v: v || 'Not set', color: v ? '#1E2430' : '#98A2B3' })).concat(cfs),
       hasDesc: !!a.desc, hasSpecs: a.specs.length > 0, noSpecs: !a.specs.length, specsCta: a.specs.length ? 'Edit' : 'Add specifications',

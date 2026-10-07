@@ -164,16 +164,16 @@
         </section>
 
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-          <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600">Reserved spare parts</h2><a href="SpareParts.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">Add part</a></div>
+          <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600">{{ partsTitle }}</h2><a href="SpareParts.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">Add part</a></div>
           <sc-for list="{{ parts }}" as="p">
             <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-top:1px solid #F2F4F7">
-              <span style="width:32px;height:32px;border-radius:6px;background:repeating-linear-gradient(135deg,#EEF0F3 0 4px,#E4E7EC 4px 8px);display:grid;place-items:center;color:#98A2B3;font:17px/1 'Material Symbols Outlined'">settings</span>
-              <span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ p.name }}</span><span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ p.ref }}</span></span>
+              <span title="{{ p.kindLabel }}" style="flex:none;width:32px;height:32px;border-radius:6px;background:{{ p.kBg }};display:grid;place-items:center;color:{{ p.kFg }};font:17px/1 'Material Symbols Outlined'">{{ p.kIcon }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ p.name }}</span><span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · {{ p.kindLabel }}</span></span>
               <span style="font-size:12.5px;font-weight:500;color:{{ p.color }}">{{ p.stock }}</span>
-              <span style="width:48px;text-align:right;font:600 13px 'IBM Plex Mono',monospace">×{{ p.qty }}</span>
+              <span style="min-width:48px;text-align:right;font:600 13px 'IBM Plex Mono',monospace;white-space:nowrap">{{ p.use }}</span>
             </div>
           </sc-for>
-          <sc-if value="{{ noParts }}"><div style="padding:4px 16px 14px;color:#98A2B3">No parts reserved. Technicians can add parts during the intervention.</div></sc-if>
+          <sc-if value="{{ noParts }}"><div style="padding:4px 16px 14px;color:#98A2B3">No spare parts or consumables planned. Technicians can add them during the intervention.</div></sc-if>
         </section>
 
         <dc-import name="WOCosts" wo-key="{{ docKey }}" wo="{{ costWo }}" parts="{{ costParts }}" actual-ms="{{ costActual }}" hint-size="100%,320px"></dc-import>
@@ -410,7 +410,10 @@ class Component extends DCLogic {
       checklists: cls.map((c, ci) => { const open = s.openCl[c.id] ?? ci === 0; return { name: c.name, meta: `${c.steps.length} steps · ~${c.est || 30} min`, href: 'ChecklistEditor.dc.html?id=' + c.id, open, chev: open ? 'expand_more' : 'chevron_right',
         toggle: ev => { if (ev.target.closest('a')) return; this.setState(st => ({ openCl: { ...st.openCl, [c.id]: !open } })); },
         steps: c.steps.map((st, i) => { const past = ci === 0 && (going && i < sum.stepNo - 1 || done); return { title: st.title, kinds: `${CL.TYPES[st.type].label}${st.required ? ' · required' : ''}`, cond: !!st.conditional, indent: st.conditional ? '40px' : '16px', mark: past ? '✓' : i + 1, bg: past ? '#E6F4EE' : '#F2F4F7', fg: past ? '#0B6B4A' : '#475467' }; }) }; }),
-      parts: SEAL ? [{ name: 'Mechanical seal 45 mm', ref: 'SEAL-M45', stock: 'Reserved by Sarah Lambert', color: '#0B6B4A', qty: 1 }] : (w.parts || []).map(p => ({ ...p, stock: 'To reserve', color: '#B54708' })), noParts: !SEAL && !(w.parts || []).length,
+      ...(() => { const PA = window.RelixParts, used = done && (w.used || []).length ? w.used : null, src = used || (SEAL ? [{ name: 'Mechanical seal 45 mm', ref: 'SEAL-M45', qty: 1, res: 1 }] : (w.parts || []));
+        const view = p => { const it = PA && PA.part(p.ref), cons = !!(it && PA.isConsumable(it)); return { ...p, name: it ? it.name : p.name || p.ref, use: it ? PA.fmtUse(it, p.qty) : '×' + p.qty, kIcon: cons ? 'water_drop' : 'settings', kBg: cons ? '#E3F2F6' : '#EEF1F4', kFg: cons ? '#0E7490' : '#475467', kindLabel: cons ? 'Consumable' : 'Spare part',
+          stock: used ? (cons ? 'Consumed' : 'Used') : p.res ? 'Reserved by Sarah Lambert' : cons ? (it ? PA.fmtStock(it) + ' in stock' : 'Planned') : 'To reserve', color: used ? '#475467' : p.res ? '#0B6B4A' : cons ? '#475467' : '#B54708' }; };
+        return { partsTitle: used ? 'Spare parts & consumables used' : 'Planned spare parts & consumables', parts: src.map(view), noParts: !src.length }; })(),
       chatBorder: s.chatFlash ? '#F79009' : '#E4E7EC', chatSub: nMsg ? `${nMsg} message${nMsg > 1 ? 's' : ''}` : 'No messages yet', highlight: QS.get('msg') || '',
       hasUnread: un > 0, unreadN: un, openChat: () => this.scrollToChat(),
       avatars: [...asgKeys, ...people.map(p => p[0])].slice(0, 6).map(k => P(k)), peopleCount: `${people.length + asgKeys.length} ${people.length + asgKeys.length === 1 ? 'person' : 'people'}`,
@@ -431,7 +434,7 @@ class Component extends DCLogic {
       addOpts: C && ed ? Object.keys(C.PEOPLE).filter(k => !people.some(p => p[0] === k)).map(k => { const p = P(k); return { ...p, short: p.name.split(' ')[0] + ' · ' + p.role, add: () => this.setE('participants', [...e.participants, [k, ['SL', 'CM'].includes(k) ? 'Specialist' : ['LB', 'ER', 'HP'].includes(k) ? 'Follower' : 'Additional technician']]) }; }) : [],
       details: [['Asset', w.asset], ['Location', w.loc], ['Type', w.type], ['Priority', w.prio || 'Not set'], ['Estimated', durLabel(w.dur) || '—'], ['Requested by', w.quick ? 'Gaudéric Durand · quick intervention' : w.created ? 'Gaudéric Durand' : 'Night shift · L. Petit'], ['Request date', w.created ? 'Today' : 'Sep 26, 2026'], ['Scheduled', w.due ? fmtDue(w.due) : overdue ? 'Sep 27, 08:00' : w.quick ? '—' : 'Today, 09:00']]
         .map(([k, v]) => ({ k, v, color: v === 'Not set' ? '#B54708' : '#1E2430' })).concat(this.extraVals(e, false, w).cfView.map(x => ({ ...x, color: '#1E2430' }))),
-      docKey: Q0.key, costWo: w, costParts: SEAL ? [{ ref: 'SEAL-M45', qty: 1 }, { ref: 'GSK-P101', qty: 1 }, { ref: 'ORG-KIT', qty: 1 }] : (w.parts || []).map(p => ({ ref: p.ref, qty: p.qty || 1 })), costActual: done && sum.elapsed ? sum.elapsed : null,
+      docKey: Q0.key, costWo: w, costParts: done && (w.used || []).length ? w.used.map(p => ({ ref: p.ref, qty: p.qty })) : SEAL ? [{ ref: 'SEAL-M45', qty: 1 }, { ref: 'GSK-P101', qty: 1 }, { ref: 'ORG-KIT', qty: 1 }] : (w.parts || []).map(p => ({ ref: p.ref, qty: p.qty })), costActual: done && sum.elapsed ? sum.elapsed : null,
       activity: [
         ...(done ? [['task_alt', `Intervention ${fin[0].toLowerCase()}`, 'Gaudéric Durand', 'Today']] : going ? [['play_arrow', 'Intervention started', 'Gaudéric Durand', 'Today']] : logged ? [['history', 'Completed — recorded after the fact', `${P(cpl.loggedBy || 'GD').name}${cpl.by && cpl.by !== cpl.loggedBy ? ' · done by ' + P(cpl.by).name : ''}`, 'Today']] : []),
         ...(w.quick ? [['bolt', 'Created from a quick intervention', 'Gaudéric Durand', 'Today']] : w.created ? [['add', 'Work order created', 'Gaudéric Durand', 'Today']] : [['event', 'Scheduled', 'Hugo Petit · Planner', 'Sep 26'], ['check', 'Request approved', 'Gaudéric Durand', 'Sep 26'], ['campaign', 'Request created', 'L. Petit · Night shift', 'Sep 26']]),

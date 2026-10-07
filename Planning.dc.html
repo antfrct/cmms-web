@@ -24,6 +24,7 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Planning</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ summary }}</p>
       </div>
+      <sc-if value="{{ adv }}"><sc-if value="{{ isMaint }}"><button onClick="{{ advOptimize }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">auto_fix_high</span>Optimize planning<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if></sc-if>
       <sc-if value="{{ isMaint }}" hint-placeholder-val="{{ true }}"><button onClick="{{ createWo }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>Create work order</button></sc-if>
     </header>
 
@@ -555,6 +556,14 @@ class Component extends DCLogic {
       wlSub: `Week of ${M[dateOf(ws).getMonth()]} ${dateOf(ws).getDate()} · team planned at ${pctTeam} % of capacity${overDays ? ` · ${overDays} overloaded day${overDays > 1 ? 's' : ''}` : ''}` };
   }
   setType(t) { this.setState(s => ({ F: { ...s.F, type: s.F.type.length === 1 && s.F.type[0] === t ? [] : [t] } })); }
+  advVals() {
+    if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
+    let adv = true; try { adv = localStorage.getItem('cmms.advanced') !== '0'; } catch (e) {}
+    const open = k => () => window.RelixAdvanced && window.RelixAdvanced(k);
+    return { adv, advOptimize: open('optimize'), advForecast: open('forecast'), advChecklist: open('checklist'), advPlan: open('plan'), advFleet: open('fleet'),
+      toggleAdv: () => { try { localStorage.setItem('cmms.advanced', adv ? '0' : '1'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-advanced', { detail: { on: !adv } })); },
+      advSub: adv ? 'Shown in purple across the app' : 'Hidden on all pages', advTrack: adv ? '#800080' : '#D0D5DD', advKnob: adv ? '18px' : '2px', advBorder: adv ? '#E2C4E2' : '#D0D5DD' };
+  }
   renderVals() {
     const s = this.state, F = s.F, drag = s.drag;
     const teamOf = who => (P[who] || [])[2];
@@ -716,6 +725,7 @@ class Component extends DCLogic {
     const step = d => s.mode === 'day' ? this.setState({ dayIdx: s.dayIdx + d }) : this.setState({ week: s.week + d });
     const hot = drag && drag.kind === 'e';
     return {
+      ...this.advVals(),
       summary: s.track === 'auto' ? 'Routine rounds run by production operators — separate from the maintenance schedule' : 'Plan and balance the maintenance team\'s work · click a free slot to create a work order',
       moreGroups, moreCount, moreOpen: s.dd === 'more', toggleMore: () => this.setState({ dd: s.dd === 'more' ? null : 'more' }), clearMore: () => this.setState(st => ({ F: { ...st.F, type: [], prio: [], status: [], team: [] } })),
       moreBg: moreCount ? '#FBF7F7' : '#fff', moreBorder: moreCount || s.dd === 'more' ? '#98A2B3' : '#D0D5DD',

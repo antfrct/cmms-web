@@ -153,35 +153,31 @@
             <span style="position:relative;display:flex;align-self:flex-start;min-width:260px"><select value="" onChange="{{ addTool }}" style="appearance:none;-webkit-appearance:none;width:100%;height:34px;padding:0 30px 0 32px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;outline:none"><option value="">Add reservable equipment…</option><sc-for list="{{ toolOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;left:8px;top:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#667085">add</span><span style="position:absolute;right:8px;top:8px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </div>
           <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px">
-            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Required spare parts</span><span style="font-size:12px;color:#98A2B3">{{ partsHint }}</span></span>
+            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Required spare parts &amp; consumables</span><span style="font-size:12px;color:#98A2B3">{{ partsHint }}</span></span>
             <sc-for list="{{ parts }}" as="p">
               <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid #E4E7EC;border-radius:8px">
-                <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">inventory_2</span>
+                <span title="{{ p.kindLabel }}" style="flex:none;width:28px;height:28px;border-radius:6px;display:grid;place-items:center;background:{{ p.kBg }};color:{{ p.kFg }};font:16px/1 'Material Symbols Outlined'">{{ p.kIcon }}</span>
                 <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                   <span style="display:flex;align-items:center;gap:6px;min-width:0"><span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span><sc-if value="{{ p.auto }}"><span title="{{ p.fromTip }}" style="flex:none;height:18px;display:inline-flex;align-items:center;gap:3px;padding:0 6px 0 4px;border-radius:9px;background:#E6F4EE;color:#0B6B4A;font-size:10.5px;font-weight:600"><span style="font:12px/1 'Material Symbols Outlined'">checklist</span>From checklist</span></sc-if></span>
-                  <span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · <span style="color:{{ p.stockColor }};font-weight:500">{{ p.stockLabel }}</span></span>
+                  <span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · {{ p.kindLabel }} · <span style="color:{{ p.stockColor }};font-weight:500">{{ p.stockLabel }}</span></span>
                 </span>
-                <span style="display:flex;align-items:center;border:1px solid #D0D5DD;border-radius:6px;height:32px">
-                  <button onClick="{{ p.dec }}" style="width:30px;height:30px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">remove</button>
-                  <span style="width:28px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums">{{ p.qty }}</span>
-                  <button onClick="{{ p.inc }}" style="width:30px;height:30px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">add</button>
-                </span>
+                <dc-import name="UsageInput" item-ref="{{ p.ref }}" value="{{ p.qty }}" on-change="{{ p.setQty }}" size="sm" hint-size="120px,32px"></dc-import>
                 <button onClick="{{ p.remove }}" title="Remove" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer" style-hover="background:#F2F4F7;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">close</span></button>
               </div>
             </sc-for>
             <sc-if value="{{ hasDismissed }}"><button onClick="{{ restoreParts }}" style="align-self:flex-start;height:24px;padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">{{ restoreLabel }}</button></sc-if>
             <sc-if value="{{ partPicker }}">
               <div style="flex:none;border:1px solid #D0D5DD;border-radius:8px;overflow:hidden">
-                <label style="height:40px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #EEF0F3"><span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ pq }}" onInput="{{ setPq }}" placeholder="Search spare parts by name or reference…" style="flex:1;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label>
+                <label style="height:40px;display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid #EEF0F3"><span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ pq }}" onInput="{{ setPq }}" placeholder="Search spare parts and consumables…" style="flex:1;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label>
                 <div style="max-height:180px;overflow:auto">
                   <sc-for list="{{ partOpts }}" as="o">
-                    <button onClick="{{ o.add }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;background:transparent;border:0;text-align:left;cursor:pointer;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="background:#F9FAFB"><span style="flex:1">{{ o.name }} <span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ o.ref }}</span></span><span style="font-size:12px;color:{{ o.stockColor }};font-weight:500">{{ o.stockLabel }}</span></button>
+                    <button onClick="{{ o.add }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:8px 10px;background:transparent;border:0;text-align:left;cursor:pointer;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="background:#F9FAFB"><span style="font:16px/1 'Material Symbols Outlined';color:{{ o.kFg }}">{{ o.kIcon }}</span><span style="flex:1">{{ o.name }} <span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ o.ref }}</span></span><span style="font-size:12px;color:{{ o.stockColor }};font-weight:500">{{ o.stockLabel }}</span></button>
                   </sc-for>
                 </div>
               </div>
             </sc-if>
             <div style="display:flex;gap:8px">
-              <button onClick="{{ togglePicker }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span>Add spare part</button>
+              <button onClick="{{ togglePicker }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span>Add spare part or consumable</button>
               <button onClick="{{ addDoc }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px dashed #C4CAD4;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">attach_file</span>Add document</button>
             </div>
             <sc-for list="{{ docs }}" as="d">
@@ -219,7 +215,8 @@ const REQ = [['asset', 'asset'], ['title', 'title'], ['prio', 'priority']];
 const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = d => { if (!d) return ''; const [ymd, t] = d.split('T'); const [, m, dd] = ymd.split('-'); return `${M[+m - 1]} ${+dd}${t ? ', ' + t : ''}`; };
 const blank = () => ({ tools: [], dismissedTools: [], cc: '', custom: {}, asset: '', type: 'Corrective', prio: '', assigned: [], followers: ['GD'], checklists: [], due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], dismissed: [], docs: [] });
-const stock = (q0, min) => q0 === 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${q0} in stock`, '#B54708'] : [`${q0} in stock`, '#0B6B4A'];
+const stock = (q0, min, ref) => { const PA = window.RelixParts, it = PA && ref ? PA.part(ref) : null, lbl = it ? PA.fmtStock(it) : q0; return q0 <= 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${lbl} in stock`, '#B54708'] : [`${lbl} in stock`, '#0B6B4A']; };
+const kindView = ref => { const PA = window.RelixParts, it = PA && PA.part(ref), cons = !!(it && PA.isConsumable(it)); return { kIcon: cons ? 'water_drop' : 'settings', kBg: cons ? '#E3F2F6' : '#EEF1F4', kFg: cons ? '#0E7490' : '#475467', kindLabel: cons ? 'Consumable' : 'Spare part' }; };
 let LIVE_PARTS = null;
 const partsList = () => LIVE_PARTS ? LIVE_PARTS().map(p => [p.ref, p.name, p.qty, p.min]) : PARTS;
 const partMeta = (ref, fb = {}) => { const p = partsList().find(x => x[0] === ref); return p ? { name: p[1], stock: p[2], min: p[3] } : { name: fb.name || ref, stock: fb.stock ?? 0, min: 1 }; };
@@ -340,13 +337,13 @@ class Component extends DCLogic {
       hasAutoParts: autoN > 0, autoPartsNote: `${autoN} spare part${autoN > 1 ? 's' : ''} required by the selected checklists ${autoN > 1 ? 'were' : 'was'} added to Required spare parts.`,
       descCount: (f.desc || '').length,
       partsHint: autoN ? 'Prefilled from the selected checklists · edit freely' : 'Add the parts to reserve for this job',
-      parts: f.parts.map(p => { const [sl, sc] = stock(p.stock, p.min); return { ...p, auto: !!p.auto, fromTip: (p.from || []).join(', '), stockLabel: sl, stockColor: sc,
+      parts: f.parts.map(p => { const [sl, sc] = stock(p.stock, p.min, p.ref); return { ...p, ...kindView(p.ref), setQty: q => this.setF('parts', this.state.form.parts.map(x => x.ref === p.ref ? { ...x, qty: q } : x)), auto: !!p.auto, fromTip: (p.from || []).join(', '), stockLabel: sl, stockColor: sc,
         inc: () => this.setF('parts', f.parts.map(x => x.ref === p.ref ? { ...x, qty: x.qty + 1 } : x)), dec: () => this.setF('parts', f.parts.map(x => x.ref === p.ref ? { ...x, qty: Math.max(1, x.qty - 1) } : x)),
         remove: () => this.setState(st => ({ form: { ...st.form, parts: st.form.parts.filter(x => x.ref !== p.ref), dismissed: p.auto || (p.from || []).length ? [...st.form.dismissed, p.ref] : st.form.dismissed } })) }; }),
       hasDismissed: dism > 0, restoreLabel: `Restore ${dism} removed checklist part${dism > 1 ? 's' : ''}`,
       restoreParts: () => this.setState(st => ({ form: { ...st.form, dismissed: [] } }), () => this.setChecklists(this.state.form.checklists)),
       partPicker: s.picker, togglePicker: () => this.setState({ picker: !s.picker, pq: '' }), pq: s.pq, setPq: e => this.setState({ pq: e.target.value }),
-      partOpts: partsList().filter(([ref, name]) => !f.parts.some(p => p.ref === ref) && (!pq || (ref + name).toLowerCase().includes(pq))).map(([ref, name, st, min]) => { const [sl, sc] = stock(st, min); return { ref, name, stockLabel: sl, stockColor: sc, add: () => { this.setF('parts', [...f.parts, { ref, name, stock: st, min, qty: 1 }]); this.setState({ picker: false }); } }; }),
+      partOpts: partsList().filter(([ref, name]) => !f.parts.some(p => p.ref === ref) && (!pq || (ref + name).toLowerCase().includes(pq))).map(([ref, name, st, min]) => { const [sl, sc] = stock(st, min, ref); return { ref, name, ...kindView(ref), stockLabel: sl, stockColor: sc, add: () => { const PA = window.RelixParts; this.setF('parts', [...f.parts, { ref, name, stock: st, min, qty: PA ? PA.usageOf(PA.part(ref)).def : 1 }]); this.setState({ picker: false }); } }; }),
       docs: f.docs.map((name, i) => ({ name, remove: () => this.setF('docs', f.docs.filter((_, j) => j !== i)) })),
       addDoc: () => this.setF('docs', [...f.docs, ['Repair procedure.pdf', 'Electrical drawing.pdf', 'Manufacturer manual.pdf'][f.docs.length % 3]]),
       backIcon: step > 0 ? 'chevron_left' : 'close', backLabel: step > 0 ? 'Previous' : 'Cancel',

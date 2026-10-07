@@ -24,6 +24,7 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Maintenance plans</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Preventive rules that generate work orders automatically</p>
       </div>
+      <sc-if value="{{ adv }}"><button onClick="{{ advPlan }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">event_repeat</span>Generate from manufacturer manual<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New plan</button>
     </header>
 
@@ -215,6 +216,14 @@ class Component extends DCLogic {
     this.setState(s => ({ rows: id ? s.rows.map(r => r.id === id ? { ...r, ...row } : r) : [{ ...row, id: 'p' + pid++, desc: f.desc || name(f.assets[0]), ic: 0 }, ...s.rows], drawer: null }));
     this.flash(`Plan "${f.name}" ${id ? 'updated' : 'created'}${f.active ? ' · work orders will be generated automatically' : ''}`);
   }
+  advVals() {
+    if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
+    let adv = true; try { adv = localStorage.getItem('cmms.advanced') !== '0'; } catch (e) {}
+    const open = k => () => window.RelixAdvanced && window.RelixAdvanced(k);
+    return { adv, advOptimize: open('optimize'), advForecast: open('forecast'), advChecklist: open('checklist'), advPlan: open('plan'), advFleet: open('fleet'),
+      toggleAdv: () => { try { localStorage.setItem('cmms.advanced', adv ? '0' : '1'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-advanced', { detail: { on: !adv } })); },
+      advSub: adv ? 'Shown in purple across the app' : 'Hidden on all pages', advTrack: adv ? '#800080' : '#D0D5DD', advKnob: adv ? '18px' : '2px', advBorder: adv ? '#E2C4E2' : '#D0D5DD' };
+  }
   renderVals() {
     const s = this.state, f = s.f, q = s.q.toLowerCase();
     const list = s.rows.filter(r => (s.tab === 'all' || (s.tab === 'active') === r.active) && (!s.trig || r.trig === s.trig) && (!q || (r.name + r.desc + r.assets.map(name).join(' ')).toLowerCase().includes(q)));
@@ -238,6 +247,7 @@ class Component extends DCLogic {
       : `A work order is generated every ${every || '…'} ${every === 1 ? unitShort.replace(/s$/, '') : unitShort} for each selected asset, then appears in Planning.`;
     const a = sw(f.active);
     return {
+      ...this.advVals(),
       rows, rangeLabel: `Showing ${list.length} of ${s.rows.length} plans`,
       statusTabs: [['all', 'All'], ['active', 'Active'], ['inactive', 'Inactive']].map(([k, label]) => ({ label, count: count(k), bg: s.tab === k ? '#fff' : 'transparent', shadow: s.tab === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: s.tab === k ? '#1E2430' : '#667085', select: () => this.setState({ tab: k }) })),
       q: s.q, setQ: e => this.setState({ q: e.target.value }), trig: s.trig, setTrig: e => this.setState({ trig: e.target.value }),

@@ -57,23 +57,60 @@ const SEED = [
   ['SEAL-M45', 'ART-100617', ean('500200300400'), 'Mechanical seal 45 mm', 'Seals & gaskets', 'WHS-SP-MS', 'A-07-1', 3, 2, 8, 'pcs', 142.0, 'sup-jc', 'T21-45', ['P-101'], 'CC-FOR-210', 1],
   ['GSK-P101', 'ART-100618', ean('400600700810'), 'Pump casing gasket', 'Seals & gaskets', 'WHS-SP-MS', 'A-07-2', 4, 2, 10, 'pcs', 18.6, 'sup-ksb', '400.01', ['P-101'], 'CC-FOR-210', 0],
   ['ORG-KIT', 'ART-100702', ean('402330044012'), 'O-ring kit NBR', 'Seals & gaskets', 'UTL-WS-ST', 'W-04-3', 12, 4, 20, 'kit', 24.9, 'sup-wurth', '0890 120', ['P-101', 'PH-030'], 'CC-UTL-300', 0],
-  ['GRS-LT2', 'ART-100811', ean('330015060012'), 'Lithium grease LT2 400 g', 'Lubricants', 'UTL-WS-ST', 'W-05-2', 18, 6, 40, 'cartridge', 7.8, 'sup-total', 'MULTIS EP2', ['RP-01', 'CV-L3'], 'CC-WHS-400', 0],
+  ['GRS-LT2', 'ART-100811', ean('330015060012'), 'Lithium grease LT2 400 g', 'Lubricants', 'UTL-WS-ST', 'W-05-2', 17.6, 6, 40, 'cartridge', 7.8, 'sup-total', 'MULTIS EP2', ['RP-01', 'CV-L3'], 'CC-WHS-400', 0, 'consumable', 'percent'],
+  ['OIL-H46', 'ART-100812', ean('330015060029'), 'Hydraulic oil HLP 46', 'Lubricants', 'UTL-WS-ST', 'W-05-4', 118.5, 40, 200, 'L', 4.2, 'sup-total', 'AZOLLA ZS 46', ['PH-030', 'C-01'], 'CC-UTL-300', 0, 'consumable', 'amount'],
+  ['SEAL-TH', 'ART-100820', ean('402330044029'), 'Thread sealant 50 ml', 'Adhesives & sealants', 'UTL-WS-ST', 'W-06-1', 9, 3, 15, 'tube', 6.4, 'sup-wurth', '0893 511', ['P-101'], 'CC-UTL-300', 0, 'consumable', 'percent'],
+  ['PAP-ROLL', 'ART-100830', ean('402330044036'), 'Wiping paper roll 300 m', 'Cleaning', 'WHS-SP-MS', 'D-01-1', 3.65, 4, 12, 'roll', 14.9, 'sup-wurth', '0899 800', [], 'CC-WHS-400', 0, 'consumable', 'percent'],
+  ['CLN-DEG', 'ART-100831', ean('402330044043'), 'Industrial degreaser', 'Cleaning', 'UTL-WS-ST', 'W-06-3', 22, 10, 60, 'L', 5.6, 'sup-wurth', '0893 118', [], 'CC-WHS-400', 0, 'consumable', 'amount', 'mL'],
+  ['CBL-H07', 'ART-100840', ean('338991400125'), 'Cable H07RN-F 3G2.5', 'Electrical', 'WHS-SP-MS', 'C-12-1', 85, 50, 300, 'm', 2.35, 'sup-schneider', 'H07RN3G25', ['V-12', 'CV-L3'], 'CC-FOR-200', 0, 'consumable', 'amount'],
+  ['GLV-NIT', 'ART-100850', ean('402330044050'), 'Nitrile gloves', 'Safety', 'WHS-SP-MS', 'D-02-2', 200, 50, 400, 'pair', 0.35, 'sup-wurth', '0899 470', [], 'CC-WHS-400', 0, 'consumable', 'amount'],
   ['ENC-500', 'ART-100903', ean('403012345678'), 'Incremental encoder 500 ppr', 'Electrical', 'WHS-SP-MS', 'C-02-4', 1, 2, 6, 'pcs', 212.0, 'sup-sick', 'DFS60B', ['PK-L1'], 'CC-WHS-400', 0],
   ['VFD-ATV320', 'ART-101020', ean('338991234567'), 'Variable speed drive ATV320', 'Drives', 'WHS-SP-MS', 'C-09-1', 0, 1, 3, 'pcs', 684.0, 'sup-schneider', 'ATV320U40N4B', ['CV-L3'], 'CC-FOR-200', 0],
   ['FLT-AIR-C01', 'ART-101134', ean('731000123456'), 'Air intake filter C-01', 'Filters', 'WHS-SP-MS', 'B-04-2', 7, 4, 12, 'pcs', 31.2, 'sup-atlas', '1613 7407 00', ['C-01'], 'CC-UTL-300', 0],
   ['CTR-LC1D', 'ART-101207', ean('338991400118'), 'Contactor LC1D18', 'Electrical', 'WHS-SP-MS', 'C-05-3', 11, 4, 16, 'pcs', 48.6, 'sup-schneider', 'LC1D18M7', ['V-12', 'FT2-FR-001'], 'CC-FOR-200', 0],
-].map(([ref, code, gtin, name, cat, store, bin, qty, min, max, unit, cost, supplier, supplierRef, assets, costCenter, reserved]) => ({ ref, code, gtin, name, cat, store, bin, qty, min, max, unit, cost, supplier, supplierRef, assets, costCenter, reserved, image: '', desc: '', custom: {}, moves: [] }));
-export const parts = () => rd(PK, null) || SEED.map(p => ({ ...p, assets: [...p.assets], custom: {}, moves: [] }));
+].map(([ref, code, gtin, name, cat, store, bin, qty, min, max, unit, cost, supplier, supplierRef, assets, costCenter, reserved, kind = 'part', usage = 'count', useUnit = '']) => ({ ref, code, gtin, name, cat, store, bin, qty, min, max, unit, cost, supplier, supplierRef, assets, costCenter, reserved, kind, usage: kind === 'part' ? 'count' : usage, useUnit, image: '', desc: '', custom: {}, moves: [] }));
+// Item type — 'part' (Replacement part: whole units) | 'consumable' (actual amount consumed).
+// Consumable usage: 'amount' = technician enters an amount in the stock unit (or useUnit, e.g. mL for a stock in L);
+// 'percent' = stock counted in units (roll, cartridge…), technician records the % of one unit consumed. Stock qty may be fractional (3.65 rolls = 3 full + 1 opened at 65%).
+export const KINDS = { part: ['Replacement part', 'settings', '#EEF1F4', '#475467'], consumable: ['Consumable', 'water_drop', '#E3F2F6', '#0E7490'] };
+export const USAGES = { amount: 'Amount used (quantity, volume, weight, length…)', percent: 'Percentage of one unit (opened roll, cartridge…)' };
+export const CONSUMABLE_UNITS = ['pcs', 'pair', 'roll', 'cartridge', 'tube', 'can', 'pack', 'L', 'mL', 'kg', 'g', 'm', 'cm'];
+const CONV = { mL: ['L', 0.001], cL: ['L', 0.01], g: ['kg', 0.001], cm: ['m', 0.01], mm: ['m', 0.001] };
+export const kindOf = p => (p && p.kind) || (p && /Lubricant|Cleaning|Adhesive|Safety/.test(p.cat || '') ? 'consumable' : 'part');
+export const isConsumable = p => kindOf(p) === 'consumable';
+const r3 = n => Math.round((+n || 0) * 1000) / 1000;
+const num = n => { const v = r3(n); return Number.isInteger(v) ? String(v) : String(+v.toFixed(v < 10 ? 2 : 1)); };
+// How the technician records usage for an item → { mode: 'count'|'amount'|'percent', unit, step, min, def, factor (input → stock unit) }
+export const usageOf = p => {
+  if (!p || !isConsumable(p)) return { mode: 'count', unit: (p && p.unit) || 'pcs', step: 1, min: 1, def: 1, factor: 1 };
+  if (p.usage === 'percent') return { mode: 'percent', unit: '%', of: p.unit, step: 5, min: 5, def: 25, factor: 0.01 };
+  const u = p.useUnit && p.useUnit !== p.unit && CONV[p.useUnit] && CONV[p.useUnit][0] === p.unit ? p.useUnit : p.unit, f = u === p.unit ? 1 : CONV[u][1];
+  const small = ['L', 'kg', 'm'].includes(u);
+  return { mode: 'amount', unit: u, step: small ? 0.1 : u === 'mL' || u === 'g' ? 50 : 1, min: small ? 0.1 : 1, def: small ? 0.5 : u === 'mL' || u === 'g' ? 100 : 1, factor: f };
+};
+export const toStock = (p, amount) => r3((+amount || 0) * usageOf(p).factor);
+// "×2" · "0.5 L" · "35% of a roll"
+export const fmtUse = (p, amount) => { const u = usageOf(p); if (u.mode === 'count') return '×' + num(amount); if (u.mode === 'percent') return `${Math.round(+amount || 0)}% of a ${u.of}`; return `${num(amount)} ${u.unit}`; };
+// Stock on hand, readable: "42 pcs" · "118.5 L" · "3 rolls + 1 opened (65%)"
+export const fmtStock = (p, qty = p && p.qty) => { if (!p) return ''; const q = r3(qty); if (isConsumable(p) && p.usage === 'percent') { const full = Math.floor(q + 1e-9), rest = Math.round((q - full) * 100); return rest ? `${full} ${p.unit}${full === 1 ? '' : 's'} + 1 opened (${rest}%)` : `${full} ${p.unit}${full === 1 ? '' : 's'}`; } return `${num(q)} ${p.unit}`; };
+export const fmtQty = num;
+// Cost of a usage, in stock-unit price: Bearing ×1 × €45 · Lubricant 0.5 L × €8/L
+export const costOfUse = (p, amount) => Math.round(toStock(p, amount) * (+(p && p.cost) || 0) * 100) / 100;
+const migrate = p => ({ ...p, kind: kindOf(p), usage: kindOf(p) === 'part' ? 'count' : (p.usage && p.usage !== 'count' ? p.usage : (/cartridge|roll|tube/.test(p.unit) ? 'percent' : 'amount')), useUnit: p.useUnit || '' });
+export const parts = () => { const st = rd(PK, null); if (!st) return SEED.map(p => ({ ...p, assets: [...p.assets], custom: {}, moves: [] })); const gone = rd(PK + '.removed', []); return [...st.map(migrate), ...SEED.filter(x => x.kind === 'consumable' && !st.some(p => p.ref === x.ref) && !gone.includes(x.ref)).map(p => ({ ...p, assets: [...p.assets], custom: {}, moves: [] }))]; };
 export const part = ref => parts().find(p => p.ref === ref) || null;
 export const savePart = (ref, data) => { const all = parts(); const i = ref ? all.findIndex(p => p.ref === ref) : -1; const row = { ...(i >= 0 ? all[i] : { qty: 0, reserved: 0, moves: [], custom: {}, assets: [], image: '' }), ...data }; if (i >= 0) all[i] = row; else all.unshift(row); if (!wr(PK, all)) return false; emit('cmms-parts', { ref: row.ref }); return true; };
-export const deletePart = ref => { wr(PK, parts().filter(p => p.ref !== ref)); emit('cmms-parts', { ref, deleted: true }); };
-export const adjust = (ref, delta, reason, sub) => { const p = part(ref); if (!p) return; const qty = Math.max(0, p.qty + delta); savePart(ref, { qty, moves: [[delta < 0 ? 'remove' : 'add', reason, sub || 'Manual entry · G. Durand', (delta < 0 ? '−' : '+') + Math.abs(delta), 'Just now', delta < 0 ? '#B42318' : '#0B6B4A'], ...(p.moves || [])].slice(0, 20) }); };
+export const deletePart = ref => { wr(PK, parts().filter(p => p.ref !== ref)); wr(PK + '.removed', [...rd(PK + '.removed', []), ref]); emit('cmms-parts', { ref, deleted: true }); };
+// delta in stock units (may be fractional for consumables). label overrides the movement text (e.g. "−35% of a roll").
+export const adjust = (ref, delta, reason, sub, label) => { const p = part(ref); if (!p) return; const qty = Math.max(0, r3(p.qty + delta)); savePart(ref, { qty, moves: [[delta < 0 ? 'remove' : 'add', reason, sub || 'Manual entry · G. Durand', label || ((delta < 0 ? '−' : '+') + num(Math.abs(delta)) + (isConsumable(p) ? ' ' + p.unit : '')), 'Just now', delta < 0 ? '#B42318' : '#0B6B4A'], ...(p.moves || [])].slice(0, 30) }); };
+// Record actual usage from an intervention / work order: amount in the item's usage unit → stock movement.
+export const consume = (ref, amount, wo, sub) => { const p = part(ref); if (!p || !(+amount > 0)) return; adjust(ref, -toStock(p, amount), 'Consumed on work order' + (wo ? ' · ' + wo : ''), sub || 'Intervention', '−' + (isConsumable(p) ? fmtUse(p, amount).replace(/^×/, '') : num(amount))); };
 export const partsOfSupplier = id => parts().filter(p => p.supplier === id);
 export const partsOfAsset = id => parts().filter(p => (p.assets || []).includes(id));
-export const status = p => p.qty === 0 ? ['Out of stock', '#FDECEC', '#B42318', '#D92D20'] : p.qty < p.min ? ['Low stock', '#FEF3E2', '#B54708', '#F79009'] : ['In stock', '#E6F4EE', '#0B6B4A', '#12A06E'];
+export const status = p => p.qty <= 0 ? ['Out of stock', '#FDECEC', '#B42318', '#D92D20'] : p.qty < p.min ? ['Low stock', '#FEF3E2', '#B54708', '#F79009'] : ['In stock', '#E6F4EE', '#0B6B4A', '#12A06E'];
 export const eur = n => '€' + (+n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // Resize an uploaded image to a small JPEG data URL (keeps localStorage light).
 export const readImage = (file, max = 360) => new Promise((res, rej) => { if (!file || !/^image\//.test(file.type)) return rej(new Error('Not an image')); const fr = new FileReader(); fr.onload = () => { const img = new Image(); img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', 0.82)); }; img.onerror = rej; img.src = fr.result; }; fr.onerror = rej; fr.readAsDataURL(file); });
 
-if (typeof window !== 'undefined') window.RelixParts = { SUP_TYPES, RATE_UNITS, typesOf, gtinCheckDigit, gtinValid, gtinKind, suppliers, supplier, saveSupplier, deleteSupplier, initials, parts, part, savePart, deletePart, adjust, partsOfSupplier, partsOfAsset, status, eur, readImage };
+if (typeof window !== 'undefined') window.RelixParts = { KINDS, USAGES, CONSUMABLE_UNITS, kindOf, isConsumable, usageOf, toStock, fmtUse, fmtStock, fmtQty, costOfUse, consume, SUP_TYPES, RATE_UNITS, typesOf, gtinCheckDigit, gtinValid, gtinKind, suppliers, supplier, saveSupplier, deleteSupplier, initials, parts, part, savePart, deletePart, adjust, partsOfSupplier, partsOfAsset, status, eur, readImage };

@@ -23,7 +23,8 @@ const UNIT_SEED = {
   AVI: { pressure: 'bar', length: 'mm' },
   HZR: { pressure: 'MPa', speed: 'm/s' },
 };
-export const PART_UNITS = ['pcs', 'kit', 'set', 'pair', 'cartridge', 'pack', 'tube', 'L', 'm', 'kg'];
+export const PART_UNITS = ['pcs', 'kit', 'set', 'pair', 'cartridge', 'pack', 'tube', 'roll', 'can', 'L', 'mL', 'm', 'cm', 'kg', 'g'];
+const ADDED = { partCats: ['pc-CLN', 'pc-ADH', 'pc-SAF'] }; // seed items added later — merged into stored lists unless the user deleted them
 
 const C = (id, name, code, x = {}) => ({ id, name, code, active: true, ...x });
 const SEED = {
@@ -40,7 +41,7 @@ const SEED = {
   prio: [['Critical', 'P1', '4 h'], ['High', 'P2', '24 h'], ['Medium', 'P3', '7 days'], ['Low', 'P4', '30 days']].map(([name, code, due]) => C('pr-' + code, name, code, { due, system: true })),
   status: [['Requested', 'REQ', 'Open'], ['Scheduled', 'SCH', 'Open'], ['Overdue', 'OVD', 'Computed'], ['In progress', 'INP', 'Open'], ['Waiting (flag on open work orders)', 'WAI', 'Flag'], ['Completed', 'CMP', 'Closed']].map(([name, code, stage]) => C('st-' + code, name, code, { stage, system: true })),
   partCats: [['Bearings', 'BRG', 'settings', 'pcs'], ['Belts', 'BLT', 'conveyor_belt', 'pcs'], ['Filters', 'FLT', 'filter_alt', 'pcs'], ['Sensors', 'SEN', 'sensors', 'pcs'], ['Seals & gaskets', 'SEAL', 'radio_button_unchecked', 'pcs'],
-    ['Lubricants', 'LUB', 'water_drop', 'cartridge'], ['Electrical', 'ELE', 'bolt', 'pcs'], ['Drives', 'DRV', 'memory', 'pcs']].map(([name, code, icon, unit]) => C('pc-' + code, name, code, { icon, unit })),
+    ['Lubricants', 'LUB', 'water_drop', 'cartridge'], ['Electrical', 'ELE', 'bolt', 'pcs'], ['Drives', 'DRV', 'memory', 'pcs'], ['Cleaning', 'CLN', 'cleaning_services', 'roll'], ['Adhesives & sealants', 'ADH', 'format_color_fill', 'tube'], ['Safety', 'SAF', 'health_and_safety', 'pair']].map(([name, code, icon, unit]) => C('pc-' + code, name, code, { icon, unit })),
   costCenters: [['Melting maintenance', 'CC-MEL-100', 'MD', 'MEL', 420000], ['Float & forming maintenance', 'CC-FOR-200', 'PL', 'FOR', 780000], ['Tempering line', 'CC-FOR-210', 'PL', 'FOR', 260000],
     ['Utilities', 'CC-UTL-300', 'SM', 'UTL', 190000], ['Logistics & packaging', 'CC-WHS-400', 'AM', 'WHS', 120000], ['Site general & HSE', 'CC-GEN-900', 'GD', '', 80000]]
     .map(([name, code, owner, zone, budget]) => C('cc-' + code, name, code, { owner, zone, budget, desc: '' })),
@@ -60,12 +61,13 @@ const SEED = {
 };
 export const SECTIONS = Object.keys(SEED);
 
-export const list = (sec, opts = {}) => { const st = rd(); const items = (st.items && st.items[sec]) || SEED[sec] || []; return opts.active ? items.filter(i => i.active !== false) : items.map(i => ({ ...i })); };
+export const list = (sec, opts = {}) => { const st = rd(); let items = (st.items && st.items[sec]) || SEED[sec] || [];
+  if (st.items && st.items[sec] && ADDED[sec]) { const gone = (st.removed || {})[sec] || []; items = [...items, ...SEED[sec].filter(x => ADDED[sec].includes(x.id) && !gone.includes(x.id) && !items.some(i => i.id === x.id || i.name === x.name))]; } return opts.active ? items.filter(i => i.active !== false) : items.map(i => ({ ...i })); };
 export const get = (sec, idOrName) => list(sec).find(i => i.id === idOrName || i.name === idOrName || i.code === idOrName) || null;
 const put = (sec, items) => { const st = rd(); st.items = { ...(st.items || {}), [sec]: items }; wr(st); emit('cmms-config', { sec }); };
 export const saveAll = put;
 export const upsert = (sec, item) => { const items = list(sec); const id = item.id || uid(sec.slice(0, 2) + '-'); const i = items.findIndex(x => x.id === id); const row = { active: true, ...(i >= 0 ? items[i] : {}), ...item, id }; if (i >= 0) items[i] = row; else items.push(row); put(sec, items); return id; };
-export const remove = (sec, id) => put(sec, list(sec).filter(x => x.id !== id));
+export const remove = (sec, id) => { if (ADDED[sec] && ADDED[sec].includes(id)) { const st = rd(); st.removed = { ...(st.removed || {}), [sec]: [...((st.removed || {})[sec] || []), id] }; wr(st); } put(sec, list(sec).filter(x => x.id !== id)); };
 export const setActive = (sec, id, on) => put(sec, list(sec).map(x => x.id === id ? { ...x, active: on } : x));
 export const resetSection = sec => { const st = rd(); if (st.items) delete st.items[sec]; wr(st); emit('cmms-config', { sec }); };
 export const names = sec => list(sec, { active: true }).map(i => i.name);

@@ -27,6 +27,7 @@
       <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
         <sc-for list="{{ views }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.select }}" style="height:30px;display:flex;align-items:center;gap:5px;padding:0 12px 0 10px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer;white-space:nowrap"><span style="font:17px/1 'Material Symbols Outlined'">{{ v.icon }}</span>{{ v.label }}</button></sc-for>
       </div>
+      <sc-if value="{{ adv }}"><button onClick="{{ advFleet }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">timeline</span>Lifecycle &amp; risk</button></sc-if>
       <button onClick="{{ create }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New asset</button>
     </header>
 
@@ -379,6 +380,14 @@ class Component extends DCLogic {
         open: () => { location.href = sn.kind === 'asset' ? 'AssetDetail.dc.html?id=' + encodeURIComponent(sn.code) : sn.id === 'THO' ? 'Assets.dc.html?view=list' : 'Assets.dc.html?view=list&loc=' + encodeURIComponent(sn.id); },
         newWo: () => window.CMMSCreateWO && window.CMMSCreateWO(sn.kind === 'asset' ? { asset: sn.code } : {}) } };
   }
+  advVals() {
+    if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
+    let adv = true; try { adv = localStorage.getItem('cmms.advanced') !== '0'; } catch (e) {}
+    const open = k => () => window.RelixAdvanced && window.RelixAdvanced(k);
+    return { adv, advOptimize: open('optimize'), advForecast: open('forecast'), advChecklist: open('checklist'), advPlan: open('plan'), advFleet: open('fleet'),
+      toggleAdv: () => { try { localStorage.setItem('cmms.advanced', adv ? '0' : '1'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-advanced', { detail: { on: !adv } })); },
+      advSub: adv ? 'Shown in purple across the app' : 'Hidden on all pages', advTrack: adv ? '#800080' : '#D0D5DD', advKnob: adv ? '18px' : '2px', advBorder: adv ? '#E2C4E2' : '#D0D5DD' };
+  }
   renderVals() {
     const s = this.state, PM = s.PM, C = s.C, F = s.F;
     const views = [['list', 'List', 'table_rows'], ['tree', 'Hierarchy', 'account_tree'], ['map', 'Plant layout', 'map']].map(([k, label, icon]) => { const on = s.view === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => { try { localStorage.setItem('cmms.assets.view', k); } catch (e) {} this.setState({ view: k }); } }; });
@@ -466,6 +475,7 @@ class Component extends DCLogic {
         status: so.label, sbg: so.bg, sfg: so.fg, critColor: PM.CRIT[a.crit], avBg: p.avBg, avFg: p.avFg, ownerName: p.name.split(' ')[0], wos: n || '—', woColor: n ? '#1E2430' : '#C4CAD4',
         open: () => { location.href = 'AssetDetail.dc.html?id=' + encodeURIComponent(a.id); }, edit: e => { e.stopPropagation(); PM.openWizard(a.id); } }; });
     return {
+      ...this.advVals(),
       ...base, subtitle, zoneCards, filters, anyFilter, closeDd: () => this.setState({ dd: null }), dq: s.dq, setDq: e => this.setState({ dq: e.target.value }),
       clearAll: () => this.setState({ F: EMPTY, q: '', cls: 'all', dd: null }), q: s.q, setQ: e => this.setState({ q: e.target.value }),
       classSeg: [['all', 'All', 'apps'], ['fixed', 'Equipment', 'precision_manufacturing'], ['mobile', 'Mobile', 'forklift']].map(([k, label, icon]) => { const on = s.cls === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ cls: k }) }; }),

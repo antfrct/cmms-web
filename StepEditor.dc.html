@@ -101,19 +101,18 @@
     <div style="display:flex;flex-direction:column;gap:6px">
       <span style="font-size:12px;font-weight:600;color:#667085">{{ partsLabel }}</span>
       <sc-for list="{{ presetParts }}" as="p">
-        <div style="display:flex;align-items:center;gap:8px;height:38px;padding:0 4px 0 10px;border:1px solid #E4E7EC;border-radius:6px">
-          <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b style="font-weight:600">{{ p.name }}</b> <span style="font:11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ p.ref }}</span></span>
-          <button onClick="{{ p.dec }}" title="Less" style="width:28px;height:28px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">remove</button>
-          <span style="min-width:22px;text-align:center;font:600 12.5px 'IBM Plex Mono',monospace">{{ p.qty }}</span>
-          <button onClick="{{ p.inc }}" title="More" style="width:28px;height:28px;background:transparent;border:0;color:#475467;cursor:pointer;font:16px/1 'Material Symbols Outlined'">add</button>
+        <div style="display:flex;align-items:center;gap:8px;min-height:44px;padding:4px 4px 4px 6px;border:1px solid #E4E7EC;border-radius:6px">
+          <span title="{{ p.kindLabel }}" style="flex:none;width:28px;height:28px;border-radius:6px;display:grid;place-items:center;background:{{ p.kBg }};color:{{ p.kFg }};font:16px/1 'Material Symbols Outlined'">{{ p.kIcon }}</span>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><b style="font-weight:600">{{ p.name }}</b> <span style="font:11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ p.ref }}</span></span><span style="font-size:11.5px;color:{{ p.kFg }}">{{ p.howLabel }}</span></span>
+          <dc-import name="UsageInput" item-ref="{{ p.ref }}" value="{{ p.qty }}" on-change="{{ p.setQty }}" size="sm" hint-size="120px,32px"></dc-import>
           <button onClick="{{ p.remove }}" title="Remove" style="width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">close</span></button>
         </div>
       </sc-for>
       <span style="position:relative;display:flex;align-self:flex-start">
-        <select value="" onChange="{{ addPart }}" style="appearance:none;-webkit-appearance:none;height:34px;padding:0 28px 0 10px;border:1px dashed #C4CAD4;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054;background:#fff;outline:none;cursor:pointer"><option value="">+ Suggest an item</option><sc-for list="{{ partChoices }}" as="c"><option value="{{ c.ref }}">{{ c.name }}</option></sc-for></select>
+        <select value="" onChange="{{ addPart }}" style="appearance:none;-webkit-appearance:none;height:34px;padding:0 28px 0 10px;border:1px dashed #C4CAD4;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054;background:#fff;outline:none;cursor:pointer"><option value="">+ Add a spare part or consumable</option><sc-for list="{{ partGroups }}" as="g"><optgroup label="{{ g.label }}"><sc-for list="{{ g.items }}" as="c"><option value="{{ c.ref }}">{{ c.name }}</option></sc-for></optgroup></sc-for></select>
         <span style="position:absolute;right:6px;top:8px;pointer-events:none;font:17px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span>
       </span>
-      <span style="font-size:12px;color:#98A2B3">Pre-filled for the technician, who confirms what was really used.</span>
+      <span style="font-size:12px;color:#98A2B3;text-wrap:pretty">Expected usage, pre-filled for the technician. Replacement parts are counted in whole units; for consumables the technician records the amount actually consumed.</span>
     </div>
   </sc-if>
 
@@ -190,7 +189,7 @@
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:640,&quot;height&quot;:560},&quot;step&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;steps&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;checklistId&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;},&quot;onChange&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(patch) =&gt; void&quot;},&quot;onRemove&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onDuplicate&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;focus&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;},&quot;focusNonce&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number&quot;}}">
-const HINT = { yesno: 'The technician taps Yes or No. Choose what happens for each answer.', single: 'The technician picks one answer. Each answer can lead somewhere different.', multi: 'The technician ticks one or more answers.', number: 'The technician types a measured value.', text: 'The technician types a short text (serial number, reference…).', comment: 'The technician writes a free comment.', instruction: 'The technician reads what to do and confirms it is done.', confirm: 'The technician ticks each item to confirm it.', photo: 'The technician takes one or more photos.', file: 'The technician attaches a file.', parts: 'The technician confirms the spare parts used — stock is updated.', consumables: 'The technician confirms the consumables used.' };
+const HINT = { yesno: 'The technician taps Yes or No. Choose what happens for each answer.', single: 'The technician picks one answer. Each answer can lead somewhere different.', multi: 'The technician ticks one or more answers.', number: 'The technician types a measured value.', text: 'The technician types a short text (serial number, reference…).', comment: 'The technician writes a free comment.', instruction: 'The technician reads what to do and confirms it is done.', confirm: 'The technician ticks each item to confirm it.', photo: 'The technician takes one or more photos.', file: 'The technician attaches a file.', parts: 'The technician confirms the materials used — whole units for spare parts, actual amount for consumables. Stock is updated.', consumables: 'The technician records the amount of each consumable actually used — stock is reduced by that amount.' };
 const TITLE_PH = { yesno: 'Question — e.g. Is a leak visible?', number: 'What to measure — e.g. Discharge pressure', instruction: 'Action — e.g. Replace the seal', confirm: 'e.g. Secure the equipment', photo: 'e.g. Photo after repair' };
 class Component extends DCLogic {
   state = { more: false, typesOpen: false };
@@ -263,11 +262,13 @@ class Component extends DCLogic {
       isInstruction: st.type === 'instruction', notInstruction: st.type !== 'instruction', desc: st.desc, setDesc: e => ch({ desc: e.target.value }),
       isPhoto: st.type === 'photo', minPhotos: st.minPhotos, setMinPhotos: e => ch({ minPhotos: e.target.value }),
       isText: ['text', 'comment', 'file'].includes(st.type), textHint: HINT[st.type],
-      isParts, partsLabel: st.type === 'consumables' ? 'Suggested consumables' : 'Suggested spare parts',
-      presetParts: st.parts.map(p => { const c = M.CATALOG[catKey].find(x => x[0] === p.ref) || [p.ref, p.ref]; return { ref: p.ref, name: c[1], qty: p.qty,
-        inc: () => ch({ parts: st.parts.map(x => x.ref === p.ref ? { ...x, qty: x.qty + 1 } : x) }), dec: () => ch({ parts: st.parts.map(x => x.ref === p.ref ? { ...x, qty: Math.max(1, x.qty - 1) } : x) }), remove: () => ch({ parts: st.parts.filter(x => x.ref !== p.ref) }) }; }),
-      partChoices: M.CATALOG[catKey].filter(c => !st.parts.some(p => p.ref === c[0])).map(c => ({ ref: c[0], name: `${c[1]} · ${c[0]}` })),
-      addPart: e => { const v = e.target.value; if (v) ch({ parts: [...st.parts, { ref: v, qty: 1 }] }); e.target.value = ''; },
+      isParts, partsLabel: 'Expected materials',
+      presetParts: st.parts.map(p => { const it = M.item ? M.item(p.ref) : null, cons = !!it && it.kind === 'consumable', u = M.usageOf ? M.usageOf(p.ref) : { mode: 'count', unit: 'pcs' };
+        return { ref: p.ref, name: it ? it.name : p.ref, qty: p.qty, kIcon: cons ? 'water_drop' : 'settings', kBg: cons ? '#E3F2F6' : '#EEF1F4', kFg: cons ? '#0E7490' : '#475467', kindLabel: cons ? 'Consumable' : 'Replacement part',
+          howLabel: cons ? (u.mode === 'percent' ? `Consumable · records % of one ${it.unit}` : `Consumable · records amount in ${u.unit}`) : 'Replacement part · whole units',
+          setQty: q => ch({ parts: st.parts.map(x => x.ref === p.ref ? { ...x, qty: q } : x) }), remove: () => ch({ parts: st.parts.filter(x => x.ref !== p.ref) }) }; }),
+      partGroups: [['Replacement parts', 'parts'], ['Consumables', 'consumables']].sort((a, b) => (b[1] === catKey) - (a[1] === catKey)).map(([label, k]) => ({ label, items: M.CATALOG[k].filter(c => !st.parts.some(p => p.ref === c[0])).map(c => ({ ref: c[0], name: `${c[1]} · ${c[0]}` })) })).filter(g => g.items.length),
+      addPart: e => { const v = e.target.value; if (v) { const u = M.usageOf ? M.usageOf(v) : { def: 1 }; ch({ parts: [...st.parts, { ref: v, qty: u.def }] }); } e.target.value = ''; },
       moreOpen: this.state.more, moreChev: this.state.more ? 'expand_more' : 'chevron_right', toggleMore: () => this.setState({ more: !this.state.more }), setChips: this.state.more ? [] : setChips,
       canExpected: st.type !== 'number', expected: st.expected, setExpected: e => ch({ expected: e.target.value }),
       media: st.media.map((m, i) => ({ name: m.name, icon: M.MEDIA[m.kind][1], rename: e => ch({ media: st.media.map((x, j) => j === i ? { ...x, name: e.target.value } : x) }), remove: () => ch({ media: st.media.filter((_, j) => j !== i) }) })),

@@ -71,21 +71,23 @@ class Component extends DCLogic {
     if (p.wo && p.wo.assignments) w.assignments = p.wo.assignments; if (p.wo && p.wo.dur) w.dur = p.wo.dur;
     const res = K.costOf(w, k => C.person(k), { parts: p.parts, actualMs: p.actualMs, plant: s.PL });
     const save = (cat, fn) => { const cur = { consumables: [], services: [], rentals: [], ...(w.costs || {}) }; cur[cat] = fn([...(cur[cat] || [])]); C.saveWo(key, { costs: cur }); };
-    const opts = { consumables: K.CONSUMABLES.map(([ref, name, unit]) => ({ v: ref, l: `${name} · ${K.eur(K.CONS_COST[ref])} / ${unit}` })),
+    const PA = window.RelixParts, n3 = n => String(Math.round((+n || 0) * 1000) / 1000);
+    const opts = { consumables: K.consumables().map(c => ({ v: c.ref, l: `${c.name} · ${K.eur(c.cost)} / ${c.unit}` })),
       services: K.offers('services').map(o => ({ v: o.sup + '|' + o.rate, l: `${o.supName} — ${o.name} · ${K.eur0(o.price)}${UNIT[o.unit] ? ' / ' + UNIT[o.unit] : ''}` })),
       rentals: K.offers('rentals').map(o => ({ v: o.sup + '|' + o.rate, l: `${o.supName} — ${o.name} · ${K.eur0(o.price)}${UNIT[o.unit] ? ' / ' + UNIT[o.unit] : ''}` })) };
     const EMPTY = { labor: 'Assign people to estimate labor.', parts: 'No spare parts on this work order.', consumables: 'Add grease, oil, cleaning products used…', services: 'Add a contractor or OEM service from your providers.', rentals: 'No equipment needed.' };
     const ADD = { consumables: '+ Add consumable', services: '+ Add external service', rentals: '+ Add rental' };
-    const AUTO = { labor: 'From assigned people × hourly rate' + (p.actualMs != null ? ' × time spent' : ''), parts: 'From the work order spare parts', rentals: 'Internal equipment from the checklists' };
+    const AUTO = { consumables: 'From the consumables recorded on the work order', labor: 'From assigned people × hourly rate' + (p.actualMs != null ? ' × time spent' : ''), parts: 'From the work order spare parts', rentals: 'Internal equipment from the checklists' };
     const cats = Object.entries(K.CATS).map(([k, [label, icon, color]]) => { const L = res.lines[k], open = s.open[k] ?? (k === 'labor' || L.length > 0);
       return { label, icon, color, count: L.length || '', total: K.eur(res.totals[k]), totalColor: res.totals[k] ? '#1E2430' : '#98A2B3', open, chev: open ? 'expand_less' : 'expand_more',
         toggle: () => this.setState(z => ({ open: { ...z.open, [k]: !open } })), empty: !L.length, emptyText: EMPTY[k],
         canAdd: !ro && !!ADD[k], addLabel: ADD[k] || '', options: opts[k] || [],
-        add: e => { const v = e.target.value; e.target.value = ''; if (!v) return; if (k === 'consumables') save(k, a => [...a, { ref: v, qty: 1 }]); else { const [sup, rate] = v.split('|'), o = K.offerOf(sup, rate); save(k, a => [...a, { sup, rate, qty: o && o.unit === 'h' ? Math.max(1, Math.round(res.hours)) : 1 }]); } this.setState(z => ({ open: { ...z.open, [k]: true } })); },
-        lines: L.map(l => ({ label: l.label, sub: l.sub, hasSub: !!l.sub, qty: l.qty, step: l.unit === 'h' ? 0.25 : 1, editQty: !ro && !!l.manual, showQty: ro || !l.manual,
-          unitPrice: `${l.unit ? ' ' + l.unit : ''} × ${K.eur(l.price)}`, total: K.eur(l.total), removable: !ro && !!l.manual, fixed: !l.manual, autoTip: AUTO[k] || 'Calculated automatically',
+        add: e => { const v = e.target.value; e.target.value = ''; if (!v) return; if (k === 'consumables') save(k, a => [...a, { ref: v, qty: PA ? PA.usageOf(PA.part(v)).def : 1 }]); else { const [sup, rate] = v.split('|'), o = K.offerOf(sup, rate); save(k, a => [...a, { sup, rate, qty: o && o.unit === 'h' ? Math.max(1, Math.round(res.hours)) : 1 }]); } this.setState(z => ({ open: { ...z.open, [k]: true } })); },
+        lines: L.map(l => { const cons = k === 'consumables' && l.mode, edit = !ro && !!l.manual, u = cons && PA ? PA.usageOf(PA.part(l.sub.split(' · ')[0])) : null;
+          return { label: l.label, sub: l.sub, hasSub: !!l.sub, qty: edit && cons ? l.use : n3(l.qty), step: u ? u.step : l.unit === 'h' ? 0.25 : 1, editQty: edit, showQty: !edit,
+          unitPrice: cons ? (edit ? ` ${l.useUnit}${l.useUnit !== l.unit ? ' = ' + n3(l.qty) + ' ' + l.unit : ''}` : ` ${l.unit}`) + ` × ${K.eur(l.price)} / ${l.unit}` : `${l.unit ? ' ' + l.unit : ''} × ${K.eur(l.price)}`, total: K.eur(l.total), removable: !ro && !!l.manual, fixed: !l.manual, autoTip: AUTO[k] || 'Calculated automatically',
           setQty: e => { const q = Math.max(0, +e.target.value || 0); save(k, a => a.map((x, j) => j === l.i ? { ...x, qty: q } : x)); },
-          remove: () => save(k, a => a.filter((_, j) => j !== l.i)) })) }; });
+          remove: () => save(k, a => a.filter((_, j) => j !== l.i)) }; }) }; });
     return { ...base, total: K.eur(res.total), cats,
       bar: Object.entries(K.CATS).filter(([k]) => res.totals[k] > 0).map(([k, [label, , color]]) => ({ flex: res.totals[k], color, tip: `${label} · ${K.eur(res.totals[k])}` })),
       basis: res.actual ? `Based on ${res.hours} h actually spent in the intervention` : `Based on ${res.hours} h estimated · updated with actual time when the intervention is closed`,

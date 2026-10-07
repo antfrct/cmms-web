@@ -165,13 +165,10 @@
         <sc-if value="{{ t.parts }}">
           <div style="display:flex;flex-direction:column;gap:8px">
             <sc-for list="{{ partRows }}" as="p">
-              <div style="display:flex;align-items:center;gap:12px;min-height:64px;padding:8px 8px 8px 14px;background:#fff;border:1px solid #E4E7EC;border-radius:10px">
-                <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:15.5px">{{ p.name }}</span><span style="font-size:12.5px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ p.ref }}</span> · <span style="color:{{ p.stockColor }}">{{ p.stock }}</span></span></span>
-                <span style="display:flex;align-items:center;border:1px solid #D0D5DD;border-radius:10px;height:48px">
-                  <button onClick="{{ p.dec }}" style="width:48px;height:46px;background:transparent;border:0;color:#475467;cursor:pointer;font:22px/1 'Material Symbols Outlined'">remove</button>
-                  <span style="min-width:58px;text-align:center;display:flex;flex-direction:column;line-height:1.1"><span style="font:600 18px 'IBM Plex Mono',monospace">{{ p.qty }}</span><span style="font-size:11px;color:#98A2B3">{{ p.unit }}</span></span>
-                  <button onClick="{{ p.inc }}" style="width:48px;height:46px;background:transparent;border:0;color:#475467;cursor:pointer;font:22px/1 'Material Symbols Outlined'">add</button>
-                </span>
+              <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;min-height:64px;padding:8px 8px 8px 10px;background:#fff;border:1px solid #E4E7EC;border-radius:10px">
+                <span title="{{ p.kindLabel }}" style="flex:none;width:40px;height:40px;border-radius:8px;display:grid;place-items:center;background:{{ p.kBg }};color:{{ p.kFg }};font:21px/1 'Material Symbols Outlined'">{{ p.kIcon }}</span>
+                <span style="flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:15.5px">{{ p.name }}</span><span style="font-size:12.5px;color:#667085"><span style="font-weight:600;color:{{ p.kFg }}">{{ p.askLabel }}</span> · <span style="color:{{ p.stockColor }}">{{ p.stock }}</span></span><sc-if value="{{ p.hasExpected }}"><span style="font-size:12px;color:#98A2B3">{{ p.expected }}</span></sc-if></span>
+                <dc-import name="UsageInput" item-ref="{{ p.ref }}" value="{{ p.qty }}" on-change="{{ p.setQty }}" size="lg" hint-size="170px,48px"></dc-import>
                 <button onClick="{{ p.remove }}" title="Remove" style="width:44px;height:44px;display:grid;place-items:center;background:transparent;border:0;border-radius:8px;color:#98A2B3;cursor:pointer" style-hover="background:#FEF3F2;color:#B42318"><span style="font:20px/1 'Material Symbols Outlined'">delete</span></button>
               </div>
             </sc-for>
@@ -181,7 +178,7 @@
                 <div style="max-height:250px;overflow:auto">
                   <sc-for list="{{ partOptions }}" as="o">
                     <button onClick="{{ o.add }}" style="width:100%;min-height:52px;display:flex;align-items:center;gap:12px;padding:6px 14px;background:transparent;border:0;border-bottom:1px solid #F2F4F7;text-align:left;cursor:pointer;font:15px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="background:#F9FAFB">
-                      <span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ o.name }}</span><span style="font:12px 'IBM Plex Mono',monospace;color:#667085">{{ o.ref }}</span></span>
+                      <span style="flex:none;width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:{{ o.kBg }};color:{{ o.kFg }};font:18px/1 'Material Symbols Outlined'">{{ o.kIcon }}</span><span style="flex:1;display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ o.name }}</span><span style="font-size:12px;color:#667085"><span style="font-family:'IBM Plex Mono',monospace">{{ o.ref }}</span> · {{ o.kindLabel }}</span></span>
                       <span style="font-size:13px;font-weight:500;color:{{ o.stockColor }}">{{ o.stock }}</span><span style="font:24px/1 'Material Symbols Outlined';color:#C00018">add_circle</span>
                     </button>
                   </sc-for>
@@ -274,8 +271,8 @@
                 <sc-for list="{{ comments }}" as="c"><span style="font-size:13px;color:#475467;line-height:1.4"><b style="font-weight:600;color:#1E2430">{{ c.step }}:</b> {{ c.text }}</span></sc-for>
               </div>
               <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px">
-                <span style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#667085">Parts used</span>
-                <sc-for list="{{ usedParts }}" as="p"><span style="display:flex;gap:8px;font-size:14px"><span style="flex:1;min-width:0">{{ p.name }}</span><b style="font:600 13.5px 'IBM Plex Mono',monospace">×{{ p.qty }}</b></span></sc-for>
+                <span style="font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#667085">Spare parts &amp; consumables used</span>
+                <sc-for list="{{ usedParts }}" as="p"><span style="display:flex;align-items:center;gap:8px;font-size:14px"><span style="font:16px/1 'Material Symbols Outlined';color:{{ p.kFg }}">{{ p.kIcon }}</span><span style="flex:1;min-width:0">{{ p.name }}</span><b style="font:600 13.5px 'IBM Plex Mono',monospace">{{ p.use }}</b></span></sc-for>
                 <sc-if value="{{ noParts2 }}"><span style="color:#98A2B3">None</span></sc-if>
               </div>
             </div>
@@ -495,7 +492,7 @@ class Component extends DCLogic {
       case 'number': return v !== '' ? `${v} ${st.unit}`.trim() : '—';
       case 'photo': return `${v.length} photo${v.length === 1 ? '' : 's'}`;
       case 'file': return `${v.length} file${v.length === 1 ? '' : 's'}`;
-      case 'parts': case 'consumables': return v.length ? v.map(p => `${(M.CATALOG[st.type].find(c => c[0] === p.ref) || [0, p.ref])[1]} ×${p.qty}`).join(', ') : 'None';
+      case 'parts': case 'consumables': { const PA = window.RelixParts; return v.length ? v.map(p => { const it = PA && PA.part(p.ref); return it ? `${it.name} ${PA.fmtUse(it, p.qty)}` : `${p.ref} ×${p.qty}`; }).join(', ') : 'None'; }
       default: return v ? String(v) : '—';
     }
   }
@@ -570,12 +567,16 @@ class Component extends DCLogic {
         photos: st.type === 'photo' ? photoView(v, a => this.set(st.id, a)) : [], addPhotos: e => readFiles(e, add => this.set(st.id, [...this.val(st), ...add])),
         minPhotosNote: +st.minPhotos > 1 ? `At least ${st.minPhotos} photos` : '',
         files: st.type === 'file' ? v.map(f => ({ name: f.name, remove: () => this.set(st.id, v.filter(x => x.id !== f.id)) })) : [], addFiles: e => readFiles(e, add => this.set(st.id, [...this.val(st), ...add])),
-        partRows: st.type === 'parts' || st.type === 'consumables' ? v.map(p => { const c = M.CATALOG[cat].find(x => x[0] === p.ref) || [p.ref, p.ref, 'pcs', 0], [sl, sc] = stock(c[3]); return { ref: c[0], name: c[1], unit: c[2], qty: p.qty, stock: sl, stockColor: sc,
+        partRows: st.type === 'parts' || st.type === 'consumables' ? v.map(p => { const PA = window.RelixParts, it = PA && PA.part(p.ref);
+          if (PA && it) { const cons = PA.isConsumable(it), u = PA.usageOf(it), ex = (st.parts || []).find(x => x.ref === p.ref), low = it.qty <= 0 ? '#B42318' : it.qty < it.min ? '#B54708' : '#0B6B4A';
+            return { ref: p.ref, name: it.name, qty: p.qty, stock: it.qty <= 0 ? 'Out of stock' : PA.fmtStock(it) + ' in stock', stockColor: low, kIcon: cons ? 'water_drop' : 'settings', kBg: cons ? '#E3F2F6' : '#EEF1F4', kFg: cons ? '#0E7490' : '#475467', kindLabel: cons ? 'Consumable' : 'Replacement part',
+              askLabel: cons ? (u.mode === 'percent' ? 'Amount consumed' : 'Amount used') : 'Quantity used', hasExpected: !!ex, expected: ex ? 'Planned in the checklist: ' + PA.fmtUse(it, ex.qty) : '',
+              setQty: q => this.set(st.id, v.map(x => x.ref === p.ref ? { ...x, qty: q } : x)), remove: () => this.set(st.id, v.filter(x => x.ref !== p.ref)) }; } const c = M.CATALOG[cat].find(x => x[0] === p.ref) || [p.ref, p.ref, 'pcs', 0], [sl, sc] = stock(c[3]); return { ref: c[0], name: c[1], unit: c[2], qty: p.qty, stock: sl, stockColor: sc,
           inc: () => this.set(st.id, v.map(x => x.ref === p.ref ? { ...x, qty: x.qty + 1 } : x)), dec: () => this.set(st.id, v.map(x => x.ref === p.ref ? { ...x, qty: Math.max(1, x.qty - 1) } : x)), remove: () => this.set(st.id, v.filter(x => x.ref !== p.ref)) }; }) : [],
         noParts: (st.type === 'parts' || st.type === 'consumables') && !v.length && !s.picker && !st.required,
         pickerOpen: s.picker, pq: s.pq, setPq: e => this.setState({ pq: e.target.value }), togglePicker: () => this.setState({ picker: !s.picker, pq: '' }),
-        pickerIcon: s.picker ? 'close' : 'add', pickerLabel: s.picker ? 'Close' : st.type === 'consumables' ? 'Add consumable' : 'Add spare part',
-        partOptions: (M.CATALOG[cat] || []).filter(c => !(Array.isArray(v) && v.some(x => x.ref === c[0])) && (!pq || (c[0] + c[1]).toLowerCase().includes(pq))).map(c => { const [sl, sc] = stock(c[3]); return { ref: c[0], name: c[1], stock: sl, stockColor: sc, add: () => { this.set(st.id, [...v, { ref: c[0], qty: 1 }]); this.setState({ picker: false, pq: '' }); } }; }),
+        pickerIcon: s.picker ? 'close' : 'add', pickerLabel: s.picker ? 'Close' : st.type === 'consumables' ? 'Add consumable or part' : 'Add spare part or consumable',
+        partOptions: [...M.CATALOG[cat], ...M.CATALOG[cat === 'parts' ? 'consumables' : 'parts']].filter(c => !(Array.isArray(v) && v.some(x => x.ref === c[0])) && (!pq || (c[0] + c[1]).toLowerCase().includes(pq))).map(c => { const PA = window.RelixParts, it = PA && PA.part(c[0]), cons = c[4] === 'consumable', [sl, sc] = it ? [it.qty <= 0 ? 'Out of stock' : PA.fmtStock(it), it.qty <= 0 ? '#B42318' : it.qty < it.min ? '#B54708' : '#0B6B4A'] : stock(c[3]); return { ref: c[0], name: c[1], stock: sl, stockColor: sc, kIcon: cons ? 'water_drop' : 'settings', kBg: cons ? '#E3F2F6' : '#EEF1F4', kFg: cons ? '#0E7490' : '#475467', kindLabel: cons ? 'Consumable' : 'Replacement part', add: () => { const u = PA ? PA.usageOf(it) : { def: 1 }; this.set(st.id, [...v, { ref: c[0], qty: u.def }]); this.setState({ picker: false, pq: '' }); } }; }),
         warn: st.type === 'number' && M.isOut(st, v) ? (st.outOfRange === 'block' ? `Outside the allowed range (${M.rangeText(st)}). Check your measurement before continuing.` : `Outside the expected range (${M.rangeText(st)}) — it will be reported as an anomaly.`) : flagged ? 'This answer will be reported as an anomaly.' : '',
         needPhoto: need.photo ? `you answered ${need.photo}` : '', needPhotoBorder: s.tried[st.id] && need.photo && !(s.reqPhotos[st.id] || []).length ? '#F04438' : '#E4E7EC',
         reqPhotos: photoView(s.reqPhotos[st.id] || [], a => this.setState(z => ({ reqPhotos: { ...z.reqPhotos, [st.id]: a } }))),
@@ -602,7 +603,7 @@ class Component extends DCLogic {
       (s.reqPhotos[st.id] || []).forEach(p => photos.push(p));
       if ((st.type === 'comment' || st.type === 'text') && String(v).trim()) comments.push({ step: st.title, text: v });
       if (String(s.notes[st.id] || '').trim()) comments.push({ step: st.title, text: s.notes[st.id].trim() });
-      if (st.type === 'parts' || st.type === 'consumables') v.forEach(p => { const k = parts.find(x => x.ref === p.ref); const name = (M.CATALOG[st.type].find(x => x[0] === p.ref) || [0, p.ref])[1]; if (k) k.qty += p.qty; else parts.push({ ref: p.ref, name, qty: p.qty }); }); });
+      if (st.type === 'parts' || st.type === 'consumables') v.forEach(p => { const k = parts.find(x => x.ref === p.ref); const PA = window.RelixParts, it = PA && PA.part(p.ref); if (k) k.qty = Math.round((k.qty + +p.qty) * 1000) / 1000; else parts.push({ ref: p.ref, name: it ? it.name : p.ref, qty: +p.qty, cons: !!(it && PA.isConsumable(it)) }); }); });
     const files = visited.filter(st => st.type === 'file' && !s.skipped[st.id]).reduce((a, st) => a + this.val(st).length, 0);
     const skippedN = visited.filter(st => s.skipped[st.id]).length;
     if (s.mode === 'review') {
@@ -620,7 +621,7 @@ class Component extends DCLogic {
         hasAnomalies: an.length > 0, anomalyTitle: `${an.length} anomal${an.length === 1 ? 'y' : 'ies'} detected`, anomalies: an,
         checksDone, evidenceLabel: ev.length ? ev.join(' · ') : 'No photos or comments', hasPhotos: photos.length > 0,
         allPhotos: photos.slice(0, 8).map(p => ({ url: s.urls[p.id], hasUrl: !!s.urls[p.id] })), comments: comments.slice(0, 3),
-        usedParts: parts, noParts2: !parts.length, showCosts: !PREVIEW, costWo: (this.C && this.C.getWo(WO0.key)) || { asset: WO.asset, assignee: 'GD', dur: 1 }, costParts: parts.filter(p => M.CATALOG.parts.some(x => x[0] === p.ref)).map(p => ({ ref: p.ref, qty: p.qty || 1 })), costActual: this.elapsed(), skippedLabel: skippedN ? `${skippedN} optional step${skippedN > 1 ? 's' : ''} skipped` : '',
+        usedParts: parts.map(p => { const PA = window.RelixParts, it = PA && PA.part(p.ref); return { ...p, use: it ? PA.fmtUse(it, p.qty) : '×' + p.qty, kIcon: p.cons ? 'water_drop' : 'settings', kFg: p.cons ? '#0E7490' : '#667085' }; }), noParts2: !parts.length, showCosts: !PREVIEW, costWo: (this.C && this.C.getWo(WO0.key)) || { asset: WO.asset, assignee: 'GD', dur: 1 }, costParts: parts.map(p => ({ ref: p.ref, qty: p.qty })), costActual: this.elapsed(), skippedLabel: skippedN ? `${skippedN} optional step${skippedN > 1 ? 's' : ''} skipped` : '',
         results: Object.entries(RESULTS).map(([k, [label, icon, fg, bg]]) => { const on = c.status === k; return { label, icon, bg: on ? bg : '#fff', border: on ? `2px solid ${fg}` : '1px solid #E4E7EC', color: on ? fg : '#475467', pick: () => setC('status', k) }; }),
         opOpts: [['yes', 'Yes', 'check_circle', '#0B6B4A', '#E6F4EE'], ['no', 'No', 'cancel', '#B42318', '#FDECEC']].map(([k, label, icon, fg, bg]) => { const on = c.operational === k; return { label, icon, bg: on ? bg : '#fff', border: on ? `2px solid ${fg}` : `1px solid ${errs.op ? '#F04438' : '#D0D5DD'}`, color: on ? fg : '#344054', pick: () => setC('operational', k) }; }),
         close: c, setReport: e => setC('report', e.target.value), reportBorder: errs.report ? '#F04438' : '#D0D5DD',
@@ -630,9 +631,9 @@ class Component extends DCLogic {
         closeErr: errs.op || errs.report ? (errs.op ? 'Tell us whether the equipment is operational' : 'Add a completion comment') : '',
         askComplete: () => { if (!c.operational || !String(c.report || '').trim()) return this.setState({ closeTried: true }); this.setState({ confirm: true }); },
         confirmOpen: s.confirm, cancelComplete: () => this.setState({ confirm: false }),
-        confirmLines: [['Result', RESULTS[c.status][0], RESULTS[c.status][2]], ['Equipment', c.operational === 'yes' ? 'Operational' : 'Stopped', c.operational === 'yes' ? '#0B6B4A' : '#B42318'], ['Parts used', parts.length ? parts.map(p => `${p.name} ×${p.qty}`).join(', ') : 'None'], ['Follow-up', c.followUp ? c.fuTitle : 'None'], ['Time spent', `${c.mins || 0} min`]].map(([k, v, color]) => ({ k, v, color: color || '#1E2430' })),
+        confirmLines: [['Result', RESULTS[c.status][0], RESULTS[c.status][2]], ['Equipment', c.operational === 'yes' ? 'Operational' : 'Stopped', c.operational === 'yes' ? '#0B6B4A' : '#B42318'], ['Materials used', parts.length ? parts.map(p => { const PA = window.RelixParts, it = PA && PA.part(p.ref); return `${p.name} ${it ? PA.fmtUse(it, p.qty) : '×' + p.qty}`; }).join(', ') : 'None'], ['Follow-up', c.followUp ? c.fuTitle : 'None'], ['Time spent', `${c.mins || 0} min`]].map(([k, v, color]) => ({ k, v, color: color || '#1E2430' })),
         confirmNote: PREVIEW ? 'Preview only — nothing will be saved.' : 'The work order will be closed and parts deducted from stock.',
-        complete: () => (this.C && !PREVIEW && this.C.saveWo(WO0.key, { status: 'Completed', waiting: '', actualMs: this.elapsed(), costs: (() => { const w0 = this.C.getWo(WO0.key) || {}, cs = { consumables: [], services: [], rentals: [], ...(w0.costs || {}) }; parts.filter(p => M.CATALOG.consumables.some(x => x[0] === p.ref)).forEach(p => { if (!cs.consumables.some(x => x.ref === p.ref)) cs.consumables.push({ ref: p.ref, qty: p.qty || 1 }); }); return cs; })() }), this.setState({ confirm: false, mode: 'done', acc: this.elapsed(), since: null, paused: false, result: { status: c.status, at: Date.now(), mins: +c.mins || 0, operational: c.operational, parts: parts.length, followUp: c.followUp ? { title: c.fuTitle, prio: c.fuPrio } : null, anomalies: an.length } })),
+        complete: () => (this.C && !PREVIEW && this.C.saveWo(WO0.key, { status: 'Completed', waiting: '', actualMs: this.elapsed(), used: parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), costs: (() => { const w0 = this.C.getWo(WO0.key) || {}; const PA = window.RelixParts; if (PA && !w0.stockDone) parts.forEach(p => PA.consume(p.ref, p.qty, WO0.key, 'Intervention · ' + (WO.asset || ''))); return { consumables: [], services: [], rentals: [], ...(w0.costs || {}) }; })(), stockDone: true }), this.setState({ confirm: false, mode: 'done', acc: this.elapsed(), since: null, paused: false, result: { status: c.status, at: Date.now(), mins: +c.mins || 0, operational: c.operational, parts: parts.length, followUp: c.followUp ? { title: c.fuTitle, prio: c.fuPrio } : null, anomalies: an.length } })),
         pauseWhere: 'the review page',
       };
     }

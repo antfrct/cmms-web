@@ -24,6 +24,7 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Checklists</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Reusable task lists attached to maintenance plans and work orders</p>
       </div>
+      <sc-if value="{{ adv }}"><button onClick="{{ advChecklist }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">playlist_add_check</span>Generate from document<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New checklist</button>
     </header>
 
@@ -176,6 +177,14 @@ class Component extends DCLogic {
     else this.setState(st => ({ rows: [{ id: 'c' + tid++, name: st.name, desc: st.desc || '—', ic: 0, tasks: st.tasks, used: 0, created: 'Sep 29', modified: 'Sep 29' }, ...st.rows], drawer: null }));
     this.flash(`Checklist "${s.name}" saved · ${s.tasks.length} tasks`);
   }
+  advVals() {
+    if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
+    let adv = true; try { adv = localStorage.getItem('cmms.advanced') !== '0'; } catch (e) {}
+    const open = k => () => window.RelixAdvanced && window.RelixAdvanced(k);
+    return { adv, advOptimize: open('optimize'), advForecast: open('forecast'), advChecklist: open('checklist'), advPlan: open('plan'), advFleet: open('fleet'),
+      toggleAdv: () => { try { localStorage.setItem('cmms.advanced', adv ? '0' : '1'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-advanced', { detail: { on: !adv } })); },
+      advSub: adv ? 'Shown in purple across the app' : 'Hidden on all pages', advTrack: adv ? '#800080' : '#D0D5DD', advKnob: adv ? '18px' : '2px', advBorder: adv ? '#E2C4E2' : '#D0D5DD' };
+  }
   renderVals() {
     const s = this.state, q = s.q.toLowerCase();
     const list = s.rows.filter(r => (!q || (r.name + r.desc).toLowerCase().includes(q)) && (!s.usage || (s.usage === 'used' ? r.used > 0 : r.used === 0)));
@@ -194,6 +203,7 @@ class Component extends DCLogic {
       over: e => { e.preventDefault(); const from = this.state.drag; if (from === null || from === i) return; this.setState(st => { const a = [...st.tasks]; const [m] = a.splice(from, 1); a.splice(i, 0, m); return { tasks: a, drag: i }; }); },
       drop: e => e.preventDefault(), end: () => this.setState({ drag: null }) }));
     return {
+      ...this.advVals(),
       rows, q: s.q, setQ: e => this.setState({ q: e.target.value }), usage: s.usage, setUsage: e => this.setState({ usage: e.target.value }),
       countLabel: `${list.length} checklists`, rangeLabel: `Showing 1–${list.length} of ${list.length}`,
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }), openNew: () => this.open(null),
