@@ -101,6 +101,6 @@ export const fmt = (f, v, site) => {
 export const woType = name => { const t = get('woTypes', name) || { icon: 'build', color: 'Grey' }; const [fg, bg] = PALETTE[t.color] || PALETTE.Grey; return { name: t.name || name, icon: t.icon, fg, bg }; };
 export const woTypes = () => list('woTypes', { active: true }).map(t => ({ ...t, ...woType(t.name) }));
 export const assetTypes = cls => list('assetTypes', { active: true }).filter(t => !cls || t.cls === (cls === 'mobile' ? 'Mobile asset' : 'Equipment'));
-export const fmtBudget = n => '€' + Math.round(+n || 0).toLocaleString('en-US');
+export const fmtBudget = n => window.RelixAccess && !window.RelixAccess.canFinance() ? window.RelixAccess.MASK : '€' + Math.round(+n || 0).toLocaleString('en-US');
 
 if (typeof window !== 'undefined') window.RelixConfig = { uid, currentSite, PALETTE, FIELD_TYPES, ENTITIES, QUANTITIES, PART_UNITS, SECTIONS, list, get, saveAll, upsert, remove, setActive, resetSection, names, quantities, siteUnits, setUnit, unitFor, fieldsFor, fieldUnit, validate, fmt, woType, woTypes, assetTypes, fmtBudget };

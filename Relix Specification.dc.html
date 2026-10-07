@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<script src="./doc-page.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" />
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0;-webkit-font-smoothing:antialiased}
+a{color:#C00018;text-decoration:none}a:hover{color:#8E0012}
+doc-page{font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:10pt;line-height:1.55;color:#1E2430}
+doc-page h1{font-size:24pt;line-height:1.15;margin:0 0 6pt;font-weight:700;letter-spacing:-.01em}
+doc-page h2{font-size:16pt;line-height:1.25;margin:26pt 0 8pt;padding-top:10pt;border-top:2px solid #1E2430;font-weight:700}
+doc-page h3{font-size:12.5pt;margin:18pt 0 6pt;font-weight:600}
+doc-page h4{font-size:10.5pt;margin:12pt 0 4pt;font-weight:600;color:#344054}
+doc-page p{margin:0 0 7pt}
+doc-page ul,doc-page ol{margin:0 0 8pt;padding-left:16pt}
+doc-page li{margin:0 0 3pt}
+doc-page table{width:100%;border-collapse:collapse;margin:4pt 0 12pt;font-size:8.6pt;line-height:1.4}
+doc-page th{text-align:left;font-weight:600;background:#F2F4F7;border:1px solid #D0D5DD;padding:4pt 6pt;vertical-align:bottom}
+doc-page td{border:1px solid #E4E7EC;padding:3.5pt 6pt;vertical-align:top}
+doc-page code{font-family:'IBM Plex Mono',monospace;font-size:.92em;background:#F2F4F7;padding:0 2pt;border-radius:2pt}
+doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C00018;background:#FBF7F7;break-inside:avoid}
+</style>
+</helmet>
+<doc-page margin="0.7in">
+<div style="display:flex;align-items:center;gap:14px;padding:16px 20px;background:#34050D;border-radius:4px;margin-bottom:18pt">
+  <img src="relix-logo-white.svg" alt="Relix" style="height:30px" />
+  <span style="color:#fff;font-size:20px;font-weight:700">Relix</span>
+  <span style="margin-left:auto;color:rgba(255,255,255,.75);font-size:9pt">Functional &amp; technical specification · v2.0</span>
+</div>
+<h1>Relix — Functional &amp; Technical Specification</h1>
+<p style="font-size:11.5pt;color:#475467">Maintenance management (CMMS) web application · version 2.0 · October 7, 2026 · supersedes “CMMS MVP” (v1, French)</p>
+
+<table>
+<thead><tr><th style="width:26%">Item</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Product</td><td>Relix — web CMMS for industrial production sites, target desktop 1440×900.</td></tr>
+<tr><td>Status</td><td>End of visual design phase. Reference for functional scope, data model, business rules, permissions and default configuration.</td></tr>
+<tr><td>Language</td><td>Application UI in English; interface language selector stored per user (UI only, no content translation in this version).</td></tr>
+<tr><td>Out of scope of this document</td><td>Visual design (colors, fonts, sizes, icons, spacing, component styling). Only the product name <b>Relix</b> and the <b>Relix logo</b> are binding visual identity elements.</td></tr>
+<tr><td>Prototype</td><td>Interactive prototype pages (<code>*.dc.html</code>) and shared models (<code>*-model.js</code>) are the executable reference of the rules below. Appendix B maps prototype storage keys to tables.</td></tr>
+</tbody>
+</table>
+
+<h2>1. Introduction</h2>
+<h3>1.1 Purpose</h3>
+<p>This document is the main functional and technical reference for Relix. It describes business rules, entities and data model, statuses and workflows, permissions, default configuration and the consistency rules between modules. It extends the v1 specification (“CMMS MVP”) and keeps its concepts, terminology and structure wherever the current Relix design does not change them. When the current design conflicts with v1, the Relix behavior described here prevails.</p>
+<h3>1.2 Changes compared to v1</h3>
+<table>
+<thead><tr><th style="width:24%">Area</th><th>v1 (CMMS MVP)</th><th>v2 (Relix)</th></tr></thead>
+<tbody>
+<tr><td>Organization</td><td>Site selector only, “gestion des sites/usines à préciser”.</td><td>Business › Sub-business › Site hierarchy managed only by Super Admins; Super users with multi-site scopes; site administrators defined at site creation.</td></tr>
+<tr><td>Work order statuses</td><td>En retard, Planifié, En cours, En attente pièces, Terminé.</td><td>Workflow Requested → Scheduled → In progress → Completed. “Overdue” is computed; “Waiting” is a flag (with a reason, e.g. spare parts) that coexists with any open status.</td></tr>
+<tr><td>Work order creation</td><td>Single form (3 blocks).</td><td>4-step wizard: Essentials → Checklists → People → Details. Quick intervention (2 steps) for immediate breakdowns. Intervention requests for non-maintenance reporters.</td></tr>
+<tr><td>Checklists</td><td>Linear list of tasks.</td><td>Typed steps (inputs, actions, spare parts, consumables), required skills, duration, mobile assets, conditional rules and a workflow view.</td></tr>
+<tr><td>Execution</td><td>“Contenu de la fiche pendant l’exécution à finir”.</td><td>Focused intervention mode: one step at a time, pause/resume, chat docked, review &amp; close, stock deduction, actual costs.</td></tr>
+<tr><td>People</td><td>Teams &amp; Users not specified.</td><td>Users, teams, skills with levels, weekly shifts, absences, hourly rate, roles &amp; permission matrix, Financial permission.</td></tr>
+<tr><td>Spare parts</td><td>V2 / Core.</td><td>Included: replacement parts and consumables, storage areas, suppliers, GTIN, stock movements, reservations on work orders.</td></tr>
+<tr><td>Asset hierarchy</td><td>Up to 5 levels: Location/Production line → Area/Asset → Machine → Subassembly → Component.</td><td>Plant › Zone › Line › Step, assets attached to a Step. Storage areas are Steps flagged as storage. Sub-assemblies/components remain possible as child assets (see §7.12).</td></tr>
+<tr><td>Notifications</td><td>Bell + badge, centre “à définir / à retirer du MVP”.</td><td>Typed catalogue (category × importance), three delivery levels (activity / bell / pop-up), email/push, personal preferences, quiet hours, alert rules.</td></tr>
+<tr><td>Communication</td><td>Not present.</td><td>Unified chat: direct messages, team channels, site channel, one discussion per work order, @mentions, references to objects.</td></tr>
+<tr><td>Costs</td><td>Not present.</td><td>Intervention cost = labor (user hourly rate) + spare parts + consumables + external services + equipment &amp; rental. Visible only with the Financial permission.</td></tr>
+<tr><td>Site configuration</td><td>“Administration — à préciser”.</td><td>Schema-driven reference data per site, custom fields with units, plant hierarchy, skills, maturity levels.</td></tr>
+</tbody>
+</table>
+<h3>1.3 Conventions used in this document</h3>
+<ul>
+<li><b>Required</b> fields are marked “Yes” in the tables and with a red asterisk in forms. A form cannot be saved (or a wizard step cannot be left with “Next step”) while a required field is empty or invalid.</li>
+<li>Field types: <code>uuid</code>, <code>string(n)</code>, <code>text</code>, <code>int</code>, <code>decimal(p,s)</code>, <code>bool</code>, <code>date</code>, <code>datetime</code> (UTC, displayed in the site time zone), <code>enum(…)</code>, <code>json</code>, <code>fk → table</code>.</li>
+<li>Table names are singular <code>snake_case</code>; every table has <code>id</code> (uuid, PK), <code>created_at</code>, <code>created_by</code>, <code>updated_at</code>, <code>updated_by</code> unless stated otherwise (not repeated in each table).</li>
+<li>Site-scoped tables carry <code>site_id fk → site</code> (required). Organization-level tables (businesses, sites, users, super-user scopes) are not site-scoped.</li>
+<li>Reference data is never hard-deleted while in use: it is deactivated (<code>active=false</code>) and kept for history. Deletion is refused with a usage message when referenced.</li>
+<li>Human-readable identifiers (WO-…, R-…, asset codes, part references) are unique per site and immutable once created, except where stated.</li>
+<li>“Site configuration” is the in-app name of v1 “Administration”. “Work order” (WO) is the v1 “Ordre de travail / Intervention”. “Intervention” in Relix designates the <i>execution</i> of a work order.</li>
+</ul>
+
+<h2>2. Glossary and maintenance strategies</h2>
+<h3>2.1 Maintenance strategies (preserved from v1 §1)</h3>
+<p>The type describes the purpose of the work; the sub-type (strategy) describes how it is triggered or performed. Relix keeps this reference. Each Relix work order type maps to one or several v1 strategies; the strategy can be recorded on the work order as <code>work_order.strategy</code>.</p>
+<table>
+<thead><tr><th>v1 type</th><th>Sub-type / strategy</th><th>Definition</th><th>Example</th><th>Relix work order type</th></tr></thead>
+<tbody>
+<tr><td>Corrective</td><td>Palliative</td><td>Temporary restart after a breakdown or defect.</td><td>Temporary fix.</td><td>Corrective</td></tr>
+<tr><td>Corrective</td><td>Curative</td><td>Definitive repair after a breakdown or defect.</td><td>Replace a bearing.</td><td>Corrective</td></tr>
+<tr><td>Preventive</td><td>Systematic</td><td>Triggered by a date, a duration, a meter or cycles.</td><td>Oil change every 5,000 h.</td><td>Preventive (calendar or meter maintenance plan)</td></tr>
+<tr><td>Preventive</td><td>Condition-based (CBM)</td><td>Triggered by a measured state or a threshold.</td><td>Vibration threshold exceeded.</td><td>Predictive (alert rules / live monitoring)</td></tr>
+<tr><td>Preventive</td><td>Predictive (PdM)</td><td>Anticipated from the forecast evolution of degradation.</td><td>Failure expected within three weeks.</td><td>Predictive</td></tr>
+<tr><td>Improvement</td><td>Continuous improvement</td><td>Modification to durably improve reliability.</td><td>Change a sensor mounting.</td><td>Improvement</td></tr>
+<tr><td>Proactive</td><td>RCA / FMEA</td><td>Identification and removal of root causes.</td><td>Fix a misalignment.</td><td>Corrective with root cause analysis (<code>rca</code>) or Improvement</td></tr>
+<tr><td>Prescriptive</td><td>Decision optimisation</td><td>Recommendation of the optimal action given risks, costs and constraints.</td><td>Reduce load before shutdown.</td><td>Advanced features (planning optimisation) — in development</td></tr>
+<tr><td>Opportunity</td><td>Opportunistic intervention</td><td>Work done during a stop that is already required.</td><td>Replacement during the annual shutdown.</td><td>Any type, scheduled on a shutdown slot</td></tr>
+<tr><td>Autonomous</td><td>TPM</td><td>Simple operations performed by operators to maintain and detect anomalies.</td><td>Cleaning, inspection, lubrication.</td><td>Inspection / Preventive with <code>maintenance_mode = autonomous</code> (§7.20)</td></tr>
+</tbody>
+</table>
+<h3>2.2 Main terms</h3>
+<table>
+<thead><tr><th style="width:24%">Term</th><th>Definition</th></tr></thead>
+<tbody>
+<tr><td>Organization</td><td>The company using Relix (one tenant). Contains businesses, sub-businesses and sites.</td></tr>
+<tr><td>Business / Sub-business</td><td>Structural levels above sites. A sub-business always belongs to a business. A site belongs to a business or to a sub-business.</td></tr>
+<tr><td>Site (plant)</td><td>Operational unit with its own assets, stock, planning, teams, configuration and units. All operational data is site-scoped.</td></tr>
+<tr><td>Plant hierarchy</td><td>Physical breakdown of a site: Plant › Zone › Line › Step. Assets are located on a Step.</td></tr>
+<tr><td>Asset</td><td>Fixed equipment or mobile asset (tool, lift, crane, measuring instrument). Mobile assets can be reserved for work orders.</td></tr>
+<tr><td>Work order (WO)</td><td>A maintenance job on one asset, identified by its title “Asset — Task” and secondarily by its ID (WO-xxxxxxx).</td></tr>
+<tr><td>Intervention</td><td>Execution of a work order in focused mode, step by step, by its assigned users.</td></tr>
+<tr><td>Intervention request</td><td>A lightweight issue report (asset, short description, optional photo, people/teams notified). Not a work order until accepted.</td></tr>
+<tr><td>Quick intervention</td><td>Immediate start of an intervention on a breakdown: creates a work order flagged “Information incomplete”.</td></tr>
+<tr><td>Checklist</td><td>Reusable ordered set of typed steps executed during an intervention.</td></tr>
+<tr><td>Part (of a checklist)</td><td>Consecutive steps requiring the same skills. Each part is assigned to one person.</td></tr>
+<tr><td>Maintenance plan</td><td>Rule (calendar or meter) generating preventive work orders automatically.</td></tr>
+<tr><td>Spare part / item</td><td>Stock item of kind “Replacement part” (whole units) or “Consumable” (amounts or percentage of a unit).</td></tr>
+<tr><td>Supplier / provider</td><td>Company supplying parts, external services and/or equipment rental, with rates.</td></tr>
+<tr><td>Assigned users</td><td>People who perform the work. Never called “participants”.</td></tr>
+<tr><td>Included in follow-up</td><td>People who are not assigned but follow the work order (chat + updates).</td></tr>
+<tr><td>Financial permission</td><td>Additional permission giving access to sensitive money values.</td></tr>
+<tr><td>Super Admin / Super user</td><td>Organization-level administrator / user with an access scope wider than one site.</td></tr>
+<tr><td>Maturity level</td><td>Per-site level (1 Essential, 2 Advanced, 3 Expert) for each Relix concept.</td></tr>
+</tbody>
+</table>
+
+<h2>3. Application architecture</h2>
+<h3>3.1 Navigation (updates v1 §2.1)</h3>
+<table>
+<thead><tr><th>Order</th><th>Entry</th><th>Destination / sub-menu</th><th>Module key (permissions)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>Home</td><td>Personal dashboard</td><td>— (always visible)</td></tr>
+<tr><td>2</td><td>Site dashboard</td><td>Tabs Overview / Work orders / Equipment / Spare parts</td><td>— (always visible)</td></tr>
+<tr><td>3</td><td>Assets</td><td>Views List / Hierarchy (tree) / Plant layout (map); asset detail</td><td><code>assets</code></td></tr>
+<tr><td>4</td><td>Work orders</td><td>List / Board (Kanban); work order detail</td><td><code>workorders</code></td></tr>
+<tr><td>5</td><td>Planning</td><td>Day / Week / Month calendar with backlog</td><td><code>planning</code></td></tr>
+<tr><td>6</td><td>Spare parts</td><td>List / Catalog, filter by item type</td><td><code>parts</code></td></tr>
+<tr><td>7</td><td>Maintenance setup</td><td>Sub-menu: Maintenance plans, Checklists (clicking the entry only expands/collapses the sub-menu)</td><td><code>plans</code></td></tr>
+<tr><td>8</td><td>Documents</td><td>Document library</td><td><code>documents</code></td></tr>
+<tr><td>Secondary</td><td>Teams &amp; users</td><td>Tabs Users / Teams / Roles &amp; permissions</td><td><code>teams</code></td></tr>
+<tr><td>Secondary</td><td>Suppliers</td><td>Suppliers and external providers</td><td><code>suppliers</code></td></tr>
+<tr><td>Secondary</td><td>Site configuration</td><td>Reference data, plant hierarchy, skills, units, custom fields, maturity levels</td><td><code>admin</code></td></tr>
+<tr><td>Secondary</td><td>Super Admin</td><td>Organization, Super users, Super Admins (only for Super Admins)</td><td><code>superadmin</code></td></tr>
+</tbody>
+</table>
+<p>The menu can be collapsed (icons only with tooltips); the state is stored per user. The intervention (execution) page is a focused mode without the menu.</p>
+<h3>3.2 Top bar (updates v1 §2.2)</h3>
+<ul>
+<li>Relix logo and name.</li>
+<li>Global search (shortcut Ctrl/Cmd+K) across equipment, work orders, spare parts, people, sites and locations; results grouped by category, recent items when empty. A site result switches the current site.</li>
+<li>Current site selector: lists only the sites the user can access (§9.6), grouped by business path, with local time and overdue indicator.</li>
+<li>Help menu (“?”), language selector (UI only).</li>
+<li>Notification bell with unread counter and notification centre (§7.15); on-screen pop-ups for “pop-up” level notifications.</li>
+<li>Profile menu: My profile, Notification settings, Super Admin (Super Admins only), “Preview access as” (administrators), Sign out.</li>
+<li>Indicators: “View only” when the current module is read-only for the user; “Previewing as …” when an administrator previews another user’s access.</li>
+</ul>
+<h3>3.3 Cross-cutting behaviors (updates v1 §2.3 and §19)</h3>
+<ul>
+<li>Every page fits the screen height: header and toolbars stay fixed; only content regions scroll. Lists scroll internally with sticky column headers and a pagination footer (page size selectable).</li>
+<li>Lists provide search, filters, per-row actions (“…” menu) and pagination. Row click opens the object; explicit buttons perform actions (e.g. Start intervention).</li>
+<li>Creation and edition open in a right-side panel or wizard without leaving the context.</li>
+<li>Status indicators always combine a label with a visual cue; color is never the only carrier of information.</li>
+<li>Destructive actions require a confirmation. Deleting referenced data is refused with an explanation (usage check); deactivation is proposed instead.</li>
+<li>Dates must be consistent (e.g. desired date ≥ request date, request date not in the future); invalid input is blocked.</li>
+<li>Statuses, priorities, types and categories come from controlled reference lists (system or site configuration).</li>
+<li>Every object change that matters is historised (work order history, asset history, maturity log).</li>
+<li>Every page has a Back button returning to the previous page (fallback: Home).</li>
+<li>Deep links: work order (with optional chat and message), chat conversation, intervention request, asset detail tab, Site configuration section, Teams &amp; users tab.</li>
+</ul>
+<h2>4. Organization, sites and site context</h2>
+<h3>4.1 Organization hierarchy</h3>
+<ul>
+<li>One organization (tenant) contains <b>businesses</b> (level 1), optional <b>sub-businesses</b> (level 2, parent = a business) and <b>sites</b> attached to a business or to a sub-business. Deeper levels are not allowed.</li>
+<li>The organization structure is managed <b>only</b> in the Super Admin area. Site configuration does not contain any organization or site management.</li>
+<li>A business or sub-business cannot be deleted while it contains sub-businesses or sites. A business with sub-businesses cannot become a sub-business.</li>
+<li>A site cannot be deleted when it holds data (assets, work orders, stock); it is set <b>inactive</b> instead. Inactive sites disappear from all site switchers but keep their history. The site currently open cannot be deleted.</li>
+<li>Names are unique among businesses/sub-businesses; site codes (3–4 letters, uppercase) are unique in the organization and immutable.</li>
+</ul>
+<h3>4.2 Site creation (Super Admin)</h3>
+<p>New site is a 3-step flow; each step must be valid before “Next step”.</p>
+<ol>
+<li><b>Identity</b> — Site name*, Code* (3–4 letters, unique), Business*, Sub-business (optional, filtered by business).</li>
+<li><b>Location</b> — Country*, City, Latitude* (−90…90, decimal degrees WGS 84), Longitude* (−180…180), Time zone (proposed from the country).</li>
+<li><b>Site administrators</b> — at least one administrator is required so the site is manageable from day one: existing users (searched across the organization) and/or invitations (full name + email; email must not already exist).</li>
+</ol>
+<p>On “Create site”: the site is created with the default site configuration (§10.2); each chosen user receives the <b>Administrator</b> role on this site (<code>user_site_role</code>) and the site is added to their site access; invited administrators are created with status Invited and receive an invitation email. Administrators can then invite the team, create teams, define the plant hierarchy and adapt the configuration.</p>
+<h3>4.3 Current site</h3>
+<ul>
+<li>Each user works on one current site at a time (stored per user, restored at sign-in). Switching site reloads site-scoped data; all lists, KPIs, planning and configuration show the current site only.</li>
+<li>The Site dashboard shows the business path of the site, local time and site KPIs (overdue work orders and critical ones, stopped equipment, preventive compliance, parts out of stock / low, work due today and done).</li>
+<li>The site’s maturity levels (§7.21) and units (§7.18) are those of the current site.</li>
+</ul>
+
+<h2>5. Data model overview</h2>
+<h3>5.1 Domains and main relationships</h3>
+<table>
+<thead><tr><th style="width:22%">Domain</th><th style="width:32%">Tables</th><th>Main relationships</th></tr></thead>
+<tbody>
+<tr><td>Organization</td><td>business, site</td><td>business 1–n business (parent); business 1–n site.</td></tr>
+<tr><td>Access</td><td>app_user, role, role_permission, user_site, user_site_role, super_user_scope, super_admin (flag on app_user)</td><td>app_user n–n site (user_site); app_user n–n site with role (user_site_role); role 1–n role_permission (one per module); super_user_scope n–1 app_user.</td></tr>
+<tr><td>People</td><td>team, team_member, skill, user_skill, user_shift, user_absence, user_profile</td><td>team n–n app_user (team_member, lead flag); app_user n–n skill with level; app_user 1–n shift/absence.</td></tr>
+<tr><td>Plant &amp; assets</td><td>plant_node, asset, asset_spec, asset_history, meter_reading, asset_reservation</td><td>plant_node tree (parent); asset n–1 plant_node (Step); asset 1–n meter_reading; mobile asset 1–n asset_reservation n–1 work_order.</td></tr>
+<tr><td>Work</td><td>work_order, wo_assignment, wo_follower, wo_checklist, wo_part, wo_tool, wo_cost_line, wo_history, wo_document</td><td>work_order n–1 asset; n–1 maintenance_plan (optional); n–1 intervention_request (optional); 1–n assignments, followers, parts, tools, cost lines, history.</td></tr>
+<tr><td>Execution</td><td>intervention, intervention_step_result, intervention_usage</td><td>work_order 1–n intervention (normally 1); intervention 1–n step results; usage lines n–1 spare_part.</td></tr>
+<tr><td>Requests</td><td>intervention_request, request_notify</td><td>request n–1 asset; n–1 work_order (when accepted); request n–n user/team (notified).</td></tr>
+<tr><td>Checklists</td><td>checklist, checklist_step, step_rule, step_option, step_part, step_tool, step_skill, step_media</td><td>checklist 1–n steps (ordered); step 1–n rules, options, parts (n–1 spare_part), tools (n–1 mobile asset), skills (n–1 skill), media/documents.</td></tr>
+<tr><td>Preventive</td><td>maintenance_plan, plan_asset, plan_generation</td><td>plan n–n asset; plan n–1 checklist; plan 1–n generations 1–n work_order.</td></tr>
+<tr><td>Stock</td><td>spare_part, part_asset, stock_movement, part_reservation</td><td>spare_part n–1 plant_node (storage Step); n–1 supplier; n–n asset; 1–n stock movements; reservations n–1 work_order.</td></tr>
+<tr><td>Suppliers</td><td>supplier, supplier_rate</td><td>supplier 1–n rate; referenced by spare parts and work order cost lines.</td></tr>
+<tr><td>Documents</td><td>document, document_link</td><td>document n–n asset / work_order / checklist_step / spare_part (document_link).</td></tr>
+<tr><td>Communication</td><td>chat_channel, chat_channel_member, chat_message, chat_read</td><td>channel kinds: direct, team (1–1 team), site (1–1 site), work order (1–1 work_order).</td></tr>
+<tr><td>Notifications</td><td>notification, notification_pref, alert_rule, alert_rule_recipient</td><td>notification n–1 app_user (recipient), optional link to object; prefs 1–1 app_user.</td></tr>
+<tr><td>Configuration</td><td>asset_type, criticality, wo_type, failure_category, priority, wo_status, part_category, cost_center, custom_field, custom_value, quantity, site_unit, label_format, maturity_level, maturity_log, site_setting</td><td>All site-scoped except system catalogues (§10.1).</td></tr>
+</tbody>
+</table>
+<h3>5.2 Identifiers</h3>
+<table>
+<thead><tr><th>Object</th><th>Display identifier</th><th>Rule</th></tr></thead>
+<tbody>
+<tr><td>Work order</td><td><code>WO-</code> + 7 digits (e.g. WO-1339859)</td><td>Sequential per organization, never reused. Shown as secondary information (lists, breadcrumb with copy chip, chat, notifications). The primary label is the title “Asset — Task”.</td></tr>
+<tr><td>Intervention request</td><td><code>R-</code> + number (e.g. R-1048)</td><td>Sequential per site.</td></tr>
+<tr><td>Site</td><td>Code, 3–4 uppercase letters (e.g. THO)</td><td>Unique in the organization, immutable.</td></tr>
+<tr><td>Plant node</td><td>Code built from the parent code (e.g. MEL, MEL-BH, MEL-BH-MX)</td><td>Unique per site.</td></tr>
+<tr><td>Asset</td><td>Asset code (e.g. P-101, CV-L3)</td><td>Unique per site; encoded in the asset QR code (link to the asset detail).</td></tr>
+<tr><td>Spare part</td><td>Reference (e.g. BRG-6205), optional item code and GTIN</td><td>Reference unique per site; GTIN validated by check digit.</td></tr>
+<tr><td>User</td><td>Initials-based key (e.g. GD) + email</td><td>Email unique in the organization.</td></tr>
+</tbody>
+</table>
+
+<h2>6. Tables</h2>
+<p>Common columns (<code>id</code>, <code>created_at/by</code>, <code>updated_at/by</code>) are omitted. “Req.” = required. Defaults apply on creation.</p>
+
+<h3>6.1 Organization</h3>
+<h4>business</h4>
+<p>Business or sub-business of the organization.</p>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes / constraints</th></tr></thead><tbody>
+<tr><td>name</td><td>string(120)</td><td>Yes</td><td></td><td>Unique (case-insensitive) in the organization.</td></tr>
+<tr><td>level</td><td>enum(business, sub)</td><td>Yes</td><td>business</td><td><code>sub</code> requires a parent.</td></tr>
+<tr><td>parent_id</td><td>fk → business</td><td>If sub</td><td>null</td><td>Parent must be of level <code>business</code>.</td></tr>
+</tbody></table>
+<h4>site</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes / constraints</th></tr></thead><tbody>
+<tr><td>code</td><td>string(4)</td><td>Yes</td><td></td><td>3–4 letters A–Z, unique, immutable.</td></tr>
+<tr><td>name</td><td>string(120)</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>business_id</td><td>fk → business</td><td>Yes</td><td></td><td>Business or sub-business.</td></tr>
+<tr><td>country</td><td>string(80)</td><td>Yes</td><td></td><td>Drives default time zone and default units.</td></tr>
+<tr><td>city</td><td>string(80)</td><td>No</td><td></td><td></td></tr>
+<tr><td>latitude / longitude</td><td>decimal(8,4)</td><td>Yes</td><td></td><td>−90…90 / −180…180.</td></tr>
+<tr><td>time_zone</td><td>string(40)</td><td>Yes</td><td>from country</td><td>IANA name (e.g. Europe/Paris).</td></tr>
+<tr><td>active</td><td>bool</td><td>Yes</td><td>true</td><td>Inactive = hidden from switchers, data kept.</td></tr>
+</tbody></table>
+
+<h3>6.2 Access</h3>
+<h4>app_user</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes / constraints</th></tr></thead><tbody>
+<tr><td>user_key</td><td>string(8)</td><td>Yes</td><td>from initials</td><td>Unique; used for avatars and @mention lookup.</td></tr>
+<tr><td>first_name / last_name</td><td>string(60)</td><td>Yes</td><td></td><td>Display name = first + last.</td></tr>
+<tr><td>email</td><td>string(160)</td><td>Yes</td><td></td><td>Valid format, unique in the organization.</td></tr>
+<tr><td>handle</td><td>string(40)</td><td>Yes</td><td>first name</td><td>Used for @mentions; unique.</td></tr>
+<tr><td>role_id</td><td>fk → role</td><td>Yes</td><td>Technician</td><td>Default (home) role, applied on the user’s sites unless overridden by <code>user_site_role</code> or a super-user scope.</td></tr>
+<tr><td>status</td><td>enum(Invited, Active, Deactivated)</td><td>Yes</td><td>Invited</td><td>Deactivated users cannot sign in; their open work orders must be reassigned.</td></tr>
+<tr><td>financial</td><td>bool</td><td>Yes</td><td>false</td><td>Financial permission (cumulative).</td></tr>
+<tr><td>super_admin</td><td>bool</td><td>Yes</td><td>false</td><td>At least one active Super Admin must always exist.</td></tr>
+<tr><td>hourly_rate</td><td>decimal(8,2)</td><td>No</td><td>null</td><td>€/h (organization currency), ≥ 0. Used for labor cost. Visible/editable only with Financial.</td></tr>
+<tr><td>language</td><td>string(5)</td><td>No</td><td>EN</td><td>UI language.</td></tr>
+<tr><td>current_site_id</td><td>fk → site</td><td>No</td><td>first accessible</td><td>Restored at sign-in.</td></tr>
+<tr><td>last_active_at</td><td>datetime</td><td>No</td><td></td><td></td></tr>
+</tbody></table>
+<h4>user_site</h4>
+<p>Sites a user has direct access to. PK (user_id, site_id). At least one site is required for a user (except Super Admins).</p>
+<h4>user_site_role</h4>
+<p>Role given to a user on a specific site; overrides the default role on that site. PK (user_id, site_id). Used for site administrators created with a new site.</p>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>user_id</td><td>fk → app_user</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>site_id</td><td>fk → site</td><td>Yes</td><td></td><td>Also implies a <code>user_site</code> row.</td></tr>
+<tr><td>role_id</td><td>fk → role</td><td>Yes</td><td></td><td></td></tr>
+</tbody></table>
+<h4>role</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>code</td><td>string(20)</td><td>Yes</td><td></td><td>System roles: admin, manager, planner, tech, req.</td></tr>
+<tr><td>name</td><td>string(60)</td><td>Yes</td><td></td><td>Renamable except Administrator.</td></tr>
+<tr><td>description</td><td>string(200)</td><td>No</td><td></td><td></td></tr>
+<tr><td>system</td><td>bool</td><td>Yes</td><td>false</td><td>System roles cannot be deleted. Administrator is locked to Full on all modules.</td></tr>
+</tbody></table>
+<p>Roles are defined at organization level (one shared matrix) so that a user’s role means the same on every site. A custom role cannot be deleted while users hold it.</p>
+<h4>role_permission</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>role_id</td><td>fk → role</td><td>Yes</td><td></td><td>Unique (role_id, module).</td></tr>
+<tr><td>module</td><td>enum(assets, workorders, plans, planning, parts, suppliers, documents, teams, admin)</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>level</td><td>enum(F, E, V, -)</td><td>Yes</td><td>V</td><td>F Full · E Edit · V View · - None (module hidden). See §9.</td></tr>
+</tbody></table>
+<h4>super_user_scope</h4>
+<p>Access wider than one site, resolved dynamically (sites added later inside the scope are included automatically).</p>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>user_id</td><td>fk → app_user</td><td>Yes</td><td></td><td>Not a Super Admin (they already see everything).</td></tr>
+<tr><td>scope_type</td><td>enum(business, sub, country, sites)</td><td>Yes</td><td>business</td><td></td></tr>
+<tr><td>scope_values</td><td>json (array of ids / country names)</td><td>Yes</td><td></td><td>At least one value.</td></tr>
+<tr><td>role_id</td><td>fk → role</td><td>Yes</td><td>manager</td><td>Role applied on every covered site unless a <code>user_site_role</code> exists for that site.</td></tr>
+<tr><td>note</td><td>string(200)</td><td>No</td><td></td><td>E.g. “Regional maintenance director”.</td></tr>
+</tbody></table>
+
+<h3>6.3 People</h3>
+<h4>team</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>site_id</td><td>fk → site</td><td>Yes</td><td>current</td><td></td></tr>
+<tr><td>name</td><td>string(80)</td><td>Yes</td><td></td><td>Unique per site.</td></tr>
+<tr><td>description</td><td>string(200)</td><td>No</td><td></td><td>Trades or area covered.</td></tr>
+<tr><td>icon / color</td><td>string</td><td>No</td><td>groups / Grey</td><td>Presentation only.</td></tr>
+<tr><td>lead_user_id</td><td>fk → app_user</td><td>No</td><td></td><td>Must be a member.</td></tr>
+</tbody></table>
+<h4>team_member</h4>
+<p>PK (team_id, user_id). A user can belong to several teams. Creating a team creates its team chat channel; members are kept in sync with the channel members.</p>
+<h4>skill</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>site_id</td><td>fk → site</td><td>Yes</td><td></td><td>Catalogue edited in Site configuration › Skills.</td></tr>
+<tr><td>code</td><td>string(4)</td><td>Yes</td><td></td><td>Unique per site (e.g. ELE, MEC).</td></tr>
+<tr><td>name</td><td>string(80)</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>category</td><td>enum(Trade, Technique, Certification)</td><td>Yes</td><td>Trade</td><td></td></tr>
+<tr><td>active</td><td>bool</td><td>Yes</td><td>true</td><td>Deletion refused while used by checklist steps or profiles.</td></tr>
+</tbody></table>
+<h4>user_skill</h4>
+<p>PK (user_id, skill_id). <code>level</code> int 1–3 (1 Basic, 2 Qualified, 3 Expert), required. Certifications may carry <code>valid_until</code> (date).</p>
+<h4>user_shift</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>user_id</td><td>fk → app_user</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>weekday</td><td>int 0–6</td><td>Yes</td><td></td><td>0 = Sunday. One row per working day.</td></tr>
+<tr><td>start_hour / end_hour</td><td>decimal(4,2)</td><td>Yes</td><td>8 / 16</td><td>end &gt; start.</td></tr>
+<tr><td>site_id</td><td>fk → site</td><td>Yes</td><td>home site</td><td>A user can work on another site on given weekdays.</td></tr>
+</tbody></table>
+<h4>user_absence</h4>
+<table><thead><tr><th style="width:20%">Field</th><th style="width:16%">Type</th><th style="width:6%">Req.</th><th style="width:12%">Default</th><th>Notes</th></tr></thead><tbody>
+<tr><td>user_id</td><td>fk → app_user</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>date_from</td><td>date</td><td>Yes</td><td></td><td></td></tr>
+<tr><td>date_to</td><td>date</td><td>No</td><td>= date_from</td><td>≥ date_from.</td></tr>
+<tr><td>hour_from / hour_to</td><td>decimal(4,2)</td><td>No</td><td></td><td>Both set = part-day absence.</td></tr>
+<tr><td>label</td><td>string(80)</td><td>Yes</td><td></td><td>Holiday, Training, Medical appointment…</td></tr>
+</tbody></table>
+<h4>user_profile</h4>
+<p>1–1 with app_user: phone, extension, languages (json), joined (year), manager, status message, bio, certificates (json [name, valid_until]). Statistics shown on the profile (completed work orders, average duration, first-time fix, on-time rate, hours, open work orders, top assets) are computed, not stored.</p>
+<!--NEXT-->
+</doc-page>
+</x-dc>
+</body>
+</html>

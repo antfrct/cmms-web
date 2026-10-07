@@ -1,5 +1,6 @@
 // Relix shared collaboration model — work order store, participants, chat (WO / team / site), chat notifications.
 // Used by WorkOrderPanel, QuickIntervention, Work Orders, Work Order, Intervention, Home, TopBar, ChatThread.
+import * as AC from './access-model.js';
 const WKEY = 'cmms.wo.store.v1', CKEY = 'cmms.chat.v2', NKEY = 'cmms.notif.chat.v1';
 export const ME = 'GD';
 export const PEOPLE = {
@@ -18,7 +19,8 @@ export const PEOPLE = {
 };
 export const ROLES = ['Additional technician', 'Supervisor', 'Maintenance manager', 'Specialist', 'Follower'];
 export const byName = n => Object.keys(PEOPLE).find(k => PEOPLE[k][0] === n);
-export const person = k => { const p = PEOPLE[k] || ['Unknown', '', '#F2F4F7', '#98A2B3', '?', '']; return { key: k, name: p[0], role: p[1], avBg: p[2], avFg: p[3], handle: p[4], team: p[5], initials: k }; };
+// Team comes from Teams & users (access-model); users invited later fall back to their access profile.
+export const person = k => { const t = (AC.teamsOf(k)[0] || {}).name; let p = PEOPLE[k]; if (!p) { const u = AC.user(k); p = u ? [u.name, AC.role(u.role).name, '#EEF1F4', '#475467', u.name.split(' ')[0], ''] : ['Unknown', '', '#F2F4F7', '#98A2B3', '?', '']; } return { key: k, name: p[0], role: p[1], avBg: p[2], avFg: p[3], handle: p[4], team: t || p[5], initials: k }; };
 
 const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
@@ -85,6 +87,11 @@ export const CHANNELS = {
   'team-elec': { kind: 'team', title: 'Electrical team', icon: 'groups', members: ['SM', 'SB', 'JM', 'HP'], info: '4 members' },
   site: { kind: 'site', title: 'Site channel', icon: 'factory', members: Object.keys(PEOPLE), info: 'Thourotte Plant · maintenance, production, HSE' },
 };
+// Team channels mirror the teams managed in Teams & users (one channel per team, members kept in sync).
+const syncTeams = () => { Object.keys(CHANNELS).forEach(k => { if (CHANNELS[k].kind === 'team') delete CHANNELS[k]; });
+  AC.teams().forEach(t => { CHANNELS[t.id] = { kind: 'team', title: t.name, icon: t.icon || 'groups', members: [...t.members], info: `${t.members.length} member${t.members.length === 1 ? '' : 's'}${t.spec ? ' · ' + t.spec : ''}` }; }); };
+syncTeams();
+if (typeof window !== 'undefined') window.addEventListener('cmms-access', e => { if (!e.detail || e.detail.teams || e.detail.users) { syncTeams(); emit('cmms-chat', { teams: true }); } });
 export const isDm = ch => /^dm-/.test(ch || '');
 export const dmKey = k => 'dm-' + k;
 export const myTeams = (me = ME) => Object.keys(CHANNELS).filter(k => CHANNELS[k].kind === 'team' && CHANNELS[k].members.includes(me)).map(k => ({ key: k, ...CHANNELS[k] }));

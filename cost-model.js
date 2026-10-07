@@ -2,9 +2,13 @@
 // Manual lines live on the work order (collab-model saveWo): costs { consumables: [{ ref, qty }], services: [{ sup, rate, qty, note }], rentals: [{ sup, rate, qty, note }] }.
 // rate = 'hourly' | 'travel' | rate id from the supplier. Internal mobile equipment (wo.tools) is costed automatically at an internal hourly rate.
 import * as PA from './parts-model.js';
+import * as AC from './access-model.js';
 export const CATS = { labor: ['Labor', 'engineering', '#2456B8'], parts: ['Spare parts', 'settings', '#0B6B4A'], consumables: ['Consumables', 'water_drop', '#0E7490'], services: ['External services', 'handshake', '#6941C6'], rentals: ['Equipment & rental', 'forklift', '#B54708'] };
+// Fallback only — the labor rate is the hourly rate configured on each user in Teams & users (access-model rateOf).
 export const ROLE_RATES = { 'Maintenance Manager': 78, 'Maintenance manager': 78, Planner: 60, Reliability: 66, Electrician: 54, Mechanic: 52, 'Hydraulic technician': 56, Specialist: 64, HSE: 60 };
-export const laborRate = person => (person && ROLE_RATES[person.role]) || 55;
+export const laborRate = person => (person && (AC.rateOf(person.key) || ROLE_RATES[person.role])) || 55;
+// Financial permission: users without it never see money values (formatters mask them).
+export const allowed = () => AC.canFinance();
 export const TOOL_RATES = { 'MC-01': 45, 'SL-01': 18, 'FL-03': 15, 'TC-01': 12, 'LA-01': 10, 'VA-02': 8 };
 // Consumables come from the Spare parts catalogue (kind 'consumable'). Kept as getters for older callers.
 export const consumables = () => PA.parts().filter(PA.isConsumable);
@@ -16,8 +20,8 @@ const useLine = (x, extra = {}) => { const pt = PA.part(x.ref), u = PA.usageOf(p
   if (u.mode === 'count') return { label: pt.name, sub: x.ref, qty: amt, unit: pt.unit, price: +pt.cost || 0, ...extra };
   return { label: pt.name, sub: `${x.ref} · ${PA.fmtUse(pt, amt)}`, qty: PA.toStock(pt, amt), unit: pt.unit, price: +pt.cost || 0, use: amt, useUnit: u.unit, mode: u.mode, ...extra };
 };
-export const eur = n => '€' + (Math.round((+n || 0) * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-export const eur0 = n => '€' + Math.round(+n || 0).toLocaleString('en-US');
+export const eur = n => !allowed() ? AC.MASK : '€' + (Math.round((+n || 0) * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const eur0 = n => !allowed() ? AC.MASK : '€' + Math.round(+n || 0).toLocaleString('en-US');
 const unitShort = { h: 'h', visit: 'visit', day: 'day', fixed: '' };
 // All billable options of external providers: kind 'services' | 'rentals'
 export const offers = kind => PA.suppliers().filter(s => s.status !== 'Inactive' && PA.typesOf(s).includes(kind === 'services' ? 'service' : 'rental')).flatMap(s => [
@@ -44,4 +48,4 @@ export const costOf = (w, people, opts = {}) => {
   const totals = {}; Object.keys(L).forEach(key => { L[key].forEach(l => { l.total = Math.round(l.qty * l.price * 100) / 100; }); totals[key] = L[key].reduce((a, l) => a + l.total, 0); });
   return { lines: L, totals, total: Object.values(totals).reduce((a, b) => a + b, 0), actual: actualH != null, hours: actualH != null ? actualH : estH };
 };
-if (typeof window !== 'undefined') window.RelixCost = { consumables, CATS, ROLE_RATES, laborRate, TOOL_RATES, CONS_COST, CONSUMABLES, eur, eur0, offers, offerOf, costOf };
+if (typeof window !== 'undefined') window.RelixCost = { allowed, consumables, CATS, ROLE_RATES, laborRate, TOOL_RATES, CONS_COST, CONSUMABLES, eur, eur0, offers, offerOf, costOf };

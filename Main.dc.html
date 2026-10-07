@@ -58,6 +58,7 @@
     <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(400px,1fr);gap:16px">
       <div style="min-height:0;min-width:0;display:flex;flex-direction:column;gap:12px">
         <!-- INTERVENTION REQUESTS -->
+        <sc-if value="{{ hasReqs }}">
         <section aria-label="Intervention requests" style="flex:none;background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
           <div style="display:flex;align-items:center;gap:8px;padding:10px 12px 0 16px">
             <span style="font:17px/1 'Material Symbols Outlined';color:#475467">campaign</span>
@@ -83,9 +84,9 @@
                 </span>
               </button>
             </sc-for>
-            <sc-if value="{{ noReqs }}"><div style="flex:1;padding:10px;text-align:center;font-size:12.5px;color:#667085">Nothing to review — requests for you or your teams appear here.</div></sc-if>
           </div>
         </section>
+        </sc-if>
 
         <!-- TO DO -->
         <section style="flex:1;min-height:0;background:#fff;border:1px solid #E4E7EC;border-radius:8px;display:flex;flex-direction:column;min-width:0;overflow:hidden">
@@ -101,26 +102,50 @@
             <a href="WorkOrders.dc.html" style="margin-left:10px;font-weight:600;font-size:12.5px;white-space:nowrap">View all</a>
           </div>
           <div style="flex:1;min-height:0;overflow:auto">
-            <div style="min-width:660px;display:flex;flex-direction:column;gap:2px;padding:6px 0 10px">
+            <div style="min-width:660px;display:flex;flex-direction:column;gap:10px;padding:10px 0 12px">
+              <div style="display:flex;flex-direction:column;gap:8px;margin:0 10px;padding:8px 0 10px;background:#FBFBFC;border:1px solid #EEF0F3;border-radius:8px">
+                <div style="display:flex;align-items:center;gap:6px;padding:0 12px;font-size:12px;font-weight:600;color:#475467">
+                  <span style="font:16px/1 'Material Symbols Outlined'">event_busy</span><span>Not scheduled</span><span style="font-weight:500;color:#98A2B3">{{ unschedCount }}</span>
+                  <a href="Planning.dc.html" style="margin-left:auto;font-weight:600;font-size:12px">Open planning</a>
+                </div>
+                <div style="display:flex;gap:8px;overflow-x:auto;padding:0 12px 2px;scrollbar-width:thin">
+                  <sc-for list="{{ unsched }}" as="u" hint-placeholder-count="3">
+                    <div style="flex:none;width:232px;display:flex;flex-direction:column;gap:3px;padding:7px 7px 8px 10px;background:{{ u.bg }};border:1px solid #E4E7EC;border-radius:8px" style-hover="border-color:#C4CAD4">
+                      <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                        <a href="{{ u.woHref }}" title="{{ u.title }}" style="flex:1;min-width:0;font-weight:600;color:#1E2430;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.title }}</a>
+                        <button onClick="{{ u.schedule }}" title="Schedule" aria-label="Schedule" style="flex:none;width:28px;height:28px;display:grid;place-items:center;padding:0;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#344054;cursor:pointer" style-hover="border-color:#C00018;color:#C00018"><span style="font:17px/1 'Material Symbols Outlined'">calendar_add_on</span></button>
+                      </div>
+                      <span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:{{ u.typeFg }}">{{ u.type }}</span> · {{ u.line }}</span>
+                      <span style="display:flex;align-items:center;gap:6px;min-width:0;font-size:11.5px;color:#98A2B3">
+                        <sc-if value="{{ u.showWho }}"><span data-person="{{ u.person }}" title="{{ u.whoName }}" style="flex:none;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:{{ u.avBg }};color:{{ u.avFg }};font:600 8px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ u.initials }}</span></sc-if>
+                        <span style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ u.meta }}</span>
+                        <sc-if value="{{ u.urgent }}"><span style="flex:none;display:inline-flex;align-items:center;gap:2px;height:20px;padding:0 6px 0 4px;border-radius:4px;background:{{ u.pbg }};color:{{ u.pfg }};font-size:11px;font-weight:600"><span style="font:13px/1 'Material Symbols Outlined'">bolt</span>{{ u.prio }}</span></sc-if>
+                        <sc-if value="{{ u.normal }}"><span style="flex:none">{{ u.prio }}</span></sc-if>
+                      </span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ noUnsched }}"><div style="flex:1;padding:6px;text-align:center;font-size:12px;color:#98A2B3">Everything is scheduled.</div></sc-if>
+                </div>
+              </div>
               <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
-                <div style="display:flex;flex-direction:column;margin:{{ g.margin }};background:{{ g.bg }};border-radius:8px;border:1px solid {{ g.border }}">
-                  <div style="display:flex;align-items:center;gap:6px;padding:8px 14px 2px;font-size:12px;font-weight:600;color:{{ g.color }}">
+                <div style="display:flex;flex-direction:column;gap:6px;margin:0 10px">
+                  <div style="display:flex;align-items:center;gap:6px;padding:2px 2px 0;font-size:12px;font-weight:600;color:{{ g.color }}">
                     <sc-if value="{{ g.hasIcon }}"><span style="font:16px/1 'Material Symbols Outlined'">{{ g.icon }}</span></sc-if>
                     <span>{{ g.label }}</span><span style="font-weight:500;color:#98A2B3">{{ g.date }}</span>
-                    <sc-if value="{{ g.hasLink }}"><a href="Planning.dc.html" style="margin-left:auto;font-weight:600;font-size:12px">Open planning</a></sc-if>
                   </div>
                   <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
-                    <div style="position:relative;display:grid;grid-template-columns:76px minmax(0,1fr) auto 104px;align-items:center;gap:10px;min-height:40px;padding:4px 14px;background:{{ it.bg }}" style-hover="background:{{ it.hoverBg }}">
-                      <span style="position:absolute;left:-1px;top:6px;bottom:6px;width:3px;border-radius:0 3px 3px 0;background:{{ it.edge }}"></span>
+                    <div style="position:relative;display:grid;grid-template-columns:70px minmax(0,1fr) auto 104px;align-items:center;gap:10px;min-height:52px;padding:6px 12px 6px 14px;background:{{ it.bg }};border:1px solid {{ it.border }};border-radius:8px;overflow:hidden" style-hover="background:{{ it.hoverBg }};border-color:#C4CAD4">
+                      <span style="position:absolute;left:0;top:0;bottom:0;width:3px;background:{{ it.edge }}"></span>
                       <span style="font:{{ it.timeFont }};color:{{ it.timeColor }};white-space:nowrap">{{ it.when }}</span>
-                      <a href="{{ it.woHref }}" style="min-width:0;display:flex;align-items:center;gap:6px;color:#1E2430;opacity:{{ it.op }}">
-                        <sc-if value="{{ it.crit }}"><span title="Critical priority" aria-label="Critical priority" style="flex:none;font:16px/1 'Material Symbols Outlined';color:#C00018;font-variation-settings:'FILL' 1">bolt</span></sc-if>
-                        <span style="flex:0 1 auto;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.title }}</span>
-                        <span style="flex:0 100 auto;min-width:0;font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:{{ it.typeFg }}">{{ it.type }}</span> · {{ it.line }}</span>
+                      <a href="{{ it.woHref }}" style="min-width:0;display:flex;flex-direction:column;gap:1px;color:#1E2430;opacity:{{ it.op }}">
+                        <span style="display:flex;align-items:center;gap:6px;min-width:0">
+                          <sc-if value="{{ it.crit }}"><span title="Critical priority" aria-label="Critical priority" style="flex:none;font:16px/1 'Material Symbols Outlined';color:#C00018;font-variation-settings:'FILL' 1">bolt</span></sc-if>
+                          <span style="min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ it.title }}</span>
+                        </span>
+                        <span style="min-width:0;font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"><span style="color:{{ it.typeFg }}">{{ it.type }}</span> · {{ it.line }}</span>
                       </a>
                       <span style="display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0">
                         <sc-if value="{{ it.isPaused }}"><span title="{{ it.progress }}" style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="width:64px;height:4px;border-radius:2px;background:#DCE5F6;overflow:hidden"><span style="display:block;height:100%;width:{{ it.pct }};background:#2456B8;border-radius:2px"></span></span><span style="font-size:12px;color:#475467">{{ it.progress }}</span></span></sc-if>
-                        <sc-if value="{{ it.hasMeta }}"><span style="font-size:12px;color:#98A2B3;white-space:nowrap">{{ it.meta }}</span></sc-if>
                         <sc-if value="{{ it.hasChat }}"><button onClick="{{ it.openThread }}" title="Open discussion" style="height:22px;display:flex;align-items:center;gap:3px;padding:0 6px;background:transparent;border:1px solid #E4E7EC;border-radius:11px;font:600 11.5px 'IBM Plex Sans',sans-serif;color:#475467;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:13px/1 'Material Symbols Outlined'">chat_bubble</span>{{ it.chat }}</button></sc-if>
                         <sc-if value="{{ it.showWho }}"><span data-person="{{ it.person }}" title="{{ it.whoName }}" style="flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:{{ it.avBg }};color:{{ it.avFg }};font:600 9.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ it.initials }}</span></sc-if>
                       </span>
@@ -130,19 +155,9 @@
                         <sc-if value="{{ it.canAsk }}"><button onClick="{{ it.ask }}" title="Ask in the work order chat" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 9px 0 6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:15px/1 'Material Symbols Outlined'">chat_bubble</span>Ask</button></sc-if>
                         <sc-if value="{{ it.isDone }}"><span title="{{ it.doneTip }}" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;color:#0B6B4A;font:20px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1">check_circle</span></sc-if>
                         <sc-if value="{{ it.isWaiting }}"><span title="Waiting for spare parts — Start becomes available when they arrive" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:4px;border:1px dashed #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#98A2B3;cursor:not-allowed;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">hourglass_top</span>Waiting</span></sc-if>
-                        <sc-if value="{{ it.canSchedule }}"><button onClick="{{ it.openMenu }}" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 8px 0 6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3"><span style="font:15px/1 'Material Symbols Outlined'">calendar_add_on</span>Schedule</button></sc-if>
                       </span>
-                      <sc-if value="{{ it.menuOpen }}">
-                        <div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:20"></div>
-                        <div style="position:absolute;right:14px;top:calc(100% - 2px);z-index:21;width:220px;padding:4px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 8px 24px rgba(16,24,40,.12)">
-                          <sc-for list="{{ it.options }}" as="o">
-                            <button onClick="{{ o.pick }}" style="width:100%;height:34px;display:flex;align-items:center;gap:8px;padding:0 8px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="flex:1">{{ o.label }}</span><span style="font-size:12px;color:#98A2B3">{{ o.hint }}</span><span style="font:16px/1 'Material Symbols Outlined';color:#98A2B3">chevron_right</span></button>
-                          </sc-for>
-                        </div>
-                      </sc-if>
                     </div>
                   </sc-for>
-                  <sc-if value="{{ g.isEmpty }}"><div style="padding:2px 14px 8px;font-size:12px;color:#98A2B3">{{ g.emptyText }}</div></sc-if>
                 </div>
               </sc-for>
             </div>
@@ -249,51 +264,14 @@
             </div>
           </sc-if>
 
-          <sc-if value="{{ isTeams }}">
-            <div style="flex:none;display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #F2F4F7;overflow-x:auto;scrollbar-width:none">
-              <sc-for list="{{ teamTabs }}" as="t">
-                <button onClick="{{ t.select }}" style="flex:none;height:32px;display:flex;align-items:center;gap:6px;padding:0 12px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:16px;font:{{ t.font }};color:{{ t.color }};cursor:pointer;white-space:nowrap">{{ t.label }}<sc-if value="{{ t.hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ t.unread }}</span></sc-if></button>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{ isChat }}">
-            <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid #F2F4F7;font-size:12px;color:#667085">
-              <span style="display:flex"><sc-for list="{{ members }}" as="m"><span data-person="{{ m.initials }}" title="View profile" style="cursor:pointer;width:22px;height:22px;margin-right:-5px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;background:{{ m.bg }};color:{{ m.fg }};font:600 8.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span></sc-for></span>
-              <span style="margin-left:8px">{{ channelInfo }}</span>
-            </div>
-            <div style="position:relative;flex:1;min-height:0"><dc-import name="ChatThread" channel="{{ hub }}" highlight="{{ chatHl }}" style="position:absolute;inset:0" hint-size="100%,400px"></dc-import></div>
-          </sc-if>
-          <sc-if value="{{ isWoList }}">
-            <div style="flex:none;padding:8px 16px;border-bottom:1px solid #F2F4F7;font-size:12px;color:#667085">Discussions on work orders you're part of</div>
-            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:4px 0">
-              <sc-for list="{{ threads }}" as="t" hint-placeholder-count="4">
-                <button onClick="{{ t.open }}" style="display:grid;grid-template-columns:32px minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 16px;background:transparent;border:0;border-bottom:1px solid #F2F4F7;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430" style-hover="background:#F9FAFB">
-                  <span style="width:32px;height:32px;border-radius:7px;display:grid;place-items:center;background:#FBE7EA;color:#A30014;font:17px/1 'Material Symbols Outlined'">build</span>
-                  <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
-                    <span style="display:flex;align-items:baseline;gap:6px;min-width:0"><span style="font-weight:{{ t.weight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.title }}</span><span style="flex:none;font:500 11px 'IBM Plex Mono',monospace;color:#98A2B3">{{ t.key }}</span></span>
-                    <span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.preview }}</span>
-                  </span>
-                  <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-size:11.5px;color:#98A2B3">{{ t.time }}</span><sc-if value="{{ t.hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ t.unread }}</span></sc-if></span>
-                </button>
-              </sc-for>
-            </div>
-          </sc-if>
-          <sc-if value="{{ isWoThread }}">
-            <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-bottom:1px solid #F2F4F7">
-              <button onClick="{{ backToThreads }}" title="All work order discussions" style="flex:none;width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">arrow_back</span></button>
-              <span style="flex:none;width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:#FBE7EA;color:#A30014;font:15px/1 'Material Symbols Outlined'">build</span>
-              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ woThread.title }}</span><span style="font:500 11px 'IBM Plex Mono',monospace;color:#98A2B3">{{ woThread.id }} · {{ woThread.status }}</span></span>
-              <a href="{{ woThread.href }}" style="flex:none;height:30px;display:flex;align-items:center;gap:4px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:500;font-size:12.5px">Open<span style="font:15px/1 'Material Symbols Outlined'">open_in_new</span></a>
-            </div>
-            <div style="position:relative;flex:1;min-height:0"><dc-import name="ChatThread" channel="{{ woThread.key }}" highlight="{{ chatHl }}" style="position:absolute;inset:0" hint-size="100%,400px"></dc-import></div>
-          </sc-if>
-          <sc-if value="{{ isDmList }}">
-            <div style="flex:none;position:relative;display:flex;align-items:center;gap:8px;padding:8px 12px 8px 16px;border-bottom:1px solid #F2F4F7;font-size:12px;color:#667085">
-              <span style="flex:1"></span>
-              <button onClick="{{ toggleDmPick }}" style="flex:none;height:30px;display:flex;align-items:center;gap:4px;padding:0 10px 0 7px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:17px/1 'Material Symbols Outlined'">edit_square</span>New message</button>
+          <sc-if value="{{ isChatList }}">
+            <div style="flex:none;position:relative;display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #F2F4F7">
+              <label style="flex:1;min-width:0;height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px"><span style="font:17px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ chatQ }}" onInput="{{ setChatQ }}" placeholder="Search people, teams, work orders…" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font:13px 'IBM Plex Sans',sans-serif" /></label>
+              <button onClick="{{ toggleUnreadOnly }}" title="Show unread conversations only" style="flex:none;height:32px;display:flex;align-items:center;gap:4px;padding:0 10px;background:{{ unreadBg }};border:1px solid {{ unreadBorder }};border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:{{ unreadFg }};cursor:pointer;white-space:nowrap">Unread<sc-if value="{{ hasChatUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ chatUnread }}</span></sc-if></button>
+              <button onClick="{{ toggleDmPick }}" title="New direct message" aria-label="New direct message" style="flex:none;width:32px;height:32px;display:grid;place-items:center;padding:0;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">edit_square</span></button>
               <sc-if value="{{ dmPick }}">
                 <div onClick="{{ toggleDmPick }}" style="position:fixed;inset:0;z-index:20"></div>
-                <div style="position:absolute;right:12px;top:42px;z-index:21;width:280px;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.16);overflow:hidden">
+                <div style="position:absolute;right:12px;top:44px;z-index:21;width:280px;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.16);overflow:hidden">
                   <label style="flex:none;height:38px;display:flex;align-items:center;gap:6px;padding:0 10px;border-bottom:1px solid #EEF0F3"><span style="font:17px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ dmQ }}" onInput="{{ setDmQ }}" placeholder="Find a person…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif" /></label>
                   <div style="max-height:260px;overflow:auto;padding:4px">
                     <sc-for list="{{ dmPeople }}" as="p">
@@ -306,31 +284,35 @@
                 </div>
               </sc-if>
             </div>
-            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:4px 0">
-              <sc-for list="{{ dms }}" as="t" hint-placeholder-count="4">
-                <button onClick="{{ t.open }}" style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 16px;background:transparent;border:0;border-bottom:1px solid #F2F4F7;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430" style-hover="background:#F9FAFB">
-                  <span style="width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:{{ t.avBg }};color:{{ t.avFg }};font:600 11px 'IBM Plex Sans',sans-serif">{{ t.key }}</span>
+            <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;padding:2px 0">
+              <sc-for list="{{ convs }}" as="c" hint-placeholder-count="6">
+                <button onClick="{{ c.open }}" style="display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 16px;background:transparent;border:0;border-bottom:1px solid #F2F4F7;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430" style-hover="background:#F9FAFB">
+                  <span style="width:34px;height:34px;border-radius:{{ c.radius }};display:grid;place-items:center;background:{{ c.bg }};color:{{ c.fg }};font:{{ c.iconFont }}">{{ c.glyph }}</span>
                   <span style="min-width:0;display:flex;flex-direction:column;gap:2px">
-                    <span style="display:flex;align-items:baseline;gap:6px;min-width:0"><span style="font-weight:{{ t.weight }};white-space:nowrap">{{ t.name }}</span><span style="min-width:0;font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.role }}</span></span>
-                    <span style="font-size:12px;color:{{ t.previewColor }};font-weight:{{ t.previewWeight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.preview }}</span>
-                    <sc-if value="{{ t.hasShared }}"><span style="font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.shared }}</span></sc-if>
+                    <span style="display:flex;align-items:baseline;gap:6px;min-width:0"><span style="min-width:0;font-weight:{{ c.weight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.title }}</span><span style="flex:none;font:{{ c.kindFont }};color:#98A2B3;white-space:nowrap">{{ c.kind }}</span></span>
+                    <span style="font-size:12px;color:{{ c.previewColor }};font-weight:{{ c.previewWeight }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.preview }}</span>
                   </span>
-                  <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-size:11.5px;color:{{ t.timeColor }};font-weight:{{ t.timeWeight }};white-space:nowrap">{{ t.time }}</span><sc-if value="{{ t.hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ t.unread }}</span></sc-if></span>
+                  <span style="display:flex;flex-direction:column;align-items:flex-end;gap:4px"><span style="font-size:11.5px;color:{{ c.timeColor }};font-weight:{{ c.timeWeight }};white-space:nowrap">{{ c.time }}</span><sc-if value="{{ c.hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ c.unread }}</span></sc-if></span>
                 </button>
               </sc-for>
+              <sc-if value="{{ noConvs }}"><div style="margin:auto;padding:24px;text-align:center;color:#98A2B3">No conversation matches.</div></sc-if>
             </div>
           </sc-if>
-          <sc-if value="{{ isDmThread }}">
+          <sc-if value="{{ isChatThread }}">
             <div style="flex:none;display:flex;align-items:center;gap:8px;padding:8px 12px 8px 8px;border-bottom:1px solid #F2F4F7">
-              <button onClick="{{ backToDms }}" title="All direct messages" style="flex:none;width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">arrow_back</span></button>
-              <span data-person="{{ dm.key }}" style="flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:{{ dm.avBg }};color:{{ dm.avFg }};font:600 10.5px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ dm.key }}</span>
-              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dm.name }}</span><span style="font-size:11.5px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ dm.role }}</span></span>
-              <div style="flex:none;display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
-                <sc-for list="{{ dmViews }}" as="v"><button onClick="{{ v.select }}" style="height:28px;display:flex;align-items:center;gap:4px;padding:0 9px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer;white-space:nowrap">{{ v.label }}<sc-if value="{{ v.hasCount }}"><span style="font-weight:500;color:#98A2B3">{{ v.count }}</span></sc-if></button></sc-for>
-              </div>
+              <button onClick="{{ backToChats }}" title="All conversations" aria-label="All conversations" style="flex:none;width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">arrow_back</span></button>
+              <span data-person="{{ th.person }}" style="flex:none;width:30px;height:30px;border-radius:{{ th.radius }};display:grid;place-items:center;background:{{ th.bg }};color:{{ th.fg }};font:{{ th.iconFont }}">{{ th.glyph }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ th.title }}</span><span style="font-size:11.5px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ th.sub }}</span></span>
+              <sc-if value="{{ th.isGroup }}"><span style="flex:none;display:flex;padding-right:6px"><sc-for list="{{ th.members }}" as="m"><span data-person="{{ m.initials }}" title="View profile" style="cursor:pointer;width:24px;height:24px;margin-right:-6px;border-radius:50%;border:2px solid #fff;display:grid;place-items:center;background:{{ m.bg }};color:{{ m.fg }};font:600 8.5px 'IBM Plex Sans',sans-serif">{{ m.initials }}</span></sc-for></span></sc-if>
+              <sc-if value="{{ th.isWo }}"><a href="{{ th.href }}" style="flex:none;height:30px;display:flex;align-items:center;gap:4px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:500;font-size:12.5px">Open<span style="font:15px/1 'Material Symbols Outlined'">open_in_new</span></a></sc-if>
+              <sc-if value="{{ th.isDm }}">
+                <div style="flex:none;display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
+                  <sc-for list="{{ dmViews }}" as="v"><button onClick="{{ v.select }}" style="height:28px;display:flex;align-items:center;gap:4px;padding:0 9px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer;white-space:nowrap">{{ v.label }}<sc-if value="{{ v.hasCount }}"><span style="font-weight:500;color:#98A2B3">{{ v.count }}</span></sc-if></button></sc-for>
+                </div>
+              </sc-if>
             </div>
-            <sc-if value="{{ dmDirect }}" hint-placeholder-val="{{ true }}">
-              <div style="position:relative;flex:1;min-height:0"><dc-import name="ChatThread" channel="{{ dm.ch }}" highlight="{{ chatHl }}" style="position:absolute;inset:0" hint-size="100%,400px"></dc-import></div>
+            <sc-if value="{{ showThread }}" hint-placeholder-val="{{ true }}">
+              <div style="position:relative;flex:1;min-height:0"><dc-import name="ChatThread" channel="{{ th.key }}" highlight="{{ chatHl }}" style="position:absolute;inset:0" hint-size="100%,400px"></dc-import></div>
             </sc-if>
             <sc-if value="{{ dmAll }}">
               <div style="flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:10px 12px 14px">
@@ -351,7 +333,7 @@
                     </sc-for>
                   </div>
                 </sc-for>
-                <sc-if value="{{ dmNoShared }}"><div style="margin:auto;padding:24px;text-align:center;color:#98A2B3;max-width:260px">No other conversations with {{ dm.first }} in your teams, site channel or work orders.</div></sc-if>
+                <sc-if value="{{ dmNoShared }}"><div style="margin:auto;padding:24px;text-align:center;color:#98A2B3;max-width:260px">No other conversations with {{ th.first }} in your teams, site channel or work orders.</div></sc-if>
               </div>
             </sc-if>
           </sc-if>
@@ -491,9 +473,9 @@ class Component extends DCLogic {
     anaHidden: (() => { try { return localStorage.getItem('cmms.home.analytics') === 'hidden'; } catch (e) { return false; } })() };
   componentDidMount() {
     const qs = new URLSearchParams(window.location.search), ch = qs.get('chat');
-    if (ch) this.setState(/^dm-/.test(ch) ? { hub: 'dm', dmOpen: ch, chatHl: qs.get('msg') || '' } : ch === 'dm' ? { hub: 'dm' } : /^team|^site$/.test(ch) ? { hub: ch, lastTeam: /^team/.test(ch) ? ch : undefined, chatHl: qs.get('msg') || '' } : { hub: 'wo', woOpen: ch, chatHl: qs.get('msg') || '' });
+    if (ch) this.setState(ch === 'dm' || ch === '1' ? { hub: 'chat' } : { hub: 'chat', chatCh: ch, dmView: 'direct', chatHl: qs.get('msg') || '' });
     if (qs.get('req')) this.setState({ reqOpen: qs.get('req'), reqView: 'all' });
-    this._dmOpen = e => { const k = e.detail; if (k) this.setState({ hub: 'dm', dmOpen: 'dm-' + k, dmView: 'direct', chatHl: '' }); }; window.addEventListener('cmms-dm-open', this._dmOpen);
+    this._dmOpen = e => { const k = e.detail; if (k) this.setState({ hub: 'chat', chatCh: 'dm-' + k, dmView: 'direct', chatHl: '' }); }; window.addEventListener('cmms-dm-open', this._dmOpen);
     import('./collab-model.js').then(C => this.setState({ C }));
     import('./people-model.js').then(PM => this.setState({ PM }));
     Promise.all([import('./plans-model.js'), import('./plant-model.js')]).then(([PN, PL]) => this.setState({ PN, PL })); this._pn = () => this.setState(st => ({ cv: (st.cv || 0) + 1 })); window.addEventListener('cmms-plans', this._pn);
@@ -510,9 +492,9 @@ class Component extends DCLogic {
   componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-plans', this._pn); window.removeEventListener('cmms-chat', this._chat); window.removeEventListener('cmms-request', this._chat); window.removeEventListener('cmms-wo', this._chat); window.removeEventListener('cmms-dm-open', this._dmOpen); window.removeEventListener('cmms-request-sent', this._sent); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null, flashId: null }), 3200); }
   go(i) { this._nav = Date.now(); this.setState({ slide: (i + SLIDES.length) % SLIDES.length }); }
-  openHub(k) { this.setState({ hub: k, woOpen: null, dmOpen: null, chatHl: '' }); }
-  openChannel(ch) { const C = this.state.C, info = C.channelInfo(ch); if (info.kind === 'wo') this.setState({ hub: 'wo', woOpen: ch, chatHl: '' }); else this.setState({ hub: ch, lastTeam: info.kind === 'team' ? ch : this.state.lastTeam, chatHl: '' }); }
-  openWoThread(key) { this.setState({ hub: 'wo', woOpen: key, chatHl: '' }); }
+  openHub(k) { this.setState({ hub: k, chatCh: null, chatHl: '' }); }
+  openChannel(ch) { this.setState({ hub: 'chat', chatCh: ch, dmView: 'direct', chatHl: '' }); }
+  openWoThread(key) { this.openChannel(key); }
   toggleAna() { const h = !this.state.anaHidden; try { localStorage.setItem('cmms.home.analytics', h ? 'hidden' : 'shown'); } catch (e) {} this.setState({ anaHidden: h }); }
   // Busy intervals of a person on a day: planned to-do items (1 h each unless known) + items scheduled here.
   busyOf(who, dayKey) {
@@ -561,7 +543,7 @@ class Component extends DCLogic {
     };
   }
   reqVals() {
-    const s = this.state, C = s.C; if (!C) return { reqs: [], reqSummary: '', noReqs: false, rq: null, reqViews: [] };
+    const s = this.state, C = s.C; if (!C) return { reqs: [], reqSummary: '', hasReqs: false, rq: null, reqViews: [] };
     const all = C.myRequests(), pend = all.filter(r => r.status === 'pending');
     const list = s.reqView === 'open' ? pend : all;
     const look = r => C.REQ_STATUS[r.status] || C.REQ_STATUS.pending;
@@ -586,7 +568,7 @@ class Component extends DCLogic {
           pick: () => { if (on) return; C.updateRequest(r.id, { status: k, decidedBy: C.ME }); this.flash(`${r.id} · ${l}`); } }; }),
         createWo: () => { this.setState({ reqOpen: null }); const fol = [...new Set([C.ME, r.by])]; if (window.CMMSCreateWO) window.CMMSCreateWO({ asset: r.assetCode || r.asset, title: shortTitle(r.text), desc: `${r.text}\n\nFrom intervention request ${r.id} · reported by ${p.name}.`, type: 'Corrective', followers: fol, fromRequest: r.id }); } };
     }
-    return { reqs, noReqs: !reqs.length, rq, reqSummary: pend.length ? `${pend.length} to review` : 'all reviewed',
+    return { reqs, hasReqs: pend.length > 0, rq, reqSummary: pend.length ? `${pend.length} to review` : 'all reviewed',
       reqViews: [['open', 'To review'], ['all', 'All']].map(([k, label]) => { const on = s.reqView === k; return { label, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.12)' : 'none', font: on ? sbold : sreg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ reqView: k }) }; }),
       closeReq: () => this.setState({ reqOpen: null, reqNote: null }), setReqNote: e => this.setState({ reqNote: e.target.value }),
       saveReqNote: () => { if (r && s.reqNote != null) C.updateRequest(r.id, { note: s.reqNote.trim() }); } };
@@ -616,23 +598,20 @@ class Component extends DCLogic {
         woHref: 'WorkOrder.dc.html?' + qs, isDone: d, doneTip: `Completed${x.doneAt ? ' at ' + x.doneAt : ''} — open the work order to see the report`, isWaiting: isMy && !d && waiting,
         canStart: isMy && !d && !pz && !waiting, showWho: !isMy, initials: p.initials, person: who === '--' ? '' : who, whoName: p.name, avBg: p.avBg, avFg: p.avFg,
         start: e => { e.stopPropagation(); window.location.href = 'Intervention.dc.html?' + qs; }, canSchedule: false, menuOpen: false, options: [],
-        edge: over && !d ? '#C00018' : 'transparent', bg: s.flashId === id ? '#F5F8FE' : 'transparent', hoverBg: over ? 'rgba(180,35,24,.05)' : 'rgba(16,24,40,.035)',
+        edge: over && !d ? '#C00018' : 'transparent', bg: s.flashId === id ? '#F5F8FE' : over && !d ? '#FEF6F6' : '#fff', border: over && !d ? '#FBD5D5' : '#E4E7EC', hoverBg: over && !d ? '#FDEFEF' : '#F9FAFB',
         timeFont: over ? sbold : x.moved && !toH(when) ? sreg : "500 13px 'IBM Plex Mono',monospace", timeColor: over && !d ? '#B42318' : x.moved ? '#2456B8' : '#475467', op: d ? 0.55 : 1 };
     };
-    const unschedRows = unschedAll.filter(u => typeOk(u[3])).map(([id, title, line, type, prio, who, meta, key]) => {
-      const p = person(who), u = { id, title, who };
-      return { title, type, typeFg: (TYPE[type] || TYPE.Corrective)[1], line: line || 'Thourotte Plant', when: 'No date', crit: prio === 'Critical', isPaused: false, pct: '0%', progress: '',
-        hasMeta: true, meta, hasChat: false, chat: 0, showWho: !isMy, initials: p.initials, person: who === '--' ? '' : who, whoName: who === '--' ? 'Unassigned' : p.name, avBg: p.avBg, avFg: p.avFg,
-        woHref: 'WorkOrder.dc.html?' + wq(key || 'home-' + id, title, line, type, prio, 'Requested'), isDone: false, isWaiting: false, canStart: false, canResume: false, canAsk: false,
-        canSchedule: true, menuOpen: s.menu === id, openMenu: e => { e.stopPropagation(); this.setState({ menu: s.menu === id ? null : id }); },
-        options: SCHED_OPTS.map(([k, label, hint]) => ({ label, hint, pick: () => this.openSlots(u, k) })),
-        edge: 'transparent', bg: 'transparent', hoverBg: 'rgba(16,24,40,.035)', timeFont: sreg, timeColor: '#98A2B3', op: 1 };
+    const unsched = unschedAll.filter(u => typeOk(u[3])).map(([id, title, line, type, prio, who, meta, key]) => {
+      const p = person(who), u = { id, title, who }, urgent = prio === 'Critical' || prio === 'High';
+      return { title, type, typeFg: (TYPE[type] || TYPE.Corrective)[1], line: line || 'Thourotte Plant', meta, prio, urgent, normal: !urgent, pbg: prio === 'Critical' ? '#C00018' : '#FDECEC', pfg: prio === 'Critical' ? '#fff' : '#B42318',
+        showWho: !isMy, initials: p.initials, person: who === '--' ? '' : who, whoName: who === '--' ? 'Unassigned' : p.name, avBg: p.avBg, avFg: p.avFg, bg: s.flashId === id ? '#F5F8FE' : '#fff',
+        woHref: 'WorkOrder.dc.html?' + wq(key || 'home-' + id, title, line, type, prio, 'Requested'), schedule: e => { e.stopPropagation(); this.openSlots(u, 'today'); } };
     });
     const sched = data.groups.map(g => ({ ...g, items: [...g.items, ...movedItems(g.key)].sort((a, b) => sortKey(g.key, a[1]) - sortKey(g.key, b[1])) })).filter(g => g.items.some(i => typeOk(i[4]))).map(g => {
       const over = g.key === 'over', items = g.items.filter(i => typeOk(i[4])).map(i => row(g.key, over, i));
-      return { label: g.label, date: g.date || '', hasIcon: over, icon: 'schedule', hasLink: false, isEmpty: false, emptyText: '', color: over ? '#B42318' : '#475467', bg: over ? '#FEF6F6' : 'transparent', border: over ? '#FBD5D5' : 'transparent', margin: over ? '2px 10px 4px' : '0 10px', items };
+      return { label: g.label, date: g.date || '', hasIcon: over, icon: 'schedule', color: over ? '#B42318' : '#475467', items };
     });
-    const groups = [{ label: 'Not scheduled', date: '', hasIcon: true, icon: 'event_busy', hasLink: true, isEmpty: !unschedRows.length, emptyText: 'Everything is scheduled.', color: '#475467', bg: '#FBFBFC', border: '#EEF0F3', margin: '4px 10px 6px', items: unschedRows }, ...sched];
+    const groups = sched;
 
     const typeChips = [['', 'All']].concat(Object.keys(TYPE).map(t => [t, t])).map(([k, label]) => { const on = tf === k;
       return { label, tip: k ? (on ? `Showing ${label} only` : `Show only ${label}`) : 'All maintenance types', bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.12)' : 'none', font: on ? sbold : sreg, color: on ? '#1E2430' : '#475467', select: () => this.setState({ type: on ? '' : k }) }; });
@@ -651,29 +630,48 @@ class Component extends DCLogic {
     const kpis = [['Overdue', sc(7), 'WorkOrders.dc.html', '', 'crit'], [per === 'today' ? 'Due today' : per === 'week' ? 'Due this week' : 'Due this month', sc(24, per === 'today' ? 1 : per === 'week' ? 2.6 : 8.4), 'Planning.dc.html', ''], ['In progress', sc(7), 'WorkOrders.dc.html', '2 paused'], ['Not scheduled', sc(11), 'Planning.dc.html', 'need a date', 'warn'], ['Parts out of stock', 5, 'SpareParts.dc.html', '', 'warn']]
       .map(([label, value, href, note, lvl]) => ({ label, value, href, note, alert: lvl === 'crit', bg: lvl === 'crit' ? '#FEF6F6' : '#fff', labelColor: lvl === 'crit' ? '#B42318' : '#667085', color: lvl === 'crit' ? '#B42318' : lvl === 'warn' ? '#B54708' : '#1E2430', edge: lvl === 'crit' ? '#C00018' : 'transparent' }));
 
-    const teams = C ? C.myTeams() : [{ key: 'team', title: 'Mechanical team' }];
-    const hub = s.hub, isTeam = teams.some(t => t.key === hub), isChat = isTeam || hub === 'site', isWo = hub === 'wo';
-    const threads = C ? C.woThreads() : [];
-    const woUnread = threads.reduce((a, t) => a + t.unread, 0);
-    const wt = C && s.woOpen ? C.channelInfo(s.woOpen) : null;
-    const role = this.props.role ?? 'manager';
-    const dmList = C ? C.dmThreads() : [], dmUnread = dmList.reduce((a, t) => a + t.unread, 0), isDmHub = hub === 'dm', dmK = s.dmOpen && C ? s.dmOpen.slice(3) : null;
-    const KLOOK = { team: ['groups', '#2456B8', '#EAF1FD'], site: ['factory', '#475467', '#EEF1F4'], wo: ['build', '#A30014', '#FBE7EA'] };
+    const teams = C ? C.myTeams() : [];
+    const hub = s.hub === 'activity' ? 'activity' : 'chat', role = this.props.role ?? 'manager';
+    const stamp = m => { if (!m) return 0; if (m.at) return m.at; const x = /^(\d{1,2}):(\d{2})$/.exec(m.t || ''), d = new Date(); if (x) { d.setHours(+x[1], +x[2], 0, 0); return +d; } return /Yesterday/.test(m.t || '') ? +d - 864e5 : 0; };
+    const LOOK = { team: ['groups', '#2456B8', '#EAF1FD', 'Team'], site: ['factory', '#475467', '#EEF1F4', 'Site'], wo: ['build', '#A30014', '#FBE7EA', ''] };
+    const lastOf = k => { const m = C.messages(k); return m[m.length - 1]; };
+    const convAll = !C ? [] : [
+      ...C.dmThreads().map(t => ({ key: t.key, kind: 'dm', title: t.person.name, label: 'Direct', last: t.last, unread: t.unread, ini: t.other, bg: t.person.avBg, fg: t.person.avFg })),
+      ...teams.map(t => ({ key: t.key, kind: 'team', title: t.title, label: 'Team', last: lastOf(t.key), unread: C.unread(t.key) })),
+      ...(C.CHANNELS.site ? [{ key: 'site', kind: 'site', title: C.CHANNELS.site.title, label: 'Site', last: lastOf('site'), unread: C.unread('site') }] : []),
+      ...C.woThreads().map(t => ({ key: t.key, kind: 'wo', title: t.title, label: C.displayId(t.key), last: t.last, unread: t.unread })),
+    ];
+    const chatUnread = convAll.reduce((a, c) => a + c.unread, 0), cq = (s.chatQ || '').trim().toLowerCase();
+    const glyph = c => c.kind === 'dm' ? { glyph: c.ini, radius: '50%', bg: c.bg, fg: c.fg, iconFont: "600 11px 'IBM Plex Sans',sans-serif" } : { glyph: LOOK[c.kind][0], radius: '8px', bg: LOOK[c.kind][2], fg: LOOK[c.kind][1], iconFont: "18px/1 'Material Symbols Outlined'" };
+    const preview = c => { const m = c.last; if (!m) return 'No messages yet'; const who = m.who === 'sys' ? '' : m.who === C.ME ? 'You: ' : c.kind === 'dm' ? '' : C.person(m.who).name.split(' ')[0] + ': '; return who + m.text; };
+    const convs = convAll.filter(c => (!s.unreadOnly || c.unread) && (!cq || (c.title + ' ' + c.label + ' ' + preview(c)).toLowerCase().includes(cq)))
+      .sort((a, b) => (b.unread > 0) - (a.unread > 0) || stamp(b.last) - stamp(a.last)).map(c => { const un = c.unread > 0;
+        return { ...glyph(c), title: c.title, kind: c.label, kindFont: c.kind === 'wo' ? "500 11px 'IBM Plex Mono',monospace" : "500 11.5px 'IBM Plex Sans',sans-serif", preview: preview(c), time: c.last ? c.last.t : '', hasUnread: un, unread: c.unread,
+          weight: un ? 700 : 600, previewColor: un ? '#1E2430' : '#667085', previewWeight: un ? 500 : 400, timeColor: un ? '#C00018' : '#98A2B3', timeWeight: un ? 600 : 400, open: () => this.openChannel(c.key) }; });
+    const ch = hub === 'chat' && C ? s.chatCh : null, info = ch ? C.channelInfo(ch) : null, kind = info ? (info.kind === 'dm' || info.kind === 'wo' ? info.kind : CHANNELS_KIND(info)) : '';
+    function CHANNELS_KIND(i) { return i.kind === 'site' ? 'site' : 'team'; }
+    const dmK = kind === 'dm' ? ch.slice(3) : null, dmView = s.dmView || 'direct';
     const shared = dmK ? C.sharedWith(dmK) : [];
+    const th = !info ? { key: 'team', glyph: '', members: [] } : (() => {
+      if (kind === 'dm') { const p = C.person(dmK); return { key: ch, isDm: true, title: p.name, first: p.name.split(' ')[0], sub: `${p.role} · ${p.team}`, person: dmK, glyph: dmK, radius: '50%', bg: p.avBg, fg: p.avFg, iconFont: "600 10.5px 'IBM Plex Sans',sans-serif", members: [] }; }
+      const [icon, fg, bg] = LOOK[kind], base = { key: ch, title: info.title, person: '', glyph: icon, radius: '7px', bg, fg, iconFont: "17px/1 'Material Symbols Outlined'" };
+      if (kind === 'wo') return { ...base, isWo: true, href: info.href, sub: `${C.displayId(ch)}${info.status ? ' · ' + info.status : ''}`, members: [] };
+      return { ...base, isGroup: true, sub: info.info || '', members: (info.members || []).slice(0, 5).map(k => { const p = C.person(k); return { initials: k, bg: p.avBg, fg: p.avFg }; }) };
+    })();
     const dmQ = (s.dmQ || '').toLowerCase();
     return {
       ...this.reqVals(), sl: this.slotVals(), closeSlots: () => this.setState({ sched: null }),
       request: () => window.CMMSRequestIntervention && window.CMMSRequestIntervention({}),
-      isDmList: isDmHub && !dmK, isDmThread: isDmHub && !!dmK, dmPick: !!s.dmPick, toggleDmPick: () => this.setState({ dmPick: !s.dmPick, dmQ: '' }), dmQ: s.dmQ || '', setDmQ: e => this.setState({ dmQ: e.target.value }),
-      dmPeople: C ? Object.keys(C.PEOPLE).filter(k => k !== C.ME).map(k => C.person(k)).filter(p => !dmQ || (p.name + ' ' + p.role).toLowerCase().includes(dmQ)).map(p => ({ ...p, open: () => this.setState({ dmOpen: 'dm-' + p.key, dmPick: false, dmView: 'direct', chatHl: '' }) })) : [],
-      dms: dmList.map(t => { const sh = C.sharedWith(t.other), un = t.unread > 0; return { key: t.other, name: t.person.name, role: t.person.role, avBg: t.person.avBg, avFg: t.person.avFg, weight: un ? 700 : 500, previewColor: un ? '#1E2430' : '#667085', previewWeight: un ? 600 : 400, timeColor: un ? '#C00018' : '#98A2B3', timeWeight: un ? 600 : 400, time: t.last ? t.last.t : '', hasUnread: un, unread: t.unread,
-        preview: t.last ? (t.last.who === C.ME ? 'You: ' : '') + t.last.text : '', hasShared: sh.length > 0, shared: `Also together in ${sh.length} conversation${sh.length > 1 ? 's' : ''} · ${sh.slice(0, 2).map(g => g.title).join(', ')}${sh.length > 2 ? '…' : ''}`, open: () => this.setState({ dmOpen: t.key, dmView: 'direct', chatHl: '' }) }; }),
-      backToDms: () => this.setState({ dmOpen: null, chatHl: '' }),
-      dm: dmK ? (() => { const p = C.person(dmK); return { key: dmK, ch: s.dmOpen, name: p.name, first: p.name.split(' ')[0], role: `${p.role} · ${p.team}`, avBg: p.avBg, avFg: p.avFg }; })() : { ch: 'dm-MD' },
-      dmDirect: (s.dmView || 'direct') === 'direct', dmAll: s.dmView === 'all',
-      dmViews: [['direct', 'Direct', 0], ['all', 'All together', shared.reduce((a, g) => a + g.msgs.length, 0)]].map(([k, label, n]) => { const on = (s.dmView || 'direct') === k; return { label, hasCount: k === 'all', count: n, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 12px 'IBM Plex Sans',sans-serif" : "500 12px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ dmView: k }) }; }),
-      dmShared: shared.map(g => { const [icon, fg, bg] = KLOOK[g.kind] || KLOOK.wo; return { title: g.title, icon, fg, bg, count: `${g.msgs.length} message${g.msgs.length > 1 ? 's' : ''}`, open: () => this.openChannel(g.key),
+      isChatList: hub === 'chat' && !ch, isChatThread: hub === 'chat' && !!ch, th, backToChats: () => this.setState({ chatCh: null, chatHl: '' }),
+      chatQ: s.chatQ || '', setChatQ: e => this.setState({ chatQ: e.target.value }), convs, noConvs: !!C && !convs.length,
+      toggleUnreadOnly: () => this.setState({ unreadOnly: !s.unreadOnly }), unreadBg: s.unreadOnly ? '#FBF1F2' : '#fff', unreadBorder: s.unreadOnly ? '#C00018' : '#D0D5DD', unreadFg: s.unreadOnly ? '#A30014' : '#344054', hasChatUnread: chatUnread > 0, chatUnread,
+      dmPick: !!s.dmPick, toggleDmPick: () => this.setState({ dmPick: !s.dmPick, dmQ: '' }), dmQ: s.dmQ || '', setDmQ: e => this.setState({ dmQ: e.target.value }),
+      dmPeople: C ? Object.keys(C.PEOPLE).filter(k => k !== C.ME).map(k => C.person(k)).filter(p => !dmQ || (p.name + ' ' + p.role).toLowerCase().includes(dmQ)).map(p => ({ ...p, open: () => this.setState({ chatCh: 'dm-' + p.key, dmPick: false, dmView: 'direct', chatHl: '' }) })) : [],
+      showThread: !dmK || dmView === 'direct', dmAll: !!dmK && dmView === 'all',
+      dmViews: [['direct', 'Direct', 0], ['all', 'All together', shared.reduce((a, g) => a + g.msgs.length, 0)]].map(([k, label, n]) => { const on = dmView === k; return { label, hasCount: k === 'all', count: n, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 12px 'IBM Plex Sans',sans-serif" : "500 12px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ dmView: k }) }; }),
+      dmShared: shared.map(g => { const [icon, fg, bg] = LOOK[g.kind] || LOOK.wo; return { title: g.title, icon, fg, bg, count: `${g.msgs.length} message${g.msgs.length > 1 ? 's' : ''}`, open: () => this.openChannel(g.key),
         msgs: g.msgs.slice(-3).map(m => { const p = C.person(m.who); return { who: m.who, name: m.who === C.ME ? 'You' : p.name.split(' ')[0], text: m.text, t: m.t, avBg: p.avBg, avFg: p.avFg }; }) }; }), dmNoShared: !shared.length,
+      unsched, noUnsched: !unsched.length, unschedCount: unsched.length,
       kpis, typeChips, groups,
       tabs: [['my', 'My to-do'], ['team', 'Team to-do']].map(([k, label]) => ({ label, font: tab === k ? bold : reg, color: tab === k ? '#1E2430' : '#667085', bar: tab === k ? '#C00018' : 'transparent', select: () => this.setState({ tab: k, menu: null }) })),
       closeMenus: () => this.setState({ menu: null }),
@@ -688,23 +686,16 @@ class Component extends DCLogic {
       ...(() => { const PN = s.PN, PL = s.PL, zoneOk = id => { if (!(s.fz || []).length || !PL || !id) return true; const a = PL.asset(id); return a && (s.fz || []).includes((PL.zoneOf(a.loc) || {}).id); };
         const list = PN ? PN.reminders(60).filter(r => zoneOk(r.assetId)).slice(0, 4) : [];
         return { noReminders: !list.length, reminders: list.map(r => ({ title: r.title, asset: r.asset, kind: r.kind, due: PN.fmt(r.due), icon: r.kind === 'Calibration' ? 'straighten' : 'verified', bg: r.days < 0 ? '#FDECEC' : r.days <= 14 ? '#FEF3E2' : '#EAF1FD', fg: r.days < 0 ? '#B42318' : r.days <= 14 ? '#B54708' : '#2456B8', left: r.days < 0 ? `${-r.days} d overdue` : r.days === 0 ? 'Today' : `in ${r.days} d`, pillBg: r.days < 0 ? '#FDECEC' : r.days <= 14 ? '#FEF3E2' : '#EEF1F4', pillFg: r.days < 0 ? '#B42318' : r.days <= 14 ? '#B54708' : '#475467', href: r.href })) }; })(),
-      slideTitle: s.anaHidden ? 'Analytics' : SLIDES[s.slide][0], slidePeriod: s.anaHidden ? 'Hidden — the conversations use the space' : SLIDES[s.slide][1], trackX: `translateX(-${s.slide * 100}%)`,
+      slideTitle: s.anaHidden ? 'Analytics' : SLIDES[s.slide][0], slidePeriod: s.anaHidden ? '' : SLIDES[s.slide][1], trackX: `translateX(-${s.slide * 100}%)`,
       prevSlide: () => this.go(s.slide - 1), nextSlide: () => this.go(s.slide + 1),
       dots: SLIDES.map(([t], i) => ({ title: t, w: i === s.slide ? '18px' : '6px', bg: i === s.slide ? '#C00018' : '#D0D5DD', go: () => this.go(i) })),
       hoverOn: () => this.setState({ hover: true }), hoverOff: () => this.setState({ hover: false }),
       quick: () => window.CMMSQuickIntervention && window.CMMSQuickIntervention({}),
-      hubTabs: [['activity', 'Activity', 'bolt'], ['dm', 'Direct', 'chat'], ['team', 'Teams', 'groups'], ['site', 'Site', 'factory'], ['wo', 'Work orders', 'build']].map(([k, label, icon]) => { const on = k === 'team' ? isTeam : hub === k;
-        const un = !C ? 0 : k === 'wo' ? woUnread : k === 'dm' ? dmUnread : k === 'activity' ? 0 : k === 'team' ? teams.reduce((n, t) => n + C.unread(t.key), 0) : C.unread(k);
-        return { label, icon, live: k === 'activity', hasUnread: un > 0 && !on, unread: un, font: on ? bold : reg, color: on ? '#1E2430' : '#667085', bar: on ? '#C00018' : 'transparent', select: () => this.openHub(k === 'team' ? (s.lastTeam || teams[0].key) : k) }; }),
-      isTeams: isTeam, teamTabs: teams.map(t => { const on = hub === t.key, un = C && !on ? C.unread(t.key) : 0; return { label: t.title, hasUnread: un > 0, unread: un, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', font: on ? "600 12.5px 'IBM Plex Sans',sans-serif" : "500 12.5px 'IBM Plex Sans',sans-serif", select: () => this.setState({ hub: t.key, lastTeam: t.key, chatHl: '' }) }; }),
-      isActivity: hub === 'activity', isChat, isWoList: isWo && !wt, isWoThread: isWo && !!wt,
+      hubTabs: [['activity', 'Activity', 'bolt'], ['chat', 'Chat', 'forum']].map(([k, label, icon]) => { const on = hub === k, un = k === 'chat' ? chatUnread : 0;
+        return { label, icon, live: k === 'activity', hasUnread: un > 0 && !on, unread: un, font: on ? bold : reg, color: on ? '#1E2430' : '#667085', bar: on ? '#C00018' : 'transparent', select: () => this.openHub(k) }; }),
+      isActivity: hub === 'activity',
       activity: s.act.map(([icon, kind, title, sub, ago, ibg, ifg, href], i) => ({ icon, kind, title, sub, ago, ibg, ifg, href, kindColor: ifg === '#B42318' ? '#B42318' : '#667085', bg: ifg === '#B42318' && i === 0 ? '#FEF6F6' : 'transparent' })),
-      members: C && isChat && C.CHANNELS[hub] ? C.CHANNELS[hub].members.slice(0, 6).map(k => { const p = C.person(k); return { initials: k, bg: p.avBg, fg: p.avFg }; }) : [],
-      channelInfo: C && C.CHANNELS[hub] ? C.CHANNELS[hub].info : '',
-      chatHl: s.chatHl, hub: isChat ? hub : 'team',
-      threads: threads.map(t => { const p = t.last && t.last.who !== 'sys' ? C.person(t.last.who) : null; return { key: C.displayId(t.key), title: t.title, weight: t.unread ? 700 : 600, time: t.last ? t.last.t : '', hasUnread: t.unread > 0, unread: t.unread,
-        preview: t.last ? (p ? (t.last.who === C.ME ? 'You' : p.name.split(' ')[0]) + ': ' : '') + t.last.text : 'No messages yet', open: () => this.openWoThread(t.key) }; }),
-      woThread: wt ? { key: s.woOpen, id: C.displayId(s.woOpen), title: wt.title, href: wt.href, status: wt.status || '' } : {}, backToThreads: () => this.setState({ woOpen: null, chatHl: '' }),
+      chatHl: s.chatHl,
       toast: s.toast,
       roleLabel: { manager: 'Maintenance Manager', planner: 'Maintenance Planner', technician: 'Maintenance Technician' }[role],
     };

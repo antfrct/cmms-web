@@ -1,3 +1,4 @@
+import { canFinance, MASK } from './access-model.js';
 // Advanced features (in development) — visibility flag + demo data for lifecycle, obsolescence, contracts and live monitoring.
 // Flag: localStorage 'cmms.advanced' ('0' = hidden, default shown), event 'cmms-advanced'. Accent #800080.
 const KEY = 'cmms.advanced';
@@ -10,7 +11,7 @@ const rnd = (s, i) => (hash(s + ':' + i) % 1000) / 1000;
 const TODAY = new Date(2026, 9, 7), NOWY = 2026;
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 export const fmtDate = d => `${MON[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-export const eur0 = n => '€' + Math.round(+n || 0).toLocaleString('en-US');
+export const eur0 = n => !canFinance() ? MASK : '€' + Math.round(+n || 0).toLocaleString('en-US');
 const addDays = n => new Date(TODAY.getTime() + n * 864e5);
 
 const LIFE = { Furnace: 25, Press: 20, Conveyor: 15, Fan: 15, Compressor: 15, Pump: 12, Robot: 12, Mixer: 18, Scale: 12, Crane: 20, Lift: 12, Forklift: 10 };

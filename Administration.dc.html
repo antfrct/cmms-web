@@ -187,7 +187,7 @@ const NAV = [
   ['Spare parts & costs', [['partCats', 'Part categories', 'inventory_2'], ['costCenters', 'Cost centers', 'account_balance']]],
   ['Data & units', [['customFields', 'Custom fields', 'dataset'], ['units', 'Units of measure', 'straighten']]],
   ['People', [['skills', 'Skills', 'engineering']]],
-  ['Organization', [['sites', 'Sites & plants', 'factory'], ['labels', 'QR label formats', 'qr_code_2']]],
+  ['Printing', [['labels', 'QR label formats', 'qr_code_2']]],
 ];
 const ICONS = ['build', 'event_repeat', 'insights', 'visibility', 'trending_up', 'construction', 'precision_manufacturing', 'conveyor_belt', 'water_pump', 'mode_fan', 'compress', 'heat', 'content_cut', 'blender', 'scale', 'water', 'package_2', 'electrical_services', 'local_fire_department', 'forklift', 'elevator', 'speed', 'home_repair_service', 'settings', 'filter_alt', 'sensors', 'radio_button_unchecked', 'water_drop', 'bolt', 'memory', 'air', 'oil_barrel', 'vibration', 'device_thermostat', 'verified_user', 'height', 'handyman', 'science', 'shield', 'recycling'];
 const BASE_WO = { Corrective: 1840, Preventive: 2210, Predictive: 96, Inspection: 540, Improvement: 0 }, BASE_FAIL = { Mechanical: 612, Electrical: 388, Hydraulic: 144, Pneumatic: 92, Instrumentation: 118, 'Software / PLC': 41, 'Operator error': 27 };
@@ -203,10 +203,10 @@ const plural = (n, w) => `${n.toLocaleString('en-US')} ${w}${n === 1 ? '' : 's'}
 const slug = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 
 class Component extends DCLogic {
-  state = { sec: new URLSearchParams(location.search).get('section') || (this.props.section ?? 'assetTypes'), q: '', form: null, confirm: null, toast: null, v: 0, M: null };
+  state = { sec: ((x) => x === 'sites' ? 'maturity' : x)(new URLSearchParams(location.search).get('section') || (this.props.section ?? 'assetTypes')), q: '', form: null, confirm: null, toast: null, v: 0, M: null };
   componentDidMount() {
     import('./maturity-model.js').then(() => this.forceUpdate()); this._mat = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._mat);
-    Promise.all(['./config-model.js', './plant-model.js', './people-model.js', './parts-model.js', './collab-model.js', './sites-model.js', './checklist-model.js'].map(p => import(p)))
+    import('./access-model.js'); Promise.all(['./config-model.js', './plant-model.js', './people-model.js', './parts-model.js', './collab-model.js', './sites-model.js', './checklist-model.js'].map(p => import(p)))
       .then(([CFG, PL, PM, PA, C, SI, CL]) => this.setState({ M: { CFG, PL, PM, PA, C, SI, CL } }));
     this._r = () => this.setState(s => ({ v: s.v + 1 }));
     ['cmms-config', 'cmms-plant', 'cmms-skills', 'cmms-parts', 'cmms-asset', 'cmms-profile'].forEach(e => window.addEventListener(e, this._r));
@@ -245,7 +245,7 @@ class Component extends DCLogic {
       costCenters: { add: 'Add cost center', icon: 'account_balance', desc: 'Cost centers allocate maintenance spending. They can be linked to spare parts, assets and work orders — consumption is charged to the cost center of the part, or of the work order when set.', where: 'Spare parts · Asset wizard (Identity) · New work order (Details) · Work order edit',
         note: 'Cost centers in use cannot be deleted — deactivate them to stop new allocations.', heads: ['Owner', 'Plant zone', 'Annual budget'],
         cells: r => { const z = r.zone && PL.node(r.zone); return [{ text: r.owner ? C.person(r.owner).name : '—' }, { text: z ? z.name : 'Whole site', dot: z ? (PL.ZONE_LOOK[z.id] || [])[1] : '' }, { text: CFG.fmtBudget(r.budget), ff: "'IBM Plex Mono',monospace" }]; },
-        form: [F('name', 'Name', 'text', { req: 1, span: 2 }), F('code', 'Code', 'code', { req: 1, ph: 'CC-XXX-000' }), F('budget', 'Annual budget (€)', 'number', { ph: '0' }), F('owner', 'Owner', 'select', { options: [{ v: '', l: 'No owner' }, ...people] }),
+        form: [F('name', 'Name', 'text', { req: 1, span: 2 }), F('code', 'Code', 'code', { req: 1, ph: 'CC-XXX-000' }), ...(window.RelixAccess && !window.RelixAccess.canFinance() ? [] : [F('budget', 'Annual budget (€)', 'number', { ph: '0' })]), F('owner', 'Owner', 'select', { options: [{ v: '', l: 'No owner' }, ...people] }),
           F('zone', 'Plant zone', 'select', { options: [{ v: '', l: 'Whole site' }, ...PL.zones().map(z => ({ v: z.id, l: z.name }))] }), F('desc', 'Description', 'textarea', { span: 2 })] },
       customFields: { add: 'Add field', icon: 'dataset', desc: 'Add your own fields to assets, work orders and spare parts. Numeric fields take their unit from the site — each site chooses its units in Units of measure.', where: 'Asset wizard & detail · New work order & detail · Spare part form & detail',
         note: 'The key is used in exports and integrations; it cannot change once data has been entered.', heads: ['Applies to', 'Type', 'Unit (this site)'],

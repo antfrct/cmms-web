@@ -1,4 +1,5 @@
 // Relix spare parts & suppliers (window.RelixParts). Storage: cmms.parts.v2 (full list once edited), cmms.suppliers.v1. Events: cmms-parts, cmms-suppliers.
+import { canFinance, MASK } from './access-model.js';
 const PK = 'cmms.parts.v2', SK = 'cmms.suppliers.v1';
 const rd = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
 const wr = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } };
@@ -108,7 +109,7 @@ export const consume = (ref, amount, wo, sub) => { const p = part(ref); if (!p |
 export const partsOfSupplier = id => parts().filter(p => p.supplier === id);
 export const partsOfAsset = id => parts().filter(p => (p.assets || []).includes(id));
 export const status = p => p.qty <= 0 ? ['Out of stock', '#FDECEC', '#B42318', '#D92D20'] : p.qty < p.min ? ['Low stock', '#FEF3E2', '#B54708', '#F79009'] : ['In stock', '#E6F4EE', '#0B6B4A', '#12A06E'];
-export const eur = n => '€' + (+n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const eur = n => !canFinance() ? MASK : '€' + (+n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // Resize an uploaded image to a small JPEG data URL (keeps localStorage light).
 export const readImage = (file, max = 360) => new Promise((res, rej) => { if (!file || !/^image\//.test(file.type)) return rej(new Error('Not an image')); const fr = new FileReader(); fr.onload = () => { const img = new Image(); img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', 0.82)); }; img.onerror = rej; img.src = fr.result; }; fr.onerror = rej; fr.readAsDataURL(file); });

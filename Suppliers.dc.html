@@ -104,7 +104,7 @@
       <sc-if value="{{ d.hasNotes }}"><div style="display:flex;flex-direction:column;gap:4px"><span style="font-weight:600;font-size:14px">Notes</span><p style="margin:0;color:#475467;line-height:1.5;white-space:pre-wrap">{{ d.notes }}</p></div></sc-if>
       <sc-if value="{{ d.hasService }}">
         <div style="display:flex;flex-direction:column;gap:8px">
-          <span style="display:flex;align-items:center;gap:8px"><span style="font-weight:600;font-size:14px">Rates</span><span style="font-size:12px;color:#98A2B3">used to cost interventions</span></span>
+          <span style="display:flex;align-items:center;gap:8px"><span style="font-weight:600;font-size:14px">Rates</span><span style="font-size:12px;color:#98A2B3">{{ ratesNote }}</span></span>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
             <sc-for list="{{ d.headRates }}" as="x"><span style="display:flex;flex-direction:column;gap:2px;padding:10px 12px;background:#F9FAFB;border:1px solid #EEF0F3;border-radius:8px"><span style="font-size:12px;color:#667085">{{ x.k }}</span><span style="font:600 15px 'IBM Plex Mono',monospace">{{ x.v }}</span></span></sc-for>
           </div>
@@ -221,6 +221,7 @@
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+const FIN = () => !!(window.RelixAccess && window.RelixAccess.canFinance());
 const STATUS = { Active: ['#E6F4EE', '#0B6B4A'], 'On hold': ['#FEF3E2', '#B54708'], Inactive: ['#EEF1F4', '#475467'] };
 const TERMS = ['30 days', '45 days', '60 days', '90 days', 'On receipt'];
 const TYPEC = { parts: ['Parts', 'inventory_2', '#EEF1F4', '#475467'], service: ['Services', 'engineering', '#F3EEFC', '#6941C6'], rental: ['Rental', 'forklift', '#FEF3E2', '#B54708'] };
@@ -262,7 +263,7 @@ class Component extends DCLogic {
     const look = x => ({ hasImage: !!x.image, noImage: !x.image, image: x.image, color: x.color || '#475467', initials: PA.initials(x.name) });
     const rows = list.slice((Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) - 1) * (s.ps || 25), Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) * (s.ps || 25)).map(x => { const n = parts.filter(p => p.supplier === x.id).length, [sbg, sfg] = STATUS[x.status] || STATUS.Active;
       const ty = PA.typesOf(x), svc = ty.includes('service') || ty.includes('rental');
-      return { ...x, ...look(x), typeChips: ty.map(t => ({ label: TYPEC[t][0], icon: TYPEC[t][1], bg: TYPEC[t][2], fg: TYPEC[t][3], tip: PA.SUP_TYPES[t][0] })), offerSub: [n ? `${n} part${n > 1 ? 's' : ''}` : '', x.hourly ? `€${x.hourly}/h` : '', svc && (x.rates || []).length ? `${x.rates.length} rate${x.rates.length > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ') || '—', parts: n || '—', partsColor: n ? '#1E2430' : '#C4CAD4', lead: x.leadDays !== '' && x.leadDays != null ? `${x.leadDays} day${x.leadDays == 1 ? '' : 's'}` : '—', sbg, sfg, status: x.status,
+      return { ...x, ...look(x), typeChips: ty.map(t => ({ label: TYPEC[t][0], icon: TYPEC[t][1], bg: TYPEC[t][2], fg: TYPEC[t][3], tip: PA.SUP_TYPES[t][0] })), offerSub: [n ? `${n} part${n > 1 ? 's' : ''}` : '', x.hourly && FIN() ? `€${x.hourly}/h` : '', svc && (x.rates || []).length ? `${x.rates.length} rate${x.rates.length > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ') || '—', parts: n || '—', partsColor: n ? '#1E2430' : '#C4CAD4', lead: x.leadDays !== '' && x.leadDays != null ? `${x.leadDays} day${x.leadDays == 1 ? '' : 's'}` : '—', sbg, sfg, status: x.status,
         contact: x.contact || '—', role: x.role || '', phone: x.phone || '—', email: x.email || '—', tel: x.phone ? 'tel:' + x.phone.replace(/\s/g, '') : '#', mail: x.email ? 'mailto:' + x.email : '#', bg: s.detail === x.id ? '#FBF7F7' : '#fff', op: x.status === 'Inactive' ? 0.6 : 1,
         stop: e => e.stopPropagation(), open: () => this.setState({ detail: x.id }), edit: e => { e.stopPropagation(); this.edit(x); }, del: e => { e.stopPropagation(); this.askDelete(x); } }; });
     const ds = s.detail && PA.supplier(s.detail);
@@ -272,8 +273,8 @@ class Component extends DCLogic {
         stars: [1, 2, 3, 4, 5].map(i => ({ fill: i <= (ds.rating || 0) ? 1 : 0, color: i <= (ds.rating || 0) ? '#F79009' : '#D0D5DD' })),
         info: [['Email', ds.email, ds.email ? 'mailto:' + ds.email : ''], ['Mobile', ds.mobile, ds.mobile ? 'tel:' + ds.mobile.replace(/\s/g, '') : ''], ['Website', ds.website, ds.website ? 'https://' + ds.website.replace(/^https?:\/\//, '') : ''], ['Address', ds.address], ['Customer account', ds.account], ['Payment terms', ds.terms], ['Lead time', ds.leadDays !== '' && ds.leadDays != null ? `${ds.leadDays} days` : '']]
           .filter(([, v]) => v).map(([k, v, href]) => ({ k, v, href: href || '#', isLink: !!href, isText: !href })),
-        hasService: PA.typesOf(ds).some(t => t !== 'parts'), headRates: [...(ds.hourly ? [['Hourly rate', `€${ds.hourly} / h`]] : []), ...(ds.travel ? [[PA.typesOf(ds).includes('service') ? 'Travel / call-out' : 'Delivery & pick-up', `€${ds.travel} / visit`]] : [])].map(([k, v]) => ({ k, v })),
-        rates: (ds.rates || []).map(r => ({ name: r.name, unit: PA.RATE_UNITS[r.unit] || '', price: '€' + (+r.price || 0).toLocaleString('en-US') })),
+        ratesNote: FIN() ? 'used to cost interventions' : 'prices visible with the Financial permission', hasService: PA.typesOf(ds).some(t => t !== 'parts'), headRates: !FIN() ? [] : [...(ds.hourly ? [['Hourly rate', `€${ds.hourly} / h`]] : []), ...(ds.travel ? [[PA.typesOf(ds).includes('service') ? 'Travel / call-out' : 'Delivery & pick-up', `€${ds.travel} / visit`]] : [])].map(([k, v]) => ({ k, v })),
+        rates: (ds.rates || []).map(r => ({ name: r.name, unit: PA.RATE_UNITS[r.unit] || '', price: FIN() ? '€' + (+r.price || 0).toLocaleString('en-US') : '•••' })),
         hasNotes: !!ds.notes, partsCount: ps.length ? `${ps.length}` : '', noParts: !ps.length,
         parts: ps.map(p => { const [st, pbg, pfg] = PA.status(p); return { ...p, hasImage: !!p.image, noImage: !p.image, supplierRef: p.supplierRef || '—', status: st, sbg: pbg, sfg: pfg, href: 'SpareParts.dc.html?q=' + encodeURIComponent(p.ref) }; }),
         edit: () => this.edit(ds), del: () => this.askDelete(ds) }; }
@@ -307,7 +308,7 @@ class Component extends DCLogic {
       typeSeg: [['', 'All', 'apps'], ['parts', 'Spare parts', 'inventory_2'], ['service', 'Services', 'engineering'], ['rental', 'Rental', 'forklift']].map(([k, label, icon]) => { const on = (s.ty || '') === k; return { label, icon, count: k ? all.filter(x => PA.typesOf(x).includes(k)).length : all.length, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ ty: k }) }; }),
       ...(() => { if (!fm) return { fTypes: [], fRates: [], unitOpts: [] }; const ty = f.types && f.types.length ? f.types : ['parts'], setF = p => this.setState(z => ({ form: { ...z.form, f: { ...z.form.f, ...p } } })), rates = f.rates || [];
         return { fTypes: Object.entries(PA.SUP_TYPES).map(([k, [label, icon]]) => { const on = ty.includes(k); return { label, icon, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#A30014' : '#344054', font: on ? bold : reg, toggle: e => { e.preventDefault(); const n = on ? ty.filter(x => x !== k) : [...ty, k]; setF({ types: n.length ? n : ['parts'] }); } }; }),
-          fHasRates: ty.includes('service') || ty.includes('rental'), fIsService: ty.includes('service'), fHourly: f.hourly ?? '', fTravel: f.travel ?? '', travelLabel: ty.includes('service') ? 'Travel / call-out fee (€ per visit)' : 'Delivery fee (€ per visit)',
+          fHasRates: (ty.includes('service') || ty.includes('rental')) && FIN(), fIsService: ty.includes('service'), fHourly: f.hourly ?? '', fTravel: f.travel ?? '', travelLabel: ty.includes('service') ? 'Travel / call-out fee (€ per visit)' : 'Delivery fee (€ per visit)',
           setHourly: e => setF({ hourly: e.target.value }), setTravel: e => setF({ travel: e.target.value }), unitOpts: Object.entries(PA.RATE_UNITS).map(([v, l]) => ({ v, l })),
           fRates: rates.map((r, i) => { const up = p => setF({ rates: rates.map((x, j) => j === i ? { ...x, ...p } : x) }); return { name: r.name, unit: r.unit, price: r.price, setName: e => up({ name: e.target.value }), setUnit: e => up({ unit: e.target.value }), setPrice: e => up({ price: e.target.value }), remove: () => setF({ rates: rates.filter((_, j) => j !== i) }) }; }),
           addRate: e => { e.preventDefault(); setF({ rates: [...rates, { id: 'r-' + Date.now().toString(36), name: '', unit: ty.includes('rental') && !ty.includes('service') ? 'day' : 'visit', price: '' }] }); } }; })(),

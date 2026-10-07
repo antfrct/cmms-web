@@ -245,6 +245,7 @@
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script>
+const FINV = v => window.RelixAccess && !window.RelixAccess.canFinance() ? '•••' : v;
 const P = '#800080';
 const F = {
   optimize: { title: 'Optimize planning', sub: 'Schedule unscheduled work and rebalance the week', icon: 'auto_fix_high', ai: true, w: '720px', run: 'Optimizing the planning', cta: 'Run optimization',
@@ -282,10 +283,10 @@ const OPT = [
     ['o6', 'Mixer 02 — Gearbox oil change', 'WO-1339848', 'Mon 28 · 09:00', 'Fri 2 · 07:00', 'Marc Dupont', 'Mon had Marc at 112% load · oil delivery confirmed Thu'],
   ]],
   ['rent', 'Rental grouped', 'construction', '#FEF3E2', '#B54708', [
-    ['o7', 'Mobile crane 50 t — 1 day instead of 3', 'RENT-0412', 'Tue · Wed · Fri', 'Thu 1 · 07:00–17:00', '', 'Groups Furnace 2 roof inspection, Fan V-12 motor lift and Press PH-030 cylinder removal on the same day', '−€1,860'],
+    ['o7', 'Mobile crane 50 t — 1 day instead of 3', 'RENT-0412', 'Tue · Wed · Fri', 'Thu 1 · 07:00–17:00', '', 'Groups Furnace 2 roof inspection, Fan V-12 motor lift and Press PH-030 cylinder removal on the same day', FINV('−€1,860')],
   ]],
   ['ext', 'External contractor', 'handshake', '#F6EAF6', P, [
-    ['o8', 'Transformer TR-2 — Thermography survey', 'WO-1339870', '', 'Fri 2 · 09:00–12:00', 'Élec Picardie', 'No certified thermographer available internally this week · rate €95/h'],
+    ['o8', 'Transformer TR-2 — Thermography survey', 'WO-1339870', '', 'Fri 2 · 09:00–12:00', 'Élec Picardie', 'No certified thermographer available internally this week' + (FINV('x') === 'x' ? ' · rate €95/h' : '')],
   ]],
   ['hold', 'Not scheduled', 'hourglass_top', '#FEF3E2', '#B54708', [
     ['o9', 'Hydraulic Press PH-030 — Oil leak', 'WO-1339840', '', 'Proposed Oct 9 · 14:00', '', 'Waiting for hydraulic filter HX-10 (delivery Oct 9) — kept in the backlog with the slot pre-booked'],
@@ -360,7 +361,7 @@ class Component extends DCLogic {
       v.optCons = [['skills', 'Skills & shifts', 'engineering'], ['parts', 'Spare parts availability', 'inventory_2'], ['prod', 'Machine availability', 'precision_manufacturing'], ['tools', 'Mobile equipment reservations', 'forklift'], ['rental', 'One rental day for grouped work', 'construction'], ['ext', 'External contractor if no capacity', 'handshake']].map(([k, label, icon]) => ({ label, icon, ...chip(o[k]), toggle: tg(k) }));
       v.optGoal = seg([['downtime', 'Minimize downtime'], ['balance', 'Balance workload'], ['cost', 'Minimize cost']], o.goal, x => set('goal', x));
       if (isResult) {
-        kp([['Work orders scheduled', '8 of 9', '1 waiting for parts', P], ['Technician load', '71% → 86%', 'No one above 100%', '#0B6B4A'], ['Rental days', '3 → 1', '−€1,860', '#0B6B4A', '#0B6B4A'], ['Planned downtime', '−3.5 h', 'Work moved to line stops', '#0B6B4A']]);
+        kp([['Work orders scheduled', '8 of 9', '1 waiting for parts', P], ['Technician load', '71% → 86%', 'No one above 100%', '#0B6B4A'], ['Rental days', '3 → 1', FINV('−€1,860'), '#0B6B4A', '#0B6B4A'], ['Planned downtime', '−3.5 h', 'Work moved to line stops', '#0B6B4A']]);
         let n = 0;
         v.optGroups = OPT.map(([gk, title, icon, bg, fg, rows]) => ({ title, icon, bg, fg, count: rows.length, rows: rows.map(([id, t, wo, from, to, who, why, save]) => { const on = !s.off[id]; if (on && gk !== 'hold') n++; return { title: t, id: wo, from, to, who, why, save, hasFrom: !!from, hasWho: !!who, hasSave: !!save, ...chk(on), toggle: tgOff(id) }; }) }));
         Object.assign(v, { footNote: 'Assignments respect skills, shifts and reservations.', secondaryLabel: 'Back', secondary: () => this.setState({ phase: 'setup' }), primaryLabel: `Apply ${n} change${n === 1 ? '' : 's'}`, primaryIcon: 'check', primaryDisabled: !n, primaryBg: n ? P : '#D0D5DD', primaryCursor: n ? 'pointer' : 'default', primary: () => { this.close(); this.flash(`${n} planning changes applied`); try { window.dispatchEvent(new CustomEvent('cmms-planning-optimized', { detail: { n } })); } catch (e) {} } });
@@ -385,7 +386,7 @@ class Component extends DCLogic {
         }).filter(r => !o.onlyCrit || r.crit).sort((a, b) => ({ order: 0, adjust: 1, reduce: 2, ok: 3 })[a.act[3]] - ({ order: 0, adjust: 1, reduce: 2, ok: 3 })[b.act[3]]);
         const cur = rows.find(r => r.p.ref === s.sel) || rows[0], orders = rows.filter(r => r.act[3] === 'order' && !s.off[r.p.ref]), applied = rows.filter(r => r.act[3] !== 'ok' && !s.off[r.p.ref]);
         const valNow = rows.reduce((a, r) => a + (r.p.min + r.p.max) / 2 * (r.p.cost || 0), 0), valNew = rows.reduce((a, r) => a + (r.rMin + r.rMax) / 2 * (r.p.cost || 0), 0);
-        kp([['Stock-out risk', `${rows.filter(r => r.act[3] === 'order').length} parts`, `within ${H} months · 0 after`, '#B42318'], ['Service level', `93% → ${o.lvl}%`, 'Expected part availability', '#0B6B4A'], ['Avg. stock value', '€' + Math.round(valNew).toLocaleString('en-US'), `${valNew <= valNow ? '−' : '+'}€${Math.abs(Math.round(valNew - valNow)).toLocaleString('en-US')} vs. today`, '#1E2430'], ['Purchase requests', String(orders.length), o.po ? 'Ready to send' : 'Not prepared', P]]);
+        kp([['Stock-out risk', `${rows.filter(r => r.act[3] === 'order').length} parts`, `within ${H} months · 0 after`, '#B42318'], ['Service level', `93% → ${o.lvl}%`, 'Expected part availability', '#0B6B4A'], ['Avg. stock value', FINV('€' + Math.round(valNew).toLocaleString('en-US')), FINV(`${valNew <= valNow ? '−' : '+'}€${Math.abs(Math.round(valNew - valNow)).toLocaleString('en-US')} vs. today`), '#1E2430'], ['Purchase requests', String(orders.length), o.po ? 'Ready to send' : 'Not prepared', P]]);
         v.fcCol = `Next ${H} mo`;
         v.fcRows = rows.map(r => { const on = !s.off[r.p.ref] && r.act[3] !== 'ok'; const out = r.p.qty === 0;
           return { name: r.p.name, qty: r.p.qty + ' ' + r.p.unit, stockColor: out ? '#B42318' : r.p.qty < r.rMin ? '#B54708' : '#1E2430', fc: r.fc + ' ' + r.p.unit, lead: r.lead + ' d', cur: `${r.p.min} / ${r.p.max}`, rec: `${r.rMin} / ${r.rMax}`, strike: r.act[3] === 'ok' ? 'none' : 'line-through',

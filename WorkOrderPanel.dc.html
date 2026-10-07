@@ -235,7 +235,8 @@ class Component extends DCLogic {
   componentDidMount() {
     import('./cost-model.js').then(() => this.forceUpdate());
     Promise.all([import('./collab-model.js'), import('./checklist-model.js'), import('./people-model.js'), import('./plant-model.js'), import('./config-model.js'), import('./parts-model.js')]).then(([C, CL, PE, PL, CFG, PA]) => { LIVE_PARTS = PA.parts; this.setState({ C, CL, PE, PL, CFG, PA }); });
-    this._open = e => { const d = { ...((e && e.detail) || {}) }; if (d.asset) { const list = this.assetList(); const m = list.find(a => a[0] === d.asset || a[1] === d.asset); d.asset = m ? m[0] : ''; }
+    this._open = e => { const AC = window.RelixAccess; if (AC && !AC.can('workorders', 'E')) { this.setState({ toast: 'Your role cannot create work orders — send an intervention request instead', toastHref: '#' }); clearTimeout(this._denyT); this._denyT = setTimeout(() => this.setState({ toast: null }), 3200); return; }
+      const d = { ...((e && e.detail) || {}) }; if (d.asset) { const list = this.assetList(); const m = list.find(a => a[0] === d.asset || a[1] === d.asset); d.asset = m ? m[0] : ''; }
       this.setState({ drawer: true, step: 0, form: { ...blank(), ...d }, prefilled: !!d.asset, picker: false }); };
     this._key = e => { if (e.key === 'Escape' && this.state.drawer) this.setState({ drawer: false }); };
     window.addEventListener('cmms-create-wo', this._open); window.addEventListener('keydown', this._key);

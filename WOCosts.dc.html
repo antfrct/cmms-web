@@ -7,6 +7,13 @@
 </head>
 <body>
 <x-dc>
+<sc-if value="{{ restricted }}">
+<section style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430">
+  <span style="flex:none;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:#F2F4F7;color:#475467;font:18px/1 'Material Symbols Outlined'">lock</span>
+  <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">{{ title }}</span><span style="font-size:12.5px;color:#667085">Costs are visible to users with the Financial permission.</span></span>
+</section>
+</sc-if>
+<sc-if value="{{ allowed }}" hint-placeholder-val="{{ true }}">
 <section style="position:relative;background:#fff;border:1px solid #E4E7EC;border-radius:8px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430">
   <div style="display:flex;align-items:center;gap:8px;padding:14px 16px 6px">
     <h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">{{ title }}</h2>
@@ -53,6 +60,7 @@
   </div>
   <div style="display:flex;align-items:center;gap:8px;padding:10px 16px 12px;font-size:12px;color:#98A2B3"><span style="font:15px/1 'Material Symbols Outlined'">info</span>{{ footer }}<a href="Suppliers.dc.html" style="margin-left:auto;font-weight:600">Providers &amp; rates</a></div>
 </section>
+</sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:520,&quot;height&quot;:640},&quot;woKey&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;WO-1339859&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;wo&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;parts&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;{ref,qty}[]&quot;},&quot;actualMs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number&quot;},&quot;readonly&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Intervention cost&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const UNIT = { h: 'h', visit: 'visit', day: 'day', fixed: '' };
@@ -60,13 +68,14 @@ class Component extends DCLogic {
   state = { K: null, C: null, PL: null, open: {}, v: 0 };
   componentDidMount() {
     Promise.all([import('./cost-model.js'), import('./collab-model.js'), import('./plant-model.js')]).then(([K, C, PL]) => this.setState({ K, C, PL }));
-    this._h = () => this.setState(s => ({ v: s.v + 1 })); ['cmms-wo', 'cmms-suppliers', 'cmms-parts'].forEach(n => window.addEventListener(n, this._h));
+    this._h = () => this.setState(s => ({ v: s.v + 1 })); ['cmms-wo', 'cmms-suppliers', 'cmms-parts', 'cmms-access'].forEach(n => window.addEventListener(n, this._h));
   }
-  componentWillUnmount() { ['cmms-wo', 'cmms-suppliers', 'cmms-parts'].forEach(n => window.removeEventListener(n, this._h)); }
+  componentWillUnmount() { ['cmms-wo', 'cmms-suppliers', 'cmms-parts', 'cmms-access'].forEach(n => window.removeEventListener(n, this._h)); }
   renderVals() {
     const s = this.state, K = s.K, C = s.C, p = this.props, ro = !!p.readonly;
     const base = { title: p.title || 'Intervention cost', modeLabel: p.actualMs != null ? 'Actual' : 'Estimate', modeBg: p.actualMs != null ? '#E6F4EE' : '#F2F4F7', modeFg: p.actualMs != null ? '#0B6B4A' : '#475467' };
-    if (!K || !C) return { ...base, total: '—', bar: [], cats: [], basis: '', footer: '' };
+    if (!K || !C) return { ...base, allowed: true, restricted: false, total: '—', bar: [], cats: [], basis: '', footer: '' };
+    if (!K.allowed()) return { ...base, allowed: false, restricted: true, total: '', bar: [], cats: [], basis: '', footer: '' };
     const key = p.woKey, stored = (key && C.getWo(key)) || {}, w = { ...(p.wo || {}), ...stored, costs: stored.costs || (p.wo || {}).costs || {}, tools: (p.wo && p.wo.tools) || stored.tools || [] };
     if (p.wo && p.wo.assignments) w.assignments = p.wo.assignments; if (p.wo && p.wo.dur) w.dur = p.wo.dur;
     const res = K.costOf(w, k => C.person(k), { parts: p.parts, actualMs: p.actualMs, plant: s.PL });
@@ -88,10 +97,10 @@ class Component extends DCLogic {
           unitPrice: cons ? (edit ? ` ${l.useUnit}${l.useUnit !== l.unit ? ' = ' + n3(l.qty) + ' ' + l.unit : ''}` : ` ${l.unit}`) + ` × ${K.eur(l.price)} / ${l.unit}` : `${l.unit ? ' ' + l.unit : ''} × ${K.eur(l.price)}`, total: K.eur(l.total), removable: !ro && !!l.manual, fixed: !l.manual, autoTip: AUTO[k] || 'Calculated automatically',
           setQty: e => { const q = Math.max(0, +e.target.value || 0); save(k, a => a.map((x, j) => j === l.i ? { ...x, qty: q } : x)); },
           remove: () => save(k, a => a.filter((_, j) => j !== l.i)) }; }) }; });
-    return { ...base, total: K.eur(res.total), cats,
+    return { ...base, allowed: true, restricted: false, total: K.eur(res.total), cats,
       bar: Object.entries(K.CATS).filter(([k]) => res.totals[k] > 0).map(([k, [label, , color]]) => ({ flex: res.totals[k], color, tip: `${label} · ${K.eur(res.totals[k])}` })),
       basis: res.actual ? `Based on ${res.hours} h actually spent in the intervention` : `Based on ${res.hours} h estimated · updated with actual time when the intervention is closed`,
-      footer: 'Rates come from people profiles, spare parts prices and provider rates.' };
+      footer: 'Labor uses each person\'s hourly rate (Teams & users); parts and provider prices come from Spare parts and Suppliers.' };
   }
 }
 </script>
