@@ -22,7 +22,23 @@
       <dc-import name="BackButton" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Good morning, Gaudéric 👋</h1>
-        <p style="margin:2px 0 0;color:#667085;font-size:13px">Tuesday, September 29</p>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px;display:flex;align-items:center;gap:6px">Tuesday, September 29<span style="color:#C4CAD4">·</span>{{ updatedLabel }}<button onClick="{{ refresh }}" title="Refresh now" style="width:22px;height:22px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:5px;color:#667085;cursor:pointer" style-hover="background:#EEF0F3"><span style="font:16px/1 'Material Symbols Outlined'">refresh</span></button></p>
+      </div>
+      <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
+        <sc-for list="{{ periods }}" as="p" hint-placeholder-count="3"><button onClick="{{ p.select }}" style="height:30px;padding:0 10px;background:{{ p.bg }};border:0;border-radius:5px;box-shadow:{{ p.shadow }};font:{{ p.font }};color:{{ p.color }};cursor:pointer;white-space:nowrap">{{ p.label }}</button></sc-for>
+      </div>
+      <div style="position:relative">
+        <button onClick="{{ toggleFilters }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 10px;background:{{ fBg }};border:1px solid {{ fBorder }};border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">filter_list</span>Filters<sc-if value="{{ fCount }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif">{{ fCount }}</span></sc-if></button>
+        <sc-if value="{{ filtersOpen }}">
+          <div onClick="{{ toggleFilters }}" style="position:fixed;inset:0;z-index:40"></div>
+          <div style="position:absolute;right:0;top:40px;z-index:41;width:280px;padding:12px;background:#fff;border:1px solid #E4E7EC;border-radius:10px;box-shadow:0 12px 32px rgba(16,24,40,.16);display:flex;flex-direction:column;gap:10px">
+            <span style="font-size:11.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#98A2B3">Plant zone</span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ zoneChips }}" as="z"><button onClick="{{ z.toggle }}" style="height:28px;padding:0 10px;background:{{ z.bg }};border:1px solid {{ z.border }};border-radius:14px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:{{ z.color }};cursor:pointer">{{ z.label }}</button></sc-for></div>
+            <button onClick="{{ toggleMine }}" style="display:flex;align-items:center;gap:8px;padding:0;background:transparent;border:0;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer"><span style="width:16px;height:16px;border-radius:4px;border:1.5px solid {{ mineBorder }};background:{{ mineBg }};display:grid;place-items:center;color:#fff;font:13px/1 'Material Symbols Outlined'">{{ mineIcon }}</span>Only my teams' equipment</button>
+            <span style="font-size:12px;color:#667085;line-height:1.4">Applies to the indicators, intervention requests, reminders and most-failing equipment.</span>
+            <div style="display:flex;align-items:center"><button onClick="{{ clearFilters }}" style="padding:0;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Clear</button><button onClick="{{ toggleFilters }}" style="margin-left:auto;height:28px;padding:0 12px;background:#1E2430;border:0;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Done</button></div>
+          </div>
+        </sc-if>
       </div>
       <button onClick="{{ request }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px 0 9px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#F9FAFB;border-color:#98A2B3"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">campaign</span>Request intervention</button>
       <button onClick="{{ quick }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:#fff;border:1px solid #F3A3AC;border-radius:6px;color:#A30014;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#FBF1F2"><span style="font:19px/1 'Material Symbols Outlined'">bolt</span>Quick intervention</button>
@@ -152,6 +168,10 @@
           <sc-if value="{{ anaShown }}" hint-placeholder-val="{{ true }}">
           <div style="overflow:hidden">
             <div style="display:flex;transform:{{ trackX }};transition:transform .5s cubic-bezier(.4,0,.2,1)">
+              <div style="flex:0 0 100%;height:192px;padding:4px 0 0;display:flex;flex-direction:column">
+                <sc-for list="{{ reminders }}" as="r"><a href="{{ r.href }}" style="display:grid;grid-template-columns:28px minmax(0,1fr) auto;align-items:center;gap:10px;padding:6px 16px;color:#1E2430" style-hover="background:#F9FAFB"><span style="width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:{{ r.bg }};color:{{ r.fg }};font:16px/1 'Material Symbols Outlined'">{{ r.icon }}</span><span style="min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.asset }} · {{ r.kind }} · {{ r.due }}</span></span><span style="height:22px;display:inline-flex;align-items:center;padding:0 8px;border-radius:11px;background:{{ r.pillBg }};color:{{ r.pillFg }};font-size:11.5px;font-weight:600;white-space:nowrap">{{ r.left }}</span></a></sc-for>
+                <sc-if value="{{ noReminders }}"><div style="padding:30px 16px;text-align:center;color:#667085">No control or calibration due in the next 60 days.</div></sc-if>
+              </div>
               <div style="flex:0 0 100%;height:192px;padding:4px 0 0;display:flex;flex-direction:column">
                 <sc-for list="{{ failures }}" as="e" hint-placeholder-count="4">
                   <a href="AssetDetail.dc.html" style="display:grid;grid-template-columns:minmax(0,1fr) 64px 24px;align-items:center;gap:12px;padding:6px 16px;color:#1E2430" style-hover="background:#F9FAFB">
@@ -439,7 +459,7 @@ const D = {
 };
 const EST = { u1: 1.5, u2: 1, u3: 0.5, u4: 2, tu1: 4, tu2: 1, tu3: 1, tu4: 1 };
 const FAIL = [['Tempering Furnace 2', 'Tempering Line', 9, [2, 4, 3, 6, 5, 8, 9]], ['Conveyor Line 3', 'Float Line', 7, [3, 5, 4, 4, 6, 5, 7]], ['Hydraulic Press', 'Workshop', 6, [5, 3, 6, 4, 5, 7, 6]], ['Palletizing Robot', 'Packaging', 4, [7, 6, 5, 5, 4, 5, 4]]];
-const SLIDES = [['Most failures', 'Last 30 days'], ['Preventive vs corrective', 'Last 30 days'], ['Mean time to repair', 'Last 8 weeks'], ['Created vs completed', 'Last 6 weeks'], ['Downtime by equipment', 'Last 30 days']];
+const SLIDES = [['Reminders', 'Controls & calibrations due'], ['Most failures', 'Last 30 days'], ['Preventive vs corrective', 'Last 30 days'], ['Mean time to repair', 'Last 8 weeks'], ['Created vs completed', 'Last 6 weeks'], ['Downtime by equipment', 'Last 30 days']];
 const wq = (wo, title, loc, type, prio, status) => { const [asset, task] = title.split(' — '); return new URLSearchParams({ wo, task: task || title, asset, loc, type, prio, status }).toString(); };
 const ACT = [
   ['priority_high', 'Critical issue reported', 'Tin Bath — Roller stopped', 'Float Line · reported by operator', '2 min', '#FDECEC', '#B42318', 'WorkOrders.dc.html'],
@@ -476,6 +496,7 @@ class Component extends DCLogic {
     this._dmOpen = e => { const k = e.detail; if (k) this.setState({ hub: 'dm', dmOpen: 'dm-' + k, dmView: 'direct', chatHl: '' }); }; window.addEventListener('cmms-dm-open', this._dmOpen);
     import('./collab-model.js').then(C => this.setState({ C }));
     import('./people-model.js').then(PM => this.setState({ PM }));
+    Promise.all([import('./plans-model.js'), import('./plant-model.js')]).then(([PN, PL]) => this.setState({ PN, PL })); this._pn = () => this.setState(st => ({ cv: (st.cv || 0) + 1 })); window.addEventListener('cmms-plans', this._pn);
     this._chat = () => this.setState(st => ({ cv: (st.cv || 0) + 1 })); window.addEventListener('cmms-chat', this._chat); window.addEventListener('cmms-request', this._chat); window.addEventListener('cmms-wo', this._chat);
     this._iv = setInterval(() => { if ((this.props.autoRotate ?? true) && !this.state.anaHidden && !this.state.hover && Date.now() - (this._nav || 0) > 4500) this.setState(s => ({ slide: (s.slide + 1) % SLIDES.length })); }, 5000);
     this._wo = e => { const r = e.detail || {}, C = this.state.C;
@@ -486,7 +507,7 @@ class Component extends DCLogic {
     this._sent = e => { const r = e.detail || {}; this.setState(s => ({ reqView: 'open', act: [['campaign', 'Intervention request sent', `${r.asset} — ${shortTitle(r.text)}`, 'by you', 'now', '#FEF3E2', '#B54708', 'Main.dc.html?req=' + r.id], ...s.act] })); };
     window.addEventListener('cmms-request-sent', this._sent);
   }
-  componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-chat', this._chat); window.removeEventListener('cmms-request', this._chat); window.removeEventListener('cmms-wo', this._chat); window.removeEventListener('cmms-dm-open', this._dmOpen); window.removeEventListener('cmms-request-sent', this._sent); }
+  componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-plans', this._pn); window.removeEventListener('cmms-chat', this._chat); window.removeEventListener('cmms-request', this._chat); window.removeEventListener('cmms-wo', this._chat); window.removeEventListener('cmms-dm-open', this._dmOpen); window.removeEventListener('cmms-request-sent', this._sent); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null, flashId: null }), 3200); }
   go(i) { this._nav = Date.now(); this.setState({ slide: (i + SLIDES.length) % SLIDES.length }); }
   openHub(k) { this.setState({ hub: k, woOpen: null, dmOpen: null, chatHl: '' }); }
@@ -616,7 +637,8 @@ class Component extends DCLogic {
     const typeChips = [['', 'All']].concat(Object.keys(TYPE).map(t => [t, t])).map(([k, label]) => { const on = tf === k;
       return { label, tip: k ? (on ? `Showing ${label} only` : `Show only ${label}`) : 'All maintenance types', bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.12)' : 'none', font: on ? sbold : sreg, color: on ? '#1E2430' : '#475467', select: () => this.setState({ type: on ? '' : k }) }; });
 
-    const failures = FAIL.map(([name, line, c, sr]) => { const mx = Math.max(...sr), mn = Math.min(...sr);
+    const LZ = { 'Tempering Line': 'FOR', 'Float Line': 'FOR', 'Cutting Line': 'FOR', Workshop: 'UTL', Utilities: 'UTL', 'Compressed Air': 'UTL', 'Cooling Water': 'UTL', Packaging: 'WHS', Melting: 'MEL', 'Batch House': 'MEL', 'Furnace F1': 'MEL' };
+    const failures = FAIL.filter(f => !(s.fz || []).length || (s.fz || []).includes(LZ[f[1]] || 'FOR')).map(([name, line, c, sr]) => { const mx = Math.max(...sr), mn = Math.min(...sr);
       return { name, line, count: c, pts: sr.map((v, i) => `${(i * 62 / (sr.length - 1) + 1).toFixed(1)},${(20 - (v - mn) / (mx - mn || 1) * 18).toFixed(1)}`).join(' '), color: c >= 7 ? '#C00018' : c >= 5 ? '#D97706' : '#0B6B4A' }; });
     const mix = [['Preventive', 54], ['Predictive', 8], ['Corrective', 31], ['Inspection', 7]].map(([t, v]) => ({ label: t, pct: v + '%', w: v + '%', icon: TYPE[t][0], fg: TYPE[t][1], bg: TYPE[t][2] }));
     const mt = [3.6, 3.4, 3.1, 3.3, 2.9, 3.0, 2.7, 2.8], mxm = 4;
@@ -625,7 +647,8 @@ class Component extends DCLogic {
     const backlog = bl.map(([c, d], i) => ({ c: (c / 28 * 100) + '%', d: (d / 28 * 100) + '%', label: 'W' + (34 + i) }));
     const downtime = [['Tempering Furnace 2', 14.5], ['Float Line', 9.2], ['Conveyor Line 3', 6.8], ['Hydraulic Press', 3.1]].map(([name, h]) => ({ name, h: h + ' h', w: (h / 14.5 * 100) + '%', color: h > 10 ? '#C00018' : h > 5 ? '#D97706' : '#98A2B3' }));
 
-    const kpis = [['Overdue', 7, 'WorkOrders.dc.html', '', 'crit'], ['Due today', 24, 'Planning.dc.html', ''], ['In progress', 7, 'WorkOrders.dc.html', '2 paused'], ['Not scheduled', 11, 'Planning.dc.html', 'need a date', 'warn'], ['Parts out of stock', 5, 'SpareParts.dc.html', '', 'warn']]
+    const per = s.period || 'today', fz = s.fz || [], fk = fz.length ? Math.max(0.25, fz.length / 4) * (s.mine ? 0.7 : 1) : s.mine ? 0.7 : 1, sc = (v, m = 1) => Math.max(fz.length || s.mine ? 0 : 1, Math.round(v * m * fk));
+    const kpis = [['Overdue', sc(7), 'WorkOrders.dc.html', '', 'crit'], [per === 'today' ? 'Due today' : per === 'week' ? 'Due this week' : 'Due this month', sc(24, per === 'today' ? 1 : per === 'week' ? 2.6 : 8.4), 'Planning.dc.html', ''], ['In progress', sc(7), 'WorkOrders.dc.html', '2 paused'], ['Not scheduled', sc(11), 'Planning.dc.html', 'need a date', 'warn'], ['Parts out of stock', 5, 'SpareParts.dc.html', '', 'warn']]
       .map(([label, value, href, note, lvl]) => ({ label, value, href, note, alert: lvl === 'crit', bg: lvl === 'crit' ? '#FEF6F6' : '#fff', labelColor: lvl === 'crit' ? '#B42318' : '#667085', color: lvl === 'crit' ? '#B42318' : lvl === 'warn' ? '#B54708' : '#1E2430', edge: lvl === 'crit' ? '#C00018' : 'transparent' }));
 
     const teams = C ? C.myTeams() : [{ key: 'team', title: 'Mechanical team' }];
@@ -657,6 +680,14 @@ class Component extends DCLogic {
       newWo: () => window.CMMSCreateWO ? window.CMMSCreateWO({}) : window.dispatchEvent(new CustomEvent('cmms-create-wo', { detail: {} })),
       failures, mix, mttr, backlog, downtime,
       anaShown: !s.anaHidden, anaHidden: s.anaHidden, anaHeadPad: s.anaHidden ? '10px 12px 10px 16px' : '12px 12px 4px 16px', toggleAna: () => this.toggleAna(), anaIcon: s.anaHidden ? 'expand_more' : 'expand_less', anaTip: s.anaHidden ? 'Show analytics' : 'Hide analytics',
+      updatedLabel: `Updated ${s.updated || '09:42'}`, refresh: () => { const d = new Date(); this.setState({ updated: `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}` }); this.flash('Dashboard refreshed'); },
+      periods: [['today', 'Today'], ['week', 'This week'], ['month', 'This month']].map(([k, label]) => { const on = (s.period || 'today') === k; return { label, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ period: k }) }; }),
+      filtersOpen: !!s.fOpen, toggleFilters: () => this.setState({ fOpen: !s.fOpen }), fCount: (s.fz || []).length + (s.mine ? 1 : 0), fBg: (s.fz || []).length || s.mine ? '#FBF7F7' : '#fff', fBorder: (s.fz || []).length || s.mine ? '#C00018' : '#D0D5DD',
+      zoneChips: [['MEL', 'Melting'], ['FOR', 'Fiberizing & Forming'], ['UTL', 'Utilities'], ['WHS', 'Warehousing']].map(([k, label]) => { const on = (s.fz || []).includes(k); return { label, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', toggle: () => this.setState(st => ({ fz: on ? (st.fz || []).filter(x => x !== k) : [...(st.fz || []), k] })) }; }),
+      toggleMine: () => this.setState({ mine: !s.mine }), mineBorder: s.mine ? '#C00018' : '#C4CAD4', mineBg: s.mine ? '#C00018' : '#fff', mineIcon: s.mine ? 'check' : '', clearFilters: () => this.setState({ fz: [], mine: false }),
+      ...(() => { const PN = s.PN, PL = s.PL, zoneOk = id => { if (!(s.fz || []).length || !PL || !id) return true; const a = PL.asset(id); return a && (s.fz || []).includes((PL.zoneOf(a.loc) || {}).id); };
+        const list = PN ? PN.reminders(60).filter(r => zoneOk(r.assetId)).slice(0, 4) : [];
+        return { noReminders: !list.length, reminders: list.map(r => ({ title: r.title, asset: r.asset, kind: r.kind, due: PN.fmt(r.due), icon: r.kind === 'Calibration' ? 'straighten' : 'verified', bg: r.days < 0 ? '#FDECEC' : r.days <= 14 ? '#FEF3E2' : '#EAF1FD', fg: r.days < 0 ? '#B42318' : r.days <= 14 ? '#B54708' : '#2456B8', left: r.days < 0 ? `${-r.days} d overdue` : r.days === 0 ? 'Today' : `in ${r.days} d`, pillBg: r.days < 0 ? '#FDECEC' : r.days <= 14 ? '#FEF3E2' : '#EEF1F4', pillFg: r.days < 0 ? '#B42318' : r.days <= 14 ? '#B54708' : '#475467', href: r.href })) }; })(),
       slideTitle: s.anaHidden ? 'Analytics' : SLIDES[s.slide][0], slidePeriod: s.anaHidden ? 'Hidden — the conversations use the space' : SLIDES[s.slide][1], trackX: `translateX(-${s.slide * 100}%)`,
       prevSlide: () => this.go(s.slide - 1), nextSlide: () => this.go(s.slide + 1),
       dots: SLIDES.map(([t], i) => ({ title: t, w: i === s.slide ? '18px' : '6px', bg: i === s.slide ? '#C00018' : '#D0D5DD', go: () => this.go(i) })),

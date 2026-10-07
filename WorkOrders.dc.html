@@ -29,8 +29,8 @@
       <button onClick="{{ openCreate }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</button>
     </header>
 
-    <section style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
-      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+    <section style="flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
         <button onClick="{{ k.select }}" style="position:relative;display:flex;flex-direction:column;gap:1px;padding:12px 18px;background:{{ k.bg }};border:0;border-right:1px solid #EEF0F3;text-align:left;cursor:pointer;font-family:inherit;color:#1E2430" style-hover="background:#FAFAFB">
           <span style="font-size:12px;color:#667085;font-weight:500">{{ k.label }}</span>
           <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:22px;line-height:28px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ k.color }}">{{ k.value }}</span><span style="font-size:12px;color:#667085">{{ k.sub }}</span></span>
@@ -134,14 +134,7 @@
           </div>
         </sc-for>
         <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;color:#667085">No work orders match these filters.</div></sc-if>
-        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px">
-          <span style="color:#667085;font-size:12.5px">{{ rangeLabel }}</span>
-          <div style="margin-left:auto;display:flex;align-items:center;gap:2px">
-            <button style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">chevron_left</span></button>
-            <sc-for list="{{ pages }}" as="p" hint-placeholder-count="6"><button style="min-width:30px;height:30px;padding:0 6px;background:{{ p.bg }};border:1px solid {{ p.border }};border-radius:6px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">{{ p.n }}</button></sc-for>
-            <button style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;color:#475467"><span style="font:18px/1 'Material Symbols Outlined'">chevron_right</span></button>
-          </div>
-        </div>
+        <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="work orders" style="position:sticky;bottom:0;z-index:2" hint-size="100%,46px"></dc-import>
       </section>
     </sc-if>
 
@@ -299,7 +292,7 @@ class Component extends DCLogic {
     const runOf = id => { try { const v = JSON.parse(localStorage.getItem('cmms.intervention.v3.' + id)); return v && v.summary; } catch (e) { return null; } };
     const ROWS = s.rows.map(r => { const sm = runOf(r.id), w = s.C && s.C.getWo(r.id); let x = w && w.waiting !== undefined ? { ...r, waiting: w.waiting } : r; if (sm) x = { ...x, status: sm.mode === 'done' ? 'Completed' : 'In progress', run: sm, waiting: sm.mode === 'done' ? '' : sm.paused ? (x.waiting || 'paused') : x.waiting }; if (w && w.logged && w.status === 'Completed') x = { ...x, status: 'Completed', waiting: '', logged: true, date: (w.completion && w.completion.at) || x.date }; return { ...x, overdue: x.status === 'Scheduled' && !!x.date && x.date < TODAY }; });
     const open = ROWS.filter(r => r.status !== 'Completed');
-    const kpiDefs = [['open', 'Open', open.length + 43, 'across 4 teams', '#1E2430'], ['overdue', 'Overdue', ROWS.filter(r => r.overdue).length + 6, 'oldest 3 days', '#B42318'], ['critical', 'Critical', open.filter(r => r.prio === 'Critical').length + 1, 'priority', '#1E2430'], ['waiting', 'Waiting', open.filter(r => r.waiting).length + 5, 'blocked or paused', '#B54708']];
+    const kpiDefs = [['open', 'Open', open.length + 43, 'across 4 teams', '#1E2430'], ['overdue', 'Overdue', ROWS.filter(r => r.overdue).length + 6, 'oldest 3 days', '#B42318'], ['progress', 'In progress', open.filter(r => r.status === 'In progress').length + 9, 'being worked on', '#0B6B4A'], ['critical', 'Critical', open.filter(r => r.prio === 'Critical').length + 1, 'priority', '#1E2430'], ['waiting', 'Waiting', open.filter(r => r.waiting).length + 5, 'blocked or paused', '#B54708']];
     const kpis = kpiDefs.map(([k, label, value, sub, color]) => ({ label, value, sub, color, bg: s.kpi === k ? '#FBF7F7' : '#fff', bar: s.kpi === k ? '#C00018' : 'transparent', select: () => this.setState({ kpi: s.kpi === k ? '' : k }) }));
     const q = s.q.trim().toLowerCase(), C = s.C;
     const isIncomplete = r => { if (!C) return false; const w = C.getWo(r.id); return !!(w && w.quick ? C.missingInfo(w).length : !r.prio || !r.who); };
@@ -311,6 +304,7 @@ class Component extends DCLogic {
       if (s.prio && r.prio !== s.prio) return false;
       if (s.kpi === 'open' && r.status === 'Completed') return false;
       if (s.kpi === 'overdue' && !r.overdue) return false;
+      if (s.kpi === 'progress' && r.status !== 'In progress') return false;
       if (s.kpi === 'critical' && (r.prio !== 'Critical' || r.status === 'Completed')) return false;
       if (s.kpi === 'waiting' && (!r.waiting || r.status === 'Completed')) return false;
       const mf = s.mf;
@@ -361,7 +355,8 @@ class Component extends DCLogic {
         startLabel: resumable || r.status === 'In progress' ? 'Resume' : 'Start', startTip: resumable ? `Resume at step ${r.run.stepNo} of ${r.run.total}` : 'Start intervention',
         startBg: resumable || r.status === 'In progress' ? '#FBF1F2' : '#fff', startBorder: resumable || r.status === 'In progress' ? '#F3A3AC' : '#D0D5DD', startColor: '#A30014' };
     };
-    const rows = list.map(decorate);
+    const ps = s.ps || 25, pgN = Math.max(1, Math.ceil(list.length / ps)), pg = Math.min(s.pg || 1, pgN);
+    const rows = (s.view === 'list' ? list.slice((pg - 1) * ps, pg * ps) : list).map(decorate);
     const [ab, abg] = box(allSel || selIds.length > 0);
     const sel = (k, ph, opts) => ({ value: s[k], border: s[k] ? '#C00018' : '#D0D5DD', bg: s[k] ? '#FBF7F7' : '#fff', options: [{ v: '', l: ph }, ...opts.map(o => ({ v: o, l: o }))], onChange: e => this.setState({ [k]: e.target.value }) });
     const cols = [['title', 'Work order', 1], ['asset', 'Asset', 1], ['status', 'Status', 1], ['prio', 'Priority', 1], ['who', 'Assigned to', 1], ['date', 'Scheduled', 1]].map(([k, l]) => ({
@@ -387,7 +382,7 @@ class Component extends DCLogic {
     const runQs = r => { const a = assetOf(r.asset); return new URLSearchParams({ wo: r.id, task: r.title, asset: a[1], loc: a[2], type: r.type, prio: r.prio, status: r.status }).toString(); };
     const WR = s.wait && ROWS.find(x => x.id === s.wait);
     const stock = (q0, min) => q0 === 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${q0} in stock`, '#B54708'] : [`${q0} in stock`, '#0B6B4A'];
-    const total = hasFilters ? list.length : 57;
+    const total = list.length;
     return {
       blocked: B ? { ...B, hasAction: !!B.action } : null, closeBlocked: () => this.setState({ blocked: null }),
       flowSteps: COLS.map(([st], i) => ({ label: st, dot: SB[st][2], arrow: i < COLS.length - 1 })),
@@ -401,7 +396,7 @@ class Component extends DCLogic {
       q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters, resetFilters: () => this.setState({ q: '', team: '', status: '', prio: '', kpi: '', mf: { types: [], line: '', who: '', due: '', stop: false, incomplete: false, chat: false } }),
       selects: [sel('team', 'All teams', ['Mechanical team', 'Electrical team', 'Float Line team']), { ...sel('status', 'Any status', Object.keys(SB)), options: [{ v: '', l: 'Any status' }, ...Object.keys(SB).map(o => ({ v: o, l: o })), { v: 'waiting', l: 'Flagged waiting' }, { v: 'overdue', l: 'Overdue' }] }, sel('prio', 'Any priority', Object.keys(PB))],
       allBorder: ab, allBg: abg, allIcon: allSel ? 'check' : selIds.length ? 'remove' : '', toggleAll: () => this.setState({ sel: allSel ? {} : Object.fromEntries(list.map(r => [r.id, true])) }),
-      rangeLabel: `Showing 1–${Math.min(10, total)} of ${total} work orders`, pages: ['1', '2', '3', '4', '5', '6'].map((n, i) => ({ n, bg: i ? 'transparent' : '#F2F4F7', border: i ? 'transparent' : '#D0D5DD' })),
+      pager: { total, page: pg, size: ps, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) }, rangeLabel: '', pages: ['1', '2', '3', '4', '5', '6'].map((n, i) => ({ n, bg: i ? 'transparent' : '#F2F4F7', border: i ? 'transparent' : '#D0D5DD' })),
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }),
       doExport: () => this.flash(`Exporting ${selIds.length || total} work orders…`),
       openCreate: () => window.CMMSCreateWO && window.CMMSCreateWO({}), openQuick: () => window.CMMSQuickIntervention && window.CMMSQuickIntervention({}),

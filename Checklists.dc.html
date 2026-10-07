@@ -67,7 +67,7 @@
           </span>
         </div>
       </sc-for>
-      <div style="padding:10px 16px;color:#667085;font-size:12.5px">{{ rangeLabel }}</div>
+      <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="checklists" style="position:sticky;bottom:0;z-index:2" hint-size="100%,46px"></dc-import>
     </div>
     </section>
     <sc-if value="{{ menuOpen }}"><div onClick="{{ closeMenus }}" style="position:fixed;inset:0;z-index:30"></div></sc-if>
@@ -188,7 +188,7 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state, q = s.q.toLowerCase();
     const list = s.rows.filter(r => (!q || (r.name + r.desc).toLowerCase().includes(q)) && (!s.usage || (s.usage === 'used' ? r.used > 0 : r.used === 0)));
-    const rows = list.map(r => { const [icon, iconBg, iconFg] = ICONS[r.ic], mo = s.menu === r.id; return {
+    const rows = list.slice((Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) - 1) * (s.ps || 25), Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) * (s.ps || 25)).map(r => { const [icon, iconBg, iconFg] = ICONS[r.ic], mo = s.menu === r.id; return {
       name: r.name, desc: r.desc, icon, iconBg, iconFg, tasks: r.tasks.length, created: r.created, modified: r.modified,
       used: r.used ? `${r.used} plan${r.used > 1 ? 's' : ''}` : 'Not used', usedColor: r.used ? '#344054' : '#98A2B3', bg: s.drawer && s.drawer.id === r.id ? '#FBF7F7' : '#fff',
       open: e => { e.stopPropagation(); this.open(r); }, menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent',
@@ -205,7 +205,7 @@ class Component extends DCLogic {
     return {
       ...this.advVals(),
       rows, q: s.q, setQ: e => this.setState({ q: e.target.value }), usage: s.usage, setUsage: e => this.setState({ usage: e.target.value }),
-      countLabel: `${list.length} checklists`, rangeLabel: `Showing 1–${list.length} of ${list.length}`,
+      countLabel: `${list.length} checklists`, pager: { total: list.length, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }), openNew: () => this.open(null),
       drawerOpen: !!s.drawer, closeDrawer: () => this.setState({ drawer: null }),
       drawerTitle: s.drawer && s.drawer.id ? 'Edit checklist' : 'New checklist', drawerSub: s.drawer && s.drawer.id ? 'Changes apply to future work orders only' : 'Fields marked * are required',

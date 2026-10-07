@@ -91,6 +91,15 @@
       <sc-if value="{{ anyFilter }}"><button onClick="{{ clearAll }}" style="height:34px;display:flex;align-items:center;gap:4px;padding:0 8px;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">close</span>Clear filters</button></sc-if>
     </div>
 
+    <section style="flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+        <div title="{{ k.tip }}" style="display:flex;align-items:baseline;gap:8px;padding:9px 16px;border-right:1px solid #EEF0F3;min-width:0">
+          <span style="font-size:20px;font-weight:600;line-height:24px;color:{{ k.color }};font-variant-numeric:tabular-nums">{{ k.value }}</span>
+          <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12px;font-weight:500;color:#344054;white-space:nowrap">{{ k.label }}</span><span style="font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.sub }}</span></span>
+        </div>
+      </sc-for>
+    </section>
+
     <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) {{ panelW }};gap:12px">
       <section style="min-width:0;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
         <div style="flex:none;display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #EEF0F3">
@@ -441,11 +450,19 @@ class Component extends DCLogic {
       const item = { id: 'u' + seq++, tools: r.tools || [], asset: r.assetName || r.asset || 'New asset', task: r.title, type: TYPE[r.type] ? r.type : 'Corrective', prio: r.prio || 'Medium', segs, dur: segs.reduce((a, x) => a + x.h, 0), team: NAME_TEAM[r.who] || (TEAMS.includes(r.who) ? r.who : 'Mechanical team'), age: 'Created just now', fresh: true };
       this.setState(s => ({ backlog: [item, ...s.backlog], panel: true, F: EMPTY })); this.flash('Added to Not scheduled — drag it onto the planning', false); };
     window.addEventListener('cmms-wo-created', this._wo);
+    this._loadStore = () => import('./collab-model.js').then(C => { const have = new Set([...this.state.events.map(e => e.wo), ...this.state.backlog.map(u => u.wo)].filter(Boolean)), evs = [], bl = [];
+      C.createdWos().filter(w => w.status !== 'Completed' && !have.has(w.key)).forEach(w => { const type = TYPE[w.type] ? w.type : 'Corrective', prio = w.prio || 'Medium';
+        if (w.due && w.due.length >= 16) { const day = Math.round((new Date(w.due.slice(0, 10) + 'T12:00') - new Date(2026, 8, 28, 12)) / 864e5); let cur = +w.due.slice(11, 13) + +w.due.slice(14, 16) / 60;
+          const asg = (w.assignments || []).filter(x => x.minutes && P[x.key]), segs = asg.length ? asg.map(x => ({ who: x.key, h: Math.max(0.5, Math.round(x.minutes / 30) / 2), skills: x.skills || [] })) : [{ who: P[w.assignee] ? w.assignee : 'GD', h: Math.max(0.5, +w.dur || 1), skills: [] }];
+          segs.forEach((g, i) => { evs.push({ id: 'e' + seq++, day, start: cur, dur: g.h, asset: w.asset, task: w.task, who: g.who, type, prio, status: w.status === 'In progress' ? 'In progress' : 'Scheduled', skills: g.skills, tools: w.tools || [], wo: w.key, part: i + 1, parts: segs.length, gen: !!w.generatedBy }); cur += g.h; }); }
+        else bl.push({ id: 'u' + seq++, wo: w.key, tools: w.tools || [], asset: w.asset, task: w.task, type, prio, segs: [{ skills: [], h: Math.max(0.5, +w.dur || 1), who: P[w.assignee] ? w.assignee : '' }], dur: Math.max(0.5, +w.dur || 1), team: (P[w.assignee] || [])[2] || 'Mechanical team', age: 'Created in Relix' }); });
+      if (evs.length || bl.length) this.setState(s => ({ events: [...s.events, ...evs], backlog: [...bl, ...s.backlog] })); });
+    this._loadStore(); this._gen = () => setTimeout(this._loadStore, 50); window.addEventListener('cmms-plan-generated', this._gen);
     import('./people-model.js').then(PM => { this.PM = PM; this.forceUpdate(); });
     import('./plant-model.js').then(PL => { this.PL = PL; this._feas = null; this.forceUpdate(); });
     this._prof = () => { this._feas = null; this.forceUpdate(); }; window.addEventListener('cmms-profile', this._prof); window.addEventListener('cmms-asset', this._prof);
   }
-  componentWillUnmount() { window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-profile', this._prof); clearTimeout(this._t); }
+  componentWillUnmount() { window.removeEventListener('cmms-plan-generated', this._gen); window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-profile', this._prof); clearTimeout(this._t); }
   toolBusy(tools, day, a, b, ignore, label) {
     if (this.PL) for (const t of tools || []) { const r = this.PL.RESERVATIONS.find(x => x.woKey && x.tool === t && x.day === day && x.from < b && x.to > a && x.wo !== label); if (r) { const nm = this.PL.asset(t) ? this.PL.asset(t).name : t; return `${nm} reserved ${hm(r.from)}–${hm(r.to)} (${r.wo})`; } }
     for (const t of tools || []) { const e = this.state.events.find(x => x.day === day && (x.tools || []).includes(t) && !(ignore && (x.id === ignore || (x.wo && x.wo === ignore))) && x.start < b && x.start + x.dur > a); if (e) { const nm = this.PL && this.PL.asset(t) ? this.PL.asset(t).name : t; return `${nm} reserved ${hm(e.start)}–${hm(e.start + e.dur)} (${e.asset})`; } } return null; }
@@ -578,6 +595,10 @@ class Component extends DCLogic {
     else if (s.mode === 'day') range = e => e.day === s.dayIdx;
     else { const m0 = new Date(2026, 8 + s.week, 1), m1 = new Date(2026, 9 + s.week, 1); const a = Math.round((m0 - BASE) / 864e5), b = Math.round((m1 - BASE) / 864e5); range = e => e.day >= a && e.day < b; }
     const inRange = EV.filter(range);
+    const kEv = inRange.filter(e => match(e)), kUniq = new Set(kEv.map(e => e.wo || e.id)).size, kOver = kEv.filter(e => e.day < TODAY && e.status && e.status !== 'Completed').length, kCrit = kEv.filter(e => e.prio === 'Critical' && statusOf(e) !== 'Completed').length, kH = kEv.reduce((a, e) => a + e.dur, 0);
+    let kDays = 0; for (let d = -400; d < 400; d++) if (range({ day: d })) { const wd = dateOf(d).getDay(); if (wd && wd !== 6) kDays++; }
+    const kCap = kDays * CAP * PEOPLE.length, kRate = kCap ? Math.round(kH / kCap * 100) : 0, kPer = s.mode === 'day' ? 'this day' : s.mode === 'month' ? 'this month' : 'this week';
+    const kpis = [['Planned interventions', kUniq, kPer, '#1E2430', 'Distinct work orders scheduled in the visible period'], ['Overdue', kOver, 'past date, not completed', kOver ? '#B42318' : '#1E2430', 'Scheduled before today and still open'], ['Critical', kCrit, 'open, critical priority', kCrit ? '#C00018' : '#1E2430', 'Critical-priority work still to do'], ['Planned load', fmtH(Math.round(kH * 2) / 2), `of ${fmtH(kCap)} capacity`, '#1E2430', `Hours planned vs. team capacity (${CAP} h × technicians × working days)`], ['Average load rate', kRate + ' %', kRate > 100 ? 'over capacity' : kRate >= 85 ? 'near capacity' : 'room to plan', kRate > 100 ? '#B42318' : kRate >= 85 ? '#B54708' : '#0B6B4A', 'Planned load / capacity']].map(([label, value, sub, color, tip]) => ({ label, value, sub, color, tip }));
     const BL = s.backlog.map(u => ({ ...u, backlog: true }));
     const cnt = (k, v) => k === 'who' ? inRange.filter(e => match(e, k) && e.who === v).length : inRange.filter(e => match(e, k) && (k === 'asset' ? e.asset === v || LINE[e.asset] === v : k === 'status' && v === 'Waiting' ? !!e.waiting : e[k] === v)).length + (k !== 'status' ? BL.filter(u => match(u, k) && (k === 'asset' ? u.asset === v || LINE[u.asset] === v : u[k] === v)).length : 0);
 
@@ -770,7 +791,7 @@ class Component extends DCLogic {
       panelLeave: () => { if (s.panelHot) this.setState({ panelHot: false }); },
       panelDrop: e => { e.preventDefault(); this.unschedule(); },
       backlog, backlogCount: s.backlog.length, backlogHours: fmtH(blH) + ' total', hiddenByFilter: hidden > 0, hiddenLabel: `${hidden} hidden by filters`, backlogEmpty: s.backlog.length === 0,
-      createWo: () => window.CMMSCreateWO ? window.CMMSCreateWO({}) : window.dispatchEvent(new CustomEvent('cmms-create-wo', { detail: {} })),
+      kpis, createWo: () => window.CMMSCreateWO ? window.CMMSCreateWO({}) : window.dispatchEvent(new CustomEvent('cmms-create-wo', { detail: {} })),
       hasToast: !!s.toast, toastText: s.toast ? s.toast.text : '', canUndo: !!(s.toast && s.toast.undo && this._undo), toastIcon: 'check_circle', toastIconColor: '#6CE9A6',
       undo: () => { if (this._undo) this.setState({ ...this._undo, toast: null }); this._undo = null; },
     };

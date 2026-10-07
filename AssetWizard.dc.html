@@ -80,10 +80,10 @@
           <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Name<span style="color:#C00018"> *</span></span><input value="{{ f.name }}" onInput="{{ on.name }}" placeholder="e.g. Conveyor Line 4" style="height:42px;padding:0 12px;border:1px solid {{ errName }};border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;outline:none" /></label>
           <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Code<span style="color:#C00018"> *</span></span><input value="{{ f.id }}" onInput="{{ on.id }}" disabled="{{ isEdit }}" style="height:42px;padding:0 12px;border:1px solid #D0D5DD;border-radius:8px;font:500 13.5px 'IBM Plex Mono',monospace;outline:none;background:{{ codeBg }}" /></label>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Status</span>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Status<span style="color:#C00018"> *</span></span>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px"><sc-for list="{{ statuses }}" as="o"><button onClick="{{ o.pick }}" style="height:40px;display:flex;align-items:center;justify-content:center;gap:6px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;font:{{ o.font }};color:{{ o.color }};cursor:pointer"><span style="width:8px;height:8px;border-radius:50%;background:{{ o.dot }}"></span>{{ o.label }}</button></sc-for></div>
         </div>
-        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Criticality</span>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Criticality<span style="color:#C00018"> *</span></span>
           <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px"><sc-for list="{{ crits }}" as="o"><button onClick="{{ o.pick }}" style="height:40px;display:flex;align-items:center;justify-content:center;gap:6px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;font:{{ o.font }};color:{{ o.color }};cursor:pointer"><span style="width:8px;height:8px;border-radius:2px;background:{{ o.dot }}"></span>{{ o.label }}</button></sc-for></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Owner · responsible technician</span>
@@ -91,6 +91,17 @@
         </div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
           <sc-for list="{{ idFields }}" as="x"><label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">{{ x.label }}</span><input value="{{ x.value }}" onInput="{{ x.set }}" placeholder="{{ x.ph }}" style="height:38px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label></sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:12px;align-items:start">
+          <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Photo <span style="font-weight:400;color:#98A2B3">(optional)</span></span>
+            <label onDragOver="{{ photoOver }}" onDrop="{{ photoDrop }}" style="height:96px;display:flex;align-items:center;gap:12px;padding:8px;border:1.5px dashed #C4CAD4;border-radius:8px;background:#F9FAFB;cursor:pointer">
+              <sc-if value="{{ hasPhoto }}"><img src="{{ f.photo }}" alt="" style="width:78px;height:78px;border-radius:6px;object-fit:cover;border:1px solid #E4E7EC" /></sc-if>
+              <sc-if value="{{ noPhoto }}"><span style="width:78px;height:78px;border-radius:6px;display:grid;place-items:center;background:#EEF0F3;color:#98A2B3;font:28px/1 'Material Symbols Outlined'">add_a_photo</span></sc-if>
+              <span style="flex:1;display:flex;flex-direction:column;gap:3px"><span style="font-weight:600;color:#1E2430">{{ photoCta }}</span><span style="font-size:12px;color:#667085">Drag &amp; drop or click · JPG / PNG, resized automatically</span><sc-if value="{{ hasPhoto }}"><button onClick="{{ removePhoto }}" style="align-self:flex-start;padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer">Remove photo</button></sc-if></span>
+              <input type="file" accept="image/*" onChange="{{ pickPhoto }}" style="display:none" />
+            </label>
+          </div>
+          <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Commissioning date</span><input type="date" value="{{ f.commissioned }}" onInput="{{ on.commissioned }}" max="2026-09-29" style="height:38px;padding:0 10px;border:1px solid {{ commBorder }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><sc-if value="{{ commErr }}"><span style="font-size:12px;color:#B42318">{{ commErr }}</span></sc-if></label>
         </div>
         <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Description</span><textarea value="{{ f.desc }}" onInput="{{ on.desc }}" rows="2" placeholder="Function, particularities…" style="padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px/1.5 'IBM Plex Sans',sans-serif;outline:none;resize:vertical"></textarea></label>
       </sc-if>
@@ -146,7 +157,7 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1200,&quot;height&quot;:900}}">
 const STEPS = [['Type', 'category'], ['Location', 'account_tree'], ['Identity', 'badge'], ['Specifications', 'tune'], ['Documents', 'description']];
 const OWNERS = ['GD', 'PL', 'MD', 'AM', 'SM', 'SB', 'JM'];
-const blank = () => ({ cls: 'fixed', type: '', loc: '', id: '', name: '', status: 'In service', crit: 'Medium', owner: 'PL', manufacturer: '', model: '', serial: '', year: '', desc: '', specs: [], docs: [] });
+const blank = () => ({ cls: 'fixed', type: '', loc: '', id: '', name: '', status: 'In service', crit: 'Medium', owner: 'PL', manufacturer: '', model: '', serial: '', year: '', commissioned: '', photo: '', desc: '', specs: [], docs: [] });
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
 class Component extends DCLogic {
   state = { open: false, step: 0, f: blank(), edit: null, nav: { zone: '', line: '' }, lq: '', codeTouched: false, PM: null, C: null, tried: false };
@@ -164,7 +175,9 @@ class Component extends DCLogic {
   }
   componentWillUnmount() { window.removeEventListener('cmms-asset-wizard', this._open); window.removeEventListener('keydown', this._key); }
   setF(p) { this.setState(s => { const f = { ...s.f, ...p }; if (!s.codeTouched && !s.edit && s.PM && (p.type || p.loc)) f.id = s.PM.suggestCode(f.type, f.loc); return { f }; }); }
-  valid(step) { const f = this.state.f; return step === 0 ? !!f.type : step === 1 ? !!f.loc : step === 2 ? !!(f.name.trim() && f.id.trim()) : true; }
+  valid(step) { const f = this.state.f; return step === 0 ? !!f.type : step === 1 ? !!f.loc : step === 2 ? !!(f.name.trim() && f.id.trim()) && !this.commErr() : true; }
+  commErr() { const c = this.state.f.commissioned, y = this.state.f.year; if (!c) return ''; if (c > '2026-09-29') return 'Cannot be in the future'; if (y && /^\d{4}$/.test(y) && c.slice(0, 4) < y) return 'Before the year installed'; return ''; }
+  photo(file) { if (!file || !/^image\//.test(file.type)) return; const r = new FileReader(); r.onload = () => { const img = new Image(); img.onload = () => { const m = 480, k = Math.min(1, m / Math.max(img.width, img.height)), c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); this.setF({ photo: c.toDataURL('image/jpeg', 0.82) }); }; img.src = r.result; }; r.readAsDataURL(file); }
   save() {
     const s = this.state, PM = s.PM, f = s.f;
     for (let i = 0; i < 3; i++) if (!this.valid(i)) return this.setState({ step: i, tried: true });
@@ -210,17 +223,19 @@ class Component extends DCLogic {
         { label: 'Step', items: lSel ? PM.children(lSel).map(st => item(st, st.id === f.loc, 2)) : [], empty: !lSel, emptyText: 'Pick a line' },
       ],
       f, errName: okErr(2) && !f.name.trim() ? '#F04438' : '#D0D5DD',
-      on: { name: set('name'), id: set('id'), desc: set('desc') },
+      on: { name: set('name'), id: set('id'), desc: set('desc'), commissioned: set('commissioned') },
       statuses: Object.keys(PM.STATUS).map(k => { const on = f.status === k, [bg, fg] = PM.STATUS[k]; return { label: k, dot: fg, bg: on ? bg : '#fff', border: on ? fg : '#D0D5DD', color: on ? fg : '#344054', font: on ? bold : reg, pick: () => this.setF({ status: k }) }; }),
       crits: Object.keys(PM.CRIT).map(k => { const on = f.crit === k; return { label: k, dot: PM.CRIT[k], bg: on ? (k === 'Critical' ? '#C00018' : '#FBF1F2') : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? (k === 'Critical' ? '#fff' : '#A30014') : '#344054', font: on ? bold : reg, pick: () => this.setF({ crit: k }) }; }),
       owners: OWNERS.map(k => { const p = C.person(k), on = f.owner === k; return { key: k, name: p.name.split(' ')[0], avBg: p.avBg, avFg: p.avFg, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : '#D0D5DD', pick: () => this.setF({ owner: k }) }; }),
+      hasPhoto: !!f.photo, noPhoto: !f.photo, photoCta: f.photo ? 'Replace photo' : 'Add a photo', pickPhoto: e => { this.photo(e.target.files && e.target.files[0]); e.target.value = ''; }, removePhoto: e => { e.preventDefault(); e.stopPropagation(); this.setF({ photo: '' }); },
+      photoOver: e => e.preventDefault(), photoDrop: e => { e.preventDefault(); this.photo(e.dataTransfer.files && e.dataTransfer.files[0]); }, commErr: this.commErr(), commBorder: this.commErr() ? '#F04438' : '#D0D5DD',
       idFields: [['manufacturer', 'Manufacturer', 'e.g. Glaston'], ['model', 'Model', 'e.g. FC500'], ['serial', 'Serial number', '—'], ['year', 'Year installed', '2026']].map(([k, label, ph]) => ({ label, ph, value: f[k], set: set(k) })),
       specs: f.specs.map(([k, v], i) => ({ k, v, setK: e => this.setF({ specs: f.specs.map((x, j) => j === i ? [e.target.value, x[1]] : x) }), setV: e => this.setF({ specs: f.specs.map((x, j) => j === i ? [x[0], e.target.value] : x) }), remove: () => this.setF({ specs: f.specs.filter((_, j) => j !== i) }) })),
       specSugg: (PM.SPEC_SUGGEST[f.type] || []).filter(k => !f.specs.some(x => x[0] === k)).map(k => ({ k, add: () => this.setF({ specs: [...f.specs, [k, '']] }) })),
       addSpec: () => this.setF({ specs: [...f.specs, ['', '']] }),
       docKinds: Object.keys(PM.DOC_KINDS),
       docs: f.docs.map((d, i) => { const [icon, fg, bg] = PM.DOC_KINDS[d.kind] || PM.DOC_KINDS.Manual; return { ...d, icon, fg, bg, rename: e => this.setF({ docs: f.docs.map((x, j) => j === i ? { ...x, name: e.target.value } : x) }), setKind: e => this.setF({ docs: f.docs.map((x, j) => j === i ? { ...x, kind: e.target.value } : x) }), remove: () => this.setF({ docs: f.docs.filter((_, j) => j !== i) }) }; }),
-      addFiles: e => { const fs = [...(e.target.files || [])]; const guess = nm => /manual/i.test(nm) ? 'Manual' : /drawing|diagram|dwg|p&id/i.test(nm) ? 'Drawing' : /procedure|sop/i.test(nm) ? 'Procedure' : /cert/i.test(nm) ? 'Certificate' : 'Datasheet';
+      addFiles: e => { const fs = [...(e.target.files || [])]; const guess = nm => /manual/i.test(nm) ? 'Manual' : /drawing|diagram|dwg|p&id/i.test(nm) ? 'Plan' : /procedure|sop/i.test(nm) ? 'Procedure' : /cert/i.test(nm) ? 'Certificate' : 'Datasheet';
         this.setF({ docs: [...f.docs, ...fs.map(x => ({ name: x.name.replace(/\.[^.]+$/, ''), kind: guess(x.name), size: x.size > 1e6 ? (x.size / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(x.size / 1e3)) + ' KB', added: 'Today' }))] }); e.target.value = ''; },
       canBack: step > 0, back: () => this.setState({ step: step - 1 }),
       canNext: step < 4, next: () => this.valid(step) ? this.setState({ step: step + 1, tried: false }) : this.setState({ tried: true }), nextLabel: `Next: ${STEPS[Math.min(4, step + 1)][0]}`,

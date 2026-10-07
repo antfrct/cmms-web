@@ -50,6 +50,15 @@
         </nav>
 
         <div style="min-height:0;display:flex;flex-direction:column;gap:12px;min-width:0">
+          <section style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+              <button onClick="{{ k.select }}" style="position:relative;display:flex;flex-direction:column;gap:1px;padding:10px 16px;background:{{ k.bg }};border:0;border-right:1px solid #EEF0F3;text-align:left;cursor:pointer;font-family:inherit" style-hover="background:#F9FAFB">
+                <span style="font-size:12px;color:#667085;font-weight:500">{{ k.label }}</span>
+                <span style="font-size:20px;font-weight:600;line-height:26px;color:#1E2430">{{ k.value }}</span>
+                <span style="position:absolute;left:0;right:0;bottom:0;height:2px;background:{{ k.bar }}"></span>
+              </button>
+            </sc-for>
+          </section>
           <div style="flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <label style="width:280px;height:34px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;background:#fff">
               <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span>
@@ -107,7 +116,7 @@
             </sc-if>
             <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;color:#667085;background:#fff;border:1px dashed #D0D5DD;border-radius:8px">No documents match these filters.</div></sc-if>
           </div>
-          <div style="flex:none;color:#667085;font-size:12.5px">{{ rangeLabel }}</div>
+          <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="documents" style="flex:none;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden" hint-size="100%,46px"></dc-import>
         </div>
       </div>
     </div>
@@ -285,7 +294,7 @@ class Component extends DCLogic {
   }
   renderVals() {
     const s = this.state, D = s.D, PM = s.PM;
-    if (!D || !PM) return { views: [], cats: [], zones: [], selects: [], layouts: [], docs: [], isRows: true, sel: null, panelW: '0px', linkFields: [], catNames: [], discNames: [] };
+    if (!D || !PM) return { kpis: [], pager: { total: 0 }, views: [], cats: [], zones: [], selects: [], layouts: [], docs: [], isRows: true, sel: null, panelW: '0px', linkFields: [], catNames: [], discNames: [] };
     const rows = D.all(), assets = PM.assets(), aName = id => (assets.find(a => a.id === id) || { name: id }).name;
     const zoneOfDoc = d => d.links.assets.map(id => { const a = assets.find(x => x.id === id); return a && PM.zoneOf(a.loc) && PM.zoneOf(a.loc).id; }).filter(Boolean);
     const recent = d => /Sep|Today/.test(d.date) && /2026|Today/.test(d.date);
@@ -329,7 +338,9 @@ class Component extends DCLogic {
       chips: u.links[k].map(v => ({ label: lab(v), remove: () => setLinks(k, a => a.filter(x => x !== v)) })), add: e => { const v = e.target.value; if (v) setLinks(k, a => [...a, v]); } })) : [];
     const total = list.length;
     return {
-      views, cats, zones, docs: list.map(deco), empty: !list.length, isGrid: s.layout === 'grid', isRows: s.layout === 'list', isArchivedView: s.view === 'archived',
+      views, cats, zones, docs: list.slice((Math.min(s.pg || 1, Math.max(1, Math.ceil(total / (s.ps || 25)))) - 1) * (s.ps || 25), Math.min(s.pg || 1, Math.max(1, Math.ceil(total / (s.ps || 25)))) * (s.ps || 25)).map(deco), empty: !list.length,
+      pager: { total, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(total / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
+      kpis: [['', 'Total documents'], ['Plan', 'Plans'], ['Procedure', 'Procedures'], ['Manual', 'Manuals']].map(([k, label]) => { const live = rows.filter(d => !d.archived), on = !!k && s.cat === k; return { label, value: k ? live.filter(d => d.cat === k).length : live.length, bg: on ? '#FBF7F7' : '#fff', bar: on ? '#C00018' : 'transparent', select: () => this.setState({ cat: k && s.cat !== k ? k : '', pg: 1 }) }; }), isGrid: s.layout === 'grid', isRows: s.layout === 'list', isArchivedView: s.view === 'archived',
       q: s.q, setQ: e => this.setState({ q: e.target.value }),
       selects: [sel('asset', [{ v: '', l: 'Any asset' }, ...assets.filter(a => rows.some(d => d.links.assets.includes(a.id))).map(a => ({ v: a.id, l: a.name }))]), sel('linkKind', [{ v: '', l: 'Linked to anything' }, { v: 'assets', l: 'Linked to assets' }, { v: 'wos', l: 'Linked to work orders' }, { v: 'steps', l: 'Linked to checklist steps' }]), sel('ft', [{ v: '', l: 'Any file type' }, ...Object.keys(D.FT).map(x => ({ v: x, l: x }))])],
       hasFilters: !!(s.cat || s.zone || s.ft || s.asset || s.linkKind || s.q), clearFilters: () => this.setState({ cat: '', zone: '', ft: '', asset: '', linkKind: '', q: '' }),

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:18px;padding:18px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430">
+  <section style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;padding:20px;background:#FBF8F3;border:1px solid #F1E6D2;border-radius:10px">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#93370D">Site maturity · {{ siteName }}</span>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-size:40px;line-height:44px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ earned }}</span><span style="font-size:20px;font-weight:600;color:#667085">/ {{ max }}</span><span style="font:28px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#E3A008">star</span><span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:13px;background:#fff;border:1px solid #F1E6D2;font-size:12.5px;font-weight:600;color:#93370D">{{ stage }}</span></div>
+      <p style="margin:0;color:#475467;line-height:1.5;text-wrap:pretty">{{ stageText }}</p>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div style="position:relative;height:12px;border-radius:6px;background:#EFE6D6;overflow:hidden"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ pct }};border-radius:6px;background:linear-gradient(90deg,#F2B544,#E3A008);transition:width .4s"></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#98A2B3"><sc-for list="{{ stages }}" as="g"><span style="font-weight:{{ g.w }};color:{{ g.c }}">{{ g.label }}</span></sc-for></div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ dist }}" as="d"><span style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;background:#fff;border:1px solid #EEF0F3;border-radius:14px;font-size:12.5px;color:#344054"><span style="display:flex"><sc-for list="{{ d.stars }}" as="s"><span style="font:14px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span><b style="font-weight:600">{{ d.n }}</b> {{ d.label }}</span></sc-for></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+      <span style="font-size:13px;font-weight:600">{{ nextTitle }}</span>
+      <sc-for list="{{ nexts }}" as="n">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #EEF0F3;border-radius:8px">
+          <span style="flex:none;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:#FEF3E2;color:#B54708;font:18px/1 'Material Symbols Outlined'">{{ n.icon }}</span>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ n.name }}</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Unlocks {{ n.unlocks }}</span></span>
+          <button onClick="{{ n.up }}" style="flex:none;height:30px;display:flex;align-items:center;gap:4px;padding:0 10px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#E3A008">Go to {{ n.to }}<span style="font:15px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#E3A008">star</span></button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ allExpert }}"><div style="padding:14px;background:#fff;border:1px solid #EEF0F3;border-radius:8px;color:#475467">Every area is at Expert level. Relix is used to its full potential on this site.</div></sc-if>
+    </div>
+  </section>
+
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <h3 style="margin:0;font-size:15px;font-weight:600">Maturity by area</h3>
+    <span style="font-size:12.5px;color:#667085">Pick the level that matches how your site works today. You can change it at any time.</span>
+    <div style="margin-left:auto;display:flex;padding:2px;background:#EEF0F3;border-radius:7px"><sc-for list="{{ filters }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.select }}" style="height:28px;padding:0 10px;background:{{ f.bg }};border:0;border-radius:5px;box-shadow:{{ f.shadow }};font:{{ f.font }};color:{{ f.color }};cursor:pointer;white-space:nowrap">{{ f.label }}</button></sc-for></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ minCol }},1fr));gap:14px">
+    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+      <article style="display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff;border:1px solid {{ c.border }};border-radius:10px;transition:border-color .2s">
+        <div style="display:flex;align-items:center;gap:12px">
+          <span style="flex:none;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;background:#F2F4F7;color:#344054;font:20px/1 'Material Symbols Outlined'">{{ c.icon }}</span>
+          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:14.5px;font-weight:600">{{ c.name }}</span><span style="font-size:12px;color:#667085">{{ c.tagline }}</span></span>
+          <span style="flex:none;display:flex;gap:1px"><sc-for list="{{ c.stars }}" as="s"><span style="font:20px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ c.opts }}" as="o">
+            <button onClick="{{ o.pick }}" onMouseEnter="{{ o.hover }}" onMouseLeave="{{ o.leave }}" title="{{ o.tip }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 10px;background:{{ o.bg }};border:1.5px solid {{ o.border }};border-radius:8px;cursor:pointer;text-align:left;font-family:inherit" style-hover="border-color:#E3A008">
+              <span style="display:flex;gap:0"><sc-for list="{{ o.stars }}" as="s"><span style="font:15px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>
+              <span style="font-size:12.5px;font-weight:600;color:{{ o.color }}">{{ o.name }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;min-height:72px">
+          <p style="margin:0;line-height:1.5;color:#344054;text-wrap:pretty"><b style="font-weight:600">{{ c.showLabel }}</b> — {{ c.desc }}</p>
+          <div style="display:flex;flex-wrap:wrap;gap:5px"><sc-for list="{{ c.can }}" as="k"><span style="height:22px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:11px;background:{{ c.chipBg }};color:{{ c.chipFg }};font-size:11.5px;font-weight:500"><span style="font:13px/1 'Material Symbols Outlined'">{{ c.chipIcon }}</span>{{ k }}</span></sc-for></div>
+        </div>
+        <sc-if value="{{ c.hasNext }}"><span style="margin-top:auto;padding-top:10px;border-top:1px solid #F2F4F7;font-size:12px;color:#667085">Next step · <b style="font-weight:600;color:#93370D">{{ c.nextName }}</b> adds {{ c.nextAdds }}</span></sc-if>
+        <sc-if value="{{ c.isTop }}"><span style="margin-top:auto;padding-top:10px;border-top:1px solid #F2F4F7;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#0B6B4A"><span style="font:15px/1 'Material Symbols Outlined'">workspace_premium</span>Full potential reached</span></sc-if>
+      </article>
+    </sc-for>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;color:#98A2B3;font-size:12px"><span>{{ lastChange }}</span><button onClick="{{ resetAll }}" style="margin-left:auto;padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Restore the site's starting levels</button></div>
+  <sc-if value="{{ toast }}"><div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;font:500 13px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24)"><span style="font:18px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#F2B544">star</span>{{ toast }}<sc-if value="{{ canUndo }}"><button onClick="{{ undo }}" style="margin-left:6px;padding:0;background:transparent;border:0;font:600 13px 'IBM Plex Sans',sans-serif;color:#FFB3BC;cursor:pointer">Undo</button></sc-if></div></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:900},&quot;columns&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;One&quot;,&quot;Two&quot;],&quot;default&quot;:&quot;Two&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const bold = "600 12.5px 'IBM Plex Sans',sans-serif", reg = "500 12.5px 'IBM Plex Sans',sans-serif";
+const starRow = (n, size) => [1, 2, 3].map(i => ({ fill: i <= n ? 1 : 0, color: i <= n ? '#E3A008' : '#D0D5DD' }));
+class Component extends DCLogic {
+  state = { MM: null, site: 'THO', siteName: '', hover: {}, filter: 'all', toast: null };
+  componentDidMount() {
+    Promise.all([import('./maturity-model.js'), import('./sites-model.js')]).then(([MM, SI]) => { const s = SI.current(); this.setState({ MM, site: s.id, siteName: s.name }); this.SI = SI; });
+    this._ch = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._ch);
+    this._site = () => { if (this.SI) { const s = this.SI.current(); this.setState({ site: s.id, siteName: s.name }); } }; window.addEventListener('cmms-site', this._site);
+  }
+  componentWillUnmount() { window.removeEventListener('cmms-maturity', this._ch); window.removeEventListener('cmms-site', this._site); clearTimeout(this._t); }
+  flash(t, undo) { this._undo = undo || null; this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 3600); }
+  set(c, n) { const MM = this.state.MM, site = this.state.site, from = MM.levels(site)[c.key]; if (from === n) return; MM.setLevel(site, c.key, n); const L = c.levels[n - 1];
+    this.flash(n > from ? `${c.name} is now ${L.name} · +${n - from} star${n - from > 1 ? 's' : ''}` : `${c.name} set to ${L.name}`, () => MM.setLevel(site, c.key, from)); }
+  renderVals() {
+    const s = this.state, MM = s.MM, minCol = (this.props.columns ?? 'Two') === 'One' ? '100%' : '420px';
+    if (!MM) return { minCol, cards: [], stages: [], dist: [], nexts: [], filters: [], earned: '', max: '', pct: '0%' };
+    const lv = MM.levels(s.site), sc = MM.score(s.site), st = MM.stageOf(sc.earned, sc.max), r = sc.earned / sc.max;
+    const ORDER = ['wo', 'cl', 'prev', 'plan', 'assets', 'parts', 'org', 'docs', 'notif', 'perf'];
+    const nexts = MM.CONCEPTS.filter(c => lv[c.key] < 3).sort((a, b) => lv[a.key] - lv[b.key] || ORDER.indexOf(a.key) - ORDER.indexOf(b.key)).slice(0, 3)
+      .map(c => { const to = lv[c.key] + 1, L = c.levels[to - 1]; return { icon: c.icon, name: c.name, to: L.name, unlocks: L.can.slice(0, 2).join(', ').toLowerCase(), up: () => this.set(c, to) }; });
+    const list = MM.CONCEPTS.filter(c => s.filter === 'all' || (s.filter === 'grow' ? lv[c.key] < 3 : lv[c.key] === 3));
+    const log = MM.logOf(s.site)[0], cn = log && MM.CONCEPTS.find(c => c.key === log.concept);
+    return {
+      minCol, siteName: s.siteName, earned: sc.earned, max: sc.max, pct: Math.round(r * 100) + '%', stage: st[1], stageText: st[2],
+      stages: MM.STAGES.map(g => ({ label: g[1], w: g[1] === st[1] ? 600 : 400, c: g[1] === st[1] ? '#93370D' : '#98A2B3' })),
+      dist: [3, 2, 1].map(n => ({ stars: starRow(n), n: MM.CONCEPTS.filter(c => lv[c.key] === n).length, label: MM.LEVELS[n - 1][1] })).filter(d => d.n),
+      nextTitle: nexts.length ? 'Where you could grow next' : 'All areas at Expert', nexts, allExpert: !nexts.length,
+      filters: [['all', 'All areas'], ['grow', 'Room to grow'], ['top', 'At Expert']].map(([k, label]) => { const on = s.filter === k; return { label, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ filter: k }) }; }),
+      cards: list.map(c => { const cur = lv[c.key], hv = s.hover[c.key], show = hv || cur, L = c.levels[show - 1], nx = cur < 3 ? c.levels[cur] : null, preview = hv && hv !== cur;
+        return { name: c.name, icon: c.icon, tagline: c.tagline, stars: starRow(cur), border: cur === 3 ? '#F1E6D2' : '#E4E7EC',
+          showLabel: preview ? `Level ${show} · ${L.name} (preview)` : `Level ${show} · ${L.name}`, desc: L.desc, can: L.can,
+          chipBg: preview ? '#F2F4F7' : '#FEF7E6', chipFg: preview ? '#475467' : '#93370D', chipIcon: preview ? 'visibility' : 'check',
+          hasNext: !!nx && !preview, nextName: nx ? `${nx.name}` : '', nextAdds: nx ? nx.can.slice(0, 2).join(', ').toLowerCase() : '', isTop: cur === 3 && !preview,
+          opts: c.levels.map(l => { const on = l.n === cur; return { name: l.name, stars: starRow(l.n), bg: on ? '#FEF7E6' : '#fff', border: on ? '#E3A008' : '#E4E7EC', color: on ? '#93370D' : '#344054', tip: `Level ${l.n} · ${l.name} — ${l.desc}`,
+            pick: () => this.set(c, l.n), hover: () => this.setState(z => ({ hover: { ...z.hover, [c.key]: l.n } })), leave: () => this.setState(z => ({ hover: { ...z.hover, [c.key]: 0 } })) }; }) }; }),
+      lastChange: log && cn ? `Last change · ${cn.name} ${MM.LEVELS[log.from - 1][1]} → ${MM.LEVELS[log.to - 1][1]} · ${new Date(log.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Levels are saved for this site only and can be changed at any time.',
+      resetAll: () => { MM.reset(s.site); this.flash('Starting levels restored'); },
+      toast: s.toast, canUndo: !!this._undo, undo: () => { if (this._undo) this._undo(); this._undo = null; this.setState({ toast: null }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

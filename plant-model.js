@@ -55,7 +55,7 @@ export const SPEC_SUGGEST = {
   Mixer: ['Capacity', 'Power', 'Speed'], Scale: ['Capacity', 'Accuracy'], 'Cooling tower': ['Cooling capacity', 'Flow'], Wrapper: ['Pallet size', 'Cycle time'], 'Electrical cabinet': ['Voltage', 'Rated current', 'IP rating'],
   Crane: ['Capacity', 'Reach', 'Energy'], Lift: ['Working height', 'Capacity', 'Energy'], Forklift: ['Capacity', 'Lift height', 'Energy'], 'Measuring instrument': ['Range', 'Accuracy', 'Calibration due'], 'Tool kit': ['Contents', 'Calibration due'],
 };
-export const DOC_KINDS = { Manual: ['menu_book', '#2456B8', '#EAF1FD'], Drawing: ['architecture', '#6941C6', '#F3EEFC'], Datasheet: ['description', '#0E7490', '#E3F4F7'], Procedure: ['checklist', '#0B6B4A', '#E6F4EE'], Certificate: ['verified', '#B54708', '#FEF3E2'] };
+export const DOC_KINDS = { Manual: ['menu_book', '#2456B8', '#EAF1FD'], Plan: ['architecture', '#6941C6', '#F3EEFC'], Datasheet: ['description', '#0E7490', '#E3F4F7'], Procedure: ['checklist', '#0B6B4A', '#E6F4EE'], Certificate: ['verified', '#B54708', '#FEF3E2'] };
 export const STATUS = { 'In service': ['#E6F4EE', '#0B6B4A'], Stopped: ['#FDECEC', '#B42318'], 'Out of service': ['#EEF1F4', '#475467'] };
 export const CRIT = { Critical: '#C00018', High: '#E0591B', Medium: '#E3A008', Low: '#98A2B3' };
 
@@ -103,15 +103,23 @@ const SPECS = {
   'TC-01': [['Range', '−20 to 1,500 °C'], ['Accuracy', '±1 °C'], ['Calibration due', 'Mar 2027']], 'LA-01': [['Contents', '2 measuring units, brackets, tablet'], ['Calibration due', 'Jan 2027']],
 };
 const DOCS = {
-  'FT2-FR-001': [D('Glaston FC500 operating manual', 'Manual', '18.4 MB'), D('Heating zone wiring diagram', 'Drawing', '2.1 MB'), D('Element replacement procedure', 'Procedure', '640 KB'), D('Pressure equipment certificate', 'Certificate', '320 KB', 'Jan 08, 2026')],
+  'FT2-FR-001': [D('Glaston FC500 operating manual', 'Manual', '18.4 MB'), D('Heating zone wiring diagram', 'Plan', '2.1 MB'), D('Element replacement procedure', 'Procedure', '640 KB'), D('Pressure equipment certificate', 'Certificate', '320 KB', 'Jan 08, 2026')],
   'P-101': [D('KSB Etanorm manual', 'Manual', '9.8 MB'), D('Seal replacement procedure', 'Procedure', '1.2 MB'), D('Pump curve datasheet', 'Datasheet', '410 KB')],
-  'C-01': [D('Atlas Copco GA 90 manual', 'Manual', '22.0 MB'), D('Compressed air network P&ID', 'Drawing', '3.4 MB')],
+  'C-01': [D('Atlas Copco GA 90 manual', 'Manual', '22.0 MB'), D('Compressed air network P&ID', 'Plan', '3.4 MB')],
   'MC-01': [D('Manitou MRT 2150 manual', 'Manual', '14.2 MB'), D('Annual lifting inspection', 'Certificate', '280 KB', 'Jun 02, 2026')],
 };
-const base = () => SEED.map(([id, name, type, loc, status, crit, owner, manufacturer, model, serial, year, cls]) => ({ id, name, type, loc, status, crit, owner, manufacturer, model, serial, year: String(year), cls: cls || 'fixed', specs: SPECS[id] || [], docs: DOCS[id] || [], desc: '' }));
-export const assets = () => { const o = rd(AKEY, {}); const b = base().map(a => o[a.id] ? { ...a, ...o[a.id] } : a); Object.keys(o).filter(k => !b.some(a => a.id === k) && !o[k].deleted).forEach(k => b.unshift({ ...o[k], id: k })); return b.filter(a => !(o[a.id] && o[a.id].deleted)); };
+const COMM = { 'FT2-FR-001': '2020-04-06', 'FT1-FR-001': '2018-03-19', 'P-101': '2014-09-01', 'CV-L3': '2016-05-20', 'C-01': '2016-11-02', 'TB-01': '2011-06-14', 'MC-01': '2019-07-08' };
+const base = () => SEED.map(([id, name, type, loc, status, crit, owner, manufacturer, model, serial, year, cls]) => ({ id, name, type, loc, status, crit, owner, manufacturer, model, serial, year: String(year), cls: cls || 'fixed', specs: SPECS[id] || [], docs: DOCS[id] || [], desc: '', commissioned: COMM[id] || '', photo: '' }));
+export const assets = () => { const o = rd(AKEY, {}); const b = base().map(a => o[a.id] ? { ...a, ...o[a.id] } : a); Object.keys(o).filter(k => !b.some(a => a.id === k) && !o[k].deleted).forEach(k => b.unshift({ ...o[k], id: k })); return b.filter(a => !(o[a.id] && o[a.id].deleted)).map(a => (a.docs || []).some(d => d.kind === 'Drawing') ? { ...a, docs: a.docs.map(d => d.kind === 'Drawing' ? { ...d, kind: 'Plan' } : d) } : a); };
 export const asset = id => assets().find(a => a.id === id || a.name === id) || null;
-export const saveAsset = (id, data) => { const o = rd(AKEY, {}); o[id] = { ...(o[id] || {}), ...data }; wr(AKEY, o); emit('cmms-asset', { id }); };
+// Audit trail on assets: tracked changes are appended to history [{at, by, what | field/from/to}].
+const ATRACK = { status: 'Status', loc: 'Location', owner: 'Owner', crit: 'Criticality', name: 'Name', type: 'Type', commissioned: 'Commissioning date' };
+export const saveAsset = (id, data) => { const o = rd(AKEY, {}), prev = asset(id), h = [...((o[id] && o[id].history) || [])], now = Date.now();
+  if (!data.history) { if (!prev) h.push({ at: now, by: 'GD', what: data.imported ? 'Created by import' : 'Created' });
+    else { Object.keys(ATRACK).forEach(k => { if (k in data && String(data[k] ?? '') !== String(prev[k] ?? '')) h.push({ at: now, by: 'GD', field: ATRACK[k], from: k === 'loc' ? pathOf(prev[k]) : prev[k] ?? '', to: k === 'loc' ? pathOf(data[k]) : data[k] ?? '' }); });
+      if (data.decommissioned && !prev.decommissioned) h.push({ at: now, by: 'GD', what: `Decommissioned · ${data.decommissioned.reason}` }); if ('decommissioned' in data && !data.decommissioned && prev.decommissioned) h.push({ at: now, by: 'GD', what: 'Recommissioned' });
+      if (data.photo && data.photo !== prev.photo) h.push({ at: now, by: 'GD', what: 'Photo updated' }); if (data.imported && prev) h.push({ at: now, by: 'GD', what: 'Updated by import' }); } }
+  o[id] = { ...(o[id] || {}), ...data, history: data.history || h.slice(-80) }; wr(AKEY, o); emit('cmms-asset', { id }); };
 export const mobileAssets = () => assets().filter(a => a.cls === 'mobile');
 export const suggestCode = (type, loc) => { const l = lineOf(loc), t = (type || 'AS').replace(/[^A-Za-z]/g, '').slice(0, 2).toUpperCase(); const n = assets().filter(a => a.loc && lineOf(a.loc) && l && lineOf(a.loc).id === l.id).length + 1; return `${l ? l.id.split('-')[1] : 'NEW'}-${t}-${String(n).padStart(3, '0')}`; };
 export const openWizard = id => emit('cmms-asset-wizard', { id: id || null });
@@ -138,4 +146,15 @@ export const reserve = (woKey, tools, day, from, to, label, who) => { const keep
   for (let i = RESERVATIONS.length - 1; i >= 0; i--) if (RESERVATIONS[i].woKey === woKey) RESERVATIONS.splice(i, 1); add.forEach(r => RESERVATIONS.push(r)); emit('cmms-asset', { reservations: true }); };
 export const releaseReservations = woKey => reserve(woKey, [], 0, 0, 0);
 
-if (typeof window !== 'undefined') window.RelixPlant = { saveNode, removeNode, resetPlant, dayOf, isoOfDay, hourOf, toolConflicts, nextFreeSlot, reserve, releaseReservations, PLANT, ZONE_LOOK, NODES, node, children, zones, chain, pathOf, zoneOf, lineOf, storages, storageByName, TYPES, typeIcon, SPEC_SUGGEST, DOC_KINDS, STATUS, CRIT, assets, asset, saveAsset, mobileAssets, suggestCode, openWizard, RESERVATIONS, reservationsOf };
+// ---------- Meter readings (operating hours / cycles / km) — feed meter-based maintenance plans. Storage cmms.meters.v1 { assetId: [{v, at, by, note}] } ----------
+const MKEY = 'cmms.meters.v1';
+const METERS = { 'CV-L3': ['operating hours', 24, [[12140, '2026-09-23'], [12284, '2026-09-29']]], 'CV-L2': ['operating hours', 24, [[9810, '2026-09-22'], [9958, '2026-09-28']]], 'C-01': ['operating hours', 20, [[31480, '2026-09-22'], [31620, '2026-09-29']]], 'C-02': ['operating hours', 16, [[8840, '2026-09-29']]], 'P-101': ['operating hours', 24, [[40210, '2026-09-25']]], 'PH-030': ['cycles', 900, [[412300, '2026-09-28']]], 'RP-01': ['cycles', 2400, [[1288400, '2026-09-28']]], 'FL-03': ['operating hours', 7, [[3120, '2026-09-28']]], 'MC-01': ['operating hours', 3, [[1840, '2026-09-26']]] };
+export const meterOf = id => { const m = METERS[id], extra = rd(MKEY, {})[id] || [], a = asset(id) || {}; const unit = a.meterUnit || (m ? m[0] : ''); if (!m && !extra.length && !unit) return null;
+  const list = [...(m ? m[2].map(([v, at]) => ({ v, at, by: 'PLC import' })) : []), ...extra].sort((x, y) => (x.at > y.at ? 1 : x.at < y.at ? -1 : 0));
+  const last = list[list.length - 1] || null; return { unit: unit || 'operating hours', rate: m ? m[1] : 8, readings: list, value: last ? last.v : 0, at: last ? last.at : '' }; };
+export const addReading = (id, v, note) => { const o = rd(MKEY, {}); o[id] = [...(o[id] || []), { v: +v, at: isoOfDay(1), by: 'Gaudéric Durand', note: note || '' }]; wr(MKEY, o); emit('cmms-asset', { id, meter: true }); };
+export const meterUnits = () => ['operating hours', 'cycles', 'km'];
+export const meterShort = u => u === 'operating hours' ? 'h' : u === 'cycles' ? 'cycles' : u || '';
+export const removeAsset = id => { const o = rd(AKEY, {}); o[id] = { ...(o[id] || {}), deleted: true }; wr(AKEY, o); emit('cmms-asset', { id, removed: true }); };
+
+if (typeof window !== 'undefined') window.RelixPlant = { meterOf, addReading, meterUnits, meterShort, removeAsset, saveNode, removeNode, resetPlant, dayOf, isoOfDay, hourOf, toolConflicts, nextFreeSlot, reserve, releaseReservations, PLANT, ZONE_LOOK, NODES, node, children, zones, chain, pathOf, zoneOf, lineOf, storages, storageByName, TYPES, typeIcon, SPEC_SUGGEST, DOC_KINDS, STATUS, CRIT, assets, asset, saveAsset, mobileAssets, suggestCode, openWizard, RESERVATIONS, reservationsOf };

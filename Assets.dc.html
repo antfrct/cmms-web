@@ -28,10 +28,29 @@
         <sc-for list="{{ views }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.select }}" style="height:30px;display:flex;align-items:center;gap:5px;padding:0 12px 0 10px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer;white-space:nowrap"><span style="font:17px/1 'Material Symbols Outlined'">{{ v.icon }}</span>{{ v.label }}</button></sc-for>
       </div>
       <sc-if value="{{ adv }}"><button onClick="{{ advFleet }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">timeline</span>Lifecycle &amp; risk</button></sc-if>
+      <div style="position:relative">
+        <button onClick="{{ toggleMore }}" title="More actions" style="width:34px;height:34px;display:grid;place-items:center;background:{{ moreBg }};border:1px solid #D0D5DD;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:20px/1 'Material Symbols Outlined'">more_horiz</span></button>
+        <sc-if value="{{ moreOpen }}">
+          <div onClick="{{ closeMore }}" style="position:fixed;inset:0;z-index:40"></div>
+          <div style="position:absolute;right:0;top:40px;z-index:41;width:260px;padding:6px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14)">
+            <sc-for list="{{ moreItems }}" as="m"><button onClick="{{ m.run }}" style="width:100%;min-height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">{{ m.icon }}</span><span style="flex:1">{{ m.label }}</span><span style="font-size:11.5px;color:#98A2B3">{{ m.hint }}</span></button></sc-for>
+          </div>
+        </sc-if>
+      </div>
       <button onClick="{{ create }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New asset</button>
     </header>
 
+    <sc-if value="{{ rmenuOpen }}"><div onClick="{{ closeRmenu }}" style="position:fixed;inset:0;z-index:20"></div></sc-if>
     <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+      <section style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
+        <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="4">
+          <button onClick="{{ k.select }}" style="position:relative;display:flex;align-items:baseline;gap:8px;padding:9px 16px;background:{{ k.bg }};border:0;border-right:1px solid #EEF0F3;text-align:left;cursor:pointer;font-family:inherit" style-hover="background:#F9FAFB">
+            <span style="font-size:20px;font-weight:600;line-height:24px;color:{{ k.color }};font-variant-numeric:tabular-nums">{{ k.value }}</span>
+            <span style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:500;color:#344054"><sc-if value="{{ k.hasDot }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ k.dot }}"></span></sc-if>{{ k.label }}</span>
+            <span style="position:absolute;left:0;right:0;bottom:0;height:2px;background:{{ k.bar }}"></span>
+          </button>
+        </sc-for>
+      </section>
       <div style="flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
         <sc-for list="{{ zoneCards }}" as="z" hint-placeholder-count="5">
           <button onClick="{{ z.select }}" style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:{{ z.bg }};border:1px solid {{ z.border }};border-radius:8px;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430;overflow:hidden" style-hover="border-color:#98A2B3">
@@ -81,19 +100,23 @@
           </div>
         </sc-for>
         <sc-if value="{{ anyFilter }}"><button onClick="{{ clearAll }}" style="height:34px;display:flex;align-items:center;gap:4px;padding:0 8px;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">close</span>Clear filters</button></sc-if>
-        <span style="margin-left:auto;font-size:12.5px;color:#667085;white-space:nowrap">{{ countLabel }}</span>
+        <sc-if value="{{ noSel }}"><span style="margin-left:auto;font-size:12.5px;color:#667085;white-space:nowrap">{{ countLabel }}</span></sc-if>
+        <sc-if value="{{ hasSel }}"><span style="margin-left:auto;display:flex;align-items:center;gap:6px;height:34px;padding:0 4px 0 12px;background:#1E2430;border-radius:6px;color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap">{{ selLabel }}<button onClick="{{ bulkQr }}" style="height:28px;display:flex;align-items:center;gap:5px;padding:0 10px;background:rgba(255,255,255,.12);border:0;border-radius:5px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">qr_code_2</span>Print QR codes</button><button onClick="{{ exportSel }}" style="height:28px;display:flex;align-items:center;gap:5px;padding:0 10px;background:rgba(255,255,255,.12);border:0;border-radius:5px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">download</span>Export</button><button onClick="{{ clearSel }}" title="Clear selection" style="width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;color:#fff;cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">close</span></button></span></sc-if>
       </div>
 
       <section style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
         <div style="flex:1;min-height:0;overflow:auto">
-          <div style="position:sticky;top:0;z-index:3;min-width:1000px;display:grid;grid-template-columns:minmax(300px,2.4fr) 140px 150px 110px 170px 84px 44px;align-items:center;height:38px;padding:0 0 0 16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
+          <div style="position:sticky;top:0;z-index:3;min-width:1000px;display:grid;grid-template-columns:36px minmax(300px,2.4fr) 140px 150px 110px 170px 84px 44px;align-items:center;height:38px;padding:0 0 0 8px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
+            <span style="display:grid;place-items:center"><button onClick="{{ toggleAll }}" title="Select all on this page" style="width:16px;height:16px;padding:0;border-radius:4px;border:1.5px solid {{ allBorder }};background:{{ allBg }};display:grid;place-items:center;color:#fff;cursor:pointer;font:13px/1 'Material Symbols Outlined'">{{ allIcon }}</button></span>
             <span>Asset · location</span><span>Type</span><span>Status</span><span>Criticality</span><span>Owner</span><span style="text-align:right;padding-right:12px">Open WOs</span><span></span>
           </div>
           <div style="min-width:1000px">
             <sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
-              <div onClick="{{ r.open }}" style="display:grid;grid-template-columns:minmax(300px,2.4fr) 140px 150px 110px 170px 84px 44px;align-items:center;min-height:58px;padding:0 0 0 16px;border-bottom:1px solid #F2F4F7;cursor:pointer;background:#fff" style-hover="background:#F9FAFB">
+              <div onClick="{{ r.open }}" style="display:grid;grid-template-columns:36px minmax(300px,2.4fr) 140px 150px 110px 170px 84px 44px;align-items:center;min-height:58px;padding:0 0 0 8px;border-bottom:1px solid #F2F4F7;cursor:pointer;background:{{ r.rowBg }}" style-hover="background:#F9FAFB">
+                <span style="display:grid;place-items:center"><button onClick="{{ r.toggleSel }}" style="width:16px;height:16px;padding:0;border-radius:4px;border:1.5px solid {{ r.selBorder }};background:{{ r.selBg }};display:grid;place-items:center;color:#fff;cursor:pointer;font:13px/1 'Material Symbols Outlined'">{{ r.selIcon }}</button></span>
                 <span style="display:flex;align-items:center;gap:10px;min-width:0;padding-right:10px">
-                  <span style="flex:none;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:{{ r.tileBg }};color:{{ r.tileFg }};font:17px/1 'Material Symbols Outlined'">{{ r.icon }}</span>
+                  <sc-if value="{{ r.hasPhoto }}"><img src="{{ r.photo }}" alt="" style="flex:none;width:36px;height:36px;border-radius:7px;object-fit:cover;border:1px solid #E4E7EC" /></sc-if>
+                  <sc-if value="{{ r.noPhoto }}"><span style="flex:none;width:36px;height:36px;border-radius:7px;display:grid;place-items:center;background:{{ r.tileBg }};color:{{ r.tileFg }};font:18px/1 'Material Symbols Outlined'">{{ r.icon }}</span></sc-if>
                   <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
                     <span style="display:flex;align-items:center;gap:6px;min-width:0"><span style="flex:0 1 auto;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="flex:none;font:500 11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ r.id }}</span><sc-if value="{{ r.mobile }}"><span style="flex:none;height:18px;display:inline-flex;align-items:center;gap:3px;padding:0 6px;border-radius:9px;background:#EAF1FD;color:#2456B8;font-size:11px;font-weight:600"><span style="font:12px/1 'Material Symbols Outlined'">swap_horiz</span>Mobile</span></sc-if></span>
                     <span style="display:flex;align-items:center;gap:4px;min-width:0;font-size:12px;color:#667085;white-space:nowrap;overflow:hidden"><span style="flex:none;width:7px;height:7px;border-radius:2px;background:{{ r.tileFg }}"></span><sc-for list="{{ r.path }}" as="p"><span style="display:flex;align-items:center;gap:4px"><sc-if value="{{ p.sep }}"><span style="color:#C4CAD4">›</span></sc-if><span style="font-weight:{{ p.weight }};color:{{ p.color }}">{{ p.name }}</span></span></sc-for></span>
@@ -104,10 +127,15 @@
                 <span style="display:flex;align-items:center;gap:6px;color:#344054"><span style="width:8px;height:8px;border-radius:2px;background:{{ r.critColor }}"></span>{{ r.crit }}</span>
                 <span style="display:flex;align-items:center;gap:6px;min-width:0"><span data-person="{{ r.owner }}" title="View profile" style="flex:none;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:{{ r.avBg }};color:{{ r.avFg }};font:600 9px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ r.owner }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#475467">{{ r.ownerName }}</span></span>
                 <span style="text-align:right;padding-right:12px;font-weight:600;font-variant-numeric:tabular-nums;color:{{ r.woColor }}">{{ r.wos }}</span>
-                <span style="display:grid;place-items:center"><button onClick="{{ r.edit }}" title="Edit asset" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#EEF0F3;color:#1E2430"><span style="font:18px/1 'Material Symbols Outlined'">edit</span></button></span>
+                <span style="position:relative;display:grid;place-items:center"><button onClick="{{ r.menu }}" title="Actions" style="width:30px;height:30px;display:grid;place-items:center;background:{{ r.menuBg }};border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#EEF0F3;color:#1E2430"><span style="font:20px/1 'Material Symbols Outlined'">more_horiz</span></button>
+                  <sc-if value="{{ r.menuOpen }}"><div onClick="{{ r.stop }}" style="position:absolute;right:6px;top:{{ r.menuTop }};z-index:30;width:230px;padding:6px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14);cursor:default">
+                    <sc-for list="{{ r.actions }}" as="x"><sc-if value="{{ x.sep }}"><div style="height:1px;background:#EEF0F3;margin:5px 4px"></div></sc-if><button onClick="{{ x.run }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:{{ x.color }};cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:{{ x.iconColor }}">{{ x.icon }}</span>{{ x.label }}</button></sc-for>
+                  </div></sc-if>
+                </span>
               </div>
             </sc-for>
           </div>
+          <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="assets" style="position:sticky;bottom:0;left:0;z-index:2" hint-size="100%,46px"></dc-import>
           <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;color:#667085"><span style="display:block;font:28px/1 'Material Symbols Outlined';color:#98A2B3;margin-bottom:8px">search_off</span>No asset matches these filters.<div style="margin-top:10px"><button onClick="{{ clearAll }}" style="height:32px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Clear filters</button></div></div></sc-if>
         </div>
       </section>
@@ -391,7 +419,10 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state, PM = s.PM, C = s.C, F = s.F;
     const views = [['list', 'List', 'table_rows'], ['tree', 'Hierarchy', 'account_tree'], ['map', 'Plant layout', 'map']].map(([k, label, icon]) => { const on = s.view === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => { try { localStorage.setItem('cmms.assets.view', k); } catch (e) {} this.setState({ view: k }); } }; });
-    const base = { views, isList: s.view === 'list', isMap: s.view === 'map', isTree: s.view === 'tree', mapRef: this.mapRef, create: () => window.RelixAssetWizard && window.RelixAssetWizard(null), toast: s.toast };
+    const base = { views, isList: s.view === 'list', isMap: s.view === 'map', isTree: s.view === 'tree', mapRef: this.mapRef, create: () => window.RelixAssetWizard && window.RelixAssetWizard(null), toast: s.toast,
+      rmenuOpen: !!s.rmenu, closeRmenu: () => this.setState({ rmenu: null }), moreOpen: !!s.more, moreBg: s.more ? '#F2F4F7' : '#fff', toggleMore: () => this.setState({ more: !s.more }), closeMore: () => this.setState({ more: false }),
+      moreItems: [['upload_file', 'Import assets', 'CSV', () => window.RelixAssetActions && window.RelixAssetActions('import', [])], ['download', 'Export the list', 'CSV', () => this._export && this._export()], ['qr_code_2', 'Generate / print QR codes', '', () => this._qrAll && this._qrAll()], ['settings', 'Data configuration', 'Administration', () => { location.href = 'Administration.dc.html'; }]]
+        .map(([icon, label, hint, fn]) => ({ icon, label, hint, run: () => { this.setState({ more: false }); fn(); } })) };
     if (!PM || !C) return { ...base, zoneCards: [], classSeg: [], filters: [], rows: [], tree: [], mapZones: [], crumbs: [], legend: [], subtitle: 'Thourotte Plant', q: s.q, mapTransform: 'scale(.5)', allIcon: 'unfold_more', allLabel: 'Expand all', treeRows: [], nodes: [], edges: [], hasTSel: false, tsn: {}, tq: s.tq, chartW: '0px', chartH: '0px', chartRawW: '0px', chartRawH: '0px', tzoom: 1, hasCard: false, card: {}, empty: false, countLabel: '', anyFilter: false };
     const all = PM.assets(), q = s.q.trim().toLowerCase();
     const inLoc = (a, id) => id === 'THO' || a.loc === id || PM.chain(a.loc).some(x => x.id === id);
@@ -469,17 +500,36 @@ class Component extends DCLogic {
           bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : '#E4E7EC', select: () => this.setState(st => ({ F: { ...st.F, loc: on ? [] : [z.id] }, cls: on ? st.cls : 'all' })) }; }),
       (() => { const mob = all.filter(a => a.cls === 'mobile'), busy = mob.filter(reservedNow).length, on = s.cls === 'mobile';
         return { name: 'Mobile assets', icon: 'forklift', tileBg: on ? '#2456B8' : '#EAF1FD', tileFg: on ? '#fff' : '#2456B8', meta: `${mob.length} · ${mob.length - busy} free now`, hasAlert: false, bg: on ? '#F5F8FE' : '#fff', border: on ? '#2456B8' : '#E4E7EC', select: () => this.setState({ cls: on ? 'all' : 'mobile' }) }; })()];
-    const rows = list.slice().sort((a, b) => PM.pathOf(a.loc).localeCompare(PM.pathOf(b.loc)) || a.name.localeCompare(b.name)).map(a => { const [, zfg, zbg] = zlook(a.loc), p = C.person(a.owner), so = statusOf(a), n = WOS[a.id] || 0;
+    const sorted = list.slice().sort((a, b) => PM.pathOf(a.loc).localeCompare(PM.pathOf(b.loc)) || a.name.localeCompare(b.name));
+    const ps = s.ps || 25, pgN = Math.max(1, Math.ceil(sorted.length / ps)), pg = Math.min(s.pg || 1, pgN), pageRows = sorted.slice((pg - 1) * ps, pg * ps), sel = s.pick || {}, selIds = Object.keys(sel).filter(k => sel[k] && all.some(a => a.id === k));
+    const box = on => ({ b: on ? '#C00018' : '#C4CAD4', bg: on ? '#C00018' : '#fff' }), allOn = pageRows.length && pageRows.every(a => sel[a.id]);
+    const csv = items => { const head = ['Code', 'Name', 'Type', 'Class', 'Location', 'Status', 'Criticality', 'Owner', 'Manufacturer', 'Model', 'Serial number', 'Year', 'Commissioning date'];
+      const q = v => /[",;\n]/.test(String(v ?? '')) ? '"' + String(v).replace(/"/g, '""') + '"' : String(v ?? ''); const body = [head, ...items.map(a => [a.id, a.name, a.type, a.cls === 'mobile' ? 'Mobile' : 'Equipment', PM.pathOf(a.loc), a.status, a.crit, C.person(a.owner).name, a.manufacturer, a.model, a.serial, a.year, a.commissioned || ''])].map(r => r.map(q).join(',')).join('\n');
+      const l = document.createElement('a'); l.download = 'relix-assets.csv'; l.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(body); document.body.appendChild(l); l.click(); l.remove(); this.flash(`${items.length} asset${items.length === 1 ? '' : 's'} exported to CSV`); };
+    const act = (kind, ids, extra) => window.RelixAssetActions && window.RelixAssetActions(kind, ids, extra);
+    const rows = pageRows.map((a, i) => { const [, zfg, zbg] = zlook(a.loc), p = C.person(a.owner), so = statusOf(a), n = WOS[a.id] || 0;
       return { ...a, mobile: a.cls === 'mobile', icon: PM.typeIcon(a.type), tileBg: zbg, tileFg: zfg,
         path: PM.chain(a.loc).map((x, i, arr) => ({ name: x.name, sep: i > 0, weight: i === arr.length - 1 ? 600 : 400, color: i === arr.length - 1 ? '#344054' : '#667085' })),
         status: so.label, sbg: so.bg, sfg: so.fg, critColor: PM.CRIT[a.crit], avBg: p.avBg, avFg: p.avFg, ownerName: p.name.split(' ')[0], wos: n || '—', woColor: n ? '#1E2430' : '#C4CAD4',
-        open: () => { location.href = 'AssetDetail.dc.html?id=' + encodeURIComponent(a.id); }, edit: e => { e.stopPropagation(); PM.openWizard(a.id); } }; });
+        open: () => { location.href = 'AssetDetail.dc.html?id=' + encodeURIComponent(a.id); }, edit: e => { e.stopPropagation(); PM.openWizard(a.id); },
+        hasPhoto: !!a.photo, noPhoto: !a.photo, rowBg: sel[a.id] ? '#FBF7F7' : '#fff', selBorder: box(sel[a.id]).b, selBg: box(sel[a.id]).bg, selIcon: sel[a.id] ? 'check' : '',
+        toggleSel: e => { e.stopPropagation(); this.setState(st => ({ pick: { ...(st.pick || {}), [a.id]: !(st.pick || {})[a.id] } })); },
+        menuOpen: s.rmenu === a.id, menuBg: s.rmenu === a.id ? '#EEF0F3' : 'transparent', menuTop: i > pageRows.length - 4 && pageRows.length > 6 ? '-232px' : '34px', stop: e => e.stopPropagation(),
+        menu: e => { e.stopPropagation(); this.setState({ rmenu: s.rmenu === a.id ? null : a.id }); },
+        actions: [['edit', 'Edit asset', () => PM.openWizard(a.id)], ['qr_code_2', 'Display / print QR code', () => act('qr', [a.id])], ['add_task', 'Create work order', () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: a.id })], ...(a.decommissioned ? [] : [['block', 'Decommission', () => act('decommission', [a.id]), 1]]), ['delete', 'Delete asset', () => act('delete', [a.id], { wos: WOS[a.id] || 0 }), !!a.decommissioned, 1]]
+          .map(([icon, label, fn, sep, danger]) => ({ icon, label, sep: !!sep, color: danger ? '#B42318' : '#1E2430', iconColor: danger ? '#B42318' : '#667085', run: e => { e.stopPropagation(); this.setState({ rmenu: null }); fn(); } })) }; });
+    const stat = k => all.filter(a => a.status === k).length;
+    this._export = () => csv(selIds.length ? all.filter(a => selIds.includes(a.id)) : sorted); this._qrAll = () => act('qr', selIds.length ? selIds : sorted.map(a => a.id));
     return {
       ...this.advVals(),
       ...base, subtitle, zoneCards, filters, anyFilter, closeDd: () => this.setState({ dd: null }), dq: s.dq, setDq: e => this.setState({ dq: e.target.value }),
       clearAll: () => this.setState({ F: EMPTY, q: '', cls: 'all', dd: null }), q: s.q, setQ: e => this.setState({ q: e.target.value }),
       classSeg: [['all', 'All', 'apps'], ['fixed', 'Equipment', 'precision_manufacturing'], ['mobile', 'Mobile', 'forklift']].map(([k, label, icon]) => { const on = s.cls === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ cls: k }) }; }),
       rows, empty: !list.length, countLabel: `${list.length} of ${all.length} assets`,
+      pager: { total: sorted.length, page: pg, size: ps, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
+      kpis: [['', 'Total equipment', all.length, '#1E2430'], ['In service', 'In service', stat('In service'), '#0B6B4A'], ['Stopped', 'Stopped', stat('Stopped'), '#B42318'], ['Out of service', 'Out of service', stat('Out of service'), '#475467']].map(([k, label, value, color]) => { const on = k ? F.status.length === 1 && F.status[0] === k : false; return { label, value, color: k ? color : '#1E2430', hasDot: !!k, dot: color, bg: on ? '#FBF7F7' : '#fff', bar: on ? '#C00018' : 'transparent', select: () => this.setState(st => ({ F: { ...st.F, status: !k || on ? [] : [k] }, pg: 1 })) }; }),
+      hasSel: selIds.length > 0, noSel: !selIds.length, selLabel: `${selIds.length} selected`, clearSel: () => this.setState({ pick: {} }), bulkQr: () => act('qr', selIds), exportSel: () => csv(all.filter(a => selIds.includes(a.id))),
+      toggleAll: () => this.setState(st => { const n = { ...(st.pick || {}) }; pageRows.forEach(a => { n[a.id] = !allOn; }); return { pick: n }; }), allBorder: box(allOn || selIds.length).b, allBg: box(allOn || selIds.length).bg, allIcon: allOn ? 'check' : selIds.length ? 'remove' : '',
     };
   }
 }

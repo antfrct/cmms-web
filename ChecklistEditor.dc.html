@@ -64,6 +64,12 @@
             </div>
           </sc-for>
         </sc-for>
+        <div style="margin-top:10px;padding:10px 6px 0;border-top:1px solid #EEF0F3;display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#98A2B3">Reuse an existing task</span>
+          <label style="height:32px;display:flex;align-items:center;gap:6px;padding:0 8px;border:1px solid #D0D5DD;border-radius:6px"><span style="font:16px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ libQ }}" onInput="{{ setLibQ }}" placeholder="Search other checklists…" style="flex:1;min-width:0;border:0;outline:none;font:12.5px 'IBM Plex Sans',sans-serif" /></label>
+          <sc-for list="{{ libSteps }}" as="l"><button onClick="{{ l.add }}" title="{{ l.tip }}" style="display:flex;align-items:flex-start;gap:7px;padding:6px;background:transparent;border:1px solid transparent;border-radius:6px;text-align:left;cursor:pointer;font-family:inherit" style-hover="background:#F6F7F9;border-color:#E4E7EC"><span style="width:22px;height:22px;flex:none;border-radius:5px;background:{{ l.bg }};color:{{ l.fg }};display:grid;place-items:center;font:14px/1 'Material Symbols Outlined'">{{ l.icon }}</span><span style="min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:12.5px;font-weight:500;color:#1E2430;line-height:1.3">{{ l.title }}</span><span style="font-size:11px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ l.from }}</span></span></button></sc-for>
+          <sc-if value="{{ libEmpty }}"><span style="font-size:12px;color:#98A2B3;padding:2px 2px 0">No matching task</span></sc-if>
+        </div>
       </aside>
 
       <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
@@ -409,7 +415,9 @@ class Component extends DCLogic {
       desc: cl.desc, setDesc: e => { const v = e.target.value; this.mut(c => { c.desc = v; }); },
       statusLabel: cl.status === 'published' ? 'Published' : 'Draft', statusBg: cl.status === 'published' ? '#E6F4EE' : '#FEF3E2', statusFg: cl.status === 'published' ? '#0B6B4A' : '#B54708',
       dirty, updatedLabel: up, stepCount: steps.length, logicCount: steps.filter(x => x.rules.length || x.after !== 'next').length,
-      views, isList: !isFlow, isFlow, palette, paletteHint: isFlow ? 'Drag a block anywhere on the canvas, then connect it. Click a block to insert it after the selected step.' : 'Drag a step type into the checklist — or click it to add it at the end. Then fill in the details.',
+      views, isList: !isFlow, isFlow, palette, ...(() => { const q = (s.libQ || '').trim().toLowerCase(), lib = M.stepLibrary ? M.stepLibrary(cl.id).filter(x => !q || (x.step.title + ' ' + x.clName).toLowerCase().includes(q)) : [], shown = lib.slice(0, q ? 12 : 6);
+        return { libQ: s.libQ || '', setLibQ: e => this.setState({ libQ: e.target.value }), libEmpty: !shown.length, libSteps: shown.map(x => { const T = M.TYPES[x.step.type] || {}, G = (M.GROUP_COLORS || {})[T.group] || ['#EEF1F4', '#475467']; return { title: x.step.title, from: x.clName, icon: T.icon || 'check_box', bg: G[0], fg: G[1], tip: `Add “${x.step.title}” from ${x.clName}`,
+          add: () => { const st = { ...M.clone(x.step), id: M.uid(), rules: [], after: 'next', afterTarget: '', afterEnd: '', conditional: false, detached: false }; this.mut(c => { c.steps.push(st); }); this.setState({ expanded: st.id }); this.flash(`“${x.step.title}” added from ${x.clName}`); } }; }) }; })(), paletteHint: isFlow ? 'Drag a block anywhere on the canvas, then connect it. Click a block to insert it after the selected step.' : 'Drag a step type into the checklist — or click it to add it at the end. Then fill in the details.',
       saveDraft: () => this.save('draft'), publish: () => this.save('published'),
       preview: () => { M.savePreview(M.markDetached(M.clone(cl))); window.location.href = 'Intervention.dc.html?preview=1'; },
       allSteps: steps, clId: cl.id, focus: s.focus, focusNonce: s.focusNonce, rows,

@@ -28,6 +28,8 @@ const T = [
   ['eq-status', 'eq', 'Equipment status changed', 'In service / out of service changes', 'info', 'precision_manufacturing', 'activity', 0, 0],
   ['part-unavailable', 'parts', 'Required part unavailable', 'A part reserved on your work order is out of stock', 'imp', 'block', 'toast', 1, 0],
   ['part-low', 'parts', 'Low stock', 'A part drops below its minimum stock', 'imp', 'inventory_2', 'bell', 0, 0],
+  ['plan-due', 'plan', 'Preventive due soon', 'A maintenance plan generated a work order that falls due within its lead time', 'imp', 'event_upcoming', 'bell', 1, 0],
+  ['alert-rule', 'eq', 'Alert rules', 'Equipment alert rules you are a recipient of (overdue, recurring failures, controls due)', 'imp', 'rule', 'toast', 1, 0],
   ['plan-change', 'plan', 'Planning change', 'Your scheduled work is moved or reassigned', 'info', 'event', 'bell', 1, 0],
   ['dm', 'chat', 'Direct messages', 'Someone sends you a personal message', 'imp', 'chat', 'toast', 0, 1],
   ['mention', 'chat', 'Mentions', 'Someone @mentions you in any conversation', 'imp', 'alternate_email', 'toast', 0, 1],

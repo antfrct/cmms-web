@@ -24,11 +24,64 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Notification settings</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Personal preferences · Gaudéric Durand · applies only to you</p>
       </div>
+      <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
+        <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="2"><button onClick="{{ tb.select }}" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 12px;background:{{ tb.bg }};border:0;border-radius:5px;box-shadow:{{ tb.shadow }};font:{{ tb.font }};color:{{ tb.color }};cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">{{ tb.icon }}</span>{{ tb.label }}</button></sc-for>
+      </div>
       <sc-if value="{{ saved }}"><span style="display:flex;align-items:center;gap:5px;color:#0B6B4A;font-weight:600"><span style="font:17px/1 'Material Symbols Outlined'">check_circle</span>Saved</span></sc-if>
       <button onClick="{{ resetAll }}" style="height:34px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB">Reset to defaults</button>
       <button onClick="{{ test }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:18px/1 'Material Symbols Outlined'">notifications_active</span>Send test notification</button>
     </header>
 
+    <sc-if value="{{ isRules }}">
+      <section style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px 8px 0 0;border-bottom:0;overflow:hidden">
+        <div style="flex:none;display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #EEF0F3">
+          <div style="flex:1;min-width:0"><h2 style="margin:0;font-size:14px;font-weight:600">Alert rules</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">Trigger × asset scope × recipients — evaluated continuously; recipients get an “Alert rule” notification</p></div>
+          <button onClick="{{ newRule }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:18px/1 'Material Symbols Outlined'">add</span>New rule</button>
+        </div>
+        <div style="flex:none;display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(200px,1.2fr) minmax(160px,1fr) 150px minmax(180px,1.2fr) 60px 76px;align-items:center;gap:12px;height:36px;padding:0 16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
+          <span>Rule</span><span>Trigger</span><span>Assets</span><span>Recipients</span><span>Matching now</span><span>Active</span><span></span>
+        </div>
+        <div style="flex:1;min-height:0;overflow:auto">
+          <sc-for list="{{ ruleRows }}" as="r" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(200px,1.2fr) minmax(160px,1fr) 150px minmax(180px,1.2fr) 60px 76px;align-items:center;gap:12px;min-height:60px;padding:8px 16px;border-bottom:1px solid #F2F4F7;opacity:{{ r.op }}">
+              <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="flex:none;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:#FEF3E2;color:#B54708;font:17px/1 'Material Symbols Outlined'">{{ r.icon }}</span><span style="font-weight:600">{{ r.name }}</span></span>
+              <span style="font-size:12.5px;color:#344054;line-height:1.4">{{ r.trig }}</span>
+              <span style="font-size:12.5px;color:#344054;line-height:1.4">{{ r.scope }}</span>
+              <span style="display:flex;align-items:center"><sc-for list="{{ r.people }}" as="p"><span data-person="{{ p.dp }}" title="{{ p.name }}" style="width:26px;height:26px;margin-right:-6px;border-radius:50%;border:2px solid #fff;background:{{ p.avBg }};color:{{ p.avFg }};display:grid;place-items:center;font:600 10px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ p.ini }}</span></sc-for></span>
+              <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:600;color:{{ r.mColor }}">{{ r.mLabel }}</span><sc-for list="{{ r.mList }}" as="m"><a href="{{ m.href }}" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.asset }} · {{ m.detail }}</a></sc-for></span>
+              <span><button onClick="{{ r.toggle }}" style="position:relative;width:36px;height:20px;padding:0;border:0;border-radius:10px;background:{{ r.track }};cursor:pointer"><span style="position:absolute;top:2px;left:{{ r.knob }};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></button></span>
+              <span style="display:flex;gap:2px;justify-content:flex-end">
+                <button onClick="{{ r.edit }}" title="Edit rule" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined'">edit</span></button>
+                <button onClick="{{ r.del }}" title="Delete rule" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#B42318;cursor:pointer" style-hover="background:#FEF3F2"><span style="font:18px/1 'Material Symbols Outlined'">delete</span></button>
+              </span>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-if>
+    <sc-if value="{{ rf }}">
+      <div onClick="{{ closeRule }}" style="position:fixed;inset:56px 0 0 0;background:rgba(16,24,40,.28);z-index:50"></div>
+      <aside style="position:fixed;top:56px;right:0;bottom:0;width:500px;z-index:51;background:#fff;box-shadow:-12px 0 32px rgba(16,24,40,.14);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #EEF0F3"><div style="flex:1"><h2 style="margin:0;font-size:16px;font-weight:600">{{ rfTitle }}</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">Fields marked * are required</p></div><button onClick="{{ closeRule }}" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">close</span></button></div>
+        <div style="flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px">
+          <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500;color:#344054">Rule name<span style="color:#C00018"> *</span></span><input value="{{ rf.name }}" onInput="{{ rfOn.name }}" placeholder="e.g. Recurring failures on critical assets" style="height:36px;padding:0 10px;border:1px solid {{ rfErr.name }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#344054">Trigger<span style="color:#C00018"> *</span></span>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><sc-for list="{{ trigOpts }}" as="o"><button onClick="{{ o.select }}" style="display:flex;align-items:flex-start;gap:8px;padding:10px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;text-align:left;cursor:pointer;font-family:inherit"><span style="font:19px/1 'Material Symbols Outlined';color:{{ o.color }}">{{ o.icon }}</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:13px;color:#1E2430">{{ o.label }}</span><span style="font-size:11.5px;color:#667085;line-height:1.35">{{ o.sub }}</span></span></button></sc-for></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12.5px;font-weight:500;color:#344054">{{ nLabel }}<span style="color:#C00018"> *</span></span><input type="number" min="0" value="{{ rf.n }}" onInput="{{ rfOn.n }}" style="width:80px;height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><span style="color:#667085">{{ nUnit }}</span><sc-if value="{{ hasDays }}"><span style="color:#344054">within</span><input type="number" min="1" value="{{ rf.days }}" onInput="{{ rfOn.days }}" style="width:80px;height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><span style="color:#667085">days</span></sc-if></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#344054">Assets in scope<span style="color:#C00018"> *</span></span>
+            <span style="position:relative;display:flex"><select value="{{ rf.scope }}" onChange="{{ rfOn.scope }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><sc-for list="{{ scopeOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
+            <sc-if value="{{ needValues }}"><div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px;border:1px solid {{ rfErr.values }};border-radius:6px;min-height:40px"><sc-for list="{{ valChips }}" as="c"><span style="height:26px;display:inline-flex;align-items:center;gap:4px;padding:0 4px 0 8px;background:#F2F4F7;border-radius:4px;font-weight:500">{{ c.label }}<button onClick="{{ c.remove }}" style="width:18px;height:18px;padding:0;display:grid;place-items:center;background:transparent;border:0;color:#667085;cursor:pointer;font:15px/1 'Material Symbols Outlined'">close</button></span></sc-for><span style="flex:1;min-width:160px"><span style="position:relative;display:flex"><select value="{{ blank }}" onChange="{{ addValue }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">+ Add…</option><sc-for list="{{ valOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></span></div></sc-if>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#344054">Recipients<span style="color:#C00018"> *</span></span>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px;border:1px solid {{ rfErr.recipients }};border-radius:6px;min-height:40px"><sc-for list="{{ recChips }}" as="c"><span style="height:26px;display:inline-flex;align-items:center;gap:6px;padding:0 4px 0 4px;background:#F2F4F7;border-radius:13px;font-weight:500"><span style="width:20px;height:20px;border-radius:50%;background:{{ c.avBg }};color:{{ c.avFg }};display:grid;place-items:center;font:600 9px 'IBM Plex Sans',sans-serif">{{ c.ini }}</span>{{ c.label }}<button onClick="{{ c.remove }}" style="width:18px;height:18px;padding:0;display:grid;place-items:center;background:transparent;border:0;color:#667085;cursor:pointer;font:15px/1 'Material Symbols Outlined'">close</button></span></sc-for><span style="flex:1;min-width:160px"><span style="position:relative;display:flex"><select value="{{ blank }}" onChange="{{ addRecipient }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">+ Add a person…</option><sc-for list="{{ recOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#F6F7F9;border-radius:8px;font-size:12.5px;color:#475467"><span style="font-weight:600;color:#1E2430">{{ previewLabel }}</span><sc-for list="{{ previewList }}" as="m"><span>{{ m.asset }} · {{ m.detail }}</span></sc-for></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3"><sc-if value="{{ rfHasErr }}"><span style="font-size:12.5px;color:#B42318">Check required fields</span></sc-if><button onClick="{{ closeRule }}" style="margin-left:auto;height:34px;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button><button onClick="{{ saveRule }}" style="height:34px;padding:0 16px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Save rule</button></div>
+      </aside>
+    </sc-if>
+    <sc-if value="{{ isPrefs }}" hint-placeholder-val="{{ true }}">
     <div style="flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px">
       <aside style="min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:24px">
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
@@ -100,6 +153,7 @@
         </div>
       </section>
     </div>
+    </sc-if>
   </main>
 </div>
 </x-dc>
@@ -124,9 +178,34 @@ const SAMPLES = {
 };
 const LV_ICON = { activity: 'bolt', bell: 'notifications', toast: 'web_asset' };
 class Component extends DCLogic {
-  state = { N: null, p: null, saved: false };
-  componentDidMount() { import('./notif-model.js').then(N => this.setState({ N, p: N.prefs() })); }
-  componentWillUnmount() { clearTimeout(this._t); }
+  state = { N: null, p: null, saved: false, tab: /tab=rules/.test(location.search) ? 'rules' : 'prefs', rf: null, rfErr: {} };
+  componentDidMount() { import('./notif-model.js').then(N => this.setState({ N, p: N.prefs() })); Promise.all([import('./alerts-model.js'), import('./plant-model.js'), import('./collab-model.js')]).then(([A, PL, C]) => this.setState({ A, PL, C })); this._ar = () => this.forceUpdate(); window.addEventListener('cmms-alert-rules', this._ar); }
+  rulesVals() {
+    const s = this.state, A = s.A, PL = s.PL, C = s.C, tabs = [['prefs', 'My preferences', 'tune'], ['rules', 'Alert rules', 'rule']].map(([k, label, icon]) => { const on = s.tab === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ tab: k }) }; });
+    if (!A || !PL || !C) return { tabs, isRules: s.tab === 'rules', isPrefs: s.tab !== 'rules', ruleRows: [], rf: null };
+    const valLabel = (scope, v) => scope === 'asset' ? (PL.asset(v) || { name: v }).name : scope === 'owner' ? C.person(v).name : scope === 'zone' ? (PL.node(v) || { name: v }).name : v;
+    const scopeText = r => r.scope === 'all' ? 'All assets' : `${A.SCOPES[r.scope]}: ${(r.values || []).map(v => valLabel(r.scope, v)).join(', ') || '—'}`;
+    const trigText = r => r.trigger === 'recurring' ? `≥ ${r.n} corrective WOs on the same asset within ${r.days} days` : r.trigger === 'overdue' ? `Open work order more than ${r.n} d late` : r.trigger === 'control' ? `Control or calibration due within ${r.n} days` : 'Asset stopped or out of service';
+    const ruleRows = A.all().map(r => { const m = A.matches(r); return { name: r.name, icon: A.TRIGGERS[r.trigger][1], trig: trigText(r), scope: scopeText(r), op: r.active ? 1 : 0.6, track: r.active ? '#0B6B4A' : '#D0D5DD', knob: r.active ? '18px' : '2px',
+      people: (r.recipients || []).map(k => { const p = C.person(k); return { dp: `${k}|${p.name}`, name: p.name, ini: p.initials, avBg: p.avBg, avFg: p.avFg }; }),
+      mLabel: m.length ? `${m.length} asset${m.length > 1 ? 's' : ''}` : 'Nothing right now', mColor: m.length ? '#B54708' : '#667085', mList: m.slice(0, 2),
+      toggle: () => A.save({ ...r, active: !r.active }), edit: () => this.setState({ rf: { ...r, values: [...(r.values || [])], recipients: [...(r.recipients || [])] }, rfErr: {} }), del: () => { A.remove(r.id); } }; });
+    const f = s.rf, base = { tabs, isRules: s.tab === 'rules', isPrefs: s.tab !== 'rules', ruleRows, rf: f, newRule: () => this.setState({ rf: { name: '', trigger: 'recurring', n: 3, days: 30, scope: 'all', values: [], recipients: [C.ME], active: true }, rfErr: {} }), closeRule: () => this.setState({ rf: null }) };
+    if (!f) return base;
+    const setF = (k, v) => this.setState(st => ({ rf: { ...st.rf, [k]: v }, rfErr: { ...st.rfErr, [k]: 0 } })), E = k => s.rfErr[k] ? '#F04438' : '#D0D5DD';
+    const opts = f.scope === 'asset' ? PL.assets().map(a => ({ v: a.id, l: a.name })) : f.scope === 'owner' ? Object.keys(C.PEOPLE).map(k => ({ v: k, l: C.person(k).name })) : f.scope === 'zone' ? PL.zones().map(z => ({ v: z.id, l: z.name })) : f.scope === 'crit' ? Object.keys(PL.CRIT).map(v => ({ v, l: v })) : [];
+    const pv = A.matches(f);
+    return { ...base, rfTitle: f.id ? 'Edit alert rule' : 'New alert rule', rfErr: { name: E('name'), values: E('values'), recipients: E('recipients') }, rfHasErr: Object.values(s.rfErr).some(Boolean), blank: '',
+      rfOn: { name: e => setF('name', e.target.value), n: e => setF('n', +e.target.value), days: e => setF('days', +e.target.value), scope: e => this.setState(st => ({ rf: { ...st.rf, scope: e.target.value, values: [] } })) },
+      trigOpts: Object.keys(A.TRIGGERS).map(k => { const [label, icon, sub] = A.TRIGGERS[k], on = f.trigger === k; return { label, icon, sub, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#C00018' : '#667085', select: () => this.setState(st => ({ rf: { ...st.rf, trigger: k, n: { recurring: 3, overdue: 1, control: 14, stopped: 0 }[k], days: k === 'recurring' ? 30 : 0 } })) }; }),
+      nLabel: { recurring: 'At least', overdue: 'Late by more than', control: 'Due within', stopped: 'Delay before alerting' }[f.trigger], nUnit: { recurring: 'corrective work orders', overdue: 'days', control: 'days', stopped: 'minutes' }[f.trigger], hasDays: f.trigger === 'recurring',
+      scopeOpts: Object.keys(A.SCOPES).map(v => ({ v, l: A.SCOPES[v] })), needValues: f.scope !== 'all',
+      valChips: f.values.map(v => ({ label: valLabel(f.scope, v), remove: () => setF('values', f.values.filter(x => x !== v)) })), valOpts: opts.filter(o => !f.values.includes(o.v)), addValue: e => { const v = e.target.value; e.target.value = ''; if (v) setF('values', [...f.values, v]); },
+      recChips: f.recipients.map(k => { const p = C.person(k); return { label: p.name, ini: p.initials, avBg: p.avBg, avFg: p.avFg, remove: () => setF('recipients', f.recipients.filter(x => x !== k)) }; }), recOpts: Object.keys(C.PEOPLE).filter(k => !f.recipients.includes(k)).map(k => ({ v: k, l: `${C.person(k).name} · ${C.person(k).role}` })), addRecipient: e => { const v = e.target.value; e.target.value = ''; if (v) setF('recipients', [...f.recipients, v]); },
+      previewLabel: pv.length ? `Would alert now on ${pv.length} asset${pv.length > 1 ? 's' : ''}` : 'No asset matches this rule right now', previewList: pv.slice(0, 4),
+      saveRule: () => { const er = {}; if (!f.name.trim()) er.name = 1; if (!f.recipients.length) er.recipients = 1; if (f.scope !== 'all' && !f.values.length) er.values = 1; if (Object.keys(er).length) return this.setState({ rfErr: er }); A.save(f); this.setState({ rf: null, saved: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ saved: false }), 1600); } };
+  }
+  componentWillUnmount() { clearTimeout(this._t); window.removeEventListener('cmms-alert-rules', this._ar); }
   upd(fn) { const p = JSON.parse(JSON.stringify(this.state.p)); fn(p); this.state.N.save(p); this.setState({ p, saved: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ saved: false }), 1600); }
   fire(k, force) {
     const N = this.state.N, t = N.typeOf(k), [title, sub, href] = SAMPLES[k] || ['Test notification', '', '#'];
@@ -137,7 +216,7 @@ class Component extends DCLogic {
   renderVals() {
     const s = this.state, N = s.N, p = s.p;
     const tog = (on) => ({ track: on ? '#C00018' : '#D0D5DD', knob: on ? '18px' : '2px' });
-    if (!N || !p) return { legend: [], channels: [], rules: [], cats: [], saved: false };
+    if (!N || !p) return { ...this.rulesVals(), legend: [], channels: [], rules: [], cats: [], saved: false };
     const cats = Object.keys(N.CATS).map(ck => { const c = N.CATS[ck];
       return { ...c, scope: p.scope[ck], setScope: e => { const v = e.target.value; this.upd(q => { q.scope[ck] = v; }); },
         rows: Object.values(N.TYPES).filter(t => t.cat === ck).map(t => {
@@ -156,6 +235,7 @@ class Component extends DCLogic {
         }) };
     });
     return {
+      ...this.rulesVals(),
       saved: s.saved,
       legend: [['bolt', 'Activity only', 'Recorded in Home › Live activity. No badge, no interruption.', '#EEF1F4', '#475467'], ['notifications', 'Notification', 'Adds a badge on the bell and an entry in the notification centre.', '#EAF1FD', '#2456B8'], ['web_asset', 'Pop-up', 'Notification plus a short pop-up on screen. Critical pop-ups stay until dismissed.', '#FBE7EA', '#A30014']]
         .map(([icon, label, desc, bg, fg]) => ({ icon, label, desc, bg, fg })),

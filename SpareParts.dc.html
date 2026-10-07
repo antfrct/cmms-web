@@ -90,6 +90,7 @@
               </span>
             </div>
           </sc-for>
+          <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="items" style="position:sticky;bottom:0;z-index:2" hint-size="100%,46px"></dc-import>
         </sc-if>
         <sc-if value="{{ isCatalog }}">
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:16px">
@@ -351,7 +352,7 @@ class Component extends DCLogic {
     const KV = p => { const c = PA.isConsumable(p); return { isCons: c, kIcon: c ? 'water_drop' : 'settings', kBg: c ? '#E3F2F6' : '#EEF1F4', kFg: c ? '#0E7490' : '#475467', kindLabel: c ? 'Consumable' : 'Replacement part' }; };
     const list = all.filter(p => (!s.kind || PA.kindOf(p) === s.kind) && (!q || [p.ref, p.code, p.gtin, p.name, supName(p.supplier), p.supplierRef].join(' ').toLowerCase().includes(q)) && (!s.cat || p.cat === s.cat) && (!s.store || p.store === s.store) && (!s.cc || p.costCenter === s.cc)
       && (!s.kpi || (s.kpi === 'low' ? p.qty > 0 && p.qty < p.min : p.qty <= 0)));
-    const rows = list.map(p => { const [status, sbg, sfg, dot] = PA.status(p), scale = Math.max(p.max, p.min, 1) * 1.1;
+    const rows = (s.view === 'catalog' ? list : list.slice((Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) - 1) * (s.ps || 25), Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) * (s.ps || 25))).map(p => { const [status, sbg, sfg, dot] = PA.status(p), scale = Math.max(p.max, p.min, 1) * 1.1;
       return { ...p, hasImage: !!p.image, noImage: !p.image, icon: catIcon(p.cat), codeLabel: p.code || 'no item code', storeName: storeName(p.store), storePath: PL.node(p.store) ? PL.pathOf(p.store) : '', status, sbg, sfg, cost: PA.eur(p.cost), supplierName: supName(p.supplier),
         ...KV(p), ...(() => { const [qtyMain, qtyUnit] = splitQty(p, p.qty), [availMain, au] = splitQty(p, Math.max(0, p.qty - (p.reserved || 0))); return { qtyMain, qtyUnit, availMain, availUnit: au + ' available', stockFull: PA.fmtStock(p) }; })(),
         avail: Math.max(0, p.qty - (p.reserved || 0)), qtyColor: p.qty <= 0 ? '#B42318' : p.qty < p.min ? '#B54708' : '#1E2430', barW: Math.min(100, p.qty / scale * 100) + '%', minX: (p.min / scale * 100) + '%', barColor: dot,
@@ -403,7 +404,7 @@ class Component extends DCLogic {
       views: [['list', 'List', 'table_rows'], ['catalog', 'Catalog', 'grid_view']].map(([k, label, icon]) => { const on = (s.view === 'catalog') === (k === 'catalog'); return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) }; }),
       selects: [sel('cat', 'All categories', cats.map(c => ({ v: c.name, l: c.name }))), sel('store', 'All storage areas', stores.map(n => ({ v: n.id, l: `${n.name} · ${PL.zoneOf(n.id).name}` }))), sel('cc', 'All cost centers', ccs.map(c => ({ v: c.code, l: `${c.code} · ${c.name}` })))],
       q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters: !!(q || s.cat || s.store || s.kpi || s.cc || s.kind), resetFilters: () => this.setState({ q: '', cat: '', store: '', kpi: '', cc: '', kind: '' }),
-      countLabel: `${list.length} of ${all.length} items`,
+      countLabel: `${list.length} of ${all.length} items`, pager: { total: list.length, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
       doExport: () => { const head = ['Reference', 'Item type', 'Usage recorded as', 'Item code', 'GTIN', 'Name', 'Category', 'Storage', 'Bin', 'Qty', 'Min', 'Max', 'Unit', 'Unit cost', 'Supplier', 'Cost center', 'Linked equipment'];
         const csv = [head, ...list.map(p => [p.ref, PA.isConsumable(p) ? 'Consumable' : 'Replacement part', PA.usageOf(p).mode === 'percent' ? '% of one ' + p.unit : PA.usageOf(p).unit, p.code, p.gtin, p.name, p.cat, storeName(p.store), p.bin, p.qty, p.min, p.max, p.unit, p.cost, supName(p.supplier), p.costCenter, (p.assets || []).join(' ')])].map(r => r.map(x => `"${String(x ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
         const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'spare-parts.csv'; a.click(); this.flash(`${list.length} items exported`); },

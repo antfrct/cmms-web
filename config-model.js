@@ -36,7 +36,7 @@ const SEED = {
     .map(([name, code, cls, icon, crit]) => C('at-' + code, name, code, { cls, icon, crit })),
   crit: [['Critical', 'C1', '< 2 h', 'Red'], ['High', 'C2', '< 8 h', 'Amber'], ['Medium', 'C3', '< 3 days', 'Amber'], ['Low', 'C4', '< 2 weeks', 'Grey']].map(([name, code, response]) => C('cr-' + code, name, code, { response, system: true })),
   woTypes: [['Corrective', 'COR', 'build', 'Amber', 'Palliative / curative', true], ['Preventive', 'PRV', 'event_repeat', 'Blue', 'Systematic / condition-based', true], ['Predictive', 'PRD', 'insights', 'Purple', 'Condition-based', true],
-    ['Inspection', 'INS', 'visibility', 'Teal', 'Regulatory / routine', true], ['Improvement', 'IMP', 'trending_up', 'Green', 'Continuous improvement', false]].map(([name, code, icon, color, strategy, active]) => C('wt-' + code, name, code, { icon, color, strategy, active })),
+    ['Inspection', 'INS', 'visibility', 'Teal', 'Regulatory / routine', true], ['Improvement', 'IMP', 'trending_up', 'Green', 'Continuous improvement', true]].map(([name, code, icon, color, strategy, active]) => C('wt-' + code, name, code, { icon, color, strategy, active })),
   failures: [['Mechanical', 'MEC'], ['Electrical', 'ELE'], ['Hydraulic', 'HYD'], ['Pneumatic', 'PNE'], ['Instrumentation', 'INS'], ['Software / PLC', 'PLC'], ['Operator error', 'OPE']].map(([name, code]) => C('fc-' + code, name, code)),
   prio: [['Critical', 'P1', '4 h'], ['High', 'P2', '24 h'], ['Medium', 'P3', '7 days'], ['Low', 'P4', '30 days']].map(([name, code, due]) => C('pr-' + code, name, code, { due, system: true })),
   status: [['Requested', 'REQ', 'Open'], ['Scheduled', 'SCH', 'Open'], ['Overdue', 'OVD', 'Computed'], ['In progress', 'INP', 'Open'], ['Waiting (flag on open work orders)', 'WAI', 'Flag'], ['Completed', 'CMP', 'Closed']].map(([name, code, stage]) => C('st-' + code, name, code, { stage, system: true })),
@@ -61,6 +61,8 @@ const SEED = {
 };
 export const SECTIONS = Object.keys(SEED);
 
+// One-time migration: the Improvement work-order type is active by default (spec §1).
+try { const k = 'cmms.config.v1', st = JSON.parse(localStorage.getItem(k) || 'null'); if (st && st.items && st.items.woTypes && !st.impOn) { st.items.woTypes = st.items.woTypes.map(x => x.code === 'IMP' ? { ...x, active: true } : x); st.impOn = 1; localStorage.setItem(k, JSON.stringify(st)); } } catch (e) {}
 export const list = (sec, opts = {}) => { const st = rd(); let items = (st.items && st.items[sec]) || SEED[sec] || [];
   if (st.items && st.items[sec] && ADDED[sec]) { const gone = (st.removed || {})[sec] || []; items = [...items, ...SEED[sec].filter(x => ADDED[sec].includes(x.id) && !gone.includes(x.id) && !items.some(i => i.id === x.id || i.name === x.name))]; } return opts.active ? items.filter(i => i.active !== false) : items.map(i => ({ ...i })); };
 export const get = (sec, idOrName) => list(sec).find(i => i.id === idOrName || i.name === idOrName || i.code === idOrName) || null;

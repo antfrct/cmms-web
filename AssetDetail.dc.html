@@ -20,7 +20,8 @@
   <main style="position:relative;min-height:0;overflow:hidden;padding:16px 28px 0;display:flex;flex-direction:column;gap:14px" data-screen-label="Asset detail">
     <header style="flex:none;display:flex;align-items:flex-start;gap:14px">
       <dc-import name="BackButton" fallback="Assets.dc.html" hint-size="34px,34px"></dc-import>
-      <span style="flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:{{ zbg }};color:{{ zfg }};font:24px/1 'Material Symbols Outlined'">{{ icon }}</span>
+      <sc-if value="{{ hasPhoto }}"><img src="{{ a.photo }}" alt="" style="flex:none;width:56px;height:56px;border-radius:10px;object-fit:cover;border:1px solid #E4E7EC" /></sc-if>
+      <sc-if value="{{ noPhoto }}"><button onClick="{{ addPhoto }}" title="Add a photo" style="flex:none;width:44px;height:44px;border-radius:10px;display:grid;place-items:center;background:{{ zbg }};color:{{ zfg }};border:0;cursor:pointer;font:24px/1 'Material Symbols Outlined'">{{ icon }}</button></sc-if>
       <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">{{ a.name }}</h1>
@@ -39,9 +40,22 @@
         <button onClick="{{ edit }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit</button>
         <button onClick="{{ toggleQr }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">qr_code_2</span>QR code</button>
         <button onClick="{{ newWo }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer;white-space:nowrap" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</button>
+        <div style="position:relative">
+          <button onClick="{{ toggleMenu }}" title="More actions" style="width:36px;height:36px;display:grid;place-items:center;background:{{ menuBg }};border:1px solid #D0D5DD;border-radius:6px;color:#475467;cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">more_horiz</span></button>
+          <sc-if value="{{ menuOpen }}">
+            <div onClick="{{ toggleMenu }}" style="position:fixed;inset:0;z-index:40"></div>
+            <div style="position:absolute;right:0;top:42px;z-index:41;width:240px;padding:6px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14)">
+              <sc-for list="{{ menuItems }}" as="m"><sc-if value="{{ m.sep }}"><div style="height:1px;background:#EEF0F3;margin:5px 4px"></div></sc-if><button onClick="{{ m.run }}" style="width:100%;height:36px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:{{ m.color }};cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:{{ m.color }}">{{ m.icon }}</span>{{ m.label }}</button></sc-for>
+            </div>
+          </sc-if>
+        </div>
       </div>
     </header>
 
+    <sc-if value="{{ isDecom }}"><div style="flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#EEF1F4;border-radius:8px;color:#344054"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">block</span><span style="flex:1">{{ decomText }}</span><button onClick="{{ recommission }}" style="height:30px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Recommission</button></div></sc-if>
+    <section style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
+      <sc-for list="{{ indicators }}" as="k" hint-placeholder-count="4"><button onClick="{{ k.go }}" style="display:flex;align-items:baseline;gap:8px;padding:9px 16px;background:#fff;border:0;border-right:1px solid #EEF0F3;text-align:left;cursor:pointer;font-family:inherit;min-width:0" style-hover="background:#F9FAFB"><span style="font-size:19px;font-weight:600;line-height:24px;color:{{ k.color }};white-space:nowrap">{{ k.value }}</span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:12px;font-weight:500;color:#344054">{{ k.label }}</span><span style="font-size:11.5px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.sub }}</span></span></button></sc-for>
+    </section>
     <div style="flex:none;display:flex;gap:4px;border-bottom:1px solid #E4E7EC">
       <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.select }}" style="position:relative;height:40px;padding:0 10px;background:transparent;border:0;font:{{ t.font }};color:{{ t.color }};cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap">{{ t.label }}<sc-if value="{{ t.hasCount }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#F2F4F7;color:#475467;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ t.count }}</span></sc-if><span style="position:absolute;left:6px;right:6px;bottom:-1px;height:2px;border-radius:2px;background:{{ t.bar }}"></span></button></sc-for>
     </div>
@@ -105,6 +119,31 @@
         </section>
       </sc-if>
 
+      <sc-if value="{{ isPrev }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <sc-if value="{{ hasMeter }}">
+            <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><h2 style="margin:0;font-size:14px;font-weight:600">Meter · {{ meterUnit }}</h2><span style="font-size:12px;color:#667085">Feeds meter-based maintenance plans</span>
+                <span style="margin-left:auto;display:flex;align-items:center;gap:6px"><input type="number" min="0" value="{{ readingVal }}" onInput="{{ setReading }}" placeholder="{{ readingPh }}" style="width:150px;height:34px;padding:0 10px;border:1px solid {{ readingBorder }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><button onClick="{{ addReading }}" style="height:34px;display:flex;align-items:center;gap:5px;padding:0 12px 0 8px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">add</span>Add reading</button></span></div>
+              <sc-if value="{{ readingErr }}"><span style="margin-top:-6px;font-size:12px;color:#B42318;text-align:right">{{ readingErr }}</span></sc-if>
+              <div style="display:flex;gap:24px;align-items:baseline"><span style="font-size:24px;font-weight:600">{{ meterNow }}</span><span style="color:#667085">{{ meterSub }}</span></div>
+              <div style="display:flex;flex-direction:column;border-top:1px solid #F2F4F7"><sc-for list="{{ readings }}" as="r"><div style="display:grid;grid-template-columns:110px 140px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:1px solid #F2F4F7;font-size:12.5px"><span style="font-family:'IBM Plex Mono',monospace;color:#475467">{{ r.at }}</span><span style="font-weight:600">{{ r.v }}</span><span style="color:#667085">{{ r.by }}</span></div></sc-for></div>
+            </section>
+          </sc-if>
+          <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+            <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600">Maintenance plans for this asset</h2><a href="MaintenancePlans.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">All plans</a></div>
+            <sc-for list="{{ planRows }}" as="p"><a href="{{ p.href }}" style="display:grid;grid-template-columns:minmax(0,1.6fr) 140px minmax(0,1fr) 150px 90px;align-items:center;gap:10px;padding:10px 16px;border-top:1px solid #F2F4F7;color:#1E2430;opacity:{{ p.op }}" style-hover="background:#F9FAFB"><span style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:600">{{ p.name }}</span><span style="font-size:12px;color:#667085">{{ p.type }} · {{ p.gen }}</span></span><span style="display:flex;align-items:center;gap:5px;color:#344054"><span style="font:16px/1 'Material Symbols Outlined';color:#98A2B3">{{ p.icon }}</span>{{ p.freq }}</span><span style="color:#475467;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.checklist }}</span><span style="display:flex;flex-direction:column"><span style="font-weight:500;color:{{ p.color }}">{{ p.next }}</span><span style="font-size:11.5px;color:#98A2B3">{{ p.sub }}</span></span><span style="font-size:12px;font-weight:600;color:{{ p.stColor }}">{{ p.state }}</span></a></sc-for>
+            <sc-if value="{{ noPlans }}"><div style="padding:6px 16px 16px;color:#98A2B3">No maintenance plan covers this asset yet. <a href="MaintenancePlans.dc.html">Create one</a> to generate preventive work orders automatically.</div></sc-if>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isHist }}">
+        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:8px 16px">
+          <sc-for list="{{ history }}" as="h"><div style="display:grid;grid-template-columns:28px 130px minmax(0,1fr);gap:10px;align-items:start;padding:9px 0;border-bottom:1px solid #F2F4F7"><span style="width:28px;height:28px;border-radius:7px;display:grid;place-items:center;background:{{ h.bg }};color:{{ h.fg }};font:16px/1 'Material Symbols Outlined'">{{ h.icon }}</span><span style="font:12px/28px 'IBM Plex Mono',monospace;color:#667085">{{ h.when }}</span><span style="display:flex;flex-direction:column;gap:1px;padding-top:4px"><span style="font-weight:500">{{ h.text }}</span><sc-if value="{{ h.hasSub }}"><span style="font-size:12px;color:#667085">{{ h.sub }}</span></sc-if></span></div></sc-for>
+        </section>
+      </sc-if>
+
       <sc-if value="{{ isWo }}">
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
           <sc-for list="{{ wos }}" as="w"><a href="{{ w.href }}" style="display:grid;grid-template-columns:minmax(0,1fr) 110px 130px 120px;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid #F2F4F7;color:#1E2430" style-hover="background:#F9FAFB"><span style="min-width:0;display:flex;flex-direction:column"><span style="font-weight:600">{{ w.title }}</span><span style="font:500 11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ w.id }} · {{ w.when }}</span></span><span style="color:#475467">{{ w.type }}</span><span style="color:#475467">{{ w.who }}</span><span><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:11px;font-size:12px;font-weight:600;background:{{ w.bg }};color:{{ w.fg }}"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ w.status }}</span></span></a></sc-for>
@@ -113,14 +152,7 @@
     </div>
   </main>
 </div>
-<sc-if value="{{ qrOpen }}">
-  <div onClick="{{ toggleQr }}" style="position:fixed;inset:56px 0 0 0;background:rgba(16,24,40,.28);z-index:50"></div>
-  <div style="position:fixed;top:120px;left:50%;transform:translateX(-50%);z-index:51;width:340px;padding:20px;background:#fff;border-radius:12px;box-shadow:0 24px 64px rgba(16,24,40,.3);display:flex;flex-direction:column;align-items:center;gap:10px;font-family:'IBM Plex Sans',sans-serif">
-    <svg width="200" height="200" viewBox="0 0 25 25" shape-rendering="crispEdges"><path d="{{ qr }}" fill="#1E2430"></path></svg>
-    <span style="font-weight:600;font-size:15px">{{ a.name }}</span><span style="font:500 12.5px 'IBM Plex Mono',monospace;color:#667085">{{ a.id }}</span>
-    <button onClick="{{ printQr }}" style="height:36px;align-self:stretch;display:flex;align-items:center;justify-content:center;gap:6px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">print</span>Print label</button>
-  </div>
-</sc-if>
+
 <sc-if value="{{ toast }}">
   <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;font:500 13px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24)"><span style="font:18px/1 'Material Symbols Outlined';color:#4ADE9B">check_circle</span>{{ toast }}</div>
 </sc-if>
@@ -140,11 +172,12 @@ class Component extends DCLogic {
   state = { PM: null, C: null, tab: new URLSearchParams(location.search).get('tab') || 'overview', kind: '', qr: false, toast: null, v: 0 };
   componentDidMount() {
     Promise.all([import('./plant-model.js'), import('./collab-model.js')]).then(([PM, C]) => this.setState({ PM, C }));
-    Promise.all([import('./config-model.js'), import('./parts-model.js'), import('./docs-model.js')]).then(([CFG, P, D]) => this.setState({ CFG, P, D }));
+    Promise.all([import('./config-model.js'), import('./parts-model.js'), import('./docs-model.js'), import('./plans-model.js')]).then(([CFG, P, D, PN]) => this.setState({ CFG, P, D, PN }));
+    this._pl = () => this.setState(s => ({ v: s.v + 1 })); ['cmms-plans', 'cmms-wo'].forEach(k => window.addEventListener(k, this._pl));
     window.addEventListener('cmms-docs', this._d = () => this.setState(s => ({ v: s.v + 1 })));
     this._a = () => this.setState(s => ({ v: s.v + 1 })); window.addEventListener('cmms-asset', this._a);
   }
-  componentWillUnmount() { window.removeEventListener('cmms-asset', this._a); window.removeEventListener('cmms-docs', this._d); clearTimeout(this._t); }
+  componentWillUnmount() { ['cmms-plans', 'cmms-wo'].forEach(k => window.removeEventListener(k, this._pl)); window.removeEventListener('cmms-asset', this._a); window.removeEventListener('cmms-docs', this._d); clearTimeout(this._t); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   advVals() {
     if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
@@ -156,15 +189,31 @@ class Component extends DCLogic {
   }
   renderVals() {
     const s = this.state, PM = s.PM, C = s.C;
-    if (!PM || !C) return { a: {}, crumbs: [], tabs: [], details: [], specs: [], docsTop: [], docsAll: [], docKinds: [], wos: [], resRows: [], week: [], hourTicks: [], isOverview: true };
+    if (!PM || !C) return { indicators: [], menuItems: [], history: [], planRows: [], readings: [], a: {}, crumbs: [], tabs: [], details: [], specs: [], docsTop: [], docsAll: [], docKinds: [], wos: [], resRows: [], week: [], hourTicks: [], isOverview: true };
     const a = PM.asset(ID) || PM.assets()[0], z = PM.zoneOf(a.loc), [zi, zfg, zbg] = PM.ZONE_LOOK[z.id], mobile = a.cls === 'mobile', p = C.person(a.owner);
     const res = mobile ? PM.reservationsOf(a.id) : [], now = res.find(r => r.day === 1 && r.from <= 10.4 && r.to > 10.4);
     const [sbg, sfg] = now ? ['#EAF1FD', '#2456B8'] : PM.STATUS[a.status];
     const docView = d => { const [icon, fg, bg] = PM.DOC_KINDS[d.kind] || PM.DOC_KINDS.Manual; return { ...d, icon, fg, bg }; };
-    const addFiles = e => { const fs = [...(e.target.files || [])]; if (!fs.length) return; const guess = nm => /manual/i.test(nm) ? 'Manual' : /drawing|diagram|p&id/i.test(nm) ? 'Drawing' : /procedure/i.test(nm) ? 'Procedure' : /cert/i.test(nm) ? 'Certificate' : 'Datasheet';
+    const addFiles = e => { const fs = [...(e.target.files || [])]; if (!fs.length) return; const guess = nm => /manual/i.test(nm) ? 'Manual' : /drawing|diagram|p&id/i.test(nm) ? 'Plan' : /procedure/i.test(nm) ? 'Procedure' : /cert/i.test(nm) ? 'Certificate' : 'Datasheet';
       PM.saveAsset(a.id, { docs: [...a.docs, ...fs.map(x => ({ name: x.name.replace(/\.[^.]+$/, ''), kind: guess(x.name), size: x.size > 1e6 ? (x.size / 1e6).toFixed(1) + ' MB' : Math.max(1, Math.round(x.size / 1e3)) + ' KB', added: 'Today' }))] }); e.target.value = ''; this.flash(`${fs.length} document${fs.length > 1 ? 's' : ''} attached to ${a.name}`); };
     const wos = [['WO-1339859', `${a.name} — ${a.cls === 'mobile' ? 'Annual inspection' : 'Corrective repair'}`, 'Corrective', 'Pierre Leroy', 'Overdue', '2 days ago'], ['WO-1339851', `${a.name} — Sensor replacement`, 'Corrective', 'Sophie Martin', 'In progress', 'Yesterday'], ['WO-1339843', `${a.name} — Periodic inspection`, 'Inspection', 'Marc Dupont', 'Completed', 'Sep 12']]
       .map(([id, title, type, who, status, when]) => ({ id, title, type, who, status, when, bg: SB[status][0], fg: SB[status][1], href: 'WorkOrder.dc.html?' + new URLSearchParams({ wo: id, task: title.split(' — ')[1], asset: a.name, loc: PM.lineOf(a.loc).name, type, prio: 'High', status }).toString() }));
+    const PN = s.PN, MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], fd = iso => { if (!iso) return ''; const d = new Date(iso.slice(0, 10) + 'T12:00'); return `${MO[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; };
+    const store = C.createdWos().filter(w => w.assetCode === a.id || w.asset === a.name);
+    const storeWos = store.map(w => { const st = w.status !== 'Completed' && w.due && w.due.slice(0, 10) < '2026-09-29' ? 'Overdue' : (SB[w.status] ? w.status : 'Scheduled'); return { id: C.displayId(w.key), title: `${w.asset} — ${w.task}`, type: w.type, who: w.assignee ? C.person(w.assignee).name : 'Unassigned', status: st, when: w.due ? fd(w.due) : 'Not scheduled', bg: SB[st][0], fg: SB[st][1], href: C.woHref(w.key) }; });
+    wos.unshift(...storeWos);
+    const plans = PN ? PN.forAsset(a.id) : [], activePlans = plans.filter(p => p.active), nexts = activePlans.map(p => ({ p, nd: PN.nextDue(p) })).filter(x => x.nd.iso).sort((x, y) => x.nd.days - y.nd.days), M = PM.meterOf(a.id);
+    const openN = wos.filter(w => w.status !== 'Completed').length, overN = wos.filter(w => w.status === 'Overdue').length;
+    const hist = [];
+    (a.history || []).forEach(h => hist.push({ t: h.at, icon: h.field ? 'edit_note' : /Decommission/.test(h.what || '') ? 'block' : /import/i.test(h.what || '') ? 'upload_file' : 'history', text: h.field ? `${h.field} changed` : h.what, sub: h.field ? `${h.from || '—'} → ${h.to || '—'}` : '', who: h.by }));
+    if (a.commissioned) hist.push({ t: new Date(a.commissioned + 'T08:00').getTime(), icon: 'rocket_launch', text: 'Commissioned', sub: `${a.manufacturer || ''} ${a.model || ''}`.trim() });
+    if (M) M.readings.forEach(r => hist.push({ t: new Date(r.at + 'T09:00').getTime(), icon: 'speed', text: `Meter reading · ${r.v.toLocaleString('en-US')} ${PM.meterShort(M.unit)}`, sub: r.by }));
+    store.forEach(w => { hist.push({ t: w.createdAt || 0, icon: w.generatedBy ? 'event_repeat' : 'add_task', text: `${w.generatedBy ? 'Preventive work order generated' : 'Work order created'} · ${w.task}`, sub: C.displayId(w.key) }); if (w.completion) hist.push({ t: w.completion.loggedAt || w.createdAt || 0, icon: 'task_alt', text: `Work order completed · ${w.task}`, sub: C.displayId(w.key) }); });
+    hist.push({ t: new Date('2026-09-12T15:00').getTime(), icon: 'task_alt', text: 'Work order completed · Periodic inspection', sub: 'WO-1339843 · Marc Dupont' });
+    const LOOK = { block: ['#EEF1F4', '#475467'], task_alt: ['#E6F4EE', '#0B6B4A'], event_repeat: ['#EAF1FD', '#2456B8'], speed: ['#F3EEFC', '#6941C6'], rocket_launch: ['#FEF3E2', '#B54708'] };
+    const history = hist.sort((x, y) => y.t - x.t).map(h => { const d = new Date(h.t), [bg, fg] = LOOK[h.icon] || ['#F2F4F7', '#475467']; return { icon: h.icon, bg, fg, text: h.text, sub: [h.sub, h.who && h.who !== 'GD' ? h.who : h.who === 'GD' ? 'Gaudéric Durand' : ''].filter(Boolean).join(' · '), hasSub: !!(h.sub || h.who), when: `${MO[d.getMonth()]} ${d.getDate()}, ${d.getFullYear() === 2026 ? String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') : d.getFullYear()}` }; });
+    const act = (k, extra) => window.RelixAssetActions && window.RelixAssetActions(k, [a.id], extra);
+    const rv = s.reading, rErr = rv !== '' && rv != null && M && +rv < M.value ? `Must be ≥ last reading (${M.value.toLocaleString('en-US')})` : '';
     const kinds = Object.keys(PM.DOC_KINDS);
     const CFG = s.CFG, P = s.P, site = CFG && CFG.currentSite ? CFG.currentSite() : null;
     const cc = CFG ? (CFG.get('costCenters', a.costCenter) || (!a.costCenter && CFG.list('costCenters').find(c => c.zone === z.id))) : null;
@@ -173,11 +222,25 @@ class Component extends DCLogic {
     const adv = this.advVals().adv;
     const docN = s.D ? s.D.linkedTo('asset', a.id).length : a.docs.length;
     return {
+      hasPhoto: !!a.photo, noPhoto: !a.photo, addPhoto: () => window.RelixAssetWizard && window.RelixAssetWizard(a.id, { step: 2 }),
+      isDecom: !!a.decommissioned, decomText: a.decommissioned ? `Decommissioned on ${fd(a.decommissioned.date)} · ${a.decommissioned.reason}${a.decommissioned.note ? ' — ' + a.decommissioned.note : ''}` : '',
+      recommission: () => { PM.saveAsset(a.id, { status: 'In service', decommissioned: null }); this.flash(`${a.name} recommissioned`); },
+      menuOpen: !!s.menu, menuBg: s.menu ? '#F2F4F7' : '#fff', toggleMenu: () => this.setState({ menu: !s.menu }),
+      menuItems: [['edit', 'Edit asset', () => PM.openWizard(a.id)], ['qr_code_2', 'Display / print QR code', () => act('qr')], ...(a.decommissioned ? [['restart_alt', 'Recommission', () => PM.saveAsset(a.id, { status: 'In service', decommissioned: null }), 1]] : [['block', 'Decommission', () => act('decommission', { openWos: 2 }), 1]]), ['delete', 'Delete asset', () => act('delete', { wos: 3 }), 0, 1]]
+        .map(([icon, label, fn, sep, danger]) => ({ icon, label, sep: !!sep, color: danger ? '#B42318' : '#1E2430', run: () => { this.setState({ menu: false }); fn(); } })),
+      indicators: [['Open work orders', openN, openN ? 'to do on this asset' : 'none', '#1E2430', 'wo'], ['Overdue work orders', overN, overN ? 'past their date' : 'none', overN ? '#B42318' : '#1E2430', 'wo'], ['Active preventive plans', activePlans.length, plans.length > activePlans.length ? `${plans.length - activePlans.length} inactive` : 'covering this asset', '#1E2430', 'prev'], ['Next preventive', nexts[0] ? nexts[0].nd.label : '—', nexts[0] ? `${nexts[0].p.name} · ${nexts[0].nd.sub}` : 'no active plan', nexts[0] && nexts[0].nd.overdue ? '#B42318' : '#1E2430', 'prev']]
+        .map(([label, value, sub, color, tab]) => ({ label, value, sub, color, go: () => this.setState({ tab }) })),
+      isPrev: s.tab === 'prev', isHist: s.tab === 'hist', history,
+      planRows: plans.map(p => { const nd = PN.nextDue(p); return { name: p.name, type: p.type || 'Preventive', gen: `${PN.wosOf(p.id).length} work order${PN.wosOf(p.id).length === 1 ? '' : 's'} generated`, icon: p.trig === 'meter' ? 'speed' : 'event_repeat', freq: PN.freqLabel(p), checklist: p.checklist, next: nd.label, sub: nd.sub, color: nd.overdue ? '#B42318' : '#1E2430', state: p.active ? 'Active' : 'Inactive', stColor: p.active ? '#0B6B4A' : '#98A2B3', op: p.active ? 1 : 0.6, href: 'MaintenancePlans.dc.html?plan=' + p.id }; }), noPlans: !plans.length,
+      hasMeter: !!M || mobile === false, meterUnit: M ? M.unit : 'operating hours', meterNow: M ? `${M.value.toLocaleString('en-US')} ${PM.meterShort(M.unit)}` : 'No reading yet', meterSub: M ? `last read ${fd(M.at)} · ~${M.rate} ${PM.meterShort(M.unit)} / day` : 'Add the first reading to enable meter-based plans',
+      readings: M ? M.readings.slice().reverse().slice(0, 6).map(r => ({ at: fd(r.at), v: `${r.v.toLocaleString('en-US')} ${PM.meterShort(M.unit)}`, by: r.by + (r.note ? ' · ' + r.note : '') })) : [],
+      readingVal: rv ?? '', setReading: e => this.setState({ reading: e.target.value }), readingPh: M ? `New reading (${PM.meterShort(M.unit)})` : 'Reading (h)', readingErr: rErr, readingBorder: rErr ? '#F04438' : '#D0D5DD',
+      addReading: () => { if (rv === '' || rv == null || rErr || isNaN(+rv)) return; PM.addReading(a.id, +rv); this.setState({ reading: '' }); const g = PN ? PN.runDue() : []; this.flash(`Reading saved${g.length ? ` · ${g.length} preventive work order${g.length > 1 ? 's' : ''} generated` : ''}`); },
       a, icon: PM.typeIcon(a.type), zfg, zbg, mobile, sbg, sfg, statusLabel: now ? `Reserved until ${hm(now.to)}` : a.status, critColor: PM.CRIT[a.crit], locIcon: zi,
       crumbs: PM.chain(a.loc).map((n, i, arr) => ({ name: n.name, level: ['Zone', 'Line', 'Step'][i], href: 'Assets.dc.html?loc=' + n.id, color: i === arr.length - 1 ? '#1E2430' : '#475467', weight: i === arr.length - 1 ? 600 : 400 })),
-      tabs: [['overview', 'Overview'], ['wo', 'Work orders', 3], ['docs', 'Documents', docN], ...(mobile ? [['res', 'Reservations', res.length]] : []), ...(adv ? [['lifecycle', 'Lifecycle', null, 1], ['live', 'Live monitoring', null, 1]] : [])].map(([k, label, count, x]) => ({ label, count, hasCount: count != null, font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: x ? '#800080' : s.tab === k ? '#1E2430' : '#667085', bar: s.tab === k ? (x ? '#800080' : '#C00018') : 'transparent', select: () => this.setState({ tab: k }) })),
+      tabs: [['overview', 'Overview'], ['wo', 'Work orders', wos.length], ['prev', 'Preventive', plans.length], ['docs', 'Documents', docN], ['hist', 'History'], ...(mobile ? [['res', 'Reservations', res.length]] : []), ...(adv ? [['lifecycle', 'Lifecycle', null, 1], ['live', 'Live monitoring', null, 1]] : [])].map(([k, label, count, x]) => ({ label, count, hasCount: count != null, font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: x ? '#800080' : s.tab === k ? '#1E2430' : '#667085', bar: s.tab === k ? (x ? '#800080' : '#C00018') : 'transparent', select: () => this.setState({ tab: k }) })),
       isOverview: s.tab === 'overview' || (!adv && (s.tab === 'lifecycle' || s.tab === 'live')), isLife: adv && s.tab === 'lifecycle', isLive: adv && s.tab === 'live', isDocs: s.tab === 'docs', isRes: s.tab === 'res', isWo: s.tab === 'wo',
-      details: [['Type', a.type], ['Class', mobile ? 'Mobile asset · reservable' : 'Fixed equipment'], [mobile ? 'Home location' : 'Location', PM.pathOf(a.loc)], ['Manufacturer', a.manufacturer], ['Model', a.model], ['Serial number', a.serial], ['Year installed', a.year], ['Owner', p.name], ['Criticality', a.crit], ['Cost center', cc ? `${cc.code} · ${cc.name}` : '']]
+      details: [['Type', a.type], ['Class', mobile ? 'Mobile asset · reservable' : 'Fixed equipment'], [mobile ? 'Home location' : 'Location', PM.pathOf(a.loc)], ['Manufacturer', a.manufacturer], ['Model', a.model], ['Serial number', a.serial], ['Year installed', a.year], ['Commissioning date', fd(a.commissioned)], ['Owner', p.name], ['Criticality', a.crit], ['Cost center', cc ? `${cc.code} · ${cc.name}` : '']]
         .map(([k, v]) => ({ k, v: v || 'Not set', color: v ? '#1E2430' : '#98A2B3' })).concat(cfs),
       hasDesc: !!a.desc, hasSpecs: a.specs.length > 0, noSpecs: !a.specs.length, specsCta: a.specs.length ? 'Edit' : 'Add specifications',
       specs: a.specs.map((x, i) => ({ k: x[0], v: x[1] || '—', sep: i % 4 ? '#F2F4F7' : 'transparent' })), typeLower: a.type.toLowerCase(), specHint: (PM.SPEC_SUGGEST[a.type] || ['Power']).join(', '),
@@ -192,7 +255,7 @@ class Component extends DCLogic {
       hourTicks: ['07:00', '09:00', '11:00', '13:00', '15:00', '17:00'],
       week: DAYS.map((label, i) => ({ label, color: i === 1 ? '#C00018' : i > 4 ? '#98A2B3' : '#344054', bg: i > 4 ? '#FAFAFB' : '#fff',
         res: res.filter(r => r.day === i).map(r => ({ left: ((r.from - 7) / 11 * 100) + '%', width: ((r.to - r.from) / 11 * 100) + '%', time: `${hm(r.from)}–${hm(r.to)}`, wo: r.wo, tip: `${r.wo} · ${C.person(r.who).name}` })) })),
-      qrOpen: s.qr, toggleQr: () => this.setState({ qr: !s.qr }), qr: qrPath(a.id), printQr: () => { this.setState({ qr: false }); this.flash(`QR label sent to printer · ${a.id}`); },
+      toggleQr: () => act('qr'),
       toast: s.toast,
     };
   }

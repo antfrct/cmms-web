@@ -57,6 +57,7 @@
           <sc-if value="{{ cur.canAdd }}"><button onClick="{{ startAdd }}" style="flex:none;height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>{{ cur.addLabel }}</button></sc-if>
         </div>
 
+        <sc-if value="{{ isMaturity }}"><div style="flex:1;min-height:0;overflow:auto"><dc-import name="MaturityLevels" hint-size="100%,800px"></dc-import></div></sc-if>
         <sc-if value="{{ isTable }}" hint-placeholder-val="{{ true }}">
           <div style="flex:1;min-height:0;overflow:auto">
             <div style="position:sticky;top:0;z-index:2;display:grid;grid-template-columns:{{ gridCols }};align-items:center;min-width:760px;height:36px;padding-left:18px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
@@ -180,6 +181,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;section&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;assetTypes&quot;,&quot;locations&quot;,&quot;crit&quot;,&quot;woTypes&quot;,&quot;failures&quot;,&quot;prio&quot;,&quot;status&quot;,&quot;partCats&quot;,&quot;costCenters&quot;,&quot;customFields&quot;,&quot;units&quot;,&quot;skills&quot;,&quot;sites&quot;,&quot;labels&quot;],&quot;default&quot;:&quot;assetTypes&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const NAV = [
+  ['Site profile', [['maturity', 'Maturity levels', 'military_tech']]],
   ['Assets', [['assetTypes', 'Asset types', 'category'], ['locations', 'Plant hierarchy', 'account_tree'], ['crit', 'Criticality levels', 'crisis_alert']]],
   ['Work orders', [['woTypes', 'Work order types', 'build'], ['failures', 'Failure categories', 'report'], ['prio', 'Priorities', 'flag'], ['status', 'Statuses', 'swap_horiz']]],
   ['Spare parts & costs', [['partCats', 'Part categories', 'inventory_2'], ['costCenters', 'Cost centers', 'account_balance']]],
@@ -203,6 +205,7 @@ const slug = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u03
 class Component extends DCLogic {
   state = { sec: new URLSearchParams(location.search).get('section') || (this.props.section ?? 'assetTypes'), q: '', form: null, confirm: null, toast: null, v: 0, M: null };
   componentDidMount() {
+    import('./maturity-model.js').then(() => this.forceUpdate()); this._mat = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._mat);
     Promise.all(['./config-model.js', './plant-model.js', './people-model.js', './parts-model.js', './collab-model.js', './sites-model.js', './checklist-model.js'].map(p => import(p)))
       .then(([CFG, PL, PM, PA, C, SI, CL]) => this.setState({ M: { CFG, PL, PM, PA, C, SI, CL } }));
     this._r = () => this.setState(s => ({ v: s.v + 1 }));
@@ -228,7 +231,7 @@ class Component extends DCLogic {
       crit: { icon: 'crisis_alert', desc: 'Criticality reflects the impact of a failure on production and safety. It sets the default priority of new work orders.', where: 'Asset wizard · Asset list · Work order defaults', note: 'The four levels are fixed — only the response target can be edited.', heads: ['Response target'], system: true,
         cells: r => [{ text: r.response }], form: [F('name', 'Name', 'text', { disabled: 1 }), F('code', 'Code', 'code', { disabled: 1 }), F('response', 'Response target', 'text', { req: 1, ph: 'e.g. < 8 h' })] },
       woTypes: { add: 'Add type', icon: 'build', desc: 'Types describe the purpose of a work order. Active types appear in the creation wizard, quick intervention and work order editing.', where: 'New work order · Quick intervention · Work order edit · Filters',
-        note: 'Improvement is inactive by default — activate it to offer it when creating work orders.', heads: ['Strategy', 'Color'],
+        note: 'Improvement (continuous improvement) is active by default — deactivate a type to hide it from the creation wizard.', heads: ['Strategy', 'Color'],
         cells: r => [{ text: r.strategy || '—' }, { text: r.color, dot: (CFG.PALETTE[r.color] || [])[0] }],
         form: [F('name', 'Name', 'text', { req: 1 }), F('code', 'Code', 'code', { req: 1 }), F('strategy', 'Maintenance strategy', 'text', { span: 2, ph: 'e.g. Systematic / condition-based' }), F('color', 'Color', 'color'), F('icon', 'Icon', 'icon')] },
       failures: { add: 'Add category', icon: 'report', desc: 'Used to analyze recurring failures and the equipment with the most breakdowns.', where: 'New work order (Details) · Work order edit · Reports', note: 'Keep categories short so technicians can pick one quickly.', heads: ['Description'],
@@ -401,8 +404,11 @@ class Component extends DCLogic {
     const s = this.state, M = s.M;
     const navBase = NAV.map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === s.sec; return { label: l, icon, count: '', bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
     if (!M) return { nav: navBase, subtitle: 'Reference data used in forms, filters and reports across the application', cur: { label: '', desc: '' }, rows: [], heads: [], isTable: true, gridCols: '1fr', unitRows: [], unitSites: [], fields: [] };
-    const { CFG, SI } = M, sec = s.sec, m = this.meta(sec), q = s.q.trim().toLowerCase(), site = SI.current();
-    const nav = NAV.map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === sec; return { label: l, icon, count: k === 'units' ? Object.keys(CFG.quantities()).length : this.items(k).length, bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
+    const { CFG, SI } = M, sec = s.sec, q = s.q.trim().toLowerCase(), site = SI.current();
+    const MS = window.RelixMaturity ? window.RelixMaturity.score(site.id) : null;
+    const nav = NAV.map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === sec; return { label: l, icon, count: k === 'maturity' ? (MS ? `${MS.earned}/${MS.max} ★` : '') : k === 'units' ? Object.keys(CFG.quantities()).length : this.items(k).length, bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
+    if (sec === 'maturity') return { ...this.advVals(), nav, subtitle: `${site.name} · how your site works with Relix today, area by area`, q: '', hasSearch: false, cur: { label: 'Maturity levels', desc: 'Every site is different. Choose, for each area, the level that fits your team — from Essential (simple and quick to adopt) to Expert (every capability). Levels can be raised one step at a time.', hasWhere: false, canAdd: false, canReset: false }, isMaturity: true, isTable: false, isUnits: false, rows: [], heads: [], unitRows: [], unitSites: [], fields: [], toast: s.toast, formOpen: false, confirmOpen: false };
+    const m = this.meta(sec);
     const curLabel = NAV.flatMap(g => g[1]).find(x => x[0] === sec)[1];
     const addLabel = sec === 'locations' ? 'Add zone' : m.add;
     const out = { ...this.advVals(), nav, subtitle: `${site.name} · reference data used in forms, filters and reports across the application`, q: s.q, setQ: e => this.setState({ q: e.target.value }), hasSearch: sec !== 'units',

@@ -178,12 +178,34 @@
 
         <dc-import name="WOCosts" wo-key="{{ docKey }}" wo="{{ costWo }}" parts="{{ costParts }}" actual-ms="{{ costActual }}" hint-size="100%,320px"></dc-import>
 
+        <sc-if value="{{ showRca }}">
+          <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font:18px/1 'Material Symbols Outlined';color:#475467">troubleshoot</span><h2 style="margin:0;font-size:14px;font-weight:600">Root cause analysis</h2><span style="font-size:12px;color:#98A2B3">5 whys · find and remove the cause so the failure does not come back</span>
+              <sc-if value="{{ hasRca }}"><button onClick="{{ rcaToggleStatus }}" style="margin-left:auto;height:26px;display:flex;align-items:center;gap:5px;padding:0 10px;background:{{ rcaStBg }};border:0;border-radius:13px;font:600 12px 'IBM Plex Sans',sans-serif;color:{{ rcaStFg }};cursor:pointer"><span style="font:14px/1 'Material Symbols Outlined'">{{ rcaStIcon }}</span>{{ rcaStatus }}</button></sc-if></div>
+            <sc-if value="{{ noRca }}"><div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F6F7F9;border-radius:8px"><span style="flex:1;color:#475467;line-height:1.45">{{ rcaHint }}</span><button onClick="{{ rcaStart }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">add</span>Start analysis</button></div></sc-if>
+            <sc-if value="{{ hasRca }}">
+              <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Problem statement</span><input value="{{ rca.problem }}" onInput="{{ rcaOn.problem }}" placeholder="What happened, where, when?" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Why? Why? Why?…</span>
+                <sc-for list="{{ whys }}" as="y"><div style="display:flex;align-items:center;gap:8px"><span style="flex:none;width:58px;font-size:12px;font-weight:600;color:#667085">Why {{ y.n }}</span><input value="{{ y.v }}" onInput="{{ y.set }}" placeholder="{{ y.ph }}" style="flex:1;height:34px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></div></sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:200px minmax(0,1fr);gap:12px">
+                <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Root cause category</span><span style="position:relative;display:flex"><select value="{{ rca.category }}" onChange="{{ rcaOn.category }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;background:#fff;outline:none"><option value="">Select…</option><sc-for list="{{ rcaCats }}" as="o"><option value="{{ o }}">{{ o }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></label>
+                <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:600;color:#344054">Root cause</span><input value="{{ rca.cause }}" onInput="{{ rcaOn.cause }}" placeholder="The cause that, once removed, prevents recurrence" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:600;color:#344054">Actions to prevent recurrence</span>
+                <sc-for list="{{ rcaActions }}" as="x"><div style="display:flex;align-items:center;gap:8px;padding:6px 6px 6px 10px;border:1px solid #E4E7EC;border-radius:8px"><span style="font:17px/1 'Material Symbols Outlined';color:#0B6B4A">trending_up</span><span style="flex:1">{{ x.text }}</span><sc-if value="{{ x.hasWo }}"><span style="font:500 11.5px 'IBM Plex Mono',monospace;color:#98A2B3">work order created</span></sc-if><sc-if value="{{ x.noWo }}"><button onClick="{{ x.createWo }}" style="height:28px;padding:0 10px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Create improvement WO</button></sc-if><button onClick="{{ x.remove }}" style="width:28px;height:28px;display:grid;place-items:center;background:transparent;border:0;color:#98A2B3;cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">close</span></button></div></sc-for>
+                <div style="display:flex;gap:8px"><input value="{{ actDraft }}" onInput="{{ setActDraft }}" onKeyDown="{{ actKey }}" placeholder="e.g. Add a laser alignment check to the quarterly plan" style="flex:1;height:34px;padding:0 10px;border:1px dashed #C4CAD4;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><button onClick="{{ addAction }}" style="height:34px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Add</button></div>
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding-bottom:8px">
-          <h2 style="margin:0;padding:14px 16px 6px;font-size:14px;font-weight:600">Activity</h2>
+          <div style="display:flex;align-items:baseline;gap:8px;padding:14px 16px 6px"><h2 style="margin:0;font-size:14px;font-weight:600">History</h2><span style="font-size:12px;color:#98A2B3">Status, assignment, priority and date changes — who and when</span></div>
           <sc-for list="{{ activity }}" as="a">
             <div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:7px 16px;align-items:start">
               <span style="width:24px;height:24px;border-radius:50%;background:#F2F4F7;color:#475467;display:grid;place-items:center;font:14px/1 'Material Symbols Outlined'">{{ a.icon }}</span>
-              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ a.text }}</span><span style="font-size:12px;color:#667085">{{ a.who }}</span></span>
+              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:500">{{ a.text }}</span><sc-if value="{{ a.hasChange }}"><span style="font-size:12.5px;color:#344054"><span style="color:#98A2B3;text-decoration:line-through">{{ a.from }}</span> → <b style="font-weight:600">{{ a.to }}</b></span></sc-if><span style="font-size:12px;color:#667085">{{ a.who }}</span></span>
               <span style="font-size:12px;color:#98A2B3;white-space:nowrap">{{ a.when }}</span>
             </div>
           </sc-for>
@@ -312,6 +334,18 @@ class Component extends DCLogic {
   }
   componentWillUnmount() { window.removeEventListener('cmms-wo', this._wo); window.removeEventListener('cmms-chat', this._chat); clearTimeout(this._t); }
   scrollToChat() { const c = this.chatRef.current, m = c && c.parentElement; if (m && c) m.scrollTop = Math.max(0, c.offsetTop - m.offsetTop); this.setState({ chatFlash: true }); setTimeout(() => this.setState({ chatFlash: false }), 1600); }
+  rcaVals(w) {
+    const C = this.state.C, r = w.rca, save = p => C && C.saveWo(Q0.key, { rca: { ...(w.rca || {}), ...p } });
+    const base = { showRca: w.type === 'Corrective' || !!r, hasRca: !!r, noRca: !r, rcaHint: 'Recurring or critical failure? Document the root cause and the actions that prevent it from coming back.', rcaStart: () => save({ problem: `${w.asset} — ${w.task}`, whys: ['', '', '', '', ''], cause: '', category: '', actions: [], status: 'Open', at: Date.now() }), rcaCats: [], whys: [], rcaActions: [], rcaOn: {}, rca: {} };
+    if (!r) return base;
+    const st = r.status === 'Closed', draft = this.state.actDraft || '', add = () => { if (!draft.trim()) return; save({ actions: [...(r.actions || []), { text: draft.trim(), wo: false }] }); this.setState({ actDraft: '' }); };
+    return { ...base, rca: r, rcaStatus: st ? 'Closed' : 'Open', rcaStIcon: st ? 'check_circle' : 'pending', rcaStBg: st ? '#E6F4EE' : '#FEF3E2', rcaStFg: st ? '#0B6B4A' : '#B54708', rcaToggleStatus: () => save({ status: st ? 'Open' : 'Closed' }),
+      rcaOn: { problem: e => save({ problem: e.target.value }), cause: e => save({ cause: e.target.value }), category: e => save({ category: e.target.value }) },
+      rcaCats: ['Wear / end of life', 'Lubrication', 'Misalignment', 'Design', 'Installation', 'Operating conditions', 'Operator error', 'Procedure missing', 'Spare part quality', 'Environment', 'Unknown'],
+      whys: (r.whys || ['', '', '', '', '']).map((v, i) => ({ n: i + 1, v, ph: i === 0 ? 'Why did the failure happen?' : 'Why?', set: e => { const a = [...(r.whys || ['', '', '', '', ''])]; a[i] = e.target.value; save({ whys: a }); } })),
+      rcaActions: (r.actions || []).map((x, i) => ({ text: x.text, hasWo: !!x.wo, noWo: !x.wo, remove: () => save({ actions: r.actions.filter((_, j) => j !== i) }), createWo: () => { save({ actions: r.actions.map((y, j) => j === i ? { ...y, wo: true } : y) }); window.CMMSCreateWO && window.CMMSCreateWO({ asset: w.assetCode || w.asset, title: x.text, type: 'Improvement' }); } })),
+      actDraft: draft, setActDraft: e => this.setState({ actDraft: e.target.value }), actKey: e => { if (e.key === 'Enter') add(); }, addAction: add };
+  }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
   setE(k, v) { this.setState(s => ({ e: { ...s.e, [k]: v } })); }
   asgKeysOf(e) { return e.assigned || [...new Set(((e.assignments && e.assignments.length ? e.assignments : e.assignee ? [{ key: e.assignee }] : [])).map(x => x.key).filter(Boolean))]; }
@@ -435,10 +469,14 @@ class Component extends DCLogic {
       details: [['Asset', w.asset], ['Location', w.loc], ['Type', w.type], ['Priority', w.prio || 'Not set'], ['Estimated', durLabel(w.dur) || '—'], ['Requested by', w.quick ? 'Gaudéric Durand · quick intervention' : w.created ? 'Gaudéric Durand' : 'Night shift · L. Petit'], ['Request date', w.created ? 'Today' : 'Sep 26, 2026'], ['Scheduled', w.due ? fmtDue(w.due) : overdue ? 'Sep 27, 08:00' : w.quick ? '—' : 'Today, 09:00']]
         .map(([k, v]) => ({ k, v, color: v === 'Not set' ? '#B54708' : '#1E2430' })).concat(this.extraVals(e, false, w).cfView.map(x => ({ ...x, color: '#1E2430' }))),
       docKey: Q0.key, costWo: w, costParts: done && (w.used || []).length ? w.used.map(p => ({ ref: p.ref, qty: p.qty })) : SEAL ? [{ ref: 'SEAL-M45', qty: 1 }, { ref: 'GSK-P101', qty: 1 }, { ref: 'ORG-KIT', qty: 1 }] : (w.parts || []).map(p => ({ ref: p.ref, qty: p.qty })), costActual: done && sum.elapsed ? sum.elapsed : null,
+      ...this.rcaVals(w),
       activity: [
+        ...(() => { const H = w.history || [], val = (f, v) => !v ? '—' : f === 'Assigned to' ? P(v).name : f === 'Planned date' ? fmtDue(v) : f === 'Waiting' ? (C ? C.waitLabel(v) : v) : String(v);
+          return H.slice().reverse().map(h => { const d = new Date(h.at), when = d.toDateString() === new Date().toDateString() ? `Today ${pad(d.getHours())}:${pad(d.getMinutes())}` : `${M[d.getMonth()]} ${d.getDate()}`;
+            return h.field ? [h.field === 'Status' ? 'swap_horiz' : h.field === 'Assigned to' ? 'person' : h.field === 'Planned date' ? 'event' : h.field === 'Priority' ? 'flag' : 'edit', `${h.field} changed`, h.by === 'system' ? 'Relix (automatic)' : P(h.by).name, when, val(h.field, h.from), val(h.field, h.to)] : [/Generated/.test(h.what) ? 'event_repeat' : /Complet/.test(h.what) ? 'task_alt' : 'add', h.what, h.by === 'system' ? 'Relix · maintenance plan' : P(h.by).name, when]; }); })(),
         ...(done ? [['task_alt', `Intervention ${fin[0].toLowerCase()}`, 'Gaudéric Durand', 'Today']] : going ? [['play_arrow', 'Intervention started', 'Gaudéric Durand', 'Today']] : logged ? [['history', 'Completed — recorded after the fact', `${P(cpl.loggedBy || 'GD').name}${cpl.by && cpl.by !== cpl.loggedBy ? ' · done by ' + P(cpl.by).name : ''}`, 'Today']] : []),
-        ...(w.quick ? [['bolt', 'Created from a quick intervention', 'Gaudéric Durand', 'Today']] : w.created ? [['add', 'Work order created', 'Gaudéric Durand', 'Today']] : [['event', 'Scheduled', 'Hugo Petit · Planner', 'Sep 26'], ['check', 'Request approved', 'Gaudéric Durand', 'Sep 26'], ['campaign', 'Request created', 'L. Petit · Night shift', 'Sep 26']]),
-      ].map(([icon, text, who, when]) => ({ icon, text, who, when })),
+        ...((w.history || []).some(h => h.what) ? [] : w.quick ? [['bolt', 'Created from a quick intervention', 'Gaudéric Durand', 'Today']] : w.created ? [['add', 'Work order created', 'Gaudéric Durand', 'Today']] : [['event', 'Scheduled', 'Hugo Petit · Planner', 'Sep 26'], ['check', 'Request approved', 'Gaudéric Durand', 'Sep 26'], ['campaign', 'Request created', 'L. Petit · Night shift', 'Sep 26']]),
+      ].map(([icon, text, who, when, from, to]) => ({ icon, text, who, when, from, to, hasChange: from != null })),
       startEdit: () => this.setState({ editing: true, e: { ...w, status, desc: w.desc || (SEAL || !w.quick ? descText : ''), participants: [...(w.participants || [])], checklists: [...(w.checklists || [])], assignments: (w.assignments || []).map(x => ({ ...x })) } }),
       cancelEdit: () => this.setState({ editing: false, e: null }), saveEdit: () => this.save(),
       on: Object.fromEntries(['task', 'status', 'desc', 'cat', 'due', 'dur', 'costCenter'].map(k => [k, ev => this.setE(k, ev.target.value)])),

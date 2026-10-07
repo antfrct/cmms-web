@@ -79,7 +79,7 @@
 
       <sc-if value="{{ isS3 }}">
         <div style="flex:1;min-height:420px;display:flex;flex-direction:column;gap:10px">
-          <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Checklists</span><span style="font-size:12px;color:#98A2B3">Select one or more · preview before adding</span><span style="margin-left:auto;font-size:12px;font-weight:600;color:#344054">{{ clCount }}</span></span>
+          <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Checklists</span><span style="font-size:12px;color:#98A2B3">Select one or more · preview before adding</span><span style="margin-left:auto;font-size:12px;font-weight:600;color:#344054">{{ clCount }}</span><a href="ChecklistEditor.dc.html?new=1" target="_blank" rel="noopener" title="Opens the checklist editor in a new tab — come back and refresh the list" style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 10px 0 6px;border:1px solid #D0D5DD;border-radius:6px;font-size:12.5px;font-weight:600;color:#1E2430;text-decoration:none" style-hover="border-color:#98A2B3;text-decoration:none;color:#1E2430"><span style="font:16px/1 'Material Symbols Outlined';color:#667085">add</span>New checklist</a></span>
           <dc-import name="ChecklistPicker" selected="{{ f.checklists }}" onChange="{{ setChecklists }}" asset="{{ assetName }}" style="flex:1;min-height:0" hint-size="100%,400px"></dc-import>
           <sc-if value="{{ hasAutoParts }}"><div style="flex:none;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#E6F4EE;border-radius:8px;color:#0B6B4A;font-size:12.5px"><span style="font:18px/1 'Material Symbols Outlined'">inventory_2</span><span style="flex:1">{{ autoPartsNote }}</span></div></sc-if>
         </div>
@@ -88,8 +88,13 @@
       <sc-if value="{{ isS4 }}">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px 14px">
           <label style="display:flex;flex-direction:column;gap:6px">
+            <span style="font-size:13px;font-weight:600;color:#344054">Request date<span style="color:#C00018"> *</span></span>
+            <input type="datetime-local" value="{{ f.requested }}" onInput="{{ on.requested }}" max="{{ nowIso }}" style="height:44px;padding:0 10px;border:1px solid {{ reqBorder }};border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
+            <span style="font-size:11.5px;color:{{ reqHintColor }}">{{ reqHint }}</span>
+          </label>
+          <label style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:13px;font-weight:600;color:#344054">Desired date &amp; time</span>
-            <input type="datetime-local" value="{{ f.due }}" onInput="{{ on.due }}" style="height:44px;padding:0 10px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
+            <input type="datetime-local" value="{{ f.due }}" onInput="{{ on.due }}" style="height:44px;padding:0 10px;border:1px solid {{ dueBorder }};border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none" />
             <span style="font-size:11.5px;color:{{ dueHintColor }}">{{ dueHint }}</span>
           </label>
           <label style="display:flex;flex-direction:column;gap:6px">
@@ -97,8 +102,8 @@
             <span style="position:relative;display:flex"><select value="{{ f.dur }}" onChange="{{ on.dur }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="0.5">30 min</option><option value="1">1 h</option><option value="1.5">1 h 30</option><option value="2">2 h</option><option value="3">3 h</option><option value="4">4 h</option></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </label>
           <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px">
-            <span style="display:flex;font-size:13px;font-weight:600;color:#344054">Description<span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ descCount }} / 500</span></span>
-            <textarea value="{{ f.desc }}" onInput="{{ on.desc }}" maxlength="500" rows="4" placeholder="Context, symptoms, actions to carry out…" style="padding:10px 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px/1.5 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;resize:vertical"></textarea>
+            <span style="display:flex;font-size:13px;font-weight:600;color:#344054">Description<span style="color:#C00018">&nbsp;*</span><span style="margin-left:auto;font-weight:400;color:#98A2B3">{{ descCount }} / 500</span></span>
+            <textarea value="{{ f.desc }}" onInput="{{ on.desc }}" maxlength="500" rows="4" placeholder="Context, symptoms, actions to carry out…" style="padding:10px 12px;border:1px solid {{ descBorder }};border-radius:8px;font:13px/1.5 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;resize:vertical"></textarea>
           </label>
           <label style="display:flex;flex-direction:column;gap:6px">
             <span style="font-size:13px;font-weight:600;color:#344054">Failure category</span>
@@ -196,6 +201,7 @@
       <button onClick="{{ back }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 14px 0 10px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">{{ backIcon }}</span>{{ backLabel }}</button>
       <span style="flex:1;min-width:0;font-size:12.5px;color:#667085;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ footNote }}</span>
       <sc-if value="{{ canNext }}" hint-placeholder-val="{{ true }}"><button onClick="{{ next }}" disabled="{{ nextDisabled }}" style="height:40px;display:flex;align-items:center;gap:4px;padding:0 12px 0 16px;background:{{ nextBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ nextColor }};cursor:{{ nextCursor }};white-space:nowrap">Next step<span style="font:18px/1 'Material Symbols Outlined'">chevron_right</span></button></sc-if>
+      <sc-if value="{{ isLast }}"><button onClick="{{ toggleAnother }}" title="Keep the panel open with the same asset after creating" style="height:40px;display:flex;align-items:center;gap:7px;padding:0 6px;background:transparent;border:0;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;white-space:nowrap"><span style="width:16px;height:16px;border-radius:4px;border:1.5px solid {{ anBorder }};background:{{ anBg }};display:grid;place-items:center;color:#fff;font:13px/1 'Material Symbols Outlined'">{{ anIcon }}</span>Create another</button></sc-if>
       <sc-if value="{{ isLast }}"><button onClick="{{ create }}" disabled="{{ createDisabled }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 18px 0 14px;background:{{ createBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ createColor }};cursor:{{ createCursor }};white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined'">check</span>Create work order</button></sc-if>
     </div>
   </aside>
@@ -210,11 +216,13 @@ const PARTS = [['BRG-6205', 'Ball bearing 6205-2RS', 42, 10], ['BLT-BPU280', 'Dr
 const EXTRA = { conveyor: 'Conveyor maintenance', press: 'Hydraulic press service', electrical: 'Electrical check', safety: 'Safety inspection' };
 const TYPES = [['Corrective', 'build', '#B54708', '#FEF3E2'], ['Preventive', 'event_repeat', '#2456B8', '#EAF1FD'], ['Predictive', 'insights', '#6941C6', '#F3EEFC'], ['Inspection', 'visibility', '#0E7490', '#E3F4F7']];
 const PRIOS = [['Critical', '#C00018'], ['High', '#E0591B'], ['Medium', '#E3A008'], ['Low', '#98A2B3']];
-const STEPS = [['Essentials', 'edit_note', 'Required'], ['Checklists', 'checklist', 'Optional'], ['People', 'group', 'Recommended'], ['Details', 'tune', 'Optional']];
+const STEPS = [['Essentials', 'edit_note', 'Required'], ['Checklists', 'checklist', 'Optional'], ['People', 'group', 'Recommended'], ['Details', 'tune', 'Description required']];
 const REQ = [['asset', 'asset'], ['title', 'title'], ['prio', 'priority']];
 const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = d => { if (!d) return ''; const [ymd, t] = d.split('T'); const [, m, dd] = ymd.split('-'); return `${M[+m - 1]} ${+dd}${t ? ', ' + t : ''}`; };
-const blank = () => ({ tools: [], dismissedTools: [], cc: '', custom: {}, asset: '', type: 'Corrective', prio: '', assigned: [], followers: ['GD'], checklists: [], due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], dismissed: [], docs: [] });
+const pad2 = n => String(n).padStart(2, '0');
+const nowIso = () => { const d = new Date(); return `2026-09-29T${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+const blank = () => ({ requested: nowIso(), tools: [], dismissedTools: [], cc: '', custom: {}, asset: '', type: 'Corrective', prio: '', assigned: [], followers: ['GD'], checklists: [], due: '', dur: '1', title: '', desc: '', cat: '', stop: false, parts: [], dismissed: [], docs: [] });
 const stock = (q0, min, ref) => { const PA = window.RelixParts, it = PA && ref ? PA.part(ref) : null, lbl = it ? PA.fmtStock(it) : q0; return q0 <= 0 ? ['Out of stock', '#B42318'] : q0 < min ? [`Low · ${lbl} in stock`, '#B54708'] : [`${lbl} in stock`, '#0B6B4A']; };
 const kindView = ref => { const PA = window.RelixParts, it = PA && PA.part(ref), cons = !!(it && PA.isConsumable(it)); return { kIcon: cons ? 'water_drop' : 'settings', kBg: cons ? '#E3F2F6' : '#EEF1F4', kFg: cons ? '#0E7490' : '#475467', kindLabel: cons ? 'Consumable' : 'Spare part' }; };
 let LIVE_PARTS = null;
@@ -222,7 +230,8 @@ const partsList = () => LIVE_PARTS ? LIVE_PARTS().map(p => [p.ref, p.name, p.qty
 const partMeta = (ref, fb = {}) => { const p = partsList().find(x => x[0] === ref); return p ? { name: p[1], stock: p[2], min: p[3] } : { name: fb.name || ref, stock: fb.stock ?? 0, min: 1 }; };
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
 class Component extends DCLogic {
-  state = { drawer: false, step: 0, form: blank(), prefilled: false, picker: false, pq: '', toast: null, toastHref: '#', C: null, CL: null, PE: null, PL: null };
+  dateErrors() { const f = this.state.form, e = {}; if (!f.requested) e.requested = 'Request date is required'; else if (f.requested > nowIso()) e.requested = 'Request date cannot be in the future'; if (f.due && f.requested && f.due.slice(0, 16) < f.requested.slice(0, 16)) e.due = 'Desired date is before the request date'; if (!(f.desc || '').trim()) e.desc = 'Description is required'; return e; }
+  state = { another: false, drawer: false, step: 0, form: blank(), prefilled: false, picker: false, pq: '', toast: null, toastHref: '#', C: null, CL: null, PE: null, PL: null };
   componentDidMount() {
     import('./cost-model.js').then(() => this.forceUpdate());
     Promise.all([import('./collab-model.js'), import('./checklist-model.js'), import('./people-model.js'), import('./plant-model.js'), import('./config-model.js'), import('./parts-model.js')]).then(([C, CL, PE, PL, CFG, PA]) => { LIVE_PARTS = PA.parts; this.setState({ C, CL, PE, PL, CFG, PA }); });
@@ -261,18 +270,19 @@ class Component extends DCLogic {
   create() {
     const f = this.state.form, C = this.state.C;
     if (this.missing().length) return this.setState({ step: 0 });
-    if (this.conflicts().length || Object.keys(this.cfErrors()).length) return this.setState({ tried: true });
+    if (this.conflicts().length || Object.keys(this.cfErrors()).length || Object.keys(this.dateErrors()).length) return this.setState({ tried: true });
     const a = this.assetList().find(x => x[0] === f.asset) || [f.asset, f.asset, ''];
     const status = f.due ? 'Scheduled' : 'Requested', asg = this.assignments(), asg0 = f.assigned[0] || '';
     const participants = [...f.assigned.slice(1).map(k => [k, 'Additional technician']), ...f.followers.filter(k => !f.assigned.includes(k)).map(k => [k, 'Follow-up'])];
-    const wo = { costs: { consumables: [], services: (f.ext || []).filter(x => x.kind === 'services').map(({ sup, rate, qty }) => ({ sup, rate, qty })), rentals: (f.ext || []).filter(x => x.kind === 'rentals').map(({ sup, rate, qty }) => ({ sup, rate, qty })) }, task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: asg0, assignments: asg, participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD', fromRequest: f.fromRequest || '', tools: (f.tools || []).map(t => t.id), costCenter: f.cc || ((this.state.PL && this.state.PL.asset(f.asset)) || {}).costCenter || '', custom: f.custom || {} };
+    const wo = { costs: { consumables: [], services: (f.ext || []).filter(x => x.kind === 'services').map(({ sup, rate, qty }) => ({ sup, rate, qty })), rentals: (f.ext || []).filter(x => x.kind === 'rentals').map(({ sup, rate, qty }) => ({ sup, rate, qty })) }, task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: asg0, assignments: asg, participants, checklists: f.checklists, due: f.due, requestedAt: f.requested, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD', fromRequest: f.fromRequest || '', tools: (f.tools || []).map(t => t.id), costCenter: f.cc || ((this.state.PL && this.state.PL.asset(f.asset)) || {}).costCenter || '', custom: f.custom || {} };
     const key = C ? C.createWo(wo) : 'WO-1339912';
     const sl = this.slot(); if (sl && this.state.PL && (f.tools || []).length) this.state.PL.reserve(key, f.tools.map(t => t.id), sl.day, sl.from, sl.to, `${a[1]} — ${f.title}`, asg0 || 'GD');
     const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: asg0 && C ? C.person(asg0).name : '', assignments: asg, tools: (f.tools || []).map(t => t.id), date: f.due, dur: +f.dur || 1, stop: f.stop, fromRequest: f.fromRequest || '' };
     window.dispatchEvent(new CustomEvent('cmms-wo-created', { detail: row }));
     if (this.props.onCreated) this.props.onCreated(row);
-    this.setState({ drawer: false, picker: false });
-    this.flash(`${key} · ${a[1]} — ${f.title} created${f.due ? ' · ' + fmtDate(f.due) : ''}`, C ? C.woHref(key) : '#');
+    if (this.state.another) this.setState({ step: 0, form: { ...blank(), asset: f.asset, type: f.type, followers: f.followers }, picker: false, tried: false, prefilled: true });
+    else this.setState({ drawer: false, picker: false });
+    this.flash(`${key} · ${a[1]} — ${f.title} created${f.due ? ' · ' + fmtDate(f.due) : ''}${this.state.another ? ' · ready for the next one' : ''}`, C ? C.woHref(key) : '#');
   }
   detailVals() {
     const s = this.state, f = s.form, PL = s.PL, CFG = s.CFG, PE = s.PE;
@@ -305,7 +315,7 @@ class Component extends DCLogic {
       hasNextSlot: !!nxt, nextSlotLabel: nxt ? `Use next free slot · ${dn(nxt.day)} ${PE.hm(nxt.from)}` : '',
       useNextSlot: () => { if (!nxt) return; const t = PE.hm(nxt.from); this.setF('due', `${PL.isoOfDay(nxt.day)}T${t}`); },
       planLater: () => this.setF('due', ''),
-      dueHint: confl.length ? 'Required equipment is not available at this time' : sl && ids.length ? 'Required equipment available ✓' : 'Leave empty to plan it later from Planning', dueHintColor: confl.length ? '#B42318' : sl && ids.length ? '#0B6B4A' : '#98A2B3',
+      dueHint: this.dateErrors().due ? this.dateErrors().due : confl.length ? 'Required equipment is not available at this time' : sl && ids.length ? 'Required equipment available ✓' : 'Leave empty to plan it later from Planning', dueHintColor: this.dateErrors().due || confl.length ? '#B42318' : sl && ids.length ? '#0B6B4A' : '#98A2B3',
     };
   }
   renderVals() {
@@ -323,7 +333,9 @@ class Component extends DCLogic {
         bar: i === step ? '#C00018' : i < step || (i === 0 && ok0) ? '#1E2430' : '#E4E7EC', color: i === step ? '#1E2430' : reach ? '#667085' : '#98A2B3', weight: i === step ? 600 : 500, go: () => reach && this.setState({ step: i, picker: false }) }; }),
       isS1: step === 0, isS3: step === 1, isS2: step === 2, isS4: step === 3,
       f, assetName: a ? a[1] : '', hasAssetPath: !!(a && PL && a[3]), assetPath: a && PL && a[3] ? PL.pathOf(a[3]) : '',
-      on: Object.fromEntries(['asset', 'title', 'due', 'dur', 'desc', 'cat', 'cc'].map(k => [k, e => this.setF(k, e.target.value)])),
+      on: Object.fromEntries(['asset', 'title', 'due', 'dur', 'desc', 'cat', 'cc', 'requested'].map(k => [k, e => this.setF(k, e.target.value)])),
+      ...(() => { const de = this.dateErrors(), show = k => (s.tried || k !== 'desc') && de[k]; return { nowIso: nowIso(), reqBorder: show('requested') ? '#F04438' : '#D0D5DD', reqHint: show('requested') || 'Prefilled with now — change it for a back-dated declaration', reqHintColor: show('requested') ? '#B42318' : '#98A2B3', dueBorder: de.due ? '#F04438' : '#D0D5DD', descBorder: show('desc') ? '#F04438' : '#D0D5DD' }; })(),
+      toggleAnother: () => this.setState({ another: !s.another }), anBorder: s.another ? '#C00018' : '#C4CAD4', anBg: s.another ? '#C00018' : '#fff', anIcon: s.another ? 'check' : '',
       assetOpts: list.map(([code, name, line]) => ({ code, label: `${name} · ${line}` })),
       ...this.detailVals(),
       types: (s.CFG ? s.CFG.woTypes().map(t => [t.name, t.icon, t.fg, t.bg]) : TYPES).map(([t, icon, fg, bg]) => { const on = f.type === t; return { label: t, icon, bg: on ? bg : '#fff', border: on ? fg : '#D0D5DD', color: on ? fg : '#344054', font: on ? bold : reg, select: () => this.setF('type', t) }; }),
@@ -352,8 +364,8 @@ class Component extends DCLogic {
       canNext: step < 3, isLast: step === 3, nextDisabled: !stepOk, next: () => stepOk && this.setState({ step: step + 1, picker: false }),
       nextBg: stepOk ? '#C00018' : '#F2F4F7', nextColor: stepOk ? '#fff' : '#98A2B3', nextCursor: stepOk ? 'pointer' : 'not-allowed',
       create: () => this.create(), toast: s.toast, toastHref: s.toastHref,
-      ...(() => { const blocked = step === 3 && (this.conflicts().length > 0 || Object.keys(this.cfErrors()).length > 0); return { createDisabled: blocked, createBg: blocked ? '#F2F4F7' : '#C00018', createColor: blocked ? '#98A2B3' : '#fff', createCursor: blocked ? 'not-allowed' : 'pointer',
-        footNote: step === 3 && this.conflicts().length ? 'Required equipment is not available at that time' : step === 3 && Object.keys(this.cfErrors()).length ? 'Complete the required custom fields' : !stepOk ? `Required: ${miss.join(', ')}` : step < 3 ? `Next: ${STEPS[step + 1][0]}` : '' }; })(),
+      ...(() => { const de = this.dateErrors(), blocked = step === 3 && (this.conflicts().length > 0 || Object.keys(this.cfErrors()).length > 0 || Object.keys(de).length > 0); return { createDisabled: blocked, createBg: blocked ? '#F2F4F7' : '#C00018', createColor: blocked ? '#98A2B3' : '#fff', createCursor: blocked ? 'not-allowed' : 'pointer',
+        footNote: step === 3 && this.conflicts().length ? 'Required equipment is not available at that time' : step === 3 && Object.keys(de).length ? Object.values(de)[0] : step === 3 && Object.keys(this.cfErrors()).length ? 'Complete the required custom fields' : !stepOk ? `Required: ${miss.join(', ')}` : step < 3 ? `Next: ${STEPS[step + 1][0]}` : '' }; })(),
     };
   }
 }

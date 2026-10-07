@@ -37,7 +37,15 @@ const DISPLAY = { 'home-p1': 'WO-1339852', 'home-p2': 'WO-1339844' };
 export const displayId = key => { if (!key) return ''; if (/^WO-/.test(key)) return key; if (DISPLAY[key]) return DISPLAY[key]; let h = 0; for (const c of key) h = (h * 31 + c.charCodeAt(0)) % 9000; return 'WO-133' + String(1000 + h).padStart(4, '0'); };
 export const woHref = (key, w) => { w = w || getWo(key) || {}; return 'WorkOrder.dc.html?' + new URLSearchParams({ wo: key, task: w.task || '', asset: w.asset || '', loc: w.loc || '', type: w.type || 'Corrective', prio: w.prio || 'Medium', status: w.status || 'Scheduled' }).toString(); };
 export const getWo = key => { const st = read(WKEY, {}); return st[key] ? { ...(SEED_WO[key] || {}), ...st[key], key } : SEED_WO[key] ? { ...SEED_WO[key], key } : null; };
-export const saveWo = (key, patch) => { const st = read(WKEY, {}); st[key] = { ...(st[key] || SEED_WO[key] || {}), ...patch }; write(WKEY, st); emit('cmms-wo', { key }); return getWo(key); };
+// Audit trail: every tracked change is appended to w.history [{at, by, what | field/from/to}].
+const TRACK = { status: 'Status', prio: 'Priority', assignee: 'Assigned to', due: 'Planned date', waiting: 'Waiting', type: 'Type', task: 'Title', asset: 'Asset' };
+export const saveWo = (key, patch) => { const st = read(WKEY, {}); const prev = st[key] || SEED_WO[key] || {}, exists = !!(st[key] || SEED_WO[key]), h = (prev.history || []).slice(), now = Date.now();
+  if (!patch.history) { if (patch.created && !prev.created) h.push({ at: now, by: patch.createdBy === 'system' ? 'system' : (patch.createdBy || ME), what: patch.generatedBy ? 'Generated from maintenance plan' : patch.quick ? 'Quick intervention started' : 'Created' });
+    else if (exists) Object.keys(TRACK).forEach(f => { if (f in patch && String(patch[f] ?? '') !== String(prev[f] ?? '')) h.push({ at: now, by: ME, field: TRACK[f], from: prev[f] ?? '', to: patch[f] ?? '' }); });
+    if (patch.completion && !prev.completion) h.push({ at: now, by: ME, what: 'Completed' + (patch.logged ? ' (recorded after the fact)' : '') }); }
+  st[key] = { ...prev, ...patch, history: patch.history || h.slice(-60) }; write(WKEY, st); emit('cmms-wo', { key }); return getWo(key); };
+export const historyOf = key => { const w = getWo(key); return (w && w.history) || []; };
+export const logWo = (key, what) => { const w = getWo(key) || {}; saveWo(key, { history: [...(w.history || []), { at: Date.now(), by: ME, what }].slice(-60) }); };
 export const createdWos = () => { const st = read(WKEY, {}); return Object.keys(st).filter(k => st[k].created).map(k => ({ ...st[k], key: k })).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)); };
 export const nextKey = () => { const st = read(WKEY, {}); const n = Object.keys(st).filter(k => st[k].created).length; return 'WO-' + (1339912 + n); };
 export const createWo = w => { const key = w.key || nextKey(); saveWo(key, { ...w, created: true, createdAt: Date.now() }); return key; };
@@ -220,6 +228,7 @@ export const completeWithoutIntervention = (key, rec) => {
   emit('cmms-wo-completed', { key });
   return w;
 };
+export const notify = n => { const all = notifications(); const item = { ...n, ago: 'now', id: n.id || 'c-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5) }; if (all.some(x => x.id === item.id)) return; all.unshift(item); write(NKEY, all.slice(0, 30)); emit('cmms-notif', { ...item, href: notifHref(item) }); };
 const pushNotif = n => { const all = notifications(); const item = { ...n, ago: 'now', id: 'c-' + n.msg + '-' + Date.now().toString(36) }; all.unshift(item); write(NKEY, all.slice(0, 30)); emit('cmms-notif', { ...item, href: linkTo(n.ch, n.msg) }); };
 
 let mid = 0;
@@ -243,4 +252,4 @@ export const post = (ch, who, text, x = {}) => {
 };
 
 if (typeof window !== 'undefined') window.RelixCollab = { FLOW, STATUS_LOOK, WAIT, WAIT_LOOK, norm, waitLabel, moveCheck, setWaiting, isDm, dmKey, dmThreads, sharedWith, assigneesOf, myTeams, displayId, ME, PEOPLE, ROLES, byName, person, woHref, getWo, saveWo, createdWos, nextKey, createWo, participantsOf, missingInfo, CHANNELS, REFS, messages, channelInfo, unread, markSeen, woThreads, parse, mentionsOf, notifications, notifHref, post, clock,
-  REQ_STATUS, requests, getRequest, notifyName, notifyPeople, requestForMe, myRequests, createRequest, updateRequest, completeWithoutIntervention };
+  notify, historyOf, logWo, REQ_STATUS, requests, getRequest, notifyName, notifyPeople, requestForMe, myRequests, createRequest, updateRequest, completeWithoutIntervention };

@@ -70,6 +70,7 @@
             </span>
           </div>
         </sc-for>
+        <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="suppliers" style="position:sticky;bottom:0;z-index:2" hint-size="100%,46px"></dc-import>
         <sc-if value="{{ empty }}"><div style="padding:48px;text-align:center;color:#667085"><span style="display:block;font:28px/1 'Material Symbols Outlined';color:#98A2B3;margin-bottom:8px">search_off</span>No supplier matches these filters.</div></sc-if>
       </div>
     </section>
@@ -259,7 +260,7 @@ class Component extends DCLogic {
     const all = PA.suppliers(), parts = PA.parts(), q = s.q.trim().toLowerCase();
     const list = all.filter(x => (!s.ty || PA.typesOf(x).includes(s.ty)) && (!q || [x.name, x.contact, x.email, x.category, x.phone].join(' ').toLowerCase().includes(q)) && (!s.cat || x.category === s.cat) && (!s.st || x.status === s.st));
     const look = x => ({ hasImage: !!x.image, noImage: !x.image, image: x.image, color: x.color || '#475467', initials: PA.initials(x.name) });
-    const rows = list.map(x => { const n = parts.filter(p => p.supplier === x.id).length, [sbg, sfg] = STATUS[x.status] || STATUS.Active;
+    const rows = list.slice((Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) - 1) * (s.ps || 25), Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) * (s.ps || 25)).map(x => { const n = parts.filter(p => p.supplier === x.id).length, [sbg, sfg] = STATUS[x.status] || STATUS.Active;
       const ty = PA.typesOf(x), svc = ty.includes('service') || ty.includes('rental');
       return { ...x, ...look(x), typeChips: ty.map(t => ({ label: TYPEC[t][0], icon: TYPEC[t][1], bg: TYPEC[t][2], fg: TYPEC[t][3], tip: PA.SUP_TYPES[t][0] })), offerSub: [n ? `${n} part${n > 1 ? 's' : ''}` : '', x.hourly ? `€${x.hourly}/h` : '', svc && (x.rates || []).length ? `${x.rates.length} rate${x.rates.length > 1 ? 's' : ''}` : ''].filter(Boolean).join(' · ') || '—', parts: n || '—', partsColor: n ? '#1E2430' : '#C4CAD4', lead: x.leadDays !== '' && x.leadDays != null ? `${x.leadDays} day${x.leadDays == 1 ? '' : 's'}` : '—', sbg, sfg, status: x.status,
         contact: x.contact || '—', role: x.role || '', phone: x.phone || '—', email: x.email || '—', tel: x.phone ? 'tel:' + x.phone.replace(/\s/g, '') : '#', mail: x.email ? 'mailto:' + x.email : '#', bg: s.detail === x.id ? '#FBF7F7' : '#fff', op: x.status === 'Inactive' ? 0.6 : 1,
@@ -289,7 +290,7 @@ class Component extends DCLogic {
       q: s.q, setQ: e => this.setState({ q: e.target.value }), cat: s.cat, setCat: e => this.setState({ cat: e.target.value }), cats: [...new Set([...CATS, ...all.map(x => x.category).filter(Boolean)])],
       catBorder: s.cat ? '#C00018' : '#D0D5DD', catBg: s.cat ? '#FBF7F7' : '#fff',
       statusSeg: [['', 'All'], ...Object.keys(STATUS).map(k => [k, k])].map(([k, label]) => { const on = s.st === k; return { label, count: k ? all.filter(x => x.status === k).length : all.length, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ st: k }) }; }),
-      hasFilters: !!(q || s.cat || s.st || s.ty), reset: () => this.setState({ q: '', cat: '', st: '', ty: '' }), countLabel: `${list.length} of ${all.length} suppliers`,
+      hasFilters: !!(q || s.cat || s.st || s.ty), reset: () => this.setState({ q: '', cat: '', st: '', ty: '' }), countLabel: `${list.length} of ${all.length} suppliers`, pager: { total: list.length, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
       rows, empty: !rows.length, openNew: () => this.edit(null),
       detailOpen: !!ds && !fm, d, closeAll: () => this.setState({ detail: null, form: null }),
       formOpen: !!fm, formTitle: fm && fm.id ? `Edit ${f.name || 'supplier'}` : 'New supplier', saveLabel: fm && fm.id ? 'Save changes' : 'Create supplier', formError: fm ? fm.error || '' : '',

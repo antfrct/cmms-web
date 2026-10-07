@@ -78,6 +78,7 @@
             </span>
           </div>
         </sc-for>
+        <dc-import name="Pager" total="{{ pager.total }}" page="{{ pager.page }}" size="{{ pager.size }}" on-page="{{ pager.onPage }}" on-size="{{ pager.onSize }}" noun="users" style="position:sticky;bottom:0;z-index:2" hint-size="100%,46px"></dc-import>
       </section>
     </sc-if>
 
@@ -292,7 +293,7 @@ class Component extends DCLogic {
     const s = this.state, q = s.q.toLowerCase(), f = s.f;
     const list = s.rows.filter(u => (!q || (u.name + u.email).toLowerCase().includes(q)) && (!s.role || u.role === s.role) && (!s.team || u.team === s.team) && (!s.status || u.status === s.status));
     const setStatus = (id, status, msg) => { this.setState(z => ({ rows: z.rows.map(u => u.id === id ? { ...u, status } : u), menu: null })); this.flash(msg); };
-    const users = list.map((u, i) => { const [avBg, avFg] = AV[i % AV.length], [sbg, sfg] = ST[u.status], mo = s.menu === u.id;
+    const users = list.slice((Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) - 1) * (s.ps || 25), Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))) * (s.ps || 25)).map((u, i) => { const [avBg, avFg] = AV[i % AV.length], [sbg, sfg] = ST[u.status], mo = s.menu === u.id;
       const pk = this.C && this.C.byName(u.name), PM = this.PM, sk = PM && pk ? PM.profile(pk).skills : [];
       const skillsV = { skills: PM ? sk.slice(0, 3).map(([id, lv]) => ({ ...PM.skill(id), tip: PM.skill(id).name + ' · ' + PM.LEVELS[lv] })).concat(sk.length > 3 ? [{ name: '+' + (sk.length - 3), icon: '', fg: '#475467', bg: '#F2F4F7', tip: sk.slice(3).map(x => PM.skill(x[0]).name).join(', ') }] : []) : [], noSkills: !sk.length };
       const act = (icon, label, run, danger) => ({ icon, label, color: danger ? '#B42318' : '#1E2430', iconColor: danger ? '#B42318' : '#667085', run: e => { e.stopPropagation(); run(); } });
@@ -312,7 +313,7 @@ class Component extends DCLogic {
       isUsers: s.tab === 'users', isTeams: s.tab === 'teams', isRoles: s.tab === 'roles',
       primaryLabel: s.tab === 'teams' ? 'New team' : 'Invite user', primaryIcon: s.tab === 'teams' ? 'group_add' : 'person_add',
       primaryAction: () => s.tab === 'teams' ? this.flash('Team creation form') : this.setState({ drawer: true, f: { role: 'Technician', sites: ['Thourotte'] }, errors: {} }),
-      users, q: s.q, setQ: e => this.setState({ q: e.target.value }), userCount: `${list.length} users`,
+      users, q: s.q, setQ: e => this.setState({ q: e.target.value }), pager: { total: list.length, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) }, userCount: `${list.length} users`,
       selects: [sel('role', 'All roles', ROLES.map(r => r[0])), sel('team', 'All teams', TEAMS.map(t => t[0])), sel('status', 'Any status', Object.keys(ST))],
       teams, ...this.rolesVals(),
       menuOpen: !!s.menu || !!s.cell, closeMenus: () => this.setState({ menu: null, cell: null }),
