@@ -19,7 +19,7 @@
 
   <main style="position:relative;min-height:0;overflow:hidden;padding:20px 28px 20px;display:flex;flex-direction:column;gap:14px" data-screen-label="Assets">
     <header style="flex:none;display:flex;align-items:center;gap:14px">
-      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+      <dc-import name="BackButton" fallback="Main.dc.html" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Assets</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ subtitle }}</p>
@@ -376,7 +376,7 @@ class Component extends DCLogic {
       chartW: rawW * z + 'px', chartH: rawH * z + 'px', chartRawW: rawW + 'px', chartRawH: rawH + 'px', chartRawWn: rawW, chartRawHn: rawH, pathLabel: path.map(p => p.name).join(' › '),
       hasTSel: true, tsn: { name: sn.name, code: sn.code, level: snLvl, icon: snIcon, iconColor: snC, iconBg: snB, status: st, sbg, sfg, dot: DOT[st],
         kidsLabel: sn.kind === 'step' ? 'Assets' : 'Sub-items', kids: countDesc(sn), wo, openLabel: sn.kind === 'asset' ? 'Open record' : 'Show assets',
-        open: () => { location.href = sn.kind === 'asset' ? 'Asset Detail.dc.html?id=' + encodeURIComponent(sn.code) : sn.id === 'THO' ? 'Assets.dc.html?view=list' : 'Assets.dc.html?view=list&loc=' + encodeURIComponent(sn.id); },
+        open: () => { location.href = sn.kind === 'asset' ? 'AssetDetail.dc.html?id=' + encodeURIComponent(sn.code) : sn.id === 'THO' ? 'Assets.dc.html?view=list' : 'Assets.dc.html?view=list&loc=' + encodeURIComponent(sn.id); },
         newWo: () => window.CMMSCreateWO && window.CMMSCreateWO(sn.kind === 'asset' ? { asset: sn.code } : {}) } };
   }
   renderVals() {
@@ -424,7 +424,7 @@ class Component extends DCLogic {
       const crumbs = [{ id: 'THO', name: PM.PLANT.name }, ...PM.chain(s.sel).filter(n => n.id !== 'THO')].map((n, i, arr) => ({ name: n.name, sep: i > 0, font: i === arr.length - 1 ? bold : reg, color: i === arr.length - 1 ? '#1E2430' : '#667085', select: () => this.select(n.id) }));
       const ca = s.selAsset && PM.asset(s.selAsset);
       const card = ca ? (() => { const [, fg, bg] = zlook(ca.loc), so = statusOf(ca), n = WOS[ca.id] || 0; return { ...ca, icon: PM.typeIcon(ca.type), tileBg: bg, tileFg: fg, path: PM.chain(ca.loc).slice(1).map(x => x.name).join(' › '), status: so.label, sbg: so.bg, sfg: so.fg, critColor: PM.CRIT[ca.crit], wos: n ? `${n} open WO${n > 1 ? 's' : ''}` : 'No open WO',
-        open: () => { location.href = 'Asset Detail.dc.html?id=' + encodeURIComponent(ca.id); }, newWo: () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: ca.id }) }; })() : {};
+        open: () => { location.href = 'AssetDetail.dc.html?id=' + encodeURIComponent(ca.id); }, newWo: () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: ca.id }) }; })() : {};
       const allOpen = PM.NODES.filter(n => n.kind !== 'step').every(n => s.open[n.id]);
       return { ...base, subtitle, tree, mapZones, crumbs, mapTransform: `translate(${tx}px, ${ty}px) scale(${sc})`,
         legend: [['In service', '#E6F4EE', '#0B6B4A'], ['Stopped', '#FDECEC', '#B42318'], ['Out of service', '#EEF1F4', '#475467'], ['Mobile', '#EAF1FD', '#2456B8'], ['Storage area', '#FFFAEB', '#F5C26B']].map(([label, bg, fg]) => ({ label, bg, fg })),
@@ -464,7 +464,7 @@ class Component extends DCLogic {
       return { ...a, mobile: a.cls === 'mobile', icon: PM.typeIcon(a.type), tileBg: zbg, tileFg: zfg,
         path: PM.chain(a.loc).map((x, i, arr) => ({ name: x.name, sep: i > 0, weight: i === arr.length - 1 ? 600 : 400, color: i === arr.length - 1 ? '#344054' : '#667085' })),
         status: so.label, sbg: so.bg, sfg: so.fg, critColor: PM.CRIT[a.crit], avBg: p.avBg, avFg: p.avFg, ownerName: p.name.split(' ')[0], wos: n || '—', woColor: n ? '#1E2430' : '#C4CAD4',
-        open: () => { location.href = 'Asset Detail.dc.html?id=' + encodeURIComponent(a.id); }, edit: e => { e.stopPropagation(); PM.openWizard(a.id); } }; });
+        open: () => { location.href = 'AssetDetail.dc.html?id=' + encodeURIComponent(a.id); }, edit: e => { e.stopPropagation(); PM.openWizard(a.id); } }; });
     return {
       ...base, subtitle, zoneCards, filters, anyFilter, closeDd: () => this.setState({ dd: null }), dq: s.dq, setDq: e => this.setState({ dq: e.target.value }),
       clearAll: () => this.setState({ F: EMPTY, q: '', cls: 'all', dd: null }), q: s.q, setQ: e => this.setState({ q: e.target.value }),

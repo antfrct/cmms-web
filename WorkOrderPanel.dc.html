@@ -108,6 +108,11 @@
             <span style="font-size:13px;font-weight:600;color:#344054">Cost center</span>
             <span style="position:relative;display:flex"><select value="{{ f.cc }}" onChange="{{ on.cc }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">{{ ccDefault }}</option><sc-for list="{{ ccOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </label>
+          <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:8px">
+            <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">External services &amp; rentals</span><span style="font-size:12px;color:#98A2B3">optional · used to estimate the intervention cost</span></span>
+            <sc-for list="{{ extCosts }}" as="x"><div style="display:flex;align-items:center;gap:8px;min-height:40px;padding:0 4px 0 10px;border:1px solid #E4E7EC;border-radius:8px"><span style="font:17px/1 'Material Symbols Outlined';color:{{ x.color }}">{{ x.icon }}</span><span style="flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ x.label }}</span><input type="number" min="0" step="0.5" value="{{ x.qty }}" onInput="{{ x.setQty }}" style="width:60px;height:30px;padding:0 6px;border:1px solid #D0D5DD;border-radius:6px;font:12.5px 'IBM Plex Mono',monospace;text-align:right;outline:none" /><span style="font-size:12px;color:#667085;min-width:110px">{{ x.unit }}</span><button onClick="{{ x.remove }}" title="Remove" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#98A2B3;cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">close</span></button></div></sc-for>
+            <span style="position:relative;display:flex"><select value="" onChange="{{ addExt }}" style="appearance:none;-webkit-appearance:none;width:100%;height:44px;padding:0 30px 0 12px;border:1px dashed #C4CAD4;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;color:#475467;background:#fff;outline:none;cursor:pointer"><option value="">+ Add a contractor, OEM service or equipment rental…</option><sc-for list="{{ extOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:10px;top:12px;pointer-events:none;font:20px/1 'Material Symbols Outlined';color:#98A2B3">add</span></span>
+          </div>
           <sc-if value="{{ hasCf }}">
             <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:10px;padding-top:4px">
               <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:13px;font-weight:600;color:#344054">Additional information</span><span style="font-size:12px;color:#98A2B3">Custom fields · units of {{ siteName }}</span></span>
@@ -222,12 +227,13 @@ const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sa
 class Component extends DCLogic {
   state = { drawer: false, step: 0, form: blank(), prefilled: false, picker: false, pq: '', toast: null, toastHref: '#', C: null, CL: null, PE: null, PL: null };
   componentDidMount() {
+    import('./cost-model.js').then(() => this.forceUpdate());
     Promise.all([import('./collab-model.js'), import('./checklist-model.js'), import('./people-model.js'), import('./plant-model.js'), import('./config-model.js'), import('./parts-model.js')]).then(([C, CL, PE, PL, CFG, PA]) => { LIVE_PARTS = PA.parts; this.setState({ C, CL, PE, PL, CFG, PA }); });
     this._open = e => { const d = { ...((e && e.detail) || {}) }; if (d.asset) { const list = this.assetList(); const m = list.find(a => a[0] === d.asset || a[1] === d.asset); d.asset = m ? m[0] : ''; }
       this.setState({ drawer: true, step: 0, form: { ...blank(), ...d }, prefilled: !!d.asset, picker: false }); };
     this._key = e => { if (e.key === 'Escape' && this.state.drawer) this.setState({ drawer: false }); };
     window.addEventListener('cmms-create-wo', this._open); window.addEventListener('keydown', this._key);
-    this._click = e => { const a = e.target.closest && e.target.closest('a[href*="Work Orders.dc.html?new=1"]'); if (!a) return; e.preventDefault(); e.stopPropagation(); const q = new URLSearchParams(a.getAttribute('href').split('?')[1]); this._open({ detail: { asset: q.get('asset') || '' } }); };
+    this._click = e => { const a = e.target.closest && e.target.closest('a[href*="WorkOrders.dc.html?new=1"]'); if (!a) return; e.preventDefault(); e.stopPropagation(); const q = new URLSearchParams(a.getAttribute('href').split('?')[1]); this._open({ detail: { asset: q.get('asset') || '' } }); };
     document.addEventListener('click', this._click, true);
     window.CMMSCreateWO = d => window.dispatchEvent(new CustomEvent('cmms-create-wo', { detail: d || {} }));
   }
@@ -262,10 +268,10 @@ class Component extends DCLogic {
     const a = this.assetList().find(x => x[0] === f.asset) || [f.asset, f.asset, ''];
     const status = f.due ? 'Scheduled' : 'Requested', asg = this.assignments(), asg0 = f.assigned[0] || '';
     const participants = [...f.assigned.slice(1).map(k => [k, 'Additional technician']), ...f.followers.filter(k => !f.assigned.includes(k)).map(k => [k, 'Follow-up'])];
-    const wo = { task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: asg0, assignments: asg, participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD', tools: (f.tools || []).map(t => t.id), costCenter: f.cc || ((this.state.PL && this.state.PL.asset(f.asset)) || {}).costCenter || '', custom: f.custom || {} };
+    const wo = { costs: { consumables: [], services: (f.ext || []).filter(x => x.kind === 'services').map(({ sup, rate, qty }) => ({ sup, rate, qty })), rentals: (f.ext || []).filter(x => x.kind === 'rentals').map(({ sup, rate, qty }) => ({ sup, rate, qty })) }, task: f.title, asset: a[1], assetCode: a[0], loc: a[2], type: f.type, prio: f.prio, status, assignee: asg0, assignments: asg, participants, checklists: f.checklists, due: f.due, dur: +f.dur, desc: f.desc, cat: f.cat, stop: f.stop, parts: f.parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), docs: f.docs, createdBy: 'GD', fromRequest: f.fromRequest || '', tools: (f.tools || []).map(t => t.id), costCenter: f.cc || ((this.state.PL && this.state.PL.asset(f.asset)) || {}).costCenter || '', custom: f.custom || {} };
     const key = C ? C.createWo(wo) : 'WO-1339912';
     const sl = this.slot(); if (sl && this.state.PL && (f.tools || []).length) this.state.PL.reserve(key, f.tools.map(t => t.id), sl.day, sl.from, sl.to, `${a[1]} — ${f.title}`, asg0 || 'GD');
-    const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: asg0 && C ? C.person(asg0).name : '', assignments: asg, tools: (f.tools || []).map(t => t.id), date: f.due, stop: f.stop };
+    const row = { key, id: key, title: f.title, type: f.type, asset: f.asset, assetName: a[1], status, prio: f.prio, who: asg0 && C ? C.person(asg0).name : '', assignments: asg, tools: (f.tools || []).map(t => t.id), date: f.due, dur: +f.dur || 1, stop: f.stop, fromRequest: f.fromRequest || '' };
     window.dispatchEvent(new CustomEvent('cmms-wo-created', { detail: row }));
     if (this.props.onCreated) this.props.onCreated(row);
     this.setState({ drawer: false, picker: false });
@@ -279,7 +285,11 @@ class Component extends DCLogic {
     const dn = d => PL.isoOfDay(d) ? new Date(2026, 8, 28 + d).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : '';
     const nxt = sl && confl.length ? PL.nextFreeSlot(ids, sl.day, sl.from, sl.to - sl.from) : null;
     const setC = (k, v) => this.setState(st => ({ form: { ...st.form, custom: { ...(st.form.custom || {}), [k]: v } } }));
+    const K = window.RelixCost, ext = f.ext || [], setExt = fn => this.setState(st => ({ form: { ...st.form, ext: fn([...(st.form.ext || [])]) } })), U = { h: 'hours', visit: 'visits', day: 'days', fixed: '× fixed price' };
     return {
+      extOpts: K ? [...K.offers('services').map(o => ({ v: 'services|' + o.sup + '|' + o.rate, l: `Service · ${o.supName} — ${o.name} · ${K.eur0(o.price)}` })), ...K.offers('rentals').map(o => ({ v: 'rentals|' + o.sup + '|' + o.rate, l: `Rental · ${o.supName} — ${o.name} · ${K.eur0(o.price)}` }))] : [],
+      addExt: e => { const v = e.target.value; e.target.value = ''; if (!v) return; const [kind, sup, rate] = v.split('|'); setExt(a => [...a, { kind, sup, rate, qty: 1 }]); },
+      extCosts: K ? ext.map((x, i) => { const o = K.offerOf(x.sup, x.rate) || { supName: x.sup, name: '', unit: 'fixed', price: 0 }; return { icon: x.kind === 'rentals' ? 'forklift' : 'handshake', color: x.kind === 'rentals' ? '#B54708' : '#6941C6', label: `${o.supName} — ${o.name}`, qty: x.qty, unit: `${U[o.unit] || ''} · ${K.eur(o.price * (+x.qty || 0))}`, setQty: ev => { const q = Math.max(0, +ev.target.value || 0); setExt(a => a.map((y, j) => j === i ? { ...y, qty: q } : y)); }, remove: () => setExt(a => a.filter((_, j) => j !== i)) }; }) : [],
       failOpts: CFG.names('failures'), ccOpts: CFG.list('costCenters', { active: true }).map(c => ({ v: c.code, l: `${c.code} · ${c.name}` })), ccDefault: assetCc ? `Asset default · ${assetCc.code}` : 'Not allocated',
       siteName: (CFG.list('sites').find(x => x.code === site) || {}).name || site, hasCf: CFG.fieldsFor('Work order').length > 0,
       cfs: CFG.fieldsFor('Work order').map(c => { const v = (f.custom || {})[c.code] ?? '', u = CFG.fieldUnit(c, site), err = s.tried || (v !== '' && v != null) ? cfe[c.code] : '';

@@ -9,8 +9,8 @@
 <x-dc>
 <div style="position:relative;z-index:80;height:56px;background:#34050D;display:grid;grid-template-columns:232px minmax(0,1fr) auto;align-items:center;gap:16px;padding:0 16px 0 0;color:#fff;font-family:'IBM Plex Sans',system-ui,sans-serif;border-bottom:1px solid rgba(255,255,255,.06)">
   <div style="display:flex;align-items:center;gap:6px;padding-left:16px;min-width:0">
-    <a href="Home.dc.html" title="Relix home" style="flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:6px" style-hover="background:rgba(255,255,255,.08)"><img src="relix-logo-white.svg" alt="Relix" style="width:30px;height:auto;display:block" /></a>
-    <a href="Home.dc.html" style="margin-left:4px;color:#fff;font-weight:700;font-size:23px;line-height:1;letter-spacing:.01em;text-decoration:none">Relix</a>
+    <a href="Main.dc.html" title="Relix home" style="flex:none;width:34px;height:34px;display:grid;place-items:center;border-radius:6px" style-hover="background:rgba(255,255,255,.08)"><svg width="30" height="27" viewBox="12 10.5 30 27" fill="none" role="img" aria-label="Relix" style="display:block"><path d="M41.5834 21.3333C41.5834 15.4421 36.6836 10.6666 30.639 10.6666H21.7467C20.6129 10.6666 19.6947 11.5616 19.6947 12.6666V18.9802L19.6148 18.897C19.4988 18.7754 19.3357 18.7061 19.165 18.7061H13.0329C12.7877 18.7061 12.5655 18.848 12.4681 19.0666C12.3707 19.2853 12.4156 19.5402 12.582 19.7152L18.5619 25.968L12.582 32.2218C12.4145 32.3968 12.3696 32.6517 12.4681 32.8704C12.5666 33.089 12.7877 33.2309 13.0329 33.2309H19.165C19.3357 33.2309 19.4988 33.1616 19.6159 33.04L19.6958 32.9568V35.3333C19.6958 36.4384 20.6611 37.3333 21.8518 37.3333H40.7199C40.9541 37.3333 41.1532 37.2533 41.301 37.1264C41.301 37.1264 41.602 36.8085 41.3513 35.9882C41.2123 35.5317 39.2194 33.3088 36.4494 30.3712C39.5324 28.4842 41.5834 25.1434 41.5834 21.3333ZM37.0568 17.6938L29.144 25.9669L37.0568 34.2421C37.2242 34.417 37.2691 34.672 37.1706 34.8906C37.0732 35.1093 36.851 35.2512 36.6059 35.2512H28.6132C28.4425 35.2512 28.2794 35.1818 28.1623 35.0602L22.9222 29.5797L25.9855 26.3765C26.2055 26.1461 26.2055 25.7888 25.9855 25.5584L22.9222 22.3552L28.1623 16.8757C28.2783 16.7541 28.4414 16.6848 28.6121 16.6848H36.6048C36.8499 16.6848 37.0721 16.8266 37.1695 17.0453C37.2669 17.264 37.222 17.5189 37.0557 17.6938H37.0568Z" fill="#FFFFFF"></path></svg></a>
+    <a href="Main.dc.html" style="margin-left:4px;color:#fff;font-weight:700;font-size:23px;line-height:1;letter-spacing:.01em;text-decoration:none">Relix</a>
   </div>
 
   <div style="position:relative;justify-self:center;width:100%;max-width:640px">
@@ -149,7 +149,7 @@
             </sc-for>
             <sc-if value="{{ noNotif }}"><div style="padding:36px 16px;text-align:center;color:#667085"><span style="display:block;font:28px/1 'Material Symbols Outlined';color:#98A2B3;margin-bottom:8px">notifications_off</span>You're all caught up.</div></sc-if>
           </div>
-          <a href="Notification Settings.dc.html" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12.5px;font-weight:600;color:#475467"><span style="font:16px/1 'Material Symbols Outlined'">tune</span>Notification settings</a>
+          <a href="NotificationSettings.dc.html" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12.5px;font-weight:600;color:#475467"><span style="font:16px/1 'Material Symbols Outlined'">tune</span>Notification settings</a>
         </div>
       </sc-if>
     </div>
@@ -173,10 +173,10 @@
             <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">Gaudéric Durand</span><span style="font-size:12px;color:#667085">{{ role }} · Mechanical team</span></span>
           </div>
           <button onClick="{{ openMyProfile }}" style="width:100%;display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;background:transparent;border:0;border-radius:6px;color:#1E2430;font:13px 'IBM Plex Sans',sans-serif;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">person</span>My profile<span style="margin-left:auto;font-size:11.5px;color:#98A2B3">skills, availability</span></button>
-          <a href="Notification Settings.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">notifications_active</span>Notification settings</a>
+          <a href="NotificationSettings.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">notifications_active</span>Notification settings</a>
           <a href="Administration.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">help</span>Help &amp; support</a>
           <div style="height:1px;background:#EEF0F3;margin:4px 0"></div>
-          <a href="Home.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">logout</span>Sign out</a>
+          <a href="Main.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">logout</span>Sign out</a>
         </div>
       </sc-if>
 
@@ -184,6 +184,8 @@
   </div>
 
   <dc-import name="QuickIntervention" hint-size="0px,0px"></dc-import>
+  <dc-import name="RequestPanel" hint-size="0px,0px"></dc-import>
+  <dc-import name="QuickComplete" hint-size="0px,0px"></dc-import>
   <dc-import name="ProfilePanel" hint-size="0px,0px"></dc-import>
   <div style="position:fixed;top:66px;right:16px;z-index:96;width:384px;display:flex;flex-direction:column;gap:8px;pointer-events:none">
     <sc-for list="{{ toasts }}" as="n">
@@ -217,17 +219,17 @@ const CAT = {
   loc: ['Locations', 'account_tree', '#EEF1F4', '#475467', 'Open'],
 };
 const enc = encodeURIComponent;
-const woHref = (title, loc, type, prio, status) => { const [asset, task] = title.split(' — '); return 'Work Order.dc.html?' + new URLSearchParams({ wo: 'search-' + asset.replace(/\W+/g, '-'), task, asset, loc, type, prio, status }); };
-const ST = { Overdue: ['#FDECEC', '#B42318'], Scheduled: ['#EAF1FD', '#2456B8'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting for parts': ['#FEF3E2', '#B54708'], Paused: ['#EAF1FD', '#2456B8'], 'Out of stock': ['#FDECEC', '#B42318'], Low: ['#FEF3E2', '#B54708'], Stopped: ['#FDECEC', '#B42318'] };
+const woHref = (title, loc, type, prio, status) => { const [asset, task] = title.split(' — '); return 'WorkOrder.dc.html?' + new URLSearchParams({ wo: 'search-' + asset.replace(/\W+/g, '-'), task, asset, loc, type, prio, status }); };
+const ST = { Overdue: ['#FDECEC', '#B42318'], Scheduled: ['#EAF1FD', '#2456B8'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting': ['#FEF3E2', '#B54708'], Paused: ['#EAF1FD', '#2456B8'], 'Out of stock': ['#FDECEC', '#B42318'], Low: ['#FEF3E2', '#B54708'], Stopped: ['#FDECEC', '#B42318'] };
 const IDX = [
   ...[['Tempering Furnace 2', 'Tempering Line › Furnace Zone', 'Stopped'], ['Tempering Furnace 1', 'Tempering Line › Furnace Zone'], ['Conveyor Line 3', 'Float Line'], ['Conveyor Line 2', 'Float Line'], ['Pump P-101', 'Tempering Line › Heating Zone'], ['Fan V-12', 'Float Line › Utilities'], ['Compressor C-01', 'Utilities › Compressed Air'], ['Palletizing Robot 1', 'Packaging › Line 1'], ['Mixer 02', 'Batch House › Mixing'], ['Dryer S-01', 'Utilities › Compressed Air'], ['Hydraulic Press PH-030', 'Workshop › Press Area'], ['Tin Bath', 'Float Line › Hot End', 'Stopped']]
-    .map(([n, loc, b]) => ({ t: 'asset', n, ctx: `${loc} · {site}`, badge: b, href: 'Asset Detail.dc.html' })),
-  ...[['Pump P-101 — Seal replacement', 'Tempering Line', 'Corrective', 'Critical', 'Overdue', 'Gaudéric Durand · 3 d late'], ['Conveyor Line 3 — Sensor check', 'Float Line', 'Corrective', 'High', 'Scheduled', 'Gaudéric Durand · Today 09:00'], ['Hydraulic Press — Oil leak', 'Workshop', 'Corrective', 'Medium', 'Scheduled', 'Marc Dupont · Today 11:30'], ['Fan V-12 — Abnormal vibration', 'Float Line', 'Corrective', 'High', 'Paused', 'Gaudéric Durand · 3 of 7 steps'], ['Compressor C-01 — Filter replacement', 'Utilities', 'Preventive', 'Medium', 'Paused', 'Sophie Martin · 4 of 6 steps'], ['Dryer S-01 — Belt replacement', 'Utilities', 'Corrective', 'Medium', 'Waiting for parts', 'Gaudéric Durand · Fri 2'], ['Mixer 02 — Vibration analysis', 'Batch House', 'Predictive', 'Low', 'Scheduled', 'Sofia Benali · Today 13:00'], ['Conveyor Line 2 — Belt tracking', 'Float Line', 'Corrective', 'Medium', 'In progress', 'Pierre Leroy · started 09:40']]
+    .map(([n, loc, b]) => ({ t: 'asset', n, ctx: `${loc} · {site}`, badge: b, href: 'AssetDetail.dc.html' })),
+  ...[['Pump P-101 — Seal replacement', 'Tempering Line', 'Corrective', 'Critical', 'Overdue', 'Gaudéric Durand · 3 d late'], ['Conveyor Line 3 — Sensor check', 'Float Line', 'Corrective', 'High', 'Scheduled', 'Gaudéric Durand · Today 09:00'], ['Hydraulic Press — Oil leak', 'Workshop', 'Corrective', 'Medium', 'Scheduled', 'Marc Dupont · Today 11:30'], ['Fan V-12 — Abnormal vibration', 'Float Line', 'Corrective', 'High', 'Paused', 'Gaudéric Durand · 3 of 7 steps'], ['Compressor C-01 — Filter replacement', 'Utilities', 'Preventive', 'Medium', 'Paused', 'Sophie Martin · 4 of 6 steps'], ['Dryer S-01 — Belt replacement', 'Utilities', 'Corrective', 'Medium', 'Waiting', 'Gaudéric Durand · Fri 2'], ['Mixer 02 — Vibration analysis', 'Batch House', 'Predictive', 'Low', 'Scheduled', 'Sofia Benali · Today 13:00'], ['Conveyor Line 2 — Belt tracking', 'Float Line', 'Corrective', 'Medium', 'In progress', 'Pierre Leroy · started 09:40']]
     .map(([n, loc, type, prio, status, who]) => ({ t: 'wo', n, ctx: `${type} · ${loc} · ${who}`, badge: status, href: woHref(n, loc, type, prio, status === 'Paused' ? 'In progress' : status) })),
   ...[['Ball bearing 6205-2RS', 'BRG-6205', '42 in stock · Store A-12'], ['Drive belt BPU280', 'BLT-BPU280', '2 in stock · min 5', 'Low'], ['Hydraulic filter HX-10', 'FLT-HX10', 'Blocks 1 work order', 'Out of stock'], ['Temperature probe PT100', 'SEN-PT100', '6 in stock · Store B-03'], ['Mechanical seal 45 mm', 'SEAL-M45', '3 in stock · Store A-07'], ['Variable speed drive ATV320', 'VFD-ATV320', 'On order · ETA Oct 6', 'Out of stock'], ['Contactor LC1D18', 'CTR-LC1D', '11 in stock · Store C-01']]
-    .map(([n, ref, m, b]) => ({ t: 'part', n, k: ref, ctx: `${ref} · ${m}`, badge: b, href: 'Spare Parts.dc.html?q=' + enc(ref) })),
+    .map(([n, ref, m, b]) => ({ t: 'part', n, k: ref, ctx: `${ref} · ${m}`, badge: b, href: 'SpareParts.dc.html?q=' + enc(ref) })),
   ...[['Pierre Leroy', 'Maintenance Technician', 'Mechanical team'], ['Marc Dupont', 'Maintenance Technician', 'Mechanical team'], ['Sophie Martin', 'Electrician', 'Electrical team'], ['Julie Martin', 'Maintenance Technician', 'Float Line team'], ['Sofia Benali', 'Electrician', 'Electrical team'], ['Alex Martin', 'Maintenance Technician', 'Packaging team'], ['Hugo Petit', 'Maintenance Planner', 'Planning'], ['Claire Moreau', 'Reliability Engineer', 'Engineering']]
-    .map(([n, role, team]) => ({ t: 'person', n, ctx: `${role} · ${team} · {site}`, href: 'Teams and Users.dc.html?q=' + enc(n) })),
+    .map(([n, role, team]) => ({ t: 'person', n, ctx: `${role} · ${team} · {site}`, href: 'TeamsUsers.dc.html?q=' + enc(n) })),
   ...[['Float Line', 'Line', 412, ''], ['Furnace Zone', 'Area', 38, 'Float Line'], ['Tempering Line', 'Line', 186, ''], ['Heating Zone', 'Area', 24, 'Tempering Line'], ['Packaging', 'Line', 140, ''], ['Batch House', 'Area', 52, ''], ['Utilities', 'Area', 96, ''], ['Workshop', 'Area', 31, '']]
     .map(([n, lvl, cnt, parent]) => ({ t: 'loc', n, ctx: `{site}${parent ? ' › ' + parent : ''} › ${n} · ${lvl} · ${cnt} assets`, href: 'Assets.dc.html?loc=' + enc(n) })),
 ];
@@ -235,13 +237,13 @@ const RECENT_N = ['Pump P-101 — Seal replacement', 'Tempering Furnace 2', 'Dri
 const LANGS = [['EN', 'English'], ['FR', 'Français'], ['DE', 'Deutsch'], ['ES', 'Español'], ['IT', 'Italiano'], ['PT', 'Português'], ['NL', 'Nederlands'], ['PL', 'Polski'], ['ZH', '中文'], ['AR', 'العربية']];
 const LVL = { crit: ['#FDECEC', '#B42318', '#C00018'], imp: ['#FEF3E2', '#B54708', 'transparent'], info: ['#EEF1F4', '#475467', 'transparent'] };
 const NOTIF = [
-  ['n1', 'crit', 'report', 'Critical equipment issue', 'Tin Bath — roller stopped', 'Float Line · production impacted · reported by operator', '2 min', 'today', 'Asset Detail.dc.html'],
+  ['n1', 'crit', 'report', 'Critical equipment issue', 'Tin Bath — roller stopped', 'Float Line · production impacted · reported by operator', '2 min', 'today', 'AssetDetail.dc.html'],
   ['n2', 'crit', 'schedule', 'Intervention overdue', 'Pump P-101 — Seal replacement', '3 days late · assigned to you', '15 min', 'today', woHref('Pump P-101 — Seal replacement', 'Tempering Line', 'Corrective', 'Critical', 'Overdue')],
   ['n3', 'imp', 'assignment_ind', 'Work order assigned to you', 'Fan V-08 — Noisy bearing', 'High priority · not scheduled yet · by Hugo Petit', '28 min', 'today', woHref('Fan V-08 — Noisy bearing', 'Float Line', 'Corrective', 'High', 'Requested')],
-  ['n4', 'imp', 'block', 'Required part unavailable', 'Hydraulic filter HX-10 is out of stock', 'Blocks Hydraulic Press — Oil leak', '40 min', 'today', 'Spare Parts.dc.html?q=FLT-HX10'],
+  ['n4', 'imp', 'block', 'Required part unavailable', 'Hydraulic filter HX-10 is out of stock', 'Blocks Hydraulic Press — Oil leak', '40 min', 'today', 'SpareParts.dc.html?q=FLT-HX10'],
   ['n5', 'imp', 'pause_circle', 'Intervention paused', 'Compressor C-01 — Filter replacement', 'Sophie Martin · 4 of 6 steps · waiting for a part', '1 h', 'today', woHref('Compressor C-01 — Filter replacement', 'Utilities', 'Preventive', 'Medium', 'In progress')],
   ['n6', 'imp', 'priority_high', 'Priority changed', 'Conveyor Line 3 — Sensor check', 'Medium → High · by Hugo Petit', '1 h', 'today', woHref('Conveyor Line 3 — Sensor check', 'Float Line', 'Corrective', 'High', 'Scheduled')],
-  ['n8', 'imp', 'inventory_2', 'Low spare-part stock', 'Drive belt BPU280 — 2 left', 'Minimum 5 · used on 3 assets', '2 h', 'today', 'Spare Parts.dc.html?q=BLT-BPU280'],
+  ['n8', 'imp', 'inventory_2', 'Low spare-part stock', 'Drive belt BPU280 — 2 left', 'Minimum 5 · used on 3 assets', '2 h', 'today', 'SpareParts.dc.html?q=BLT-BPU280'],
   ['n9', 'info', 'event', 'Planning change', 'Palletizing Robot — Lubrication', 'Moved to Wed 30, 10:00 · by Hugo Petit', 'Yesterday', 'earlier', 'Planning.dc.html', 1],
   ['n10', 'info', 'subdirectory_arrow_right', 'Follow-up intervention created', 'Conveyor Line 3 — Belt replacement', 'From the completed sensor check · Sophie Martin', 'Yesterday', 'earlier', woHref('Conveyor Line 3 — Belt replacement', 'Float Line', 'Corrective', 'Medium', 'Requested'), 1],
 ];
@@ -265,7 +267,7 @@ class Component extends DCLogic {
     this._site = e => this.setState({ site: e.detail }); this._siteOpen = () => this.setState({ menu: 'sites', siteQ: '' });
     window.addEventListener('cmms-site', this._site); window.addEventListener('cmms-site-open', this._siteOpen);
     Promise.all([import('./collab-model.js'), import('./notif-model.js')]).then(([C, N]) => { this.setState({ C, N });
-      try { if (!sessionStorage.getItem('cmms.notif.demo') && !/Intervention|Notification Settings/.test(decodeURIComponent(location.pathname))) { sessionStorage.setItem('cmms.notif.demo', '1'); this._demo = setTimeout(() => C.post('team', 'PL', '@Gaudéric the BPU280 belts just arrived at the Float Line store — shall I fit one on Dryer S-01 this afternoon?'), 7000); } } catch (e) {} });
+      try { if (!sessionStorage.getItem('cmms.notif.demo') && !/Intervention|NotificationSettings/.test(decodeURIComponent(location.pathname))) { sessionStorage.setItem('cmms.notif.demo', '1'); this._demo = setTimeout(() => C.post('team', 'PL', '@Gaudéric the BPU280 belts just arrived at the Float Line store — shall I fit one on Dryer S-01 this afternoon?'), 7000); } } catch (e) {} });
     this._notif = e => { this.setState(s => ({ nv: (s.nv || 0) + 1 })); if (e && e.detail) this.pushToast(e.detail); };
     this._prefs = () => this.setState(s => ({ nv: (s.nv || 0) + 1 }));
     window.addEventListener('cmms-notif', this._notif); window.addEventListener('cmms-notif-prefs', this._prefs);
@@ -282,7 +284,7 @@ class Component extends DCLogic {
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2800); }
   setRead(read) { try { localStorage.setItem(NKEY, JSON.stringify(read)); } catch (e) {} this.setState({ read }); }
   toggleNav() { const c = !this.state.collapsed; try { localStorage.setItem(KEY, c ? '1' : '0'); } catch (e) {} window.dispatchEvent(new CustomEvent('cmms-nav', { detail: c })); this.setState({ collapsed: c }); }
-  switchSite(x, dash) { const S = window.CMMSSites; if (!S) return; S.select(x.id); this.setState({ q: '', focus: false, menu: null }); this.inputRef.current && this.inputRef.current.blur(); if (dash) window.location.href = 'Site Dashboard.dc.html'; else this.flash(`Switched to ${x.name}`); }
+  switchSite(x, dash) { const S = window.CMMSSites; if (!S) return; S.select(x.id); this.setState({ q: '', focus: false, menu: null }); this.inputRef.current && this.inputRef.current.blur(); if (dash) window.location.href = 'SiteDashboard.dc.html'; else this.flash(`Switched to ${x.name}`); }
   index() {
     const S = window.CMMSSites, cur = S && this.state.site ? S.SITES.find(x => x.id === this.state.site) : null, siteName = cur ? cur.name : 'Thourotte Plant';
     const sites = S ? S.SITES.map(x => ({ t: 'site', n: x.name, k: `${x.city} ${x.country} ${x.id}`, ctx: `${x.city}, ${x.country} · ${S.businessPath(x).slice(-1)[0].name} · ${x.assets} assets`, badge: x.id === this.state.site ? 'Current' : x.k.overdue ? `${x.k.overdue} overdue` : '', site: x })) : [];
@@ -324,7 +326,7 @@ class Component extends DCLogic {
 
     const chatN = st.C ? st.C.notifications().map(n => ({ type: n.type || (n.icon === 'swap_horiz' ? 'reassign' : n.icon === 'alternate_email' ? 'mention' : 'wo-message'), id: n.id, lvl: n.lvl, icon: n.icon, kind: n.kind, title: n.title, sub: n.sub, ago: n.ago, grp: 'today', href: st.C.notifHref(n), unread: !st.read[n.id] })) : [];
     const nList = [...chatN.filter(n => n.ago === 'now'), ...NOTIF.map(([id, lvl, icon, kind, title, sub, ago, grp, href]) => ({ id, type: NTYPE[id], lvl, icon, kind, title, sub, ago, grp, href, unread: !st.read[id] })), ...chatN.filter(n => n.ago !== 'now')];
-    const order = { now: 0, '2 min': 1, '15 min': 2, '20 min': 3, '28 min': 4, '40 min': 5, '45 min': 6, '1 h': 7, '2 h': 8, Yesterday: 9 };
+    const order = { now: 0, '2 min': 1, '12 min': 1.5, '15 min': 2, '20 min': 3, '28 min': 4, '40 min': 5, '45 min': 6, '1 h': 7, '2 h': 8, Yesterday: 9 };
     nList.sort((a, b) => (order[a.ago] ?? 8) - (order[b.ago] ?? 8));
     if (st.N) { for (let i = nList.length - 1; i >= 0; i--) if (st.N.levelOf(nList[i].type) === 'activity') nList.splice(i, 1); }
     const unread = nList.filter(n => n.unread).length;

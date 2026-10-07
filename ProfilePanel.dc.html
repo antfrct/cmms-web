@@ -63,7 +63,7 @@
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <span style="font-size:13.5px;font-weight:600">Knows best</span>
-          <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ top }}" as="t"><a href="Asset Detail.dc.html" style="height:28px;display:inline-flex;align-items:center;gap:5px;padding:0 10px 0 7px;border:1px solid #E4E7EC;border-radius:14px;color:#344054;font-size:12.5px;font-weight:500"><span style="font:15px/1 'Material Symbols Outlined';color:#98A2B3">precision_manufacturing</span>{{ t.name }}<span style="color:#98A2B3">{{ t.n }}</span></a></sc-for></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ top }}" as="t"><a href="AssetDetail.dc.html" style="height:28px;display:inline-flex;align-items:center;gap:5px;padding:0 10px 0 7px;border:1px solid #E4E7EC;border-radius:14px;color:#344054;font-size:12.5px;font-weight:500"><span style="font:15px/1 'Material Symbols Outlined';color:#98A2B3">precision_manufacturing</span>{{ t.name }}<span style="color:#98A2B3">{{ t.n }}</span></a></sc-for></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:6px">
           <span style="font-size:13.5px;font-weight:600">About</span>
@@ -193,7 +193,7 @@ class Component extends DCLogic {
     const pct = weekCap ? planned / weekCap : 0;
     const sh = PM.shiftOn(key, today);
     const work = (WORK[key] || []).map(([title, type, meta, status, sfg]) => { const [icon, fg, bg] = TYPE[type]; const [asset, task] = title.split(' — ');
-      return { title, meta, status, sfg, icon, fg, bg, href: 'Work Order.dc.html?' + new URLSearchParams({ wo: /WO-\d+/.test(meta) ? meta.match(/WO-\d+/)[0] : 'prof-' + asset.replace(/\W+/g, '-'), task, asset, type, prio: 'High', status: status === 'Paused' ? 'In progress' : status }).toString() }; });
+      return { title, meta, status, sfg, icon, fg, bg, href: 'WorkOrder.dc.html?' + new URLSearchParams({ wo: /WO-\d+/.test(meta) ? meta.match(/WO-\d+/)[0] : 'prof-' + asset.replace(/\W+/g, '-'), task, asset, type, prio: 'High', status: status === 'Paused' ? 'In progress' : status }).toString() }; });
     const hourOpts = []; for (let h = 5; h <= 22; h += 0.5) hourOpts.push({ v: String(h), l: PM.hm(h) });
     const setShift = (d, patch) => { const list = pr.shift.filter(x => x.d !== d), cur = pr.shift.find(x => x.d === d); save({ shift: patch === null ? list : [...list, { d, from: 8, to: 16, site: 'THO', ...(cur || {}), ...patch }] }); };
     return {
@@ -204,7 +204,7 @@ class Component extends DCLogic {
       setStatus: e => save({ status: e.target.value }), setBio: e => save({ bio: e.target.value }),
       accents: ACCENTS.map(c => ({ c, ring: c === pr.accent ? '#1E2430' : '#fff', pick: () => save({ accent: c }) })),
       actions: [
-        ['forum', 'Message', isMe ? 'Home.dc.html?chat=team' : 'Home.dc.html?chat=team', null],
+        ['forum', 'Message', isMe ? 'Main.dc.html?chat=team' : 'Main.dc.html?chat=team', null],
         ['assignment_ind', 'Assign work', '#', e => { e.preventDefault(); this.setState({ key: null }); window.CMMSCreateWO && window.CMMSCreateWO({ assignee: key }); }],
         ['call', 'Call', 'tel:' + (pr.phone || '').replace(/\s/g, ''), null],
         ['mail', 'Email', 'mailto:' + pr.email, null],

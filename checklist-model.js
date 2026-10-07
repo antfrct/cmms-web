@@ -67,7 +67,7 @@ export const SEEDS = {
 const readAll = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } };
 const norm = cl => { if (!cl) return cl; const seed = SEEDS[cl.id]; cl.steps.forEach(st => { const ss = seed && seed.steps.find(x => x.id === st.id); if (!Array.isArray(st.skills)) st.skills = ss ? [...ss.skills] : []; if (st.minutes == null) st.minutes = ss ? ss.minutes : ''; if (!Array.isArray(st.tools)) st.tools = ss ? [...(ss.tools || [])] : []; }); return cl; };
 export const toolsOf = cls => [...new Set((cls || []).flatMap(cl => (cl.steps || []).flatMap(s => s.tools || [])))];
-export const totalMinutes = cl => (cl.steps || []).filter(s => !s.conditional).reduce((a, s) => a + (+s.minutes || 0), 0);
+export const totalMinutes = cl => (cl.steps || []).filter(s => !s.conditional && !s.detached).reduce((a, s) => a + (+s.minutes || 0), 0);
 export const load = id => { const all = readAll(); return norm(all[id] ? clone(all[id]) : SEEDS[id] ? clone(SEEDS[id]) : null); };
 export const save = cl => { const all = readAll(); all[cl.id] = cl; try { localStorage.setItem(KEY, JSON.stringify(all)); } catch (e) {} };
 export const savePreview = cl => { try { localStorage.setItem(PREVIEW_KEY, JSON.stringify(cl)); } catch (e) {} };
@@ -116,10 +116,10 @@ export const matches = (st, when, v) => {
 };
 export const rangeText = st => { const lo = num(st.min), hi = num(st.max), u = st.unit ? ' ' + st.unit : ''; return lo !== null && hi !== null ? `${lo} – ${hi}${u}` : hi !== null ? `max ${hi}${u}` : lo !== null ? `min ${lo}${u}` : ''; };
 
-export const firstStep = cl => { const s = cl.steps.find(x => !x.conditional) || cl.steps[0]; return s ? s.id : 'END'; };
-export const defaultNext = (cl, id) => { const i = cl.steps.findIndex(x => x.id === id); for (let j = i + 1; j < cl.steps.length; j++) if (!cl.steps[j].conditional) return cl.steps[j].id; return 'END'; };
-const exists = (cl, id) => id === 'END' || cl.steps.some(x => x.id === id);
-export const afterTarget = (cl, st) => st.after === 'finish' ? 'END' : st.after === 'goto' && st.afterTarget && exists(cl, st.afterTarget) ? st.afterTarget : defaultNext(cl, st.id);
+export const firstStep = cl => { if (cl.start && cl.steps.some(x => x.id === cl.start)) return cl.start; const s = cl.steps.find(x => !x.conditional && !x.detached) || cl.steps[0]; return s ? s.id : 'END'; };
+export const defaultNext = (cl, id) => { const i = cl.steps.findIndex(x => x.id === id); for (let j = i + 1; j < cl.steps.length; j++) if (!cl.steps[j].conditional && !cl.steps[j].detached) return cl.steps[j].id; return 'END'; };
+const exists = (cl, id) => (typeof id === 'string' && id.startsWith('END')) || cl.steps.some(x => x.id === id);
+export const afterTarget = (cl, st) => st.after === 'finish' || st.after === 'none' ? 'END' : st.after === 'goto' && st.afterTarget && exists(cl, st.afterTarget) ? st.afterTarget : defaultNext(cl, st.id);
 export const nextStep = (cl, id, v) => {
   const st = cl.steps.find(x => x.id === id); if (!st) return 'END';
   for (const r of st.rules) {
@@ -156,7 +156,34 @@ export const logicSummary = (cl, st) => {
 };
 export const cleanRefs = (cl, removedId) => {
   cl.steps.forEach(s => { s.rules = s.rules.filter(r => r.target !== removedId); if (s.afterTarget === removedId) { s.after = 'next'; s.afterTarget = ''; } });
+  if (cl.start === removedId) delete cl.start; if (cl.layout) delete cl.layout[removedId];
   return cl;
 };
 
-if (typeof window !== 'undefined') window.CMMSChecklist = { totalMinutes, TYPES, GROUP_COLORS, GROUPS, MEDIA, CATALOG, uid, newStep, defaultsFor, clone, SEEDS, load, save, savePreview, loadPreview, checklistFor, fromName, guessType, whenOptions, whenLabel, isOut, matches, rangeText, firstStep, defaultNext, afterTarget, nextStep, requirements, flagged, predictPath, logicSummary, cleanRefs };
+// ---------- Workflow graph (free-form editor) ----------
+// End blocks: cl.ends (ids starting with END, default ['END']). Rules/after 'finish' may carry end / afterEnd to pick which End block they draw to.
+export const endsOf = cl => (cl.ends && cl.ends.length ? cl.ends : ['END']);
+export const isEnd = id => typeof id === 'string' && id.startsWith('END');
+// Ports of a step: [{ when, label }] — when null = single output.
+export const portsOf = st => {
+  const T = TYPES[st.type]; if (!T || !T.answer) return [{ when: null, label: '' }];
+  if (st.type === 'yesno') return [{ when: 'yes', label: 'Yes' }, { when: 'no', label: 'No' }];
+  if (st.type === 'number') return [{ when: 'in', label: 'Normal' }, { when: 'out', label: 'Out of range' }];
+  if (st.type === 'single') { const o = whenOptions(st); if (o.length && o.length <= 3) return o.map(([v, l]) => ({ when: v, label: l })); const ruled = new Set(st.rules.filter(r => r.action === 'goto' || r.action === 'finish').map(r => r.when)); return [...o.filter(([v]) => ruled.has(v)).map(([v, l]) => ({ when: v, label: l })), { when: '*', label: 'Other answers' }]; }
+  return [{ when: null, label: '' }];
+};
+const endFor = (cl, e) => endsOf(cl).includes(e) ? e : endsOf(cl)[0];
+// Where each port leads: { when, label, target (step id | END id | null), explicit }
+export const outputsOf = (cl, st) => portsOf(st).map(p => {
+  const r = p.when && p.when !== '*' ? st.rules.find(x => x.when === p.when && (x.action === 'goto' || x.action === 'finish')) : null;
+  if (r) return { ...p, explicit: true, target: r.action === 'finish' ? endFor(cl, r.end) : (exists(cl, r.target) ? r.target : null) };
+  if (st.after === 'none') return { ...p, explicit: false, target: null };
+  if (st.after === 'finish') return { ...p, explicit: true, target: endFor(cl, st.afterEnd) };
+  if (st.after === 'goto' && st.afterTarget && exists(cl, st.afterTarget)) return { ...p, explicit: true, target: st.afterTarget };
+  const d = defaultNext(cl, st.id); return { ...p, explicit: false, target: d === 'END' ? endsOf(cl)[0] : d };
+});
+export const reachable = cl => { const seen = new Set(), q = [firstStep(cl)]; while (q.length) { const id = q.shift(); if (!id || seen.has(id)) continue; seen.add(id); if (isEnd(id)) continue; const st = cl.steps.find(x => x.id === id); if (st) outputsOf(cl, st).forEach(o => o.target && q.push(o.target)); } return seen; };
+// Marks steps outside the Start → End flow as detached (kept as drafts, never executed).
+export const markDetached = cl => { const r = reachable(cl); cl.steps.forEach(s => { s.detached = !r.has(s.id); }); return cl; };
+
+if (typeof window !== 'undefined') window.CMMSChecklist = { endsOf, isEnd, portsOf, outputsOf, reachable, markDetached, totalMinutes, TYPES, GROUP_COLORS, GROUPS, MEDIA, CATALOG, uid, newStep, defaultsFor, clone, SEEDS, load, save, savePreview, loadPreview, checklistFor, fromName, guessType, whenOptions, whenLabel, isOut, matches, rangeText, firstStep, defaultNext, afterTarget, nextStep, requirements, flagged, predictPath, logicSummary, cleanRefs };

@@ -11,6 +11,20 @@ export const gtinKind = code => ({ 8: 'EAN-8', 12: 'UPC-A', 13: 'EAN-13', 14: 'G
 const ean = b12 => b12 + gtinCheckDigit(b12);
 
 // ---------- Suppliers ----------
+// types: 'parts' (spare parts & consumables), 'service' (external labour / contractors), 'rental' (equipment hire). Service fields: hourly €/h, travel € per visit, rates [{ id, name, unit: 'h'|'visit'|'day'|'fixed', price }].
+export const SUP_TYPES = { parts: ['Spare parts & consumables', 'inventory_2'], service: ['External services', 'engineering'], rental: ['Equipment rental', 'forklift'] };
+export const RATE_UNITS = { h: 'per hour', visit: 'per visit', day: 'per day', fixed: 'fixed price' };
+const R = (id, name, unit, price) => ({ id, name, unit, price });
+const SERVICE = {
+  'sup-atlas': { types: ['parts', 'service'], hourly: 95, travel: 120, rates: [R('r-ac1', 'Compressor annual service', 'fixed', 1450), R('r-ac2', 'Emergency call-out', 'visit', 380)] },
+  'sup-skf': { types: ['parts', 'service'], hourly: 88, travel: 150, rates: [R('r-skf1', 'Laser shaft alignment', 'visit', 640), R('r-skf2', 'Vibration analysis report', 'visit', 520)] },
+  'sup-jc': { types: ['parts', 'service'], hourly: 92, travel: 140, rates: [R('r-jc1', 'Seal repair & re-lapping', 'fixed', 480)] },
+  'sup-glaston': { types: ['service'], hourly: 110, travel: 250, rates: [R('r-gl1', 'Furnace inspection day', 'day', 1650), R('r-gl2', 'Remote diagnosis', 'h', 85)] },
+  'sup-apave': { types: ['service'], hourly: 85, travel: 60, rates: [R('r-ap1', 'Lifting equipment inspection', 'visit', 420), R('r-ap2', 'Pressure equipment inspection', 'visit', 680), R('r-ap3', 'Electrical installation check', 'day', 980)] },
+  'sup-elec': { types: ['service'], hourly: 72, travel: 45, rates: [R('r-el1', 'Electrician on call (night)', 'h', 98)] },
+  'sup-loxam': { types: ['rental'], hourly: '', travel: 90, rates: [R('r-lx1', 'Scissor lift 12 m', 'day', 145), R('r-lx2', 'Mobile crane 25 t with operator', 'day', 890), R('r-lx3', 'Forklift 3 t', 'day', 110), R('r-lx4', 'Industrial dehumidifier', 'day', 65)] },
+};
+export const typesOf = s => (s && s.types && s.types.length ? s.types : ['parts']);
 const SUP_SEED = [
   ['sup-skf', 'SKF France', 'Bearings & transmission', 'Claire Fontaine', 'Key account manager', '+33 1 30 12 73 00', '+33 6 21 44 58 10', 'c.fontaine@skf-france.example', 'www.skf.com', '34 avenue des Trois Peuples, 78180 Montigny-le-Bretonneux', 'FR-THO-10442', 3, '60 days', 5, 'Active', '#0F4C9B'],
   ['sup-gates', 'Gates Europe', 'Belts & transmission', 'Tom Vermeulen', 'Sales engineer', '+32 53 76 27 11', '', 'orders.fr@gates.example', 'www.gates.com', 'Dr. Carlierlaan 30, 9320 Erembodegem, Belgium', 'GE-55120', 7, '45 days', 4, 'Active', '#C8102E'],
@@ -23,11 +37,15 @@ const SUP_SEED = [
   ['sup-atlas', 'Atlas Copco', 'Compressed air', 'Service Centre Nord', 'Service desk', '+33 3 44 23 60 00', '', 'service.nord@atlascopco.example', 'www.atlascopco.com', 'ZI du Bois de Plaisance, 60200 Compiègne', 'AC-66012', 4, '45 days', 5, 'Active', '#0099CC'],
   ['sup-ksb', 'KSB', 'Pumps & spare kits', 'Hélène Dubois', 'Spare parts', '+33 1 41 47 75 00', '', 'pieces@ksb.example', 'www.ksb.com', '4 allée des Barbanniers, 92635 Gennevilliers', 'KSB-2201', 12, '60 days', 3, 'On hold', '#003F7D'],
   ['sup-wurth', 'Würth France', 'Fasteners & consumables', 'Kevin Roux', 'Field sales', '+33 3 88 64 53 00', '+33 6 70 45 11 08', 'k.roux@wurth.example', 'www.wurth.fr', 'Z.I. Ouest, 67158 Erstein', 'WU-90117', 2, '30 days', 4, 'Active', '#CC0000'],
-].map(([id, name, category, contact, role, phone, mobile, email, website, address, account, leadDays, terms, rating, status, color]) => ({ id, name, category, contact, role, phone, mobile, email, website, address, account, leadDays, terms, rating, status, color, image: '', notes: '' }));
-export const suppliers = () => rd(SK, null) || SUP_SEED.map(s => ({ ...s }));
+  ['sup-glaston', 'Glaston Services', 'Furnace OEM service', 'Mikko Laine', 'Field service manager', '+358 10 500 500', '+33 6 44 20 18 07', 'service.fr@glaston.example', 'www.glaston.net', 'Vehmaistenkatu 5, 33730 Tampere, Finland', 'GL-SRV-118', 10, '30 days', 5, 'Active', '#00558C'],
+  ['sup-apave', 'Apave', 'Inspection & certification', 'Bureau Compiègne', 'Planning desk', '+33 3 44 38 50 00', '', 'compiegne@apave.example', 'www.apave.com', '12 rue Clément Ader, 60200 Compiègne', 'AP-77310', 5, '30 days', 4, 'Active', '#E30613'],
+  ['sup-loxam', 'Loxam', 'Equipment rental', 'Agence Compiègne', 'Rental desk', '+33 3 44 20 11 90', '', 'compiegne@loxam.example', 'www.loxam.fr', 'ZA de Jaux, 60880 Jaux', 'LX-40118', 1, '30 days', 4, 'Active', '#E4002B'],
+  ['sup-elec', 'Élec Picardie', 'Electrical contractor', 'Damien Leclerc', 'Site manager', '+33 3 44 86 22 10', '+33 6 12 77 40 51', 'd.leclerc@elecpicardie.example', 'www.elecpicardie.fr', '8 rue des Artisans, 60150 Thourotte', 'EP-2210', 2, '45 days', 4, 'Active', '#F2A900'],
+].map(([id, name, category, contact, role, phone, mobile, email, website, address, account, leadDays, terms, rating, status, color]) => ({ id, name, category, contact, role, phone, mobile, email, website, address, account, leadDays, terms, rating, status, color, image: '', notes: '', ...(SERVICE[id] || { types: ['parts'], hourly: '', travel: '', rates: [] }) }));
+export const suppliers = () => { const st = rd(SK, null); if (!st) return SUP_SEED.map(s => ({ ...s, rates: (s.rates || []).map(r => ({ ...r })) })); const extra = SUP_SEED.filter(s => SERVICE[s.id] && !st.some(x => x.id === s.id) && !(rd(SK + '.removed', [])).includes(s.id)); return [...st.map(x => x.types ? x : { ...x, ...(SERVICE[x.id] || { types: ['parts'], hourly: '', travel: '', rates: [] }) }), ...extra]; };
 export const supplier = id => suppliers().find(s => s.id === id || s.name === id) || null;
 export const saveSupplier = (id, data) => { const all = suppliers(); const nid = id || 'sup-' + Date.now().toString(36); const i = all.findIndex(s => s.id === nid); const row = { ...(i >= 0 ? all[i] : { status: 'Active', rating: 3, color: '#475467', image: '' }), ...data, id: nid }; if (i >= 0) all[i] = row; else all.unshift(row); if (!wr(SK, all)) return null; emit('cmms-suppliers', { id: nid }); return nid; };
-export const deleteSupplier = id => { wr(SK, suppliers().filter(s => s.id !== id)); const ps = parts(); if (ps.some(p => p.supplier === id)) { wr(PK, ps.map(p => p.supplier === id ? { ...p, supplier: '' } : p)); emit('cmms-parts', {}); } emit('cmms-suppliers', { id, deleted: true }); };
+export const deleteSupplier = id => { wr(SK, suppliers().filter(s => s.id !== id)); wr(SK + '.removed', [...rd(SK + '.removed', []), id]); const ps = parts(); if (ps.some(p => p.supplier === id)) { wr(PK, ps.map(p => p.supplier === id ? { ...p, supplier: '' } : p)); emit('cmms-parts', {}); } emit('cmms-suppliers', { id, deleted: true }); };
 export const initials = name => (name || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
 
 // ---------- Parts ----------
@@ -58,4 +76,4 @@ export const eur = n => '€' + (+n || 0).toLocaleString('en-US', { minimumFract
 // Resize an uploaded image to a small JPEG data URL (keeps localStorage light).
 export const readImage = (file, max = 360) => new Promise((res, rej) => { if (!file || !/^image\//.test(file.type)) return rej(new Error('Not an image')); const fr = new FileReader(); fr.onload = () => { const img = new Image(); img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k); const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0, c.width, c.height); res(c.toDataURL('image/jpeg', 0.82)); }; img.onerror = rej; img.src = fr.result; }; fr.onerror = rej; fr.readAsDataURL(file); });
 
-if (typeof window !== 'undefined') window.RelixParts = { gtinCheckDigit, gtinValid, gtinKind, suppliers, supplier, saveSupplier, deleteSupplier, initials, parts, part, savePart, deletePart, adjust, partsOfSupplier, partsOfAsset, status, eur, readImage };
+if (typeof window !== 'undefined') window.RelixParts = { SUP_TYPES, RATE_UNITS, typesOf, gtinCheckDigit, gtinValid, gtinKind, suppliers, supplier, saveSupplier, deleteSupplier, initials, parts, part, savePart, deletePart, adjust, partsOfSupplier, partsOfAsset, status, eur, readImage };

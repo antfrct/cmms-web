@@ -71,16 +71,16 @@ class Component extends DCLogic {
       toggle: () => this.toggle(), toggleLabel: col ? 'Expand menu' : 'Collapse menu', toggleIcon: col ? 'left_panel_open' : 'left_panel_close',
       togglePad: col ? '0' : '12px', toggleJustify: col ? 'center' : 'flex-start', toggleEnter: tipAt('Expand menu'),
       primary: [
-        mk('home', 'Home', 'home', 'Home.dc.html'),
-        mk('dashboard', 'Site dashboard', 'monitoring', 'Site Dashboard.dc.html'),
+        mk('home', 'Home', 'home', 'Main.dc.html'),
+        mk('dashboard', 'Site dashboard', 'monitoring', 'SiteDashboard.dc.html'),
         mk('assets', 'Assets', 'precision_manufacturing', 'Assets.dc.html'),
-        mk('workorders', 'Work orders', 'build', 'Work Orders.dc.html'),
+        mk('workorders', 'Work orders', 'build', 'WorkOrders.dc.html'),
         mk('planning', 'Planning', 'calendar_month', 'Planning.dc.html'),
-        mk('parts', 'Spare parts', 'inventory_2', 'Spare Parts.dc.html'),
-        mk('setup', 'Maintenance setup', 'event_repeat', 'Maintenance Plans.dc.html', [['plans', 'Maintenance plans', 'Maintenance Plans.dc.html'], ['checklists', 'Checklists', 'Checklists.dc.html']]),
+        mk('parts', 'Spare parts', 'inventory_2', 'SpareParts.dc.html'),
+        mk('setup', 'Maintenance setup', 'event_repeat', 'MaintenancePlans.dc.html', [['plans', 'Maintenance plans', 'MaintenancePlans.dc.html'], ['checklists', 'Checklists', 'Checklists.dc.html']]),
         mk('documents', 'Documents', 'description', 'Documents.dc.html'),
       ],
-      secondary: [mk('teams', 'Teams & users', 'group', 'Teams and Users.dc.html'), mk('suppliers', 'Suppliers', 'local_shipping', 'Suppliers.dc.html'), mk('admin', 'Site configuration', 'settings', 'Administration.dc.html')],
+      secondary: [mk('teams', 'Teams & users', 'group', 'TeamsUsers.dc.html'), mk('suppliers', 'Suppliers', 'local_shipping', 'Suppliers.dc.html'), mk('admin', 'Site configuration', 'settings', 'Administration.dc.html')],
     };
   }
 }

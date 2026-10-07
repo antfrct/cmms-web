@@ -18,6 +18,7 @@ export const IMP = {
 const T = [
   ['wo-assigned', 'wo', 'Work order assigned to me', 'You become responsible for a work order', 'imp', 'assignment_ind', 'toast', 1, 1],
   ['wo-priority', 'wo', 'Priority changed', 'Priority of a work order you are on goes up or down', 'imp', 'priority_high', 'bell', 0, 0],
+  ['wo-request', 'wo', 'Intervention request', 'Someone reports an issue and notifies you or one of your teams', 'imp', 'campaign', 'toast', 0, 1],
   ['wo-created', 'wo', 'New work order in my team', 'A request is created for your team', 'info', 'add_circle', 'activity', 0, 0],
   ['wo-followup', 'wo', 'Follow-up created', 'A follow-up is created from a work order you closed', 'info', 'subdirectory_arrow_right', 'bell', 0, 0],
   ['int-overdue', 'int', 'Intervention overdue', 'A work order assigned to you passes its due date', 'crit', 'schedule', 'toast', 1, 1],

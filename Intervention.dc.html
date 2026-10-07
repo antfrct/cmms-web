@@ -70,6 +70,16 @@
             </sc-for>
           </div>
         </sc-if>
+        <sc-if value="{{ step.hasDocs }}">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <sc-for list="{{ step.docs }}" as="d">
+              <a href="{{ d.href }}" target="_blank" style="height:56px;display:flex;align-items:center;gap:10px;padding:0 16px 0 8px;background:#fff;border:1px solid #E4E7EC;border-radius:10px;font:500 14px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="border-color:#98A2B3">
+                <span style="width:40px;height:40px;border-radius:7px;background:{{ d.bg }};color:{{ d.fg }};display:grid;place-items:center;font:600 11px 'IBM Plex Mono',monospace">{{ d.ft }}</span>
+                <span style="display:flex;flex-direction:column;align-items:flex-start;gap:1px"><span style="font-weight:600">Open document</span><span style="font-size:12px;color:#667085;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.name }} · {{ d.ver }}</span></span>
+              </a>
+            </sc-for>
+          </div>
+        </sc-if>
 
         <sc-if value="{{ t.instruction }}">
           <sc-if value="{{ step.hasList }}">
@@ -271,6 +281,7 @@
             </div>
             <sc-if value="{{ skippedLabel }}"><div style="padding:10px 16px;border-top:1px solid #EEF0F3;font-size:13px;color:#667085">{{ skippedLabel }}</div></sc-if>
           </section>
+          <sc-if value="{{ showCosts }}"><dc-import name="WOCosts" wo-key="{{ woKey }}" wo="{{ costWo }}" parts="{{ costParts }}" actual-ms="{{ costActual }}" title="Cost of this intervention" hint-size="100%,300px"></dc-import></sc-if>
         </div>
 
         <aside style="position:sticky;top:0;background:#fff;border:1px solid #E4E7EC;border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:18px">
@@ -411,8 +422,9 @@ let pid = 1;
 class Component extends DCLogic {
   state = { ready: false, trail: [], pos: 0, answers: {}, notes: {}, noteFlags: {}, noteOpen: {}, reqPhotos: {}, skipped: {}, tried: {}, acc: 0, since: Date.now(), startedAt: Date.now(), paused: false, mode: 'wizard', fromReview: false, close: null, result: null, picker: false, pq: '', urls: {}, confirm: false, closeTried: false, details: false, viewer: null, tick: 0 };
   componentDidMount() {
-    import('./collab-model.js').then(C => { this.C = C; this.setState({ cv: 1 }); });
+    import('./collab-model.js').then(C => { this.C = C; this.setState({ cv: 1 }); if (!PREVIEW) { const w = C.getWo(WO0.key); if (!w || w.status !== 'Completed') C.saveWo(WO0.key, { status: 'In progress' }); } });
     this._chat = () => this.setState(z => ({ cv: (z.cv || 0) + 1 })); window.addEventListener('cmms-chat', this._chat);
+    import('./docs-model.js').then(() => this.forceUpdate());
     import('./checklist-model.js').then(M => {
       const cl = PREVIEW ? (M.loadPreview() || M.load('pump-seal')) : M.load(M.checklistFor(WO0.asset));
       let saved = null; if (!PREVIEW) { try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) {} }
@@ -487,25 +499,25 @@ class Component extends DCLogic {
       default: return v ? String(v) : '—';
     }
   }
-  pause() { if (this.state.paused) return; this.setState({ paused: true, acc: this.elapsed(), since: null, details: false, handover: '', notePosted: false }); const st = this.cur(); if (this.C && !PREVIEW) this.C.post(WO0.key, 'sys', `Intervention paused${st ? ' at "' + st.title + '"' : ''}`); }
+  pause() { if (this.state.paused) return; this.setState({ paused: true, acc: this.elapsed(), since: null, details: false, handover: '', notePosted: false }); if (this.C && !PREVIEW) this.C.saveWo(WO0.key, { status: 'In progress', waiting: 'paused' }); const st = this.cur(); if (this.C && !PREVIEW) this.C.post(WO0.key, 'sys', `Intervention paused${st ? ' at "' + st.title + '"' : ''}`); }
   postHandover() { const t = (this.state.handover || '').trim(); if (!t || !this.C) return; this.C.post(WO0.key, this.C.ME, t, { tag: 'Handover' }); this.setState({ notePosted: true }); }
 
   renderVals() {
     const s = this.state, M = this.M, WO = this.WO;
-    const woHref = PREVIEW ? 'Checklist Editor.dc.html?id=' + (s.cl ? s.cl.id : '') : 'Work Order.dc.html' + window.location.search;
+    const woHref = PREVIEW ? 'ChecklistEditor.dc.html?id=' + (s.cl ? s.cl.id : '') : 'WorkOrder.dc.html' + window.location.search;
     const base = {
       loading: !s.ready, isWizard: false, isReview: false, isDone: false, isPreview: PREVIEW,
       task: PREVIEW ? WO.task : WO.task, subline: `${PREVIEW ? '' : (this.C ? this.C.displayId(WO0.key) : WO0.key) + ' · '}${WO.asset} · ${WO.loc} · ${WO.prio} priority`,
       backLabel: PREVIEW ? 'Exit preview' : 'Back', elapsed: hms(this.elapsed()),
       stateLabel: s.mode === 'done' ? 'Closed' : s.paused ? `Paused · started ${clock(s.startedAt)}` : `In progress · started ${clock(s.startedAt)}`,
       timerDot: s.mode === 'done' ? '#98A2B3' : s.paused ? '#F79009' : '#12A06E', canPause: s.ready && s.mode !== 'done',
-      pause: () => this.pause(), resume: () => { this.setState({ paused: false, since: Date.now() }); if (this.C && !PREVIEW) this.C.post(WO0.key, 'sys', 'Intervention resumed'); },
+      pause: () => this.pause(), resume: () => { this.setState({ paused: false, since: Date.now() }); if (this.C && !PREVIEW) this.C.saveWo(WO0.key, { status: 'In progress', waiting: '' }); if (this.C && !PREVIEW) this.C.post(WO0.key, 'sys', 'Intervention resumed'); },
       paused: s.paused && s.mode !== 'done', woHref,
       hasChat: !PREVIEW, woKey: WO0.key, isQuick: QS.get('quick') === '1' && !!(this.C && (this.C.getWo(WO0.key) || {}).quick), chatOpen: !PREVIEW, chatPad: PREVIEW ? '0px' : '400px', chatPadNeg: PREVIEW ? '0px' : '-400px', toggleChat: () => this.setState({ chat: !s.chat, details: false }), chatBtnBg: s.chat ? 'rgba(255,255,255,.16)' : 'transparent',
       chatUnread: 0, chatSub: this.C ? `${this.C.displayId(WO0.key)} · ${this.C.participantsOf(WO0.key).length || 1} people · your step stays open` : WO0.key,
       handover: s.handover || '', setHandover: e => this.setState({ handover: e.target.value }), postHandover: () => this.postHandover(), postBg: (s.handover || '').trim() ? '#C00018' : '#D0D5DD',
       noteNotPosted: !s.notePosted, notePosted: !!s.notePosted,
-      pauseReasons: ['Waiting for parts', 'Called to another breakdown', 'End of shift', 'Need a specialist'].map(l => { const on = (s.handover || '').startsWith(l); return { label: l, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', pick: () => this.setState({ handover: l + ' — ' }) }; }),
+      pauseReasons: ['Waiting for parts', 'Called to another breakdown', 'End of shift', 'Need a specialist'].map(l => { const on = (s.handover || '').startsWith(l); if (on && this.C && !PREVIEW && l === 'Waiting for parts' && (this.C.getWo(WO0.key) || {}).waiting !== 'parts') setTimeout(() => this.C.saveWo(WO0.key, { waiting: 'parts' }), 0); return { label: l, bg: on ? '#1E2430' : '#fff', border: on ? '#1E2430' : '#D0D5DD', color: on ? '#fff' : '#344054', pick: () => this.setState({ handover: l + ' — ' }) }; }),
       exit: () => { if (PREVIEW) { window.location.href = woHref; return; } if (s.mode !== 'done') this.setState({ paused: true, acc: this.elapsed(), since: null }, () => { this.persist(); window.location.href = woHref; }); else window.location.href = woHref; },
       detailsOpen: s.details, toggleDetails: () => this.setState({ details: !s.details }), detailsBg: s.details ? 'rgba(255,255,255,.14)' : 'transparent',
       woDesc: PREVIEW ? 'Preview of the checklist as a technician will see it. Answers are not saved.' : /P-101/.test(WO.asset) ? 'Operators reported a major leak at the pump shaft during the night shift. The mechanical seal is suspected.' : `${WO.type} work on ${WO.asset}.`,
@@ -546,6 +558,7 @@ class Component extends DCLogic {
         branchNote, optional: !st.required && st.type !== 'instruction',
         step: { title: st.title, hasDescText: !!st.desc && !isList, descText: st.desc, hasList: isList, lines: descLines.map((text, i) => ({ n: i + 1, text })),
           hasExpected: !!st.expected, expected: st.expected, hasUnit: !!st.unit, unit: st.unit, hasRange: !!M.rangeText(st), range: M.rangeText(st),
+          ...(() => { const D = window.RelixDocs; const ds = D ? D.linkedTo('step', cl.id + ':' + st.id) : []; return { hasDocs: ds.length > 0, docs: ds.map(d => ({ name: d.name, ver: d.ver, ft: d.ft, bg: (D.FT[d.ft] || D.FT.PDF)[0], fg: (D.FT[d.ft] || D.FT.PDF)[1], href: D.href(d.id) })) }; })(),
           hasMedia: st.media.length > 0, media: st.media.map(m => { const [action, icon, bg, fg, hint] = MEDIA_UI[m.kind]; return { action, icon, bg, fg, name: m.name, open: () => this.setState({ viewer: { icon, name: m.name, hint } }) }; }) },
         t: { instruction: st.type === 'instruction', confirm: st.type === 'confirm', yesno: st.type === 'yesno', choice: !!choiceOpts.length, number: st.type === 'number', text: st.type === 'text', comment: st.type === 'comment', photo: st.type === 'photo', file: st.type === 'file', parts: st.type === 'parts' || st.type === 'consumables' },
         checks: st.type === 'confirm' ? st.options.map((label, i) => { const on = !!v[i]; return { label, bg: on ? '#F0F9F4' : '#fff', border: on ? '#A6DDC4' : '#E4E7EC', boxBg: on ? '#0B6B4A' : '#fff', boxBorder: on ? '#0B6B4A' : '#C4CAD4', icon: on ? 'check' : '', toggle: () => this.set(st.id, { ...v, [i]: !on }) }; }) : [],
@@ -607,7 +620,7 @@ class Component extends DCLogic {
         hasAnomalies: an.length > 0, anomalyTitle: `${an.length} anomal${an.length === 1 ? 'y' : 'ies'} detected`, anomalies: an,
         checksDone, evidenceLabel: ev.length ? ev.join(' · ') : 'No photos or comments', hasPhotos: photos.length > 0,
         allPhotos: photos.slice(0, 8).map(p => ({ url: s.urls[p.id], hasUrl: !!s.urls[p.id] })), comments: comments.slice(0, 3),
-        usedParts: parts, noParts2: !parts.length, skippedLabel: skippedN ? `${skippedN} optional step${skippedN > 1 ? 's' : ''} skipped` : '',
+        usedParts: parts, noParts2: !parts.length, showCosts: !PREVIEW, costWo: (this.C && this.C.getWo(WO0.key)) || { asset: WO.asset, assignee: 'GD', dur: 1 }, costParts: parts.filter(p => M.CATALOG.parts.some(x => x[0] === p.ref)).map(p => ({ ref: p.ref, qty: p.qty || 1 })), costActual: this.elapsed(), skippedLabel: skippedN ? `${skippedN} optional step${skippedN > 1 ? 's' : ''} skipped` : '',
         results: Object.entries(RESULTS).map(([k, [label, icon, fg, bg]]) => { const on = c.status === k; return { label, icon, bg: on ? bg : '#fff', border: on ? `2px solid ${fg}` : '1px solid #E4E7EC', color: on ? fg : '#475467', pick: () => setC('status', k) }; }),
         opOpts: [['yes', 'Yes', 'check_circle', '#0B6B4A', '#E6F4EE'], ['no', 'No', 'cancel', '#B42318', '#FDECEC']].map(([k, label, icon, fg, bg]) => { const on = c.operational === k; return { label, icon, bg: on ? bg : '#fff', border: on ? `2px solid ${fg}` : `1px solid ${errs.op ? '#F04438' : '#D0D5DD'}`, color: on ? fg : '#344054', pick: () => setC('operational', k) }; }),
         close: c, setReport: e => setC('report', e.target.value), reportBorder: errs.report ? '#F04438' : '#D0D5DD',
@@ -619,7 +632,7 @@ class Component extends DCLogic {
         confirmOpen: s.confirm, cancelComplete: () => this.setState({ confirm: false }),
         confirmLines: [['Result', RESULTS[c.status][0], RESULTS[c.status][2]], ['Equipment', c.operational === 'yes' ? 'Operational' : 'Stopped', c.operational === 'yes' ? '#0B6B4A' : '#B42318'], ['Parts used', parts.length ? parts.map(p => `${p.name} ×${p.qty}`).join(', ') : 'None'], ['Follow-up', c.followUp ? c.fuTitle : 'None'], ['Time spent', `${c.mins || 0} min`]].map(([k, v, color]) => ({ k, v, color: color || '#1E2430' })),
         confirmNote: PREVIEW ? 'Preview only — nothing will be saved.' : 'The work order will be closed and parts deducted from stock.',
-        complete: () => this.setState({ confirm: false, mode: 'done', acc: this.elapsed(), since: null, paused: false, result: { status: c.status, at: Date.now(), mins: +c.mins || 0, operational: c.operational, parts: parts.length, followUp: c.followUp ? { title: c.fuTitle, prio: c.fuPrio } : null, anomalies: an.length } }),
+        complete: () => (this.C && !PREVIEW && this.C.saveWo(WO0.key, { status: 'Completed', waiting: '', actualMs: this.elapsed(), costs: (() => { const w0 = this.C.getWo(WO0.key) || {}, cs = { consumables: [], services: [], rentals: [], ...(w0.costs || {}) }; parts.filter(p => M.CATALOG.consumables.some(x => x[0] === p.ref)).forEach(p => { if (!cs.consumables.some(x => x.ref === p.ref)) cs.consumables.push({ ref: p.ref, qty: p.qty || 1 }); }); return cs; })() }), this.setState({ confirm: false, mode: 'done', acc: this.elapsed(), since: null, paused: false, result: { status: c.status, at: Date.now(), mins: +c.mins || 0, operational: c.operational, parts: parts.length, followUp: c.followUp ? { title: c.fuTitle, prio: c.fuPrio } : null, anomalies: an.length } })),
         pauseWhere: 'the review page',
       };
     }
@@ -631,7 +644,7 @@ class Component extends DCLogic {
     return { ...base, isDone: true,
       result: { title: PREVIEW ? 'Preview finished' : `Intervention ${rl.toLowerCase()}`, icon: ri, fg: rf, bg: rb, sub: `${WO.asset} — ${WO.task} · ${r.mins} min`, lines: lines.map(([icon, text, color]) => ({ icon, text, color })) },
       doneSecondary: PREVIEW ? 'Restart preview' : 'View work order', doneSecondaryHref: PREVIEW ? 'Intervention.dc.html?preview=1' : woHref,
-      donePrimary: PREVIEW ? 'Back to the checklist' : 'Back to work orders', donePrimaryHref: PREVIEW ? woHref : 'Work Orders.dc.html',
+      donePrimary: PREVIEW ? 'Back to the checklist' : 'Back to work orders', donePrimaryHref: PREVIEW ? woHref : 'WorkOrders.dc.html',
       resetLabel: PREVIEW ? '' : 'Reset this demo intervention',
       resetDemo: () => { try { localStorage.removeItem(KEY); } catch (e) {} this._last = null; window.location.reload(); },
     };

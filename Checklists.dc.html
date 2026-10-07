@@ -19,7 +19,7 @@
 
   <main style="position:relative;min-height:0;overflow:hidden;padding:20px 28px 20px;display:flex;flex-direction:column;gap:16px" data-screen-label="Checklists">
     <header style="flex:none;display:flex;align-items:center;gap:16px">
-      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+      <dc-import name="BackButton" fallback="Main.dc.html" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Checklists</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">Reusable task lists attached to maintenance plans and work orders</p>
@@ -165,7 +165,7 @@ class Component extends DCLogic {
     this.state = { rows: SEED, q: '', usage: '', menu: null, drawer: isNew ? { id: null } : null, name: '', desc: '', tasks: [], draft: '', mode: 'manual', lq: '', drag: null, errors: {}, toast: null };
   }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 2600); }
-  open(r) { window.location.href = 'Checklist Editor.dc.html?id=' + encodeURIComponent(r ? r.id : 'new') + (r ? '&name=' + encodeURIComponent(r.name) : ''); }
+  open(r) { window.location.href = 'ChecklistEditor.dc.html?id=' + encodeURIComponent(r ? r.id : 'new') + (r ? '&name=' + encodeURIComponent(r.name) : ''); }
   openDrawer(r) { this.setState({ drawer: { id: r ? r.id : null }, name: r ? r.name : '', desc: r ? r.desc : '', tasks: r ? r.tasks.map(t => ({ ...t })) : [], draft: '', errors: {}, menu: null, mode: 'manual' }); }
   addTask(label) { if (!label.trim()) return; this.setState(s => ({ tasks: [...s.tasks, { id: 't' + tid++, label: label.trim() }], draft: '', errors: { ...s.errors, tasks: 0 } })); }
   save() {

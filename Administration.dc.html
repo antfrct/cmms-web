@@ -19,7 +19,7 @@
 
   <main style="position:relative;min-height:0;overflow:hidden;padding:20px 28px 20px;display:flex;flex-direction:column;gap:16px" data-screen-label="Site configuration">
     <header style="flex:none;display:flex;align-items:center;gap:12px">
-      <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
+      <dc-import name="BackButton" fallback="Main.dc.html" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Site configuration</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ subtitle }}</p>
@@ -184,9 +184,9 @@ const NAV = [
 ];
 const ICONS = ['build', 'event_repeat', 'insights', 'visibility', 'trending_up', 'construction', 'precision_manufacturing', 'conveyor_belt', 'water_pump', 'mode_fan', 'compress', 'heat', 'content_cut', 'blender', 'scale', 'water', 'package_2', 'electrical_services', 'local_fire_department', 'forklift', 'elevator', 'speed', 'home_repair_service', 'settings', 'filter_alt', 'sensors', 'radio_button_unchecked', 'water_drop', 'bolt', 'memory', 'air', 'oil_barrel', 'vibration', 'device_thermostat', 'verified_user', 'height', 'handyman', 'science', 'shield', 'recycling'];
 const BASE_WO = { Corrective: 1840, Preventive: 2210, Predictive: 96, Inspection: 540, Improvement: 0 }, BASE_FAIL = { Mechanical: 612, Electrical: 388, Hydraulic: 144, Pneumatic: 92, Instrumentation: 118, 'Software / PLC': 41, 'Operator error': 27 };
-const BASE_PRIO = { Critical: 3, High: 21, Medium: 24, Low: 9 }, BASE_STATUS = { Requested: 12, Scheduled: 18, Overdue: 8, 'In progress': 18, 'Waiting for parts': 7, Completed: 1204 };
+const BASE_PRIO = { Critical: 3, High: 21, Medium: 24, Low: 9 }, BASE_STATUS = { Requested: 12, Scheduled: 18, Overdue: 8, 'In progress': 18, 'Waiting (flag on open work orders)': 7, Completed: 1204 };
 const BADGE = { prio: { Critical: ['#C00018', '#fff'], High: ['#FDECEC', '#B42318'], Medium: ['#FEF3E2', '#B54708'], Low: ['#EEF1F4', '#475467'] },
-  status: { Requested: ['#F3EEFC', '#6941C6'], Scheduled: ['#EAF1FD', '#2456B8'], Overdue: ['#FDECEC', '#B42318'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting for parts': ['#FEF3E2', '#B54708'], Completed: ['#EEF1F4', '#475467'] } };
+  status: { Requested: ['#F3EEFC', '#6941C6'], Scheduled: ['#EAF1FD', '#2456B8'], Overdue: ['#FDECEC', '#B42318'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting (flag on open work orders)': ['#FEF3E2', '#B54708'], Completed: ['#EEF1F4', '#475467'] } };
 const CRITC = { Critical: '#C00018', High: '#E0591B', Medium: '#E3A008', Low: '#98A2B3' };
 const TZ = ['Europe/Paris', 'Europe/Madrid', 'Europe/Berlin', 'Europe/London', 'Europe/Lisbon', 'Europe/Warsaw', 'America/New_York', 'Asia/Shanghai'];
 const LVL = { plant: ['factory', 'Plant'], zone: ['grid_view', 'Zone'], line: ['conveyor_belt', 'Line'], step: ['subdirectory_arrow_right', 'Step'] };
@@ -283,13 +283,13 @@ class Component extends DCLogic {
     switch (sec) {
       case 'assetTypes': { const n = assets.filter(a => a.type === r.name).length; return { n, label: n ? plural(n, 'asset') : 'Not used', href: n ? 'Assets.dc.html?q=' + encodeURIComponent(r.name) : '' }; }
       case 'crit': { const n = assets.filter(a => a.crit === r.name).length; return { n, label: n ? plural(n, 'asset') : 'Not used', href: '', locked: true }; }
-      case 'woTypes': { const n = (BASE_WO[r.name] || 0) + created.filter(w => w.type === r.name).length; return { n, label: n ? plural(n, 'work order') : 'Not used', href: n ? 'Work Orders.dc.html' : '' }; }
+      case 'woTypes': { const n = (BASE_WO[r.name] || 0) + created.filter(w => w.type === r.name).length; return { n, label: n ? plural(n, 'work order') : 'Not used', href: n ? 'WorkOrders.dc.html' : '' }; }
       case 'failures': { const n = (BASE_FAIL[r.name] || 0) + created.filter(w => w.cat === r.name).length; return { n, label: n ? plural(n, 'work order') : 'Not used' }; }
       case 'prio': return { n: 1, label: plural((BASE_PRIO[r.name] || 0) + created.filter(w => w.prio === r.name).length, 'open work order'), locked: true };
       case 'status': return { n: 1, label: plural(BASE_STATUS[r.name] || 0, 'work order'), locked: true };
-      case 'partCats': { const n = parts.filter(p => p.cat === r.name).length; return { n, label: n ? plural(n, 'part') : 'Not used', href: n ? 'Spare Parts.dc.html?cat=' + encodeURIComponent(r.name) : '' }; }
+      case 'partCats': { const n = parts.filter(p => p.cat === r.name).length; return { n, label: n ? plural(n, 'part') : 'Not used', href: n ? 'SpareParts.dc.html?cat=' + encodeURIComponent(r.name) : '' }; }
       case 'costCenters': { const p = parts.filter(x => x.costCenter === r.code).length, a = assets.filter(x => x.costCenter === r.code).length, w = created.filter(x => x.costCenter === r.code).length, n = p + a + w;
-        return { n, label: n ? [p && plural(p, 'part'), a && plural(a, 'asset'), w && plural(w, 'WO')].filter(Boolean).join(' · ') : 'Not used', href: p ? 'Spare Parts.dc.html?cc=' + encodeURIComponent(r.code) : '' }; }
+        return { n, label: n ? [p && plural(p, 'part'), a && plural(a, 'asset'), w && plural(w, 'WO')].filter(Boolean).join(' · ') : 'Not used', href: p ? 'SpareParts.dc.html?cc=' + encodeURIComponent(r.code) : '' }; }
       case 'customFields': { const has = o => o && o.custom && o.custom[r.code] !== undefined && o.custom[r.code] !== ''; const n = r.entity === 'Asset' ? assets.filter(has).length : r.entity === 'Spare part' ? parts.filter(has).length : created.filter(has).length;
         return { n, label: n ? `${plural(n, r.entity === 'Work order' ? 'work order' : r.entity === 'Asset' ? 'asset' : 'part')} filled` : 'No data yet' }; }
       case 'skills': { const n = PM.TECHS.filter(t => PM.skillLevel(t, r.code) > 0).length; return { n, label: n ? plural(n, 'person') .replace('persons', 'people') : 'Nobody yet', href: '' }; }
