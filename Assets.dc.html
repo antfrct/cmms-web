@@ -27,7 +27,7 @@
       <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
         <sc-for list="{{ views }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.select }}" style="height:30px;display:flex;align-items:center;gap:5px;padding:0 12px 0 10px;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};font:{{ v.font }};color:{{ v.color }};cursor:pointer;white-space:nowrap"><span style="font:17px/1 'Material Symbols Outlined'">{{ v.icon }}</span>{{ v.label }}</button></sc-for>
       </div>
-      <sc-if value="{{ adv }}"><button onClick="{{ advFleet }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">timeline</span>Lifecycle &amp; risk</button></sc-if>
+      <sc-if value="{{ adv }}"><button data-feature="assets.risk" onClick="{{ advFleet }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">timeline</span>Lifecycle &amp; risk</button></sc-if>
       <div style="position:relative">
         <button onClick="{{ toggleMore }}" title="More actions" style="width:34px;height:34px;display:grid;place-items:center;background:{{ moreBg }};border:1px solid #D0D5DD;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:20px/1 'Material Symbols Outlined'">more_horiz</span></button>
         <sc-if value="{{ moreOpen }}">
@@ -332,12 +332,13 @@ const EMPTY = { loc: [], type: [], status: [], crit: [] };
 const hm = h => `${String(Math.floor(h)).padStart(2, '0')}:${String(Math.round(h % 1 * 60)).padStart(2, '0')}`;
 const px = n => n + 'px';
 const QS = new URLSearchParams(location.search);
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { PM: null, C: null, v: 0, q: QS.get('q') || '', cls: 'all', F: { ...EMPTY, loc: QS.get('loc') ? [QS.get('loc')] : [] }, dd: null, dq: '',
     view: (v => v === 'layout' ? 'map' : v === 'hierarchy' ? 'tree' : v)(QS.get('view') || (() => { try { return localStorage.getItem('cmms.assets.view'); } catch (e) { return null; } })() || this.props.view || 'list'), texp: { THO: 1, FOR: 1 }, tsel: 'THO', tq: '', tzoom: 1,
     sel: 'THO', open: { THO: 1 }, selAsset: null, size: { w: 0, h: 0 }, zoom: 1, toast: null };
   mapRef = el => { if (el === this._obs) return; if (this._obs && this._ro) this._ro.unobserve(this._obs); this._obs = el; if (el) { if (!this._ro) this._ro = new ResizeObserver(() => this.measure()); this._ro.observe(el); requestAnimationFrame(() => this.measure()); } };
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     Promise.all([import('./plant-model.js'), import('./collab-model.js')]).then(([PM, C]) => {
       const q = QS.get('loc'); let F = this.state.F;
       if (q && !PM.node(q)) { const n = PM.NODES.find(x => x.name === q); F = { ...F, loc: n ? [n.id] : [] }; }
@@ -418,10 +419,10 @@ class Component extends DCLogic {
   }
   renderVals() {
     const s = this.state, PM = s.PM, C = s.C, F = s.F;
-    const views = [['list', 'List', 'table_rows'], ['tree', 'Hierarchy', 'account_tree'], ['map', 'Plant layout', 'map']].map(([k, label, icon]) => { const on = s.view === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => { try { localStorage.setItem('cmms.assets.view', k); } catch (e) {} this.setState({ view: k }); } }; });
-    const base = { views, isList: s.view === 'list', isMap: s.view === 'map', isTree: s.view === 'tree', mapRef: this.mapRef, create: () => window.RelixAssetWizard && window.RelixAssetWizard(null), toast: s.toast,
+    const views = [['list', 'List', 'table_rows'], ['tree', 'Hierarchy', 'account_tree'], ['map', 'Plant layout', 'map']].filter(([k]) => k === 'list' || FON('assets.views')).map(([k, label, icon]) => { const on = s.view === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => { try { localStorage.setItem('cmms.assets.view', k); } catch (e) {} this.setState({ view: k }); } }; });
+    const base = { views, isList: s.view === 'list' || !FON('assets.views'), isMap: s.view === 'map' && FON('assets.views'), isTree: s.view === 'tree' && FON('assets.views'), mapRef: this.mapRef, create: () => window.RelixAssetWizard && window.RelixAssetWizard(null), toast: s.toast,
       rmenuOpen: !!s.rmenu, closeRmenu: () => this.setState({ rmenu: null }), moreOpen: !!s.more, moreBg: s.more ? '#F2F4F7' : '#fff', toggleMore: () => this.setState({ more: !s.more }), closeMore: () => this.setState({ more: false }),
-      moreItems: [['upload_file', 'Import assets', 'CSV', () => window.RelixAssetActions && window.RelixAssetActions('import', [])], ['download', 'Export the list', 'CSV', () => this._export && this._export()], ['qr_code_2', 'Generate / print QR codes', '', () => this._qrAll && this._qrAll()], ['settings', 'Data configuration', 'Administration', () => { location.href = 'Administration.dc.html'; }]]
+      moreItems: [...(FON('assets.import') ? [['upload_file', 'Import assets', 'CSV', () => window.RelixAssetActions && window.RelixAssetActions('import', [])]] : []), ['download', 'Export the list', 'CSV', () => this._export && this._export()], ['qr_code_2', 'Generate / print QR codes', '', () => this._qrAll && this._qrAll()], ['settings', 'Data configuration', 'Administration', () => { location.href = 'Administration.dc.html'; }]]
         .map(([icon, label, hint, fn]) => ({ icon, label, hint, run: () => { this.setState({ more: false }); fn(); } })) };
     if (!PM || !C) return { ...base, zoneCards: [], classSeg: [], filters: [], rows: [], tree: [], mapZones: [], crumbs: [], legend: [], subtitle: 'Thourotte Plant', q: s.q, mapTransform: 'scale(.5)', allIcon: 'unfold_more', allLabel: 'Expand all', treeRows: [], nodes: [], edges: [], hasTSel: false, tsn: {}, tq: s.tq, chartW: '0px', chartH: '0px', chartRawW: '0px', chartRawH: '0px', tzoom: 1, hasCard: false, card: {}, empty: false, countLabel: '', anyFilter: false };
     const all = PM.assets(), q = s.q.trim().toLowerCase();
@@ -516,7 +517,7 @@ class Component extends DCLogic {
         toggleSel: e => { e.stopPropagation(); this.setState(st => ({ pick: { ...(st.pick || {}), [a.id]: !(st.pick || {})[a.id] } })); },
         menuOpen: s.rmenu === a.id, menuBg: s.rmenu === a.id ? '#EEF0F3' : 'transparent', menuTop: i > pageRows.length - 4 && pageRows.length > 6 ? '-232px' : '34px', stop: e => e.stopPropagation(),
         menu: e => { e.stopPropagation(); this.setState({ rmenu: s.rmenu === a.id ? null : a.id }); },
-        actions: [['edit', 'Edit asset', () => PM.openWizard(a.id)], ['qr_code_2', 'Display / print QR code', () => act('qr', [a.id])], ['add_task', 'Create work order', () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: a.id })], ...(a.decommissioned ? [] : [['block', 'Decommission', () => act('decommission', [a.id]), 1]]), ['delete', 'Delete asset', () => act('delete', [a.id], { wos: WOS[a.id] || 0 }), !!a.decommissioned, 1]]
+        actions: [['edit', 'Edit asset', () => PM.openWizard(a.id)], ...(FON('assets.qr') ? [['qr_code_2', 'Display / print QR code', () => act('qr', [a.id])]] : []), ['add_task', 'Create work order', () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: a.id })], ...(a.decommissioned ? [] : [['block', 'Decommission', () => act('decommission', [a.id]), 1]]), ['delete', 'Delete asset', () => act('delete', [a.id], { wos: WOS[a.id] || 0 }), !!a.decommissioned, 1]]
           .map(([icon, label, fn, sep, danger]) => ({ icon, label, sep: !!sep, color: danger ? '#B42318' : '#1E2430', iconColor: danger ? '#B42318' : '#667085', run: e => { e.stopPropagation(); this.setState({ rmenu: null }); fn(); } })) }; });
     const stat = k => all.filter(a => a.status === k).length;
     this._export = () => csv(selIds.length ? all.filter(a => selIds.includes(a.id)) : sorted); this._qrAll = () => act('qr', selIds.length ? selIds : sorted.map(a => a.id));

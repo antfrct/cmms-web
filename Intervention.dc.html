@@ -416,9 +416,10 @@ const clock = t => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d
 const PERSIST = ['trail', 'pos', 'answers', 'notes', 'noteFlags', 'reqPhotos', 'skipped', 'acc', 'since', 'startedAt', 'paused', 'mode', 'fromReview', 'close', 'result', 'clId'];
 let pid = 1;
 
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { ready: false, trail: [], pos: 0, answers: {}, notes: {}, noteFlags: {}, noteOpen: {}, reqPhotos: {}, skipped: {}, tried: {}, acc: 0, since: Date.now(), startedAt: Date.now(), paused: false, mode: 'wizard', fromReview: false, close: null, result: null, picker: false, pq: '', urls: {}, confirm: false, closeTried: false, details: false, viewer: null, tick: 0 };
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     import('./collab-model.js').then(C => { this.C = C; this.setState({ cv: 1 }); if (!PREVIEW) { const w = C.getWo(WO0.key); if (!w || w.status !== 'Completed') C.saveWo(WO0.key, { status: 'In progress' }); } });
     this._chat = () => this.setState(z => ({ cv: (z.cv || 0) + 1 })); window.addEventListener('cmms-chat', this._chat);
     import('./docs-model.js').then(() => this.forceUpdate());
@@ -510,7 +511,7 @@ class Component extends DCLogic {
       timerDot: s.mode === 'done' ? '#98A2B3' : s.paused ? '#F79009' : '#12A06E', canPause: s.ready && s.mode !== 'done',
       pause: () => this.pause(), resume: () => { this.setState({ paused: false, since: Date.now() }); if (this.C && !PREVIEW) this.C.saveWo(WO0.key, { status: 'In progress', waiting: '' }); if (this.C && !PREVIEW) this.C.post(WO0.key, 'sys', 'Intervention resumed'); },
       paused: s.paused && s.mode !== 'done', woHref,
-      hasChat: !PREVIEW, woKey: WO0.key, isQuick: QS.get('quick') === '1' && !!(this.C && (this.C.getWo(WO0.key) || {}).quick), chatOpen: !PREVIEW, chatPad: PREVIEW ? '0px' : '400px', chatPadNeg: PREVIEW ? '0px' : '-400px', toggleChat: () => this.setState({ chat: !s.chat, details: false }), chatBtnBg: s.chat ? 'rgba(255,255,255,.16)' : 'transparent',
+      hasChat: !PREVIEW, woKey: WO0.key, isQuick: QS.get('quick') === '1' && !!(this.C && (this.C.getWo(WO0.key) || {}).quick), chatOpen: !PREVIEW && FON('wo.chat'), chatPad: PREVIEW || !FON('wo.chat') ? '0px' : '400px', chatPadNeg: PREVIEW || !FON('wo.chat') ? '0px' : '-400px', toggleChat: () => this.setState({ chat: !s.chat, details: false }), chatBtnBg: s.chat ? 'rgba(255,255,255,.16)' : 'transparent',
       chatUnread: 0, chatSub: this.C ? `${this.C.displayId(WO0.key)} · ${this.C.participantsOf(WO0.key).length || 1} people · your step stays open` : WO0.key,
       handover: s.handover || '', setHandover: e => this.setState({ handover: e.target.value }), postHandover: () => this.postHandover(), postBg: (s.handover || '').trim() ? '#C00018' : '#D0D5DD',
       noteNotPosted: !s.notePosted, notePosted: !!s.notePosted,

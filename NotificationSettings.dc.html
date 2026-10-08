@@ -177,12 +177,13 @@ const SAMPLES = {
   'team-message': ['Mechanical team', 'Marc Dupont: “Oil on the floor around the press”', 'Main.dc.html?chat=team'],
 };
 const LV_ICON = { activity: 'bolt', bell: 'notifications', toast: 'web_asset' };
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { N: null, p: null, saved: false, tab: /tab=rules/.test(location.search) ? 'rules' : 'prefs', rf: null, rfErr: {} };
-  componentDidMount() { import('./notif-model.js').then(N => this.setState({ N, p: N.prefs() })); Promise.all([import('./alerts-model.js'), import('./plant-model.js'), import('./collab-model.js')]).then(([A, PL, C]) => this.setState({ A, PL, C })); this._ar = () => this.forceUpdate(); window.addEventListener('cmms-alert-rules', this._ar); }
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU);  import('./notif-model.js').then(N => this.setState({ N, p: N.prefs() })); Promise.all([import('./alerts-model.js'), import('./plant-model.js'), import('./collab-model.js')]).then(([A, PL, C]) => this.setState({ A, PL, C })); this._ar = () => this.forceUpdate(); window.addEventListener('cmms-alert-rules', this._ar); }
   rulesVals() {
-    const s = this.state, A = s.A, PL = s.PL, C = s.C, tabs = [['prefs', 'My preferences', 'tune'], ['rules', 'Alert rules', 'rule']].map(([k, label, icon]) => { const on = s.tab === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ tab: k }) }; });
-    if (!A || !PL || !C) return { tabs, isRules: s.tab === 'rules', isPrefs: s.tab !== 'rules', ruleRows: [], rf: null };
+    const s = this.state, A = s.A, PL = s.PL, C = s.C, tabs = [['prefs', 'My preferences', 'tune'], ['rules', 'Alert rules', 'rule']].filter(([k]) => k !== 'rules' || FON('notif.rules')).map(([k, label, icon]) => { const on = s.tab === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ tab: k }) }; });
+    if (!A || !PL || !C) return { tabs, isRules: (s.tab === 'rules' && FON('notif.rules')), isPrefs: !(s.tab === 'rules' && FON('notif.rules')), ruleRows: [], rf: null };
     const valLabel = (scope, v) => scope === 'asset' ? (PL.asset(v) || { name: v }).name : scope === 'owner' ? C.person(v).name : scope === 'zone' ? (PL.node(v) || { name: v }).name : v;
     const scopeText = r => r.scope === 'all' ? 'All assets' : `${A.SCOPES[r.scope]}: ${(r.values || []).map(v => valLabel(r.scope, v)).join(', ') || '—'}`;
     const trigText = r => r.trigger === 'recurring' ? `≥ ${r.n} corrective WOs on the same asset within ${r.days} days` : r.trigger === 'overdue' ? `Open work order more than ${r.n} d late` : r.trigger === 'control' ? `Control or calibration due within ${r.n} days` : 'Asset stopped or out of service';
@@ -190,7 +191,7 @@ class Component extends DCLogic {
       people: (r.recipients || []).map(k => { const p = C.person(k); return { dp: `${k}|${p.name}`, name: p.name, ini: p.initials, avBg: p.avBg, avFg: p.avFg }; }),
       mLabel: m.length ? `${m.length} asset${m.length > 1 ? 's' : ''}` : 'Nothing right now', mColor: m.length ? '#B54708' : '#667085', mList: m.slice(0, 2),
       toggle: () => A.save({ ...r, active: !r.active }), edit: () => this.setState({ rf: { ...r, values: [...(r.values || [])], recipients: [...(r.recipients || [])] }, rfErr: {} }), del: () => { A.remove(r.id); } }; });
-    const f = s.rf, base = { tabs, isRules: s.tab === 'rules', isPrefs: s.tab !== 'rules', ruleRows, rf: f, newRule: () => this.setState({ rf: { name: '', trigger: 'recurring', n: 3, days: 30, scope: 'all', values: [], recipients: [C.ME], active: true }, rfErr: {} }), closeRule: () => this.setState({ rf: null }) };
+    const f = s.rf, base = { tabs, isRules: (s.tab === 'rules' && FON('notif.rules')), isPrefs: !(s.tab === 'rules' && FON('notif.rules')), ruleRows, rf: f, newRule: () => this.setState({ rf: { name: '', trigger: 'recurring', n: 3, days: 30, scope: 'all', values: [], recipients: [C.ME], active: true }, rfErr: {} }), closeRule: () => this.setState({ rf: null }) };
     if (!f) return base;
     const setF = (k, v) => this.setState(st => ({ rf: { ...st.rf, [k]: v }, rfErr: { ...st.rfErr, [k]: 0 } })), E = k => s.rfErr[k] ? '#F04438' : '#D0D5DD';
     const opts = f.scope === 'asset' ? PL.assets().map(a => ({ v: a.id, l: a.name })) : f.scope === 'owner' ? Object.keys(C.PEOPLE).map(k => ({ v: k, l: C.person(k).name })) : f.scope === 'zone' ? PL.zones().map(z => ({ v: z.id, l: z.name })) : f.scope === 'crit' ? Object.keys(PL.CRIT).map(v => ({ v, l: v })) : [];

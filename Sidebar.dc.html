@@ -48,19 +48,21 @@ const rd = (k, d) => { try { const v = localStorage.getItem(k); return v === nul
 class Component extends DCLogic {
   state = { tip: null, collapsed: rd(KEY, false), setupOpen: null, A: null };
   componentDidMount() {
-    import('./access-model.js').then(A => this.setState({ A })); this._acc = () => this.forceUpdate(); window.addEventListener('cmms-access', this._acc);
+    import('./access-model.js').then(A => this.setState({ A })); import('./maturity-model.js').then(M => this.setState({ M })); window.addEventListener('cmms-maturity', this._acc = this._acc || (() => this.forceUpdate())); this._acc = () => this.forceUpdate(); window.addEventListener('cmms-access', this._acc);
     this._on = e => this.setState({ collapsed: !!e.detail, tip: null });
     window.addEventListener('cmms-nav', this._on);
   }
-  componentWillUnmount() { window.removeEventListener('cmms-nav', this._on); window.removeEventListener('cmms-access', this._acc); }
+  componentWillUnmount() { window.removeEventListener('cmms-nav', this._on); window.removeEventListener('cmms-access', this._acc); window.removeEventListener('cmms-maturity', this._acc); }
   toggle() { const c = !this.state.collapsed; try { localStorage.setItem(KEY, c ? '1' : '0'); } catch (e) {} this.setState({ collapsed: c, tip: null }); window.dispatchEvent(new CustomEvent('cmms-nav', { detail: c })); }
   renderVals() {
     const a = this.props.active ?? 'home', col = this.state.collapsed, A = this.state.A;
     const MOD = { assets: 'assets', workorders: 'workorders', planning: 'planning', parts: 'parts', setup: 'plans', documents: 'documents', teams: 'teams', suppliers: 'suppliers', admin: 'admin', superadmin: 'superadmin' };
-    const ok = it => !A || !MOD[it.key] || A.can(MOD[it.key]);
+    const M = this.state.M, FEAT = { dashboard: 'perf.dashboard', planning: 'plan.module', parts: 'parts.module', plans: 'prev.module', documents: 'docs.module', suppliers: 'parts.suppliers' }, fon = k => !M || !FEAT[k] || M.on(FEAT[k]);
+    const ok = it => (!A || !MOD[it.key] || A.can(MOD[it.key])) && fon(it.key);
     const tipAt = (label) => e => { if (!col) return; const r = e.currentTarget.getBoundingClientRect(); this.setState({ tip: { label, top: r.top + r.height / 2 } }); };
     const mk = (key, label, icon, href, children) => {
-      const kids = (children || []).map(([k, l, h]) => ({ label: l, href: h, bg: k === a ? 'rgba(255,255,255,.1)' : 'transparent', color: k === a ? '#fff' : 'rgba(255,255,255,.66)', weight: k === a ? 600 : 400 }));
+      children = (children || []).filter(c => fon(c[0])); if (children.length && !children.some(c => c[2] === href)) href = children[0][2];
+      const kids = children.map(([k, l, h]) => ({ label: l, href: h, bg: k === a ? 'rgba(255,255,255,.1)' : 'transparent', color: k === a ? '#fff' : 'rgba(255,255,255,.66)', weight: k === a ? 600 : 400 }));
       const act = key === a, childAct = (children || []).some(c => c[0] === a), on = act || (col && childAct);
       const open = kids.length ? (this.state.setupOpen ?? rd(SKEY, childAct || true)) : false;
       return { key, label, icon, href, enter: tipAt(label), showLabel: !col, chevron: !col && kids.length > 0, chevRot: open ? 'rotate(0deg)' : 'rotate(-90deg)',

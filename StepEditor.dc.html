@@ -136,7 +136,7 @@
           <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">Expected result</span><input value="{{ expected }}" onInput="{{ setExpected }}" placeholder="e.g. No visible leak" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label>
         </sc-if>
 
-        <div style="display:flex;flex-direction:column;gap:8px">
+        <div data-feature="cl.media" style="display:flex;flex-direction:column;gap:8px">
           <span style="font-size:12px;font-weight:600;color:#667085">Photos, videos &amp; documents</span>
           <sc-for list="{{ media }}" as="m">
             <div style="display:flex;align-items:center;gap:8px;height:36px;padding:0 4px 0 8px;border:1px solid #E4E7EC;border-radius:6px">
@@ -148,10 +148,10 @@
           <div style="display:flex;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ mediaKinds }}" as="k"><label style="height:32px;display:flex;align-items:center;gap:5px;padding:0 10px 0 8px;border:1px dashed #C4CAD4;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer" style-hover="border-color:#6941C6;color:#6941C6"><span style="font:16px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.label }}<input type="file" accept="{{ k.accept }}" onChange="{{ k.add }}" style="display:none" /></label></sc-for>
           </div>
-          <sc-if value="{{ hasDocRef }}"><dc-import name="DocLinks" kind="step" target="{{ docRef }}" title="From the document library" bare="{{ true }}" empty-text="Link a procedure or drawing from the library — it is shared, so updates reach every step using it." hint-size="100%,80px"></dc-import></sc-if>
+          <sc-if value="{{ hasDocRef }}"><div data-feature="docs.links" style="display:contents"><dc-import name="DocLinks" kind="step" target="{{ docRef }}" title="From the document library" bare="{{ true }}" empty-text="Link a procedure or drawing from the library — it is shared, so updates reach every step using it." hint-size="100%,80px"></dc-import></div></sc-if>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:8px">
+        <div data-feature="cl.skills" style="display:flex;flex-direction:column;gap:8px">
           <span style="font-size:12px;font-weight:600;color:#667085">Who and how long <span style="font-weight:400;color:#98A2B3">· used to suggest people and plan the work</span></span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ stepSkills }}" as="k"><span style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 3px 0 8px;border-radius:14px;background:{{ k.bg }};color:{{ k.fg }};font-size:12px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}<button onClick="{{ k.remove }}" title="Remove skill" style="width:22px;height:22px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:11px;color:inherit;cursor:pointer;opacity:.7"><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></span></sc-for>
@@ -161,7 +161,7 @@
           </div>
         </div>
 
-        <div style="display:flex;flex-direction:column;gap:8px">
+        <div data-feature="cl.tools" style="display:flex;flex-direction:column;gap:8px">
           <span style="font-size:12px;font-weight:600;color:#667085">Mobile equipment needed <span style="font-weight:400;color:#98A2B3">· reserved in Planning when the work order is scheduled</span></span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ stepTools }}" as="k"><span style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 3px 0 8px;border-radius:14px;background:#EAF1FD;color:#2456B8;font-size:12px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}<button onClick="{{ k.remove }}" title="Remove" style="width:22px;height:22px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:11px;color:inherit;cursor:pointer;opacity:.7"><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></span></sc-for>

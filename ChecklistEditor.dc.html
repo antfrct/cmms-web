@@ -221,10 +221,11 @@ const PAL_LIST = [
 const PAL_FLOW = [...PAL_LIST, ['Flow', [['end', 'End block', 'flag', 'Add another way to finish'], ['media:image', 'Image → drop on a step', 'image'], ['media:pdf', 'Document → drop on a step', 'picture_as_pdf']]]];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const NW = 240, NH = 72, TW = 190, TH = 46, ROWH = 140, COLW = 290, TOP = 70;
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { ready: false, cl: null, saved: '', view: URLQ.get('view') === 'flow' ? 'flow' : (this.props.view ?? 'list'), expanded: null, selected: null, drag: null, pal: null, ins: null, zoom: 1, link: null, nodeDrag: null, edge: null, plus: null, focus: '', focusNonce: 0, toast: null, panning: false };
   canvasRef = React.createRef(); innerRef = React.createRef();
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     import('./checklist-model.js').then(M => { const id = URLQ.get('id') || 'pump-seal'; const cl = M.load(id) || M.fromName(id, URLQ.get('name') || 'New checklist'); this.setState({ ready: true, cl, saved: JSON.stringify(cl) }); });
     import('./people-model.js').then(PM => { this.PM = PM; this.forceUpdate(); });
     import('./docs-model.js');
@@ -381,8 +382,8 @@ class Component extends DCLogic {
   renderVals() {
     const M = this.M, s = this.state;
     if (!s.ready || !M) return { name: '', desc: '', views: [], rows: [], isList: true, isFlow: false, palette: [], nodes: [], edges: [], segs: [] };
-    const cl = s.cl, steps = cl.steps, isFlow = s.view === 'flow';
-    const views = [['list', 'Checklist', 'checklist'], ['flow', 'Workflow', 'account_tree']].map(([k, label, icon]) => ({ label, icon, bg: s.view === k ? '#fff' : 'transparent', shadow: s.view === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: FONT(s.view === k ? 600 : 500), color: s.view === k ? '#1E2430' : '#667085', select: () => { this.cancelLink(); this.setState({ view: k, plus: null, edge: null }); } }));
+    const cl = s.cl, steps = cl.steps, isFlow = s.view === 'flow' && FON('cl.workflow');
+    const views = [['list', 'Checklist', 'checklist'], ['flow', 'Workflow', 'account_tree']].filter(([k]) => k !== 'flow' || FON('cl.workflow')).map(([k, label, icon]) => ({ label, icon, bg: s.view === k ? '#fff' : 'transparent', shadow: s.view === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: FONT(s.view === k ? 600 : 500), color: s.view === k ? '#1E2430' : '#667085', select: () => { this.cancelLink(); this.setState({ view: k, plus: null, edge: null }); } }));
     const dirty = JSON.stringify(cl) !== s.saved;
     const up = cl.updated ? (() => { const [d, t] = cl.updated.split('T'), [, m, dd] = d.split('-'); return `Updated ${MONTHS[+m - 1]} ${+dd}, ${t} by ${cl.updatedBy}`; })() : 'Never saved';
     const mk = st => ({ data: st, change: p => this.patch(st.id, p), remove: () => this.removeStep(st.id), duplicate: () => this.duplicate(st.id) });

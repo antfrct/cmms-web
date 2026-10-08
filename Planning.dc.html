@@ -24,7 +24,7 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Planning</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ summary }}</p>
       </div>
-      <sc-if value="{{ adv }}"><sc-if value="{{ isMaint }}"><button onClick="{{ advOptimize }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">auto_fix_high</span>Optimize planning<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if></sc-if>
+      <sc-if value="{{ adv }}"><sc-if value="{{ isMaint }}"><button data-feature="plan.optimize" onClick="{{ advOptimize }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">auto_fix_high</span>Optimize planning<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if></sc-if>
       <sc-if value="{{ isMaint }}" hint-placeholder-val="{{ true }}"><button onClick="{{ createWo }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>Create work order</button></sc-if>
     </header>
 
@@ -114,7 +114,7 @@
           </div>
           <span style="font-weight:600;font-size:14px;white-space:nowrap">{{ rangeLabel }}</span>
           <button onClick="{{ today }}" style="height:30px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Today</button>
-          <sc-if value="{{ showWl }}"><button onClick="{{ openWl }}" title="Hours planned per technician this week" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3"><span style="font:17px/1 'Material Symbols Outlined';color:#667085">bar_chart</span>Workload</button></sc-if>
+          <sc-if value="{{ showWl }}"><button data-feature="plan.workload" onClick="{{ openWl }}" title="Hours planned per technician this week" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 10px 0 8px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3"><span style="font:17px/1 'Material Symbols Outlined';color:#667085">bar_chart</span>Workload</button></sc-if>
           <span style="margin-left:auto;display:flex;align-items:center;gap:4px" aria-label="Technician colours">
             <sc-for list="{{ legend }}" as="p"><button onClick="{{ p.toggle }}" title="{{ p.tip }}" aria-label="{{ p.tip }}" style="position:relative;flex:none;width:26px;height:26px;padding:0;display:grid;place-items:center;background:{{ p.bg }};border:1.5px solid {{ p.border }};border-radius:50%;font:600 9.5px 'IBM Plex Sans',sans-serif;color:{{ p.color }};cursor:pointer;opacity:{{ p.op }}">{{ p.ini }}<sc-if value="{{ p.hasFlag }}"><span style="position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:{{ p.flagColor }};border:1.5px solid #fff"></span></sc-if></button></sc-for>
           </span>
@@ -432,9 +432,10 @@ const AUTO = [
 ];
 const autoCount = () => AUTO.reduce((a, t) => a + t[2].length, 0);
 
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { track: (() => { try { return localStorage.getItem('cmms.planning.track') || 'maint'; } catch (e) { return 'maint'; } })(), load: true, mode: this.props.mode ?? 'week', week: 0, dayIdx: TODAY, events: SEED, backlog: BACKLOG, allday: SEED_ALL, F: EMPTY, dd: null, aq: '', drag: null, over: null, panel: true, panelHot: false, toast: null, wl: false, sugg: null };
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     this._wo = e => { const r = e.detail || {};
       if (r.date && r.date.length >= 16) {
         const day = Math.round((new Date(r.date.slice(0, 10) + 'T12:00') - new Date(2026, 8, 28, 12)) / 864e5), start = +r.date.slice(11, 13) + +r.date.slice(14, 16) / 60, ctx = this._slotCtx || {}; this._slotCtx = null;
@@ -758,7 +759,7 @@ class Component extends DCLogic {
         return { ini: p[0], dot: pc[0], hasFlag: away || over, flag: over ? 'warning' : 'event_busy', tip: `${p[1]} · ${p[2]} — today ${cap ? `${fmtH(lh)} planned of ${fmtH(cap)}` : ab ? ab.label : sh && sh.site !== 'THO' ? 'at ' + PM.SITES[sh.site] : 'not working'}. Click to show only ${p[1].split(' ')[0]}.`,
           bg: on ? pc[0] : pc[1], border: on ? pc[0] : pc[2], color: on ? '#fff' : pc[0], op: any && !on ? 0.45 : 1, flagColor: over ? '#D92D20' : '#F79009', toggle: () => this.setState(st => ({ F: { ...st.F, who: on ? st.F.who.filter(x => x !== p[0]) : [...st.F.who, p[0]] } })) }; }) : [],
       ...(() => { const autoN = autoCount(), mk = (k, label, icon, count, tip) => ({ label, icon, count, tip, bg: s.track === k ? '#fff' : 'transparent', shadow: s.track === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.track === k ? bold : reg, color: s.track === k ? '#1E2430' : '#667085', iconColor: s.track === k ? '#C00018' : '#98A2B3', select: () => { try { localStorage.setItem('cmms.planning.track', k); } catch (e) {} this.setState({ track: k, dd: null, mode: k === 'auto' ? 'week' : s.mode }); } });
-        return { tracks: [mk('maint', 'Maintenance team', 'engineering', weekEv.length, 'Work orders scheduled for maintenance technicians'), mk('auto', 'Autonomous maintenance', 'cleaning_services', autoN, 'Routine standards run by production operators')] }; })(),
+        return { tracks: [mk('maint', 'Maintenance team', 'engineering', weekEv.length, 'Work orders scheduled for maintenance technicians'), ...(FON('plan.auto') ? [mk('auto', 'Autonomous maintenance', 'cleaning_services', autoN, 'Routine standards run by production operators')] : [])] }; })(),
       isMaint: s.track === 'maint', isAuto: s.track === 'auto', isWeekMaint: s.track === 'maint' && s.mode === 'week', showLoadLegend: s.track === 'maint' && s.mode === 'week' && s.load,
       toggleLoad: () => this.setState({ load: !s.load }), loadBtnBg: s.load ? '#FBF7F7' : '#fff', loadBtnBorder: s.load ? '#C00018' : '#D0D5DD',
       ...(() => { if (s.track !== 'auto') return { autoRows: [], autoHead: [], autoKpis: [] };

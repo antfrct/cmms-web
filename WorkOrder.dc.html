@@ -67,7 +67,7 @@
       </div>
       <sc-if value="{{ viewing }}" hint-placeholder-val="{{ true }}">
         <div style="flex:none;display:flex;gap:8px;align-items:center;white-space:nowrap">
-          <button onClick="{{ openChat }}" style="height:38px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">forum</span>Discussion<sc-if value="{{ hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif">{{ unreadN }}</span></sc-if></button>
+          <button data-feature="wo.chat" onClick="{{ openChat }}" style="height:38px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">forum</span>Discussion<sc-if value="{{ hasUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif">{{ unreadN }}</span></sc-if></button>
           <button onClick="{{ startEdit }}" style="height:38px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit</button>
           <sc-if value="{{ canDone }}"><button onClick="{{ markDone }}" title="Already done on site? Record it without running the intervention" style="height:38px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#0B6B4A;cursor:pointer" style-hover="border-color:#0B6B4A;background:#F6FBF8"><span style="font:18px/1 'Material Symbols Outlined'">task_alt</span>Mark as done</button></sc-if>
           <sc-if value="{{ canStart }}" hint-placeholder-val="{{ true }}">
@@ -128,7 +128,7 @@
           </sc-if>
         </section>
 
-        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+        <section data-feature="wo.checklists" style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
           <div style="display:flex;align-items:center;gap:8px;padding:14px 16px 8px">
             <h2 style="margin:0;font-size:14px;font-weight:600">Checklists</h2>
             <span style="color:#667085">{{ clSummary }}</span>
@@ -176,10 +176,10 @@
           <sc-if value="{{ noParts }}"><div style="padding:4px 16px 14px;color:#98A2B3">No spare parts or consumables planned. Technicians can add them during the intervention.</div></sc-if>
         </section>
 
-        <dc-import name="WOCosts" wo-key="{{ docKey }}" wo="{{ costWo }}" parts="{{ costParts }}" actual-ms="{{ costActual }}" hint-size="100%,320px"></dc-import>
+        <div data-feature="wo.costs" style="display:contents"><dc-import name="WOCosts" wo-key="{{ docKey }}" wo="{{ costWo }}" parts="{{ costParts }}" actual-ms="{{ costActual }}" hint-size="100%,320px"></dc-import></div>
 
         <sc-if value="{{ showRca }}">
-          <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px">
+          <section data-feature="wo.rca" style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;align-items:center;gap:8px"><span style="font:18px/1 'Material Symbols Outlined';color:#475467">troubleshoot</span><h2 style="margin:0;font-size:14px;font-weight:600">Root cause analysis</h2><span style="font-size:12px;color:#98A2B3">5 whys · find and remove the cause so the failure does not come back</span>
               <sc-if value="{{ hasRca }}"><button onClick="{{ rcaToggleStatus }}" style="margin-left:auto;height:26px;display:flex;align-items:center;gap:5px;padding:0 10px;background:{{ rcaStBg }};border:0;border-radius:13px;font:600 12px 'IBM Plex Sans',sans-serif;color:{{ rcaStFg }};cursor:pointer"><span style="font:14px/1 'Material Symbols Outlined'">{{ rcaStIcon }}</span>{{ rcaStatus }}</button></sc-if></div>
             <sc-if value="{{ noRca }}"><div style="display:flex;align-items:center;gap:12px;padding:12px;background:#F6F7F9;border-radius:8px"><span style="flex:1;color:#475467;line-height:1.45">{{ rcaHint }}</span><button onClick="{{ rcaStart }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">add</span>Start analysis</button></div></sc-if>
@@ -200,7 +200,7 @@
           </section>
         </sc-if>
 
-        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding-bottom:8px">
+        <section data-feature="wo.history" style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding-bottom:8px">
           <div style="display:flex;align-items:baseline;gap:8px;padding:14px 16px 6px"><h2 style="margin:0;font-size:14px;font-weight:600">History</h2><span style="font-size:12px;color:#98A2B3">Status, assignment, priority and date changes — who and when</span></div>
           <sc-for list="{{ activity }}" as="a">
             <div style="display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:10px;padding:7px 16px;align-items:start">
@@ -213,7 +213,7 @@
       </div>
 
       <div style="min-height:0;overflow:auto;display:flex;flex-direction:column;gap:16px;min-width:0;padding-bottom:24px">
-        <section ref="{{ chatRef }}" style="background:#fff;border:1px solid {{ chatBorder }};border-radius:8px;overflow:hidden;display:flex;flex-direction:column;flex:none;height:500px">
+        <section data-feature="wo.chat" ref="{{ chatRef }}" style="background:#fff;border:1px solid {{ chatBorder }};border-radius:8px;overflow:hidden;display:flex;flex-direction:column;flex:none;height:500px">
           <div style="flex:none;display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid #EEF0F3">
             <span style="font:18px/1 'Material Symbols Outlined';color:#475467">forum</span>
             <h2 style="margin:0;font-size:14px;font-weight:600">Discussion</h2>
@@ -288,7 +288,7 @@
           </div>
         </section>
 
-        <dc-import name="DocLinks" kind="wo" target="{{ docKey }}" title="Documents" empty-text="No documents linked. Link procedures or drawings the technician needs on site." hint-size="100%,140px"></dc-import>
+        <div data-feature="docs.links" style="display:contents"><dc-import name="DocLinks" kind="wo" target="{{ docKey }}" title="Documents" empty-text="No documents linked. Link procedures or drawings the technician needs on site." hint-size="100%,140px"></dc-import></div>
       </div>
     </div>
   </main>

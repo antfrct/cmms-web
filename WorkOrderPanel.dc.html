@@ -21,7 +21,7 @@
     </div>
     <div style="flex:none;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 20px 12px;border-bottom:1px solid #EEF0F3">
       <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
-        <button onClick="{{ st.go }}" style="display:flex;flex-direction:column;gap:6px;padding:0;background:transparent;border:0;cursor:{{ st.cursor }};text-align:left;font-family:inherit">
+        <button data-feature="{{ st.feat }}" onClick="{{ st.go }}" style="display:flex;flex-direction:column;gap:6px;padding:0;background:transparent;border:0;cursor:{{ st.cursor }};text-align:left;font-family:inherit">
           <span style="height:4px;border-radius:2px;background:{{ st.bar }}"></span>
           <span style="display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:{{ st.weight }};color:{{ st.color }};white-space:nowrap"><span style="font:15px/1 'Material Symbols Outlined'">{{ st.icon }}</span>{{ st.label }}</span>
           <span style="font-size:11px;color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ st.hint }}</span>
@@ -229,10 +229,11 @@ let LIVE_PARTS = null;
 const partsList = () => LIVE_PARTS ? LIVE_PARTS().map(p => [p.ref, p.name, p.qty, p.min]) : PARTS;
 const partMeta = (ref, fb = {}) => { const p = partsList().find(x => x[0] === ref); return p ? { name: p[1], stock: p[2], min: p[3] } : { name: fb.name || ref, stock: fb.stock ?? 0, min: 1 }; };
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   dateErrors() { const f = this.state.form, e = {}; if (!f.requested) e.requested = 'Request date is required'; else if (f.requested > nowIso()) e.requested = 'Request date cannot be in the future'; if (f.due && f.requested && f.due.slice(0, 16) < f.requested.slice(0, 16)) e.due = 'Desired date is before the request date'; if (!(f.desc || '').trim()) e.desc = 'Description is required'; return e; }
   state = { another: false, drawer: false, step: 0, form: blank(), prefilled: false, picker: false, pq: '', toast: null, toastHref: '#', C: null, CL: null, PE: null, PL: null };
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     import('./cost-model.js').then(() => this.forceUpdate());
     Promise.all([import('./collab-model.js'), import('./checklist-model.js'), import('./people-model.js'), import('./plant-model.js'), import('./config-model.js'), import('./parts-model.js')]).then(([C, CL, PE, PL, CFG, PA]) => { LIVE_PARTS = PA.parts; this.setState({ C, CL, PE, PL, CFG, PA }); });
     this._open = e => { const AC = window.RelixAccess; if (AC && !AC.can('workorders', 'E')) { this.setState({ toast: 'Your role cannot create work orders — send an intervention request instead', toastHref: '#' }); clearTimeout(this._denyT); this._denyT = setTimeout(() => this.setState({ toast: null }), 3200); return; }
@@ -330,7 +331,7 @@ class Component extends DCLogic {
     return {
       drawerOpen: s.drawer, closeDrawer: () => this.setState({ drawer: false, picker: false }),
       drawerSub: `Step ${step + 1} of ${STEPS.length} · ${STEPS[step][0]}${s.prefilled && a ? ' · ' + a[1] : ''}`,
-      steps: STEPS.map(([label, icon], i) => { const reach = i <= step || ok0; return { label, icon, hint: hintFor(i), cursor: reach ? 'pointer' : 'not-allowed',
+      steps: STEPS.map(([label, icon], i) => { const reach = i <= step || ok0; return { feat: i === 1 ? 'wo.checklists' : '', label, icon, hint: hintFor(i), cursor: reach ? 'pointer' : 'not-allowed',
         bar: i === step ? '#C00018' : i < step || (i === 0 && ok0) ? '#1E2430' : '#E4E7EC', color: i === step ? '#1E2430' : reach ? '#667085' : '#98A2B3', weight: i === step ? 600 : 500, go: () => reach && this.setState({ step: i, picker: false }) }; }),
       isS1: step === 0, isS3: step === 1, isS2: step === 2, isS4: step === 3,
       f, assetName: a ? a[1] : '', hasAssetPath: !!(a && PL && a[3]), assetPath: a && PL && a[3] ? PL.pathOf(a[3]) : '',
@@ -360,9 +361,9 @@ class Component extends DCLogic {
       docs: f.docs.map((name, i) => ({ name, remove: () => this.setF('docs', f.docs.filter((_, j) => j !== i)) })),
       addDoc: () => this.setF('docs', [...f.docs, ['Repair procedure.pdf', 'Electrical drawing.pdf', 'Manufacturer manual.pdf'][f.docs.length % 3]]),
       backIcon: step > 0 ? 'chevron_left' : 'close', backLabel: step > 0 ? 'Previous' : 'Cancel',
-      back: () => step > 0 ? this.setState({ step: step - 1, picker: false }) : this.setState({ drawer: false }),
+      back: () => step > 0 ? this.setState({ step: step - 1 - (step === 2 && !FON('wo.checklists') ? 1 : 0), picker: false }) : this.setState({ drawer: false }),
       footNote: !stepOk ? `Required: ${miss.join(', ')}` : step < 3 ? `Next: ${STEPS[step + 1][0]}` : '',
-      canNext: step < 3, isLast: step === 3, nextDisabled: !stepOk, next: () => stepOk && this.setState({ step: step + 1, picker: false }),
+      canNext: step < 3, isLast: step === 3, nextDisabled: !stepOk, next: () => stepOk && this.setState({ step: step + 1 + (step === 0 && !FON('wo.checklists') ? 1 : 0), picker: false }),
       nextBg: stepOk ? '#C00018' : '#F2F4F7', nextColor: stepOk ? '#fff' : '#98A2B3', nextCursor: stepOk ? 'pointer' : 'not-allowed',
       create: () => this.create(), toast: s.toast, toastHref: s.toastHref,
       ...(() => { const de = this.dateErrors(), blocked = step === 3 && (this.conflicts().length > 0 || Object.keys(this.cfErrors()).length > 0 || Object.keys(de).length > 0); return { createDisabled: blocked, createBg: blocked ? '#F2F4F7' : '#C00018', createColor: blocked ? '#98A2B3' : '#fff', createCursor: blocked ? 'not-allowed' : 'pointer',

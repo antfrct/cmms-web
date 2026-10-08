@@ -24,7 +24,7 @@
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Spare parts</h1>
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ subtitle }}</p>
       </div>
-      <sc-if value="{{ adv }}"><button onClick="{{ advForecast }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">query_stats</span>Forecast &amp; optimize stock<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
+      <sc-if value="{{ adv }}"><button data-feature="parts.forecast" onClick="{{ advForecast }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">query_stats</span>Forecast &amp; optimize stock<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
       <a href="Suppliers.dc.html" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">local_shipping</span>Suppliers</a>
       <button onClick="{{ doExport }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">download</span>Export CSV</button>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New item</button>
@@ -46,7 +46,7 @@
           <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span>
           <input value="{{ q }}" onInput="{{ setQ }}" placeholder="Name, reference, item code, EAN, supplier…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif;background:transparent" />
         </label>
-        <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
+        <div data-feature="parts.consumables" style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
           <sc-for list="{{ kinds }}" as="k" hint-placeholder-count="3"><button onClick="{{ k.select }}" style="height:30px;display:flex;align-items:center;gap:5px;padding:0 10px;background:{{ k.bg }};border:0;border-radius:5px;box-shadow:{{ k.shadow }};font:{{ k.font }};color:{{ k.color }};cursor:pointer;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined';color:{{ k.iconColor }}">{{ k.icon }}</span>{{ k.label }}<span style="font-size:11.5px;color:#98A2B3">{{ k.count }}</span></button></sc-for>
         </div>
         <sc-for list="{{ selects }}" as="s" hint-placeholder-count="3">
@@ -300,10 +300,11 @@ const FIN = () => !!(window.RelixAccess && window.RelixAccess.canFinance());
 const QS = new URLSearchParams(location.search);
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
 const SEED_MOVES = [['remove', 'Consumed', 'Conveyor Line 3 — Sensor check · S. Martin', '−2', 'Today', '#B42318'], ['add', 'Received', 'Purchase order PO-44821', '+20', 'Sep 18', '#0B6B4A'], ['tune', 'Inventory adjustment', 'Cycle count · P. Leroy', '+1', 'Sep 2', '#475467']];
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { M: null, v: 0, q: QS.get('q') || '', view: this.props.view ?? 'list', cat: QS.get('cat') || '', store: '', cc: QS.get('cc') || '', kind: QS.get('kind') || '', kpi: this.props.filter ?? '', detail: null, form: null, aq: '', confirm: null, adj: 'out', adjQty: '1', adjReason: 'Consumed on work order', toast: null };
   fileRef = React.createRef();
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     Promise.all(['./parts-model.js', './config-model.js', './plant-model.js'].map(p => import(p))).then(([PA, CFG, PL]) => { const st = QS.get('store'); const sn = st && PL.storages().find(n => n.name === st || n.id === st); this.setState({ M: { PA, CFG, PL }, store: sn ? sn.id : '' }, () => { const q = QS.get('q'); if (q) { const p = PA.part(q); if (p) this.setState({ detail: p.ref }); } }); });
     this._r = () => this.setState(s => ({ v: s.v + 1 })); ['cmms-parts', 'cmms-suppliers', 'cmms-config'].forEach(e => window.addEventListener(e, this._r));
     this._k = e => { if (e.key === 'Escape') this.setState({ form: null, detail: null, confirm: null }); }; window.addEventListener('keydown', this._k);
@@ -401,9 +402,9 @@ class Component extends DCLogic {
       ...this.advVals(),
       subtitle: `Replacement parts and consumables · ${all.length - nCons} parts · ${nCons} consumables`,
       kinds: [['', 'All', 'apps', all.length], ['part', 'Replacement parts', 'settings', all.length - nCons], ['consumable', 'Consumables', 'water_drop', nCons]].map(([k, label, icon, count]) => { const on = s.kind === k; return { label, icon, count, iconColor: k === 'consumable' ? '#0E7490' : '#667085', bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ kind: k }) }; }),
-      kpis, rows, empty: !rows.length, isList: s.view !== 'catalog', isCatalog: s.view === 'catalog',
-      views: [['list', 'List', 'table_rows'], ['catalog', 'Catalog', 'grid_view']].map(([k, label, icon]) => { const on = (s.view === 'catalog') === (k === 'catalog'); return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) }; }),
-      selects: [sel('cat', 'All categories', cats.map(c => ({ v: c.name, l: c.name }))), sel('store', 'All storage areas', stores.map(n => ({ v: n.id, l: `${n.name} · ${PL.zoneOf(n.id).name}` }))), sel('cc', 'All cost centers', ccs.map(c => ({ v: c.code, l: `${c.code} · ${c.name}` })))],
+      kpis, rows, empty: !rows.length, isList: s.view !== 'catalog' || !FON('parts.catalog'), isCatalog: s.view === 'catalog' && FON('parts.catalog'),
+      views: [['list', 'List', 'table_rows'], ['catalog', 'Catalog', 'grid_view']].filter(([k]) => k !== 'catalog' || FON('parts.catalog')).map(([k, label, icon]) => { const on = (s.view === 'catalog') === (k === 'catalog'); return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ view: k }) }; }),
+      selects: [sel('cat', 'All categories', cats.map(c => ({ v: c.name, l: c.name }))), ...(FON('parts.stores') ? [sel('store', 'All storage areas', stores.map(n => ({ v: n.id, l: `${n.name} · ${PL.zoneOf(n.id).name}` })))] : []), sel('cc', 'All cost centers', ccs.map(c => ({ v: c.code, l: `${c.code} · ${c.name}` })))],
       q: s.q, setQ: e => this.setState({ q: e.target.value }), hasFilters: !!(q || s.cat || s.store || s.kpi || s.cc || s.kind), resetFilters: () => this.setState({ q: '', cat: '', store: '', kpi: '', cc: '', kind: '' }),
       countLabel: `${list.length} of ${all.length} items`, pager: { total: list.length, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
       doExport: () => { const head = ['Reference', 'Item type', 'Usage recorded as', 'Item code', 'GTIN', 'Name', 'Category', 'Storage', 'Bin', 'Qty', 'Min', 'Max', 'Unit', 'Unit cost', 'Supplier', 'Cost center', 'Linked equipment'];

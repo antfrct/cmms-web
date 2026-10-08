@@ -165,7 +165,7 @@
             </sc-for>
             <sc-if value="{{ noNotif }}"><div style="padding:36px 16px;text-align:center;color:#667085"><span style="display:block;font:28px/1 'Material Symbols Outlined';color:#98A2B3;margin-bottom:8px">notifications_off</span>You're all caught up.</div></sc-if>
           </div>
-          <a href="NotificationSettings.dc.html" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12.5px;font-weight:600;color:#475467"><span style="font:16px/1 'Material Symbols Outlined'">tune</span>Notification settings</a>
+          <a data-feature="notif.prefs" href="NotificationSettings.dc.html" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-top:1px solid #EEF0F3;background:#F9FAFB;font-size:12.5px;font-weight:600;color:#475467"><span style="font:16px/1 'Material Symbols Outlined'">tune</span>Notification settings</a>
         </div>
       </sc-if>
     </div>
@@ -191,7 +191,7 @@
             <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">Gaudéric Durand</span><span style="font-size:12px;color:#667085">{{ role }} · Mechanical team</span></span>
           </div>
           <button onClick="{{ openMyProfile }}" style="width:100%;display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;background:transparent;border:0;border-radius:6px;color:#1E2430;font:13px 'IBM Plex Sans',sans-serif;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">person</span>My profile<span style="margin-left:auto;font-size:11.5px;color:#98A2B3">skills, availability</span></button>
-          <a href="NotificationSettings.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">notifications_active</span>Notification settings</a>
+          <a data-feature="notif.prefs" href="NotificationSettings.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">notifications_active</span>Notification settings</a>
           <sc-if value="{{ isSA }}"><a href="SuperAdmin.dc.html" style="display:flex;align-items:center;gap:10px;height:36px;padding:0 8px;border-radius:6px;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">admin_panel_settings</span>Super Admin<span style="margin-left:auto;font-size:11.5px;color:#98A2B3">organization</span></a></sc-if>
           <sc-if value="{{ canPreview }}">
             <div style="height:1px;background:#EEF0F3;margin:4px 0"></div>
@@ -216,6 +216,16 @@
         <span style="font-size:16px;font-weight:600">{{ guardTitle }}</span>
         <span style="font-size:13px;color:#667085;line-height:1.5;text-wrap:pretty">{{ guardText }}</span>
         <a href="Main.dc.html" style="margin-top:6px;height:34px;display:flex;align-items:center;gap:6px;padding:0 14px;background:#C00018;border-radius:6px;color:#fff;font-weight:600;font-size:13px">Go to Home</a>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ matOff }}">
+    <div style="position:fixed;top:56px;left:{{ guardLeft }};right:0;bottom:0;z-index:79;background:#F6F7F9;display:grid;place-items:center;font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1E2430">
+      <div style="width:440px;display:flex;flex-direction:column;align-items:center;gap:10px;padding:32px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;text-align:center">
+        <span style="width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:#FEF7E6;color:#B54708;font:24px/1 'Material Symbols Outlined'">toggle_off</span>
+        <span style="font-size:16px;font-weight:600">{{ matTitle }}</span>
+        <span style="font-size:13px;color:#667085;line-height:1.5;text-wrap:pretty">{{ matText }}</span>
+        <div style="margin-top:6px;display:flex;gap:8px"><a href="Main.dc.html" style="height:34px;display:flex;align-items:center;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font-weight:600;font-size:13px;text-decoration:none">Go to Home</a><a href="Administration.dc.html?section=maturity" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px;background:#C00018;border-radius:6px;color:#fff;font-weight:600;font-size:13px;text-decoration:none">Maturity levels</a></div>
       </div>
     </div>
   </sc-if>
@@ -302,6 +312,7 @@ class Component extends DCLogic {
     this._key = e => { if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) { e.preventDefault(); this.inputRef.current && this.inputRef.current.focus(); } };
     window.addEventListener('cmms-nav', this._nav); window.addEventListener('keydown', this._key);
     import((window.__resources && window.__resources.sitesModel) || './sites-model.js').then(S => this.setState({ site: S.current().id }));
+    import('./maturity-model.js').then(M => this.setState({ M })); this._mat = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._mat);
     import('./access-model.js').then(A => { this.setState({ A }); this.applyPerm(); }); this._acc = () => { this.forceUpdate(); this.applyPerm(); }; window.addEventListener('cmms-access', this._acc);
     this._site = e => this.setState({ site: e.detail }); this._siteOpen = () => this.setState({ menu: 'sites', siteQ: '' });
     window.addEventListener('cmms-site', this._site); window.addEventListener('cmms-site-open', this._siteOpen);
@@ -316,7 +327,11 @@ class Component extends DCLogic {
   // Read-only modules: hide the page's primary create action (red header button) for users with View access.
   applyPerm() { const A = this.state.A; if (!A) return; const mod = A.moduleOfPath(location.pathname), ro = !!mod && mod !== 'superadmin' && A.level(mod) === 'V'; let el = document.getElementById('relix-perm');
     if (ro && !el) { el = document.createElement('style'); el.id = 'relix-perm'; el.textContent = 'main header button[style*="background: rgb(192, 0, 24)"]{display:none!important}'; document.head.appendChild(el); } else if (!ro && el) el.remove(); }
-  accessVals() {
+  accessVals() { return { ...this._accessVals(), ...this.matVals() }; }
+  matVals() { const M = this.state.M, f = M && M.pageFeature(location.pathname); if (!f || M.on(f)) return { matOff: false };
+    const F = M.feature(f), c = M.CONCEPTS.find(x => x.key === F.concept), req = F.req && !M.on(F.req) && M.feature(F.req);
+    return { matOff: true, guardLeft: this.state.collapsed ? '64px' : '232px', matTitle: `${F.name} is not used at this site`, matText: `This site's maturity settings switch off ${F.name.toLowerCase()} (${c.name} · ${M.LEVELS[F.level - 1][1]} level${req ? `, needs ${req.name}` : ''}). A site administrator can turn it on in Site configuration › Maturity levels.` }; }
+  _accessVals() {
     const A = this.state.A; if (!A) return { noAccess: false, viewOnly: false, previewing: false, canPreview: false, isSA: false, previewUsers: [], previewId: '' };
     const mod = A.moduleOfPath(location.pathname), lvl = mod === 'superadmin' ? (A.can('superadmin') && !A.previewAs() ? 'F' : '-') : mod ? A.level(mod) : 'F';
     const MODN = Object.fromEntries(A.MODULES), rn = A.role(A.roleOf()).name, pv = A.previewAs(), pu = pv ? A.user(pv) : null;
@@ -329,7 +344,7 @@ class Component extends DCLogic {
       previewUsers: A.users().filter(u => u.id !== A.SIGNED_IN && u.status !== 'Deactivated').map(u => ({ id: u.id, label: `${u.name} — ${A.role(u.role).name}${u.financial ? ' + Financial' : ''}` })),
       setPreview: e => { A.setPreviewAs(e.target.value || null); location.reload(); }, isSA: A.isSuperAdmin(A.SIGNED_IN) && !pv };
   }
-  componentWillUnmount() { window.removeEventListener('cmms-access', this._acc); clearTimeout(this._gen); clearInterval(this._tick); clearTimeout(this._demo); window.removeEventListener('cmms-notif', this._notif); window.removeEventListener('cmms-notif-prefs', this._prefs); ['cmms-nav', 'keydown', 'cmms-site', 'cmms-site-open'].forEach((k, i) => window.removeEventListener(k, [this._nav, this._key, this._site, this._siteOpen][i])); clearTimeout(this._t); }
+  componentWillUnmount() { window.removeEventListener('cmms-access', this._acc); window.removeEventListener('cmms-maturity', this._mat); clearTimeout(this._gen); clearInterval(this._tick); clearTimeout(this._demo); window.removeEventListener('cmms-notif', this._notif); window.removeEventListener('cmms-notif-prefs', this._prefs); ['cmms-nav', 'keydown', 'cmms-site', 'cmms-site-open'].forEach((k, i) => window.removeEventListener(k, [this._nav, this._key, this._site, this._siteOpen][i])); clearTimeout(this._t); }
   pushToast(d) {
     const N = this.state.N; if (!N) return;
     const type = d.type || 'wo-message'; if (N.levelOf(type) !== 'toast') return;

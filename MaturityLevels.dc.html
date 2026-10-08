@@ -11,13 +11,13 @@
   <section style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;padding:20px;background:#FBF8F3;border:1px solid #F1E6D2;border-radius:10px">
     <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
       <span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#93370D">Site maturity · {{ siteName }}</span>
-      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-size:40px;line-height:44px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ earned }}</span><span style="font-size:20px;font-weight:600;color:#667085">/ {{ max }}</span><span style="font:28px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#E3A008">star</span><span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:13px;background:#fff;border:1px solid #F1E6D2;font-size:12.5px;font-weight:600;color:#93370D">{{ stage }}</span></div>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-size:40px;line-height:44px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ earned }}</span><span style="font-size:20px;font-weight:600;color:#667085">/ {{ max }}</span><span style="font:28px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#E3A008">star</span><span style="height:26px;display:inline-flex;align-items:center;padding:0 10px;border-radius:13px;background:#fff;border:1px solid #F1E6D2;font-size:12.5px;font-weight:600;color:#93370D">{{ stage }}</span><sc-if value="{{ custom }}"><span style="height:26px;display:inline-flex;align-items:center;gap:5px;padding:0 10px;border-radius:13px;background:#fff;border:1px solid #D0D5DD;font-size:12.5px;font-weight:600;color:#344054"><span style="font:15px/1 'Material Symbols Outlined'">tune</span>{{ customLabel }}</span></sc-if></div>
       <p style="margin:0;color:#475467;line-height:1.5;text-wrap:pretty">{{ stageText }}</p>
       <div style="display:flex;flex-direction:column;gap:6px">
         <div style="position:relative;height:12px;border-radius:6px;background:#EFE6D6;overflow:hidden"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ pct }};border-radius:6px;background:linear-gradient(90deg,#F2B544,#E3A008);transition:width .4s"></span></div>
         <div style="display:flex;justify-content:space-between;font-size:11.5px;color:#98A2B3"><sc-for list="{{ stages }}" as="g"><span style="font-weight:{{ g.w }};color:{{ g.c }}">{{ g.label }}</span></sc-for></div>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ dist }}" as="d"><span style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;background:#fff;border:1px solid #EEF0F3;border-radius:14px;font-size:12.5px;color:#344054"><span style="display:flex"><sc-for list="{{ d.stars }}" as="s"><span style="font:14px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span><b style="font-weight:600">{{ d.n }}</b> {{ d.label }}</span></sc-for></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ dist }}" as="d"><span style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;background:#fff;border:1px solid #EEF0F3;border-radius:14px;font-size:12.5px;color:#344054"><span style="display:flex"><sc-for list="{{ d.stars }}" as="s"><span style="font:14px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span><b style="font-weight:600">{{ d.n }}</b> {{ d.label }}</span></sc-for><span style="height:28px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;background:#fff;border:1px solid #EEF0F3;border-radius:14px;font-size:12.5px;color:#344054"><span style="font:15px/1 'Material Symbols Outlined';color:#0B6B4A">toggle_on</span><b style="font-weight:600">{{ fOn }}</b> of {{ fTotal }} features on</span></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
       <span style="font-size:13px;font-weight:600">{{ nextTitle }}</span>
@@ -32,80 +32,151 @@
     </div>
   </section>
 
-  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-    <h3 style="margin:0;font-size:15px;font-weight:600">Maturity by area</h3>
-    <span style="font-size:12.5px;color:#667085">Pick the level that matches how your site works today. You can change it at any time.</span>
-    <div style="margin-left:auto;display:flex;padding:2px;background:#EEF0F3;border-radius:7px"><sc-for list="{{ filters }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.select }}" style="height:28px;padding:0 10px;background:{{ f.bg }};border:0;border-radius:5px;box-shadow:{{ f.shadow }};font:{{ f.font }};color:{{ f.color }};cursor:pointer;white-space:nowrap">{{ f.label }}</button></sc-for></div>
+  <div style="display:flex;align-items:flex-end;gap:16px;border-bottom:1px solid #E4E7EC">
+    <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.select }}" style="position:relative;height:40px;display:flex;align-items:center;gap:6px;padding:0 4px;background:transparent;border:0;font:{{ t.font }};color:{{ t.color }};cursor:pointer;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}<sc-if value="{{ t.hasCount }}"><span style="height:18px;display:inline-flex;align-items:center;padding:0 6px;border-radius:9px;background:#F2F4F7;color:#475467;font-size:11.5px;font-weight:600">{{ t.count }}</span></sc-if><span style="position:absolute;left:0;right:0;bottom:-1px;height:2px;background:{{ t.bar }}"></span></button></sc-for>
   </div>
 
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ minCol }},1fr));gap:14px">
-    <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
-      <article style="display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff;border:1px solid {{ c.border }};border-radius:10px;transition:border-color .2s">
-        <div style="display:flex;align-items:center;gap:12px">
-          <span style="flex:none;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;background:#F2F4F7;color:#344054;font:20px/1 'Material Symbols Outlined'">{{ c.icon }}</span>
-          <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:14.5px;font-weight:600">{{ c.name }}</span><span style="font-size:12px;color:#667085">{{ c.tagline }}</span></span>
-          <span style="flex:none;display:flex;gap:1px"><sc-for list="{{ c.stars }}" as="s"><span style="font:20px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
-          <sc-for list="{{ c.opts }}" as="o">
-            <button onClick="{{ o.pick }}" onMouseEnter="{{ o.hover }}" onMouseLeave="{{ o.leave }}" title="{{ o.tip }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 10px;background:{{ o.bg }};border:1.5px solid {{ o.border }};border-radius:8px;cursor:pointer;text-align:left;font-family:inherit" style-hover="border-color:#E3A008">
-              <span style="display:flex;gap:0"><sc-for list="{{ o.stars }}" as="s"><span style="font:15px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>
-              <span style="font-size:12.5px;font-weight:600;color:{{ o.color }}">{{ o.name }}</span>
-            </button>
-          </sc-for>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;min-height:72px">
-          <p style="margin:0;line-height:1.5;color:#344054;text-wrap:pretty"><b style="font-weight:600">{{ c.showLabel }}</b> — {{ c.desc }}</p>
-          <div style="display:flex;flex-wrap:wrap;gap:5px"><sc-for list="{{ c.can }}" as="k"><span style="height:22px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:11px;background:{{ c.chipBg }};color:{{ c.chipFg }};font-size:11.5px;font-weight:500"><span style="font:13px/1 'Material Symbols Outlined'">{{ c.chipIcon }}</span>{{ k }}</span></sc-for></div>
-        </div>
-        <sc-if value="{{ c.hasNext }}"><span style="margin-top:auto;padding-top:10px;border-top:1px solid #F2F4F7;font-size:12px;color:#667085">Next step · <b style="font-weight:600;color:#93370D">{{ c.nextName }}</b> adds {{ c.nextAdds }}</span></sc-if>
-        <sc-if value="{{ c.isTop }}"><span style="margin-top:auto;padding-top:10px;border-top:1px solid #F2F4F7;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#0B6B4A"><span style="font:15px/1 'Material Symbols Outlined'">workspace_premium</span>Full potential reached</span></sc-if>
-      </article>
-    </sc-for>
-  </div>
+  <sc-if value="{{ isLevels }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:12.5px;color:#667085">Pick the level that matches how your site works today. Relix shows only the features of the chosen levels.</span>
+        <div style="margin-left:auto;display:flex;padding:2px;background:#EEF0F3;border-radius:7px"><sc-for list="{{ filters }}" as="f" hint-placeholder-count="3"><button onClick="{{ f.select }}" style="height:28px;padding:0 10px;background:{{ f.bg }};border:0;border-radius:5px;box-shadow:{{ f.shadow }};font:{{ f.font }};color:{{ f.color }};cursor:pointer;white-space:nowrap">{{ f.label }}</button></sc-for></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ minCol }},1fr));gap:14px">
+        <sc-for list="{{ cards }}" as="c" hint-placeholder-count="6">
+          <article style="display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff;border:1px solid {{ c.border }};border-radius:10px;transition:border-color .2s">
+            <div style="display:flex;align-items:center;gap:12px">
+              <span style="flex:none;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;background:#F2F4F7;color:#344054;font:20px/1 'Material Symbols Outlined'">{{ c.icon }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:14.5px;font-weight:600">{{ c.name }}</span><span style="font-size:12px;color:#667085">{{ c.tagline }}</span></span>
+              <span style="flex:none;display:flex;gap:1px"><sc-for list="{{ c.stars }}" as="s"><span style="font:20px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px">
+              <sc-for list="{{ c.opts }}" as="o">
+                <button onClick="{{ o.pick }}" onMouseEnter="{{ o.hover }}" onMouseLeave="{{ o.leave }}" title="{{ o.tip }}" style="display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:8px 10px;background:{{ o.bg }};border:1.5px solid {{ o.border }};border-radius:8px;cursor:pointer;text-align:left;font-family:inherit" style-hover="border-color:#E3A008">
+                  <span style="display:flex;gap:0"><sc-for list="{{ o.stars }}" as="s"><span style="font:15px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>
+                  <span style="font-size:12.5px;font-weight:600;color:{{ o.color }}">{{ o.name }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;min-height:72px">
+              <p style="margin:0;line-height:1.5;color:#344054;text-wrap:pretty"><b style="font-weight:600">{{ c.showLabel }}</b> — {{ c.desc }}</p>
+              <div style="display:flex;flex-wrap:wrap;gap:5px"><sc-for list="{{ c.can }}" as="k"><span style="height:22px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:11px;background:{{ c.chipBg }};color:{{ c.chipFg }};font-size:11.5px;font-weight:500"><span style="font:13px/1 'Material Symbols Outlined'">{{ c.chipIcon }}</span>{{ k }}</span></sc-for></div>
+            </div>
+            <sc-if value="{{ c.isCustom }}"><div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F6F7F9;border-radius:8px;font-size:12px;color:#475467"><span style="font:16px/1 'Material Symbols Outlined';color:#344054">tune</span><span style="flex:1">{{ c.customText }}</span><button onClick="{{ c.seeCustom }}" style="padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;white-space:nowrap">See features</button><button onClick="{{ c.resetCustom }}" style="padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer;white-space:nowrap">Reset to level</button></div></sc-if>
+            <sc-if value="{{ c.hasNext }}"><span style="margin-top:auto;padding-top:10px;border-top:1px solid #F2F4F7;font-size:12px;color:#667085">Next step · <b style="font-weight:600;color:#93370D">{{ c.nextName }}</b> adds {{ c.nextAdds }}</span></sc-if>
+            <sc-if value="{{ c.isTop }}"><span style="margin-top:auto;padding-top:10px;border-top:1px solid #F2F4F7;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#0B6B4A"><span style="font:15px/1 'Material Symbols Outlined'">workspace_premium</span>Full potential reached</span></sc-if>
+          </article>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isFeatures }}">
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="position:relative;display:flex;align-items:center;width:240px"><span style="position:absolute;left:9px;font:18px/1 'Material Symbols Outlined';color:#98A2B3;pointer-events:none">search</span><input value="{{ q }}" onInput="{{ setQ }}" placeholder="Search a feature…" style="width:100%;height:34px;padding:0 10px 0 34px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;background:#fff" style-focus="border-color:#98A2B3" /></span>
+        <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px"><sc-for list="{{ ffilters }}" as="f" hint-placeholder-count="4"><button onClick="{{ f.select }}" style="height:28px;padding:0 10px;background:{{ f.bg }};border:0;border-radius:5px;box-shadow:{{ f.shadow }};font:{{ f.font }};color:{{ f.color }};cursor:pointer;white-space:nowrap">{{ f.label }}</button></sc-for></div>
+        <span style="font-size:12.5px;color:#667085">Switch any feature on or off. Changes apply to the whole site right away.</span>
+        <sc-if value="{{ custom }}"><button onClick="{{ resetAllCustom }}" style="margin-left:auto;height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:18px/1 'Material Symbols Outlined'">restart_alt</span>Back to levels only</button></sc-if>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax({{ minCol }},1fr));gap:14px;align-items:start">
+        <sc-for list="{{ groups }}" as="g" hint-placeholder-count="4">
+          <section style="background:#fff;border:1px solid #E4E7EC;border-radius:10px;overflow:hidden">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #EEF0F3">
+              <span style="flex:none;width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:#F2F4F7;color:#344054;font:18px/1 'Material Symbols Outlined'">{{ g.icon }}</span>
+              <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:600">{{ g.name }}</span><span style="font-size:12px;color:#667085">{{ g.sub }}</span></span>
+              <span title="{{ g.levelTip }}" style="flex:none;height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:12px;background:#FEF7E6;color:#93370D;font-size:12px;font-weight:600"><span style="display:flex"><sc-for list="{{ g.stars }}" as="s"><span style="font:13px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span>{{ g.levelName }}</span>
+              <sc-if value="{{ g.isCustom }}"><button onClick="{{ g.reset }}" title="Reset this area to its level" style="flex:none;height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 8px;border-radius:12px;background:#F2F4F7;border:0;color:#344054;font:600 12px 'IBM Plex Sans',sans-serif;cursor:pointer"><span style="font:14px/1 'Material Symbols Outlined'">tune</span>{{ g.customN }} custom<span style="font:14px/1 'Material Symbols Outlined';color:#98A2B3">close</span></button></sc-if>
+            </div>
+            <sc-for list="{{ g.rows }}" as="r">
+              <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:{{ r.sep }};background:{{ r.bg }};opacity:{{ r.op }}">
+                <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-weight:600;color:#1E2430">{{ r.name }}</span><span title="{{ r.lvTip }}" style="display:inline-flex"><sc-for list="{{ r.stars }}" as="s"><span style="font:13px/1 'Material Symbols Outlined';font-variation-settings:'FILL' {{ s.fill }};color:{{ s.color }}">star</span></sc-for></span><sc-if value="{{ r.ai }}"><span title="Also needs Advanced features switched on" style="height:18px;display:inline-flex;align-items:center;padding:0 6px;border-radius:9px;background:#800080;color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.03em">AI</span></sc-if><sc-if value="{{ r.changed }}"><span style="height:18px;display:inline-flex;align-items:center;padding:0 6px;border-radius:9px;background:#F2F4F7;color:#344054;font-size:11px;font-weight:600">{{ r.changedLabel }}</span></sc-if></span>
+                  <span style="font-size:12px;color:#667085;line-height:1.4;text-wrap:pretty">{{ r.where }}</span>
+                  <sc-if value="{{ r.blocked }}"><span style="display:flex;align-items:center;gap:4px;font-size:12px;color:#B54708"><span style="font:14px/1 'Material Symbols Outlined'">link</span>{{ r.blockedText }}</span></sc-if>
+                </span>
+                <sc-if value="{{ r.core }}"><span title="Part of the Relix foundation — always on" style="flex:none;display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:#667085"><span style="font:15px/1 'Material Symbols Outlined'">lock</span>Always on</span></sc-if>
+                <sc-if value="{{ r.toggleable }}"><button onClick="{{ r.toggle }}" role="switch" aria-checked="{{ r.aria }}" aria-label="{{ r.name }}" style="flex:none;position:relative;width:40px;height:22px;padding:0;border:0;border-radius:11px;background:{{ r.track }};cursor:pointer;transition:background .15s"><span style="position:absolute;top:2px;left:{{ r.knob }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.2);transition:left .15s"></span></button></sc-if>
+              </div>
+            </sc-for>
+            <sc-if value="{{ g.empty }}"><div style="padding:14px;color:#98A2B3;font-size:12.5px">No matching feature.</div></sc-if>
+          </section>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
   <div style="display:flex;align-items:center;gap:10px;color:#98A2B3;font-size:12px"><span>{{ lastChange }}</span><button onClick="{{ resetAll }}" style="margin-left:auto;padding:0;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Restore the site's starting levels</button></div>
-  <sc-if value="{{ toast }}"><div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;font:500 13px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24)"><span style="font:18px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#F2B544">star</span>{{ toast }}<sc-if value="{{ canUndo }}"><button onClick="{{ undo }}" style="margin-left:6px;padding:0;background:transparent;border:0;font:600 13px 'IBM Plex Sans',sans-serif;color:#FFB3BC;cursor:pointer">Undo</button></sc-if></div></sc-if>
+  <sc-if value="{{ toast }}"><div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:70;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;font:500 13px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24)"><span style="font:18px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1;color:#F2B544">{{ toastIcon }}</span>{{ toast }}<sc-if value="{{ canUndo }}"><button onClick="{{ undo }}" style="margin-left:6px;padding:0;background:transparent;border:0;font:600 13px 'IBM Plex Sans',sans-serif;color:#FFB3BC;cursor:pointer">Undo</button></sc-if></div></sc-if>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1100,&quot;height&quot;:900},&quot;columns&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;One&quot;,&quot;Two&quot;],&quot;default&quot;:&quot;Two&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 const bold = "600 12.5px 'IBM Plex Sans',sans-serif", reg = "500 12.5px 'IBM Plex Sans',sans-serif";
-const starRow = (n, size) => [1, 2, 3].map(i => ({ fill: i <= n ? 1 : 0, color: i <= n ? '#E3A008' : '#D0D5DD' }));
+const starRow = n => [1, 2, 3].map(i => ({ fill: i <= n ? 1 : 0, color: i <= n ? '#E3A008' : '#D0D5DD' }));
+const seg = (list, cur, set) => list.map(([k, label]) => { const on = cur === k; return { label, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => set(k) }; });
 class Component extends DCLogic {
-  state = { MM: null, site: 'THO', siteName: '', hover: {}, filter: 'all', toast: null };
+  state = { MM: null, site: 'THO', siteName: '', hover: {}, filter: 'all', ff: 'all', q: '', toast: null, tab: (() => { try { return localStorage.getItem('cmms.maturity.tab') || 'levels'; } catch (e) { return 'levels'; } })() };
   componentDidMount() {
     Promise.all([import('./maturity-model.js'), import('./sites-model.js')]).then(([MM, SI]) => { const s = SI.current(); this.setState({ MM, site: s.id, siteName: s.name }); this.SI = SI; });
     this._ch = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._ch);
     this._site = () => { if (this.SI) { const s = this.SI.current(); this.setState({ site: s.id, siteName: s.name }); } }; window.addEventListener('cmms-site', this._site);
   }
   componentWillUnmount() { window.removeEventListener('cmms-maturity', this._ch); window.removeEventListener('cmms-site', this._site); clearTimeout(this._t); }
-  flash(t, undo) { this._undo = undo || null; this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 3600); }
-  set(c, n) { const MM = this.state.MM, site = this.state.site, from = MM.levels(site)[c.key]; if (from === n) return; MM.setLevel(site, c.key, n); const L = c.levels[n - 1];
-    this.flash(n > from ? `${c.name} is now ${L.name} · +${n - from} star${n - from > 1 ? 's' : ''}` : `${c.name} set to ${L.name}`, () => MM.setLevel(site, c.key, from)); }
+  setTab(t) { try { localStorage.setItem('cmms.maturity.tab', t); } catch (e) {} this.setState({ tab: t }); }
+  flash(t, undo, icon) { this._undo = undo || null; this.setState({ toast: t, toastIcon: icon || 'star' }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 3600); }
+  snap() { const MM = this.state.MM, site = this.state.site; return { lv: MM.levels(site), over: MM.overrides(site) }; }
+  restore(sn) { const MM = this.state.MM, site = this.state.site; MM.CONCEPTS.forEach(c => MM.setLevel(site, c.key, sn.lv[c.key])); MM.FEATURES.forEach(f => { if (f.id in sn.over) MM.setFeature(site, f.id, sn.over[f.id]); }); }
+  set(c, n) { const MM = this.state.MM, site = this.state.site, from = MM.levels(site)[c.key], had = MM.customOf(c.key, site); if (from === n && !had) return; const sn = this.snap(); MM.setLevel(site, c.key, n); const L = c.levels[n - 1];
+    this.flash(n > from ? `${c.name} is now ${L.name} · +${n - from} star${n - from > 1 ? 's' : ''}` : n === from ? `${c.name} reset to ${L.name}` : `${c.name} set to ${L.name}`, () => this.restore(sn)); }
+  toggle(f) { const MM = this.state.MM, site = this.state.site, v = !MM.own(f.id, site), sn = this.snap(); MM.setFeature(site, f.id, v);
+    this.flash(`${f.name} ${v ? 'switched on' : 'switched off'} for this site`, () => this.restore(sn), v ? 'toggle_on' : 'toggle_off'); }
   renderVals() {
     const s = this.state, MM = s.MM, minCol = (this.props.columns ?? 'Two') === 'One' ? '100%' : '420px';
-    if (!MM) return { minCol, cards: [], stages: [], dist: [], nexts: [], filters: [], earned: '', max: '', pct: '0%' };
-    const lv = MM.levels(s.site), sc = MM.score(s.site), st = MM.stageOf(sc.earned, sc.max), r = sc.earned / sc.max;
+    const tabs = [['levels', 'By level', 'military_tech'], ['features', 'Feature by feature', 'tune']].map(([k, label, icon]) => { const on = s.tab === k, n = k === 'features' && MM ? Object.keys(MM.overrides(s.site)).length : 0;
+      return { label, icon, font: on ? "600 13.5px 'IBM Plex Sans',sans-serif" : "500 13.5px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', bar: on ? '#C00018' : 'transparent', hasCount: !!n, count: `${n} custom`, select: () => this.setTab(k) }; });
+    if (!MM) return { minCol, tabs, isLevels: s.tab !== 'features', isFeatures: s.tab === 'features', cards: [], groups: [], stages: [], dist: [], nexts: [], filters: [], ffilters: [], earned: '', max: '', pct: '0%' };
+    const lv = MM.levels(s.site), sc = MM.score(s.site), st = MM.stageOf(sc.earned, sc.max), r = sc.earned / sc.max, over = MM.overrides(s.site), nOver = Object.keys(over).length, cnt = MM.counts(s.site);
     const ORDER = ['wo', 'cl', 'prev', 'plan', 'assets', 'parts', 'org', 'docs', 'notif', 'perf'];
     const nexts = MM.CONCEPTS.filter(c => lv[c.key] < 3).sort((a, b) => lv[a.key] - lv[b.key] || ORDER.indexOf(a.key) - ORDER.indexOf(b.key)).slice(0, 3)
       .map(c => { const to = lv[c.key] + 1, L = c.levels[to - 1]; return { icon: c.icon, name: c.name, to: L.name, unlocks: L.can.slice(0, 2).join(', ').toLowerCase(), up: () => this.set(c, to) }; });
     const list = MM.CONCEPTS.filter(c => s.filter === 'all' || (s.filter === 'grow' ? lv[c.key] < 3 : lv[c.key] === 3));
-    const log = MM.logOf(s.site)[0], cn = log && MM.CONCEPTS.find(c => c.key === log.concept);
+    const log = MM.logOf(s.site)[0], cn = log && MM.CONCEPTS.find(c => c.key === log.concept), lf = log && log.feature && MM.feature(log.feature);
+    const when = log ? new Date(log.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+    const q = s.q.trim().toLowerCase();
+    const groups = MM.CONCEPTS.map(c => { const cur = lv[c.key], nC = MM.customOf(c.key, s.site);
+      const rows = c.features.filter(f => (!q || (f.name + ' ' + f.where).toLowerCase().includes(q)) && (s.ff === 'all' || (s.ff === 'on' ? MM.on(f.id, s.site) : s.ff === 'off' ? !MM.on(f.id, s.site) : f.id in over)))
+        .map((f, i) => { const own = MM.own(f.id, s.site), eff = MM.on(f.id, s.site), byLv = f.level <= cur, ch = f.id in over, req = f.req && MM.feature(f.req), blocked = own && !eff && !!req;
+          return { name: f.name, where: f.where, stars: starRow(f.level), lvTip: `Included from level ${f.level} · ${MM.LEVELS[f.level - 1][1]}`, ai: f.ai, core: f.core, toggleable: !f.core,
+            changed: ch, changedLabel: byLv ? 'Off by choice' : 'On by choice', blocked, blockedText: req ? `Needs “${req.name}” (${MM.CONCEPTS.find(x => x.key === req.concept).name})` : '',
+            sep: i ? '1px solid #F2F4F7' : '0', bg: ch ? '#FCFCFD' : '#fff', op: f.core ? 0.85 : 1,
+            track: own ? (blocked ? '#98A2B3' : '#0B6B4A') : '#D0D5DD', knob: own ? '20px' : '2px', aria: String(own), toggle: () => this.toggle(f) }; });
+      return { name: c.name, icon: c.icon, sub: `${c.features.filter(f => MM.on(f.id, s.site)).length} of ${c.features.length} features on`, stars: starRow(cur), levelName: MM.LEVELS[cur - 1][1], levelTip: `Level ${cur} · ${MM.LEVELS[cur - 1][1]} — features up to this level are on unless you change them`,
+        isCustom: !!nC, customN: nC, reset: () => { const sn = this.snap(); MM.resetCustom(s.site, c.key); this.flash(`${c.name} back to its level`, () => this.restore(sn), 'restart_alt'); }, rows, empty: !rows.length, hide: !rows.length && (q || s.ff !== 'all') };
+    }).filter(g => !g.hide);
     return {
-      minCol, siteName: s.siteName, earned: sc.earned, max: sc.max, pct: Math.round(r * 100) + '%', stage: st[1], stageText: st[2],
+      minCol, tabs, isLevels: s.tab !== 'features', isFeatures: s.tab === 'features', siteName: s.siteName, earned: sc.earned, max: sc.max, pct: Math.round(r * 100) + '%', stage: st[1], stageText: st[2],
+      custom: nOver > 0, customLabel: `Custom · ${nOver} change${nOver > 1 ? 's' : ''}`, fOn: cnt.on, fTotal: cnt.total,
       stages: MM.STAGES.map(g => ({ label: g[1], w: g[1] === st[1] ? 600 : 400, c: g[1] === st[1] ? '#93370D' : '#98A2B3' })),
       dist: [3, 2, 1].map(n => ({ stars: starRow(n), n: MM.CONCEPTS.filter(c => lv[c.key] === n).length, label: MM.LEVELS[n - 1][1] })).filter(d => d.n),
       nextTitle: nexts.length ? 'Where you could grow next' : 'All areas at Expert', nexts, allExpert: !nexts.length,
-      filters: [['all', 'All areas'], ['grow', 'Room to grow'], ['top', 'At Expert']].map(([k, label]) => { const on = s.filter === k; return { label, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? bold : reg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ filter: k }) }; }),
-      cards: list.map(c => { const cur = lv[c.key], hv = s.hover[c.key], show = hv || cur, L = c.levels[show - 1], nx = cur < 3 ? c.levels[cur] : null, preview = hv && hv !== cur;
+      filters: seg([['all', 'All areas'], ['grow', 'Room to grow'], ['top', 'At Expert']], s.filter, k => this.setState({ filter: k })),
+      ffilters: seg([['all', 'All'], ['on', 'On'], ['off', 'Off'], ['custom', 'Changed']], s.ff, k => this.setState({ ff: k })),
+      q: s.q, setQ: e => this.setState({ q: e.target.value }), groups,
+      resetAllCustom: () => { const sn = this.snap(); MM.resetCustom(s.site); this.flash('Custom choices cleared — levels apply again', () => this.restore(sn), 'restart_alt'); },
+      cards: list.map(c => { const cur = lv[c.key], hv = s.hover[c.key], show = hv || cur, L = c.levels[show - 1], nx = cur < 3 ? c.levels[cur] : null, preview = hv && hv !== cur, nC = MM.customOf(c.key, s.site);
         return { name: c.name, icon: c.icon, tagline: c.tagline, stars: starRow(cur), border: cur === 3 ? '#F1E6D2' : '#E4E7EC',
           showLabel: preview ? `Level ${show} · ${L.name} (preview)` : `Level ${show} · ${L.name}`, desc: L.desc, can: L.can,
           chipBg: preview ? '#F2F4F7' : '#FEF7E6', chipFg: preview ? '#475467' : '#93370D', chipIcon: preview ? 'visibility' : 'check',
-          hasNext: !!nx && !preview, nextName: nx ? `${nx.name}` : '', nextAdds: nx ? nx.can.slice(0, 2).join(', ').toLowerCase() : '', isTop: cur === 3 && !preview,
-          opts: c.levels.map(l => { const on = l.n === cur; return { name: l.name, stars: starRow(l.n), bg: on ? '#FEF7E6' : '#fff', border: on ? '#E3A008' : '#E4E7EC', color: on ? '#93370D' : '#344054', tip: `Level ${l.n} · ${l.name} — ${l.desc}`,
+          isCustom: !!nC && !preview, customText: `${nC} feature${nC > 1 ? 's' : ''} changed by hand in this area`, seeCustom: () => { this.setState({ ff: 'custom', q: '' }); this.setTab('features'); },
+          resetCustom: () => { const sn = this.snap(); MM.resetCustom(s.site, c.key); this.flash(`${c.name} back to ${MM.LEVELS[cur - 1][1]}`, () => this.restore(sn), 'restart_alt'); },
+          hasNext: !!nx && !preview, nextName: nx ? nx.name : '', nextAdds: nx ? nx.can.slice(0, 2).join(', ').toLowerCase() : '', isTop: cur === 3 && !preview,
+          opts: c.levels.map(l => { const on = l.n === cur; return { name: l.name, stars: starRow(l.n), bg: on ? '#FEF7E6' : '#fff', border: on ? '#E3A008' : '#E4E7EC', color: on ? '#93370D' : '#344054', tip: `Level ${l.n} · ${l.name} — ${l.desc}${nC ? ' (resets custom choices of this area)' : ''}`,
             pick: () => this.set(c, l.n), hover: () => this.setState(z => ({ hover: { ...z.hover, [c.key]: l.n } })), leave: () => this.setState(z => ({ hover: { ...z.hover, [c.key]: 0 } })) }; }) }; }),
-      lastChange: log && cn ? `Last change · ${cn.name} ${MM.LEVELS[log.from - 1][1]} → ${MM.LEVELS[log.to - 1][1]} · ${new Date(log.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : 'Levels are saved for this site only and can be changed at any time.',
-      resetAll: () => { MM.reset(s.site); this.flash('Starting levels restored'); },
-      toast: s.toast, canUndo: !!this._undo, undo: () => { if (this._undo) this._undo(); this._undo = null; this.setState({ toast: null }); },
+      lastChange: !log || !cn && !log.resetCustom ? 'Choices are saved for this site only and can be changed at any time.'
+        : lf ? `Last change · ${lf.name} switched ${log.on ? 'on' : 'off'} · ${when}` : log.resetCustom ? `Last change · custom choices cleared${cn ? ' in ' + cn.name : ''} · ${when}`
+        : `Last change · ${cn.name} ${MM.LEVELS[log.from - 1][1]} → ${MM.LEVELS[log.to - 1][1]} · ${when}`,
+      resetAll: () => { MM.reset(s.site); this.flash('Starting levels restored', null, 'restart_alt'); },
+      toast: s.toast, toastIcon: s.toastIcon || 'star', canUndo: !!this._undo, undo: () => { if (this._undo) this._undo(); this._undo = null; this.setState({ toast: null }); },
     };
   }
 }

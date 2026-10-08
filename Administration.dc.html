@@ -202,9 +202,10 @@ const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sa
 const plural = (n, w) => `${n.toLocaleString('en-US')} ${w}${n === 1 ? '' : 's'}`;
 const slug = s => (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
   state = { sec: ((x) => x === 'sites' ? 'maturity' : x)(new URLSearchParams(location.search).get('section') || (this.props.section ?? 'assetTypes')), q: '', form: null, confirm: null, toast: null, v: 0, M: null };
-  componentDidMount() {
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU); 
     import('./maturity-model.js').then(() => this.forceUpdate()); this._mat = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._mat);
     import('./access-model.js'); Promise.all(['./config-model.js', './plant-model.js', './people-model.js', './parts-model.js', './collab-model.js', './sites-model.js', './checklist-model.js'].map(p => import(p)))
       .then(([CFG, PL, PM, PA, C, SI, CL]) => this.setState({ M: { CFG, PL, PM, PA, C, SI, CL } }));
@@ -402,11 +403,11 @@ class Component extends DCLogic {
   }
   renderVals() {
     const s = this.state, M = s.M;
-    const navBase = NAV.map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === s.sec; return { label: l, icon, count: '', bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
+    const navBase = NAV.map(([label, items]) => [label, items.filter(([k]) => k !== 'skills' || FON('org.skills'))]).filter(g => g[1].length).map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === s.sec; return { label: l, icon, count: '', bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
     if (!M) return { nav: navBase, subtitle: 'Reference data used in forms, filters and reports across the application', cur: { label: '', desc: '' }, rows: [], heads: [], isTable: true, gridCols: '1fr', unitRows: [], unitSites: [], fields: [] };
     const { CFG, SI } = M, sec = s.sec, q = s.q.trim().toLowerCase(), site = SI.current();
     const MS = window.RelixMaturity ? window.RelixMaturity.score(site.id) : null;
-    const nav = NAV.map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === sec; return { label: l, icon, count: k === 'maturity' ? (MS ? `${MS.earned}/${MS.max} ★` : '') : k === 'units' ? Object.keys(CFG.quantities()).length : this.items(k).length, bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
+    const nav = NAV.map(([label, items]) => [label, items.filter(([k]) => k !== 'skills' || FON('org.skills'))]).filter(g => g[1].length).map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === sec; return { label: l, icon, count: k === 'maturity' ? (MS ? `${MS.earned}/${MS.max} ★` : '') : k === 'units' ? Object.keys(CFG.quantities()).length : this.items(k).length, bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
     if (sec === 'maturity') return { ...this.advVals(), nav, subtitle: `${site.name} · how your site works with Relix today, area by area`, q: '', hasSearch: false, cur: { label: 'Maturity levels', desc: 'Every site is different. Choose, for each area, the level that fits your team — from Essential (simple and quick to adopt) to Expert (every capability). Levels can be raised one step at a time.', hasWhere: false, canAdd: false, canReset: false }, isMaturity: true, isTable: false, isUnits: false, rows: [], heads: [], unitRows: [], unitSites: [], fields: [], toast: s.toast, formOpen: false, confirmOpen: false };
     const m = this.meta(sec);
     const curLabel = NAV.flatMap(g => g[1]).find(x => x[0] === sec)[1];
