@@ -342,7 +342,7 @@
               <sc-if value="{{ close.extra }}">
                 <textarea value="{{ close.extraDesc }}" onInput="{{ on.extraDesc }}" rows="2" placeholder="What still needs to be done?" style="padding:10px 12px;border:1px solid {{ err.extraDesc }};border-radius:8px;font:14px/1.5 'IBM Plex Sans',sans-serif;outline:none;resize:vertical"></textarea>
                 <button onClick="{{ toggleFollow }}" style="display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;text-align:left;cursor:pointer;font:500 14px 'IBM Plex Sans',sans-serif;color:#1E2430">
-                  <span style="width:20px;height:20px;flex:none;border-radius:5px;border:1.5px solid {{ followBorder }};background:{{ followBg }};display:grid;place-items:center;color:#fff;font:15px/1 'Material Symbols Outlined'">{{ followIcon }}</span>Create a follow-up work order
+                  <span style="width:20px;height:20px;flex:none;border-radius:5px;border:1.5px solid {{ followBorder }};background:{{ followBg }};display:grid;place-items:center;color:#fff;font:15px/1 'Material Symbols Outlined'">{{ followIcon }}</span>Create a follow-up intervention
                 </button>
                 <sc-if value="{{ close.followUp }}">
                   <div style="display:grid;grid-template-columns:minmax(0,1fr) 120px;gap:8px">
@@ -375,8 +375,8 @@
           </sc-for>
         </div>
         <div style="align-self:stretch;display:flex;gap:10px;margin-top:8px">
-          <a href="{{ woHref }}" style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;border:1px solid #D0D5DD;border-radius:10px;color:#1E2430;font-weight:600">View work order</a>
-          <a href="Work Orders.dc.html" style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;background:#C00018;border-radius:10px;color:#fff;font-weight:600">Back to work orders</a>
+          <a href="{{ woHref }}" style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;border:1px solid #D0D5DD;border-radius:10px;color:#1E2430;font-weight:600">View intervention</a>
+          <a href="Work Orders.dc.html" style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;background:#C00018;border-radius:10px;color:#fff;font-weight:600">Back to interventions</a>
         </div>
         <button onClick="{{ resetDemo }}" style="margin-top:4px;background:transparent;border:0;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#98A2B3;cursor:pointer;text-decoration:underline">Reset this demo intervention</button>
       </div>
@@ -404,7 +404,7 @@
             <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-top:{{ l.sep }};font-size:14px"><span style="color:#667085;width:130px">{{ l.k }}</span><span style="flex:1;font-weight:600;color:{{ l.color }}">{{ l.v }}</span></div>
           </sc-for>
         </div>
-        <p style="margin:0;font-size:13px;color:#667085">The work order will be closed and parts deducted from stock. You won't be able to edit the answers afterwards.</p>
+        <p style="margin:0;font-size:13px;color:#667085">The intervention will be closed and parts deducted from stock. You won't be able to edit the answers afterwards.</p>
         <div style="display:flex;gap:10px">
           <button onClick="{{ cancelComplete }}" style="flex:1;height:48px;background:#fff;border:1px solid #D0D5DD;border-radius:10px;font:600 15px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Go back</button>
           <button onClick="{{ complete }}" style="flex:1;height:48px;display:flex;align-items:center;justify-content:center;gap:6px;background:#C00018;border:0;border-radius:10px;font:600 15px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">task_alt</span>Complete</button>
@@ -455,8 +455,8 @@ const GENERIC = [
     { id: 'ok', kind: 'yesno', label: 'Is the equipment in normal condition?', required: true, anomalyOn: ['no'], anomalyMsg: 'Abnormal condition — it will be reported as an anomaly.' },
     { id: 'photo', kind: 'photo', label: 'Photo', hint: 'Optional' },
     { id: 'obs', kind: 'text', label: 'Observations', hint: 'Optional', ph: 'What do you see?' }] },
-  { id: 'work', title: WO.task, desc: 'Carry out the work described in the work order and record what you used.', fields: [
-    { id: 'i', kind: 'instr', label: 'Instructions', items: ['Follow the work order description', 'Replace worn parts if needed', 'Reassemble and check all fixings'] },
+  { id: 'work', title: WO.task, desc: 'Carry out the work described in the intervention and record what you used.', fields: [
+    { id: 'i', kind: 'instr', label: 'Instructions', items: ['Follow the intervention description', 'Replace worn parts if needed', 'Reassemble and check all fixings'] },
     { id: 'parts', kind: 'parts', cat: 'parts', label: 'Spare parts used' },
     { id: 'cons', kind: 'parts', cat: 'cons', label: 'Consumables used' }] },
   { id: 'test', title: 'Functional test', desc: 'Restart the equipment and check that it runs normally.', fields: [
@@ -671,12 +671,12 @@ class Component extends DCLogic {
     }
     const r = s.result || { status: 'completed', minutes: 0 }, fs = FINAL[r.status];
     const lines = [
-      ['task_alt', `Work order closed as ${fs[0].toLowerCase()}`, fs[2]],
+      ['task_alt', `Intervention closed as ${fs[0].toLowerCase()}`, fs[2]],
       [r.operational === 'yes' ? 'check_circle' : 'cancel', r.operational === 'yes' ? `${WO.asset} is back in operation` : `${WO.asset} marked as Stopped`, r.operational === 'yes' ? '#0B6B4A' : '#B42318'],
       ['inventory_2', r.parts || r.cons ? `${r.parts} spare part${r.parts === 1 ? '' : 's'} and ${r.cons} consumable${r.cons === 1 ? '' : 's'} deducted from stock` : 'No parts deducted from stock', '#2456B8'],
     ];
     if (r.anomalies) lines.push(['warning', `${r.anomalies} anomal${r.anomalies > 1 ? 'ies' : 'y'} recorded in the asset history`, '#B54708']);
-    if (r.followUp) lines.push(['add_task', `Follow-up work order created: ${r.followUp.title} · ${r.followUp.prio}`, '#C00018']);
+    if (r.followUp) lines.push(['add_task', `Follow-up intervention created: ${r.followUp.title} · ${r.followUp.prio}`, '#C00018']);
     return { ...base,
       result: { title: r.status === 'completed' ? 'Intervention completed' : r.status === 'partial' ? 'Intervention partially completed' : 'Intervention closed — not completed', icon: fs[1], fg: fs[2], bg: fs[3],
         time: `${r.minutes >= 60 ? Math.floor(r.minutes / 60) + ' h ' + pad(r.minutes % 60) : r.minutes + ' min'} · ${r.at ? clock(r.at) : ''}`,

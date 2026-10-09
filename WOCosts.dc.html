@@ -84,9 +84,9 @@ class Component extends DCLogic {
     const opts = { consumables: K.consumables().map(c => ({ v: c.ref, l: `${c.name} · ${K.eur(c.cost)} / ${c.unit}` })),
       services: K.offers('services').map(o => ({ v: o.sup + '|' + o.rate, l: `${o.supName} — ${o.name} · ${K.eur0(o.price)}${UNIT[o.unit] ? ' / ' + UNIT[o.unit] : ''}` })),
       rentals: K.offers('rentals').map(o => ({ v: o.sup + '|' + o.rate, l: `${o.supName} — ${o.name} · ${K.eur0(o.price)}${UNIT[o.unit] ? ' / ' + UNIT[o.unit] : ''}` })) };
-    const EMPTY = { labor: 'Assign people to estimate labor.', parts: 'No spare parts on this work order.', consumables: 'Add grease, oil, cleaning products used…', services: 'Add a contractor or OEM service from your providers.', rentals: 'No equipment needed.' };
+    const EMPTY = { labor: 'Assign people to estimate labor.', parts: 'No spare parts on this intervention.', consumables: 'Add grease, oil, cleaning products used…', services: 'Add a contractor or OEM service from your providers.', rentals: 'No equipment needed.' };
     const ADD = { consumables: '+ Add consumable', services: '+ Add external service', rentals: '+ Add rental' };
-    const AUTO = { consumables: 'From the consumables recorded on the work order', labor: 'From assigned people × hourly rate' + (p.actualMs != null ? ' × time spent' : ''), parts: 'From the work order spare parts', rentals: 'Internal equipment from the checklists' };
+    const AUTO = { consumables: 'From the consumables recorded on the intervention', labor: 'From assigned people × hourly rate' + (p.actualMs != null ? ' × time spent' : ''), parts: 'From the intervention spare parts', rentals: 'Internal equipment from the checklists' };
     const cats = Object.entries(K.CATS).map(([k, [label, icon, color]]) => { const L = res.lines[k], open = s.open[k] ?? (k === 'labor' || L.length > 0);
       return { label, icon, color, count: L.length || '', total: K.eur(res.totals[k]), totalColor: res.totals[k] ? '#1E2430' : '#98A2B3', open, chev: open ? 'expand_less' : 'expand_more',
         toggle: () => this.setState(z => ({ open: { ...z.open, [k]: !open } })), empty: !L.length, emptyText: EMPTY[k],

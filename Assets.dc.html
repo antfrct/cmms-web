@@ -211,11 +211,11 @@
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;font-size:12px">
                 <span style="color:#667085">{{ tsn.kidsLabel }}</span><span style="font-weight:500">{{ tsn.kids }}</span>
-                <span style="color:#667085">Open work orders</span><span style="font-weight:500">{{ tsn.wo }}</span>
+                <span style="color:#667085">Open interventions</span><span style="font-weight:500">{{ tsn.wo }}</span>
               </div>
               <div style="display:flex;gap:8px">
                 <button onClick="{{ tsn.open }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ tsn.openLabel }}</button>
-                <button onClick="{{ tsn.newWo }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">New work order</button>
+                <button onClick="{{ tsn.newWo }}" style="flex:1;height:32px;display:flex;align-items:center;justify-content:center;gap:6px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer">New intervention</button>
               </div>
             </div>
           </sc-if>
@@ -308,7 +308,7 @@
               </div>
               <div style="display:flex;gap:8px">
                 <button onClick="{{ card.open }}" style="flex:1;height:34px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3">Open asset</button>
-                <button onClick="{{ card.newWo }}" style="flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:17px/1 'Material Symbols Outlined'">add</span>Work order</button>
+                <button onClick="{{ card.newWo }}" style="flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:17px/1 'Material Symbols Outlined'">add</span>Intervention</button>
               </div>
             </div>
           </sc-if>
@@ -517,7 +517,7 @@ class Component extends DCLogic {
         toggleSel: e => { e.stopPropagation(); this.setState(st => ({ pick: { ...(st.pick || {}), [a.id]: !(st.pick || {})[a.id] } })); },
         menuOpen: s.rmenu === a.id, menuBg: s.rmenu === a.id ? '#EEF0F3' : 'transparent', menuTop: i > pageRows.length - 4 && pageRows.length > 6 ? '-232px' : '34px', stop: e => e.stopPropagation(),
         menu: e => { e.stopPropagation(); this.setState({ rmenu: s.rmenu === a.id ? null : a.id }); },
-        actions: [['edit', 'Edit asset', () => PM.openWizard(a.id)], ...(FON('assets.qr') ? [['qr_code_2', 'Display / print QR code', () => act('qr', [a.id])]] : []), ['add_task', 'Create work order', () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: a.id })], ...(a.decommissioned ? [] : [['block', 'Decommission', () => act('decommission', [a.id]), 1]]), ['delete', 'Delete asset', () => act('delete', [a.id], { wos: WOS[a.id] || 0 }), !!a.decommissioned, 1]]
+        actions: [['edit', 'Edit asset', () => PM.openWizard(a.id)], ...(FON('assets.qr') ? [['qr_code_2', 'Display / print QR code', () => act('qr', [a.id])]] : []), ['add_task', 'Create intervention', () => window.CMMSCreateWO && window.CMMSCreateWO({ asset: a.id })], ...(a.decommissioned ? [] : [['block', 'Decommission', () => act('decommission', [a.id]), 1]]), ['delete', 'Delete asset', () => act('delete', [a.id], { wos: WOS[a.id] || 0 }), !!a.decommissioned, 1]]
           .map(([icon, label, fn, sep, danger]) => ({ icon, label, sep: !!sep, color: danger ? '#B42318' : '#1E2430', iconColor: danger ? '#B42318' : '#667085', run: e => { e.stopPropagation(); this.setState({ rmenu: null }); fn(); } })) }; });
     const stat = k => all.filter(a => a.status === k).length;
     this._export = () => csv(selIds.length ? all.filter(a => selIds.includes(a.id)) : sorted); this._qrAll = () => act('qr', selIds.length ? selIds : sorted.map(a => a.id));

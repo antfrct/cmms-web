@@ -23,7 +23,7 @@
         <dc-import name="BackButton" fallback="Main.dc.html" hint-size="34px,34px"></dc-import>
         <div style="flex:1;min-width:0">
           <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Documents</h1>
-          <p style="margin:2px 0 0;color:#667085;font-size:13px">One library — each document can be linked to several assets, work orders and checklist steps</p>
+          <p style="margin:2px 0 0;color:#667085;font-size:13px">One library — each document can be linked to several assets, interventions and checklist steps</p>
         </div>
         <button onClick="{{ openUpload }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">upload</span>Upload document</button>
       </header>
@@ -62,7 +62,7 @@
           <div style="flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
             <label style="width:280px;height:34px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;background:#fff">
               <span style="font:18px/1 'Material Symbols Outlined';color:#98A2B3">search</span>
-              <input value="{{ q }}" onInput="{{ setQ }}" placeholder="Search name, asset, work order…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif;background:transparent" />
+              <input value="{{ q }}" onInput="{{ setQ }}" placeholder="Search name, asset, intervention…" style="flex:1;min-width:0;border:0;outline:none;font:13px 'IBM Plex Sans',sans-serif;background:transparent" />
             </label>
             <sc-for list="{{ selects }}" as="s" hint-placeholder-count="3">
               <label style="position:relative;height:34px;display:flex;align-items:center;border:1px solid {{ s.border }};background:{{ s.bg }};border-radius:6px">
@@ -75,7 +75,7 @@
               <sc-for list="{{ layouts }}" as="v" hint-placeholder-count="2"><button onClick="{{ v.select }}" title="{{ v.label }}" style="width:34px;height:30px;display:grid;place-items:center;background:{{ v.bg }};border:0;border-radius:5px;box-shadow:{{ v.shadow }};color:{{ v.color }};cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">{{ v.icon }}</span></button></sc-for>
             </div>
           </div>
-          <sc-if value="{{ isArchivedView }}"><div style="flex:none;display:flex;align-items:center;gap:8px;padding:9px 12px;background:#F2F4F7;border-radius:8px;color:#475467"><span style="font:18px/1 'Material Symbols Outlined'">inventory_2</span>Archived documents are hidden from assets, work orders and checklists. Restore one to make it available again.</div></sc-if>
+          <sc-if value="{{ isArchivedView }}"><div style="flex:none;display:flex;align-items:center;gap:8px;padding:9px 12px;background:#F2F4F7;border-radius:8px;color:#475467"><span style="font:18px/1 'Material Symbols Outlined'">inventory_2</span>Archived documents are hidden from assets, interventions and checklists. Restore one to make it available again.</div></sc-if>
 
           <div style="flex:1;min-height:0;overflow:auto">
             <sc-if value="{{ isRows }}" hint-placeholder-val="{{ true }}">
@@ -304,7 +304,7 @@ class Component extends DCLogic {
     const base = rows.filter(vf);
     const list = base.filter(d => (!s.cat || d.cat === s.cat) && (!s.zone || zoneOfDoc(d).includes(s.zone)) && (!s.ft || d.ft === s.ft) && (!s.asset || d.links.assets.includes(s.asset)) && (!s.linkKind || d.links[s.linkKind].length) && (!q || text(d).includes(q)));
     const deco = d => { const [catBg, catFg, catIcon] = D.CATS[d.cat] || D.CATS.Other, [ftBg, ftFg] = D.FT[d.ft] || D.FT.PDF, on = s.sel === d.id, L = d.links;
-      const linkChips = [['assets', 'precision_manufacturing', 'asset'], ['wos', 'assignment', 'work order'], ['steps', 'checklist', 'checklist step']].filter(([k]) => L[k].length).map(([k, icon, w]) => ({ icon, n: L[k].length, tip: `${L[k].length} ${w}${L[k].length > 1 ? 's' : ''}` }));
+      const linkChips = [['assets', 'precision_manufacturing', 'asset'], ['wos', 'assignment', 'intervention'], ['steps', 'checklist', 'checklist step']].filter(([k]) => L[k].length).map(([k, icon, w]) => ({ icon, n: L[k].length, tip: `${L[k].length} ${w}${L[k].length > 1 ? 's' : ''}` }));
       return { ...d, catBg, catFg, catIcon, ftBg, ftFg, linkChips, unlinked: !linkChips.length, opacity: d.archived ? 0.7 : 1,
         sub: L.assets.length ? L.assets.slice(0, 2).map(aName).join(', ') + (L.assets.length > 2 ? ` +${L.assets.length - 2}` : '') : d.disc,
         border: on ? '#C00018' : '#E4E7EC', ring: on ? '0 0 0 3px rgba(192,0,24,.1)' : 'none', rowBg: on ? '#FBF7F7' : '#fff',
@@ -324,7 +324,7 @@ class Component extends DCLogic {
         versions: cur.versions.map((v, i) => ({ ...v, color: i === 0 ? '#0B6B4A' : '#98A2B3' })),
         groups: [
           ['Assets', 'precision_manufacturing', L.assets.map(id => { const a = assets.find(x => x.id === id); return { label: a ? a.name : id, sub: a ? PM.pathOf(a.loc) : id, href: 'AssetDetail.dc.html?id=' + encodeURIComponent(id), unlink: unl('asset', id) }; })],
-          ['Work orders', 'assignment', L.wos.map(k => ({ label: D.woTitle(k), sub: (window.RelixCollab && window.RelixCollab.displayId ? window.RelixCollab.displayId(k) : k), href: 'WorkOrder.dc.html?wo=' + encodeURIComponent(k), unlink: unl('wo', k) }))],
+          ['Interventions', 'assignment', L.wos.map(k => ({ label: D.woTitle(k), sub: (window.RelixCollab && window.RelixCollab.displayId ? window.RelixCollab.displayId(k) : k), href: 'WorkOrder.dc.html?wo=' + encodeURIComponent(k), unlink: unl('wo', k) }))],
           ['Checklist steps', 'checklist', L.steps.map(r => { const l = D.stepLabel(r); return { label: l.step, sub: l.cl, href: 'ChecklistEditor.dc.html?id=' + r.split(':')[0], unlink: unl('step', r) }; })],
         ].map(([label, icon, items]) => ({ label, icon, items, none: !items.length })) };
     }
@@ -332,7 +332,7 @@ class Component extends DCLogic {
     const setLinks = (k, fn) => this.setState(z => ({ u: { ...z.u, links: { ...z.u.links, [k]: fn(z.u.links[k]) } } }));
     const linkFields = f ? [
       ['assets', 'Assets', 'precision_manufacturing', 'Add an asset…', assets.map(a => ({ v: a.id, l: `${a.name} · ${a.id}` })), aName],
-      ['wos', 'Work orders', 'assignment', 'Add a work order…', D.knownWos().map(([k, t]) => ({ v: k, l: t })), D.woTitle],
+      ['wos', 'Interventions', 'assignment', 'Add an intervention…', D.knownWos().map(([k, t]) => ({ v: k, l: t })), D.woTitle],
       ['steps', 'Checklist steps', 'checklist', 'Add a checklist step…', D.STEP_REFS.map(([r, cl, st]) => ({ v: r, l: `${cl} › ${st}` })), r => { const l = D.stepLabel(r); return `${l.cl} › ${l.step}`; }],
     ].map(([k, label, icon, ph, opts, lab]) => ({ label, icon, ph, count: u.links[k].length || '', options: opts.filter(o => !u.links[k].includes(o.v)),
       chips: u.links[k].map(v => ({ label: lab(v), remove: () => setLinks(k, a => a.filter(x => x !== v)) })), add: e => { const v = e.target.value; if (v) setLinks(k, a => [...a, v]); } })) : [];
@@ -342,7 +342,7 @@ class Component extends DCLogic {
       pager: { total, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(total / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
       kpis: [['', 'Total documents'], ['Plan', 'Plans'], ['Procedure', 'Procedures'], ['Manual', 'Manuals']].map(([k, label]) => { const live = rows.filter(d => !d.archived), on = !!k && s.cat === k; return { label, value: k ? live.filter(d => d.cat === k).length : live.length, bg: on ? '#FBF7F7' : '#fff', bar: on ? '#C00018' : 'transparent', select: () => this.setState({ cat: k && s.cat !== k ? k : '', pg: 1 }) }; }), isGrid: s.layout === 'grid', isRows: s.layout === 'list', isArchivedView: s.view === 'archived',
       q: s.q, setQ: e => this.setState({ q: e.target.value }),
-      selects: [sel('asset', [{ v: '', l: 'Any asset' }, ...assets.filter(a => rows.some(d => d.links.assets.includes(a.id))).map(a => ({ v: a.id, l: a.name }))]), sel('linkKind', [{ v: '', l: 'Linked to anything' }, { v: 'assets', l: 'Linked to assets' }, { v: 'wos', l: 'Linked to work orders' }, { v: 'steps', l: 'Linked to checklist steps' }]), sel('ft', [{ v: '', l: 'Any file type' }, ...Object.keys(D.FT).map(x => ({ v: x, l: x }))])],
+      selects: [sel('asset', [{ v: '', l: 'Any asset' }, ...assets.filter(a => rows.some(d => d.links.assets.includes(a.id))).map(a => ({ v: a.id, l: a.name }))]), sel('linkKind', [{ v: '', l: 'Linked to anything' }, { v: 'assets', l: 'Linked to assets' }, { v: 'wos', l: 'Linked to interventions' }, { v: 'steps', l: 'Linked to checklist steps' }]), sel('ft', [{ v: '', l: 'Any file type' }, ...Object.keys(D.FT).map(x => ({ v: x, l: x }))])],
       hasFilters: !!(s.cat || s.zone || s.ft || s.asset || s.linkKind || s.q), clearFilters: () => this.setState({ cat: '', zone: '', ft: '', asset: '', linkKind: '', q: '' }),
       layouts: [['list', 'List', 'table_rows'], ['grid', 'Grid', 'grid_view']].map(([k, label, icon]) => ({ label, icon, bg: s.layout === k ? '#fff' : 'transparent', shadow: s.layout === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', color: s.layout === k ? '#1E2430' : '#667085', select: () => this.setState({ layout: k }) })),
       rangeLabel: `${total} document${total === 1 ? '' : 's'}`,

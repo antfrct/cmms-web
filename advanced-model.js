@@ -83,6 +83,6 @@ export const liveOf = (a, t = 0) => {
   return {
     proc, vib, vibNow: vNow.toFixed(1), zone, bt, btNow: bt[bt.length - 1].toFixed(0), kw, kwNow: Math.round(kw[kw.length - 1] + Math.sin(t) * 2), kwh: kw.reduce((s, v) => s + v, 0) * 0.62 | 0,
     prob, p30: Math.round(prob[30] * 100), rul: 46 - (t % 2), health: 62, component: /Furnace/.test(a.type) ? 'Combustion air fan bearing' : 'Drive-end bearing',
-    anomalies: [['Today 09:42', 'Vibration DE', '+38% vs. learned baseline', 'High', 'Open'], ['Yesterday 22:10', 'Bearing temperature', '+6 °C above model', 'Medium', 'Open'], ['Oct 3, 14:05', 'Energy', '+9% energy per tonne produced', 'Medium', 'Work order created'], ['Sep 29, 07:30', 'Motor current', 'Spike 2.1× nominal at start-up', 'Low', 'Dismissed']],
+    anomalies: [['Today 09:42', 'Vibration DE', '+38% vs. learned baseline', 'High', 'Open'], ['Yesterday 22:10', 'Bearing temperature', '+6 °C above model', 'Medium', 'Open'], ['Oct 3, 14:05', 'Energy', '+9% energy per tonne produced', 'Medium', 'Intervention created'], ['Sep 29, 07:30', 'Motor current', 'Spike 2.1× nominal at start-up', 'Low', 'Dismissed']],
   };
 };

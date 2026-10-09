@@ -22,7 +22,7 @@
       <dc-import name="BackButton" fallback="Home.dc.html" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Maintenance plans</h1>
-        <p style="margin:2px 0 0;color:#667085;font-size:13px">Preventive rules that generate work orders automatically</p>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px">Preventive rules that generate interventions automatically</p>
       </div>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New plan</button>
     </header>
@@ -45,7 +45,7 @@
       </div>
       <div style="flex:1;min-height:0;overflow:auto">
       <div style="position:sticky;top:0;z-index:3;display:grid;grid-template-columns:minmax(240px,2fr) minmax(150px,1.2fr) 130px minmax(150px,1.1fr) 90px 120px 96px 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
-        <span>Plan</span><span>Assets</span><span>Frequency</span><span>Checklist</span><span>Duration</span><span>Next work order</span><span>Active</span><span></span>
+        <span>Plan</span><span>Assets</span><span>Frequency</span><span>Checklist</span><span>Duration</span><span>Next intervention</span><span>Active</span><span></span>
       </div>
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
         <div onClick="{{ r.open }}" style="display:grid;grid-template-columns:minmax(240px,2fr) minmax(150px,1.2fr) 130px minmax(150px,1.1fr) 90px 120px 96px 48px;align-items:center;min-height:56px;padding-left:16px;border-bottom:1px solid #F2F4F7;cursor:pointer;opacity:{{ r.op }}" style-hover="background:#F9FAFB">
@@ -64,7 +64,7 @@
             <sc-if value="{{ r.menuOpen }}">
               <div style="position:absolute;right:6px;top:{{ r.menuTop }};z-index:40;width:230px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14);padding:6px;cursor:default">
                 <button onClick="{{ r.open }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit plan</button>
-                <button onClick="{{ r.generate }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bolt</span>Generate work order now</button>
+                <button onClick="{{ r.generate }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bolt</span>Generate intervention now</button>
                 <a href="Planning.dc.html" style="height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px;font-weight:500;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">calendar_month</span>View in planning</a>
                 <div style="height:1px;background:#EEF0F3;margin:6px 4px"></div>
                 <button onClick="{{ r.del }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer;text-align:left" style-hover="background:#FEF3F2"><span style="font:18px/1 'Material Symbols Outlined'">delete</span>Delete plan</button>
@@ -213,7 +213,7 @@ class Component extends DCLogic {
     if (Object.keys(errors).length) return this.setState({ errors });
     const id = this.state.drawer.id, row = { ...f, every: +f.every, next: f.active ? 'Oct 12' : '—', nextSub: f.active ? 'first generation' : 'plan inactive' };
     this.setState(s => ({ rows: id ? s.rows.map(r => r.id === id ? { ...r, ...row } : r) : [{ ...row, id: 'p' + pid++, desc: f.desc || name(f.assets[0]), ic: 0 }, ...s.rows], drawer: null }));
-    this.flash(`Plan "${f.name}" ${id ? 'updated' : 'created'}${f.active ? ' · work orders will be generated automatically' : ''}`);
+    this.flash(`Plan "${f.name}" ${id ? 'updated' : 'created'}${f.active ? ' · interventions will be generated automatically' : ''}`);
   }
   renderVals() {
     const s = this.state, f = s.f, q = s.q.toLowerCase();
@@ -228,14 +228,14 @@ class Component extends DCLogic {
       toggle: e => { e.stopPropagation(); this.setState(st => ({ rows: st.rows.map(x => x.id === r.id ? { ...x, active: !x.active, next: x.active ? '—' : 'Oct 12', nextSub: x.active ? 'plan inactive' : 'next generation' } : x) })); this.flash(`${r.name} ${r.active ? 'deactivated' : 'activated'}`); },
       open: e => { e.stopPropagation(); this.open(r); }, menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > list.length - 3 && list.length > 4 ? '-160px' : '34px',
       menu: e => { e.stopPropagation(); this.setState({ menu: mo ? null : r.id }); },
-      generate: e => { e.stopPropagation(); this.setState({ menu: null }); this.flash(`Work order generated from "${r.name}" · visible in Planning`); },
+      generate: e => { e.stopPropagation(); this.setState({ menu: null }); this.flash(`Intervention generated from "${r.name}" · visible in Planning`); },
       del: e => { e.stopPropagation(); this.setState(st => ({ rows: st.rows.filter(x => x.id !== r.id), menu: null })); this.flash(`"${r.name}" deleted`); } }; });
     const count = k => s.rows.filter(r => k === 'all' || (k === 'active') === r.active).length;
     const E = k => s.errors[k] ? '#F04438' : '#D0D5DD';
     const every = +f.every || 0, unitShort = f.unit;
     const freqSummary = f.trig === 'meter'
-      ? `A work order is generated every ${every || '…'} ${unitShort} for each selected asset, based on its meter reading.`
-      : `A work order is generated every ${every || '…'} ${every === 1 ? unitShort.replace(/s$/, '') : unitShort} for each selected asset, then appears in Planning.`;
+      ? `An intervention is generated every ${every || '…'} ${unitShort} for each selected asset, based on its meter reading.`
+      : `An intervention is generated every ${every || '…'} ${every === 1 ? unitShort.replace(/s$/, '') : unitShort} for each selected asset, then appears in Planning.`;
     const a = sw(f.active);
     return {
       rows, rangeLabel: `Showing ${list.length} of ${s.rows.length} plans`,
@@ -252,7 +252,7 @@ class Component extends DCLogic {
         select: () => this.setState(st => ({ f: { ...st.f, trig: k, unit: UNITS[k][k === 'time' ? 2 : 0], every: k === 'time' ? '1' : '500' } })) })),
       units: UNITS[f.trig], freqSummary, checklists: CHECKLISTS,
       toggleActive: () => this.setF('active', !f.active), activeTrack: a.track, activeKnob: a.knob,
-      activeLabel: f.active ? 'Active' : 'Inactive', activeSub: f.active ? 'Work orders are generated automatically at each due date.' : 'No work orders are generated until you activate the plan.',
+      activeLabel: f.active ? 'Active' : 'Inactive', activeSub: f.active ? 'Interventions are generated automatically at each due date.' : 'No interventions are generated until you activate the plan.',
       hasErrors: Object.values(s.errors).some(Boolean), save: () => this.save(), toast: s.toast,
     };
   }

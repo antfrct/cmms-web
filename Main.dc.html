@@ -41,8 +41,13 @@
         </sc-if>
       </div>
       <button onClick="{{ request }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px 0 9px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#F9FAFB;border-color:#98A2B3"><span style="font:19px/1 'Material Symbols Outlined';color:#475467">campaign</span>Request intervention</button>
-      <button data-feature="wo.quick" onClick="{{ quick }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:#fff;border:1px solid #F3A3AC;border-radius:6px;color:#A30014;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#FBF1F2"><span style="font:19px/1 'Material Symbols Outlined'">bolt</span>Quick intervention</button>
-      <button onClick="{{ newWo }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</button>
+      <div style="display:flex;align-items:stretch;height:34px;border-radius:6px;background:#C00018">
+        <button onClick="{{ newWo }}" style="display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:transparent;border:0;border-radius:6px 0 0 6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New intervention</button>
+        <span data-feature="wo.quick" style="width:1px;margin:7px 0;background:rgba(255,255,255,.35)"></span>
+        <button data-feature="wo.quick" onClick="{{ quick }}" onMouseEnter="{{ qTipOn }}" onMouseLeave="{{ qTipOff }}" aria-label="Quick intervention" style="position:relative;width:36px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:0 6px 6px 0;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:19px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1">bolt</span>
+          <sc-if value="{{ qTip }}"><span style="position:absolute;top:40px;right:0;z-index:50;display:flex;flex-direction:column;gap:2px;width:220px;padding:8px 10px;background:#1E2430;border-radius:6px;color:#fff;text-align:left;font:600 12.5px 'IBM Plex Sans',sans-serif;box-shadow:0 8px 24px rgba(16,24,40,.24);pointer-events:none">Quick intervention<span style="font-weight:400;color:#C4CAD4;line-height:1.4">Start a job right now — equipment and issue, details later</span></span></sc-if>
+        </button>
+      </div>
     </header>
 
     <section style="flex:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff;border:1px solid #E4E7EC;border-radius:8px;overflow:hidden">
@@ -152,7 +157,7 @@
                       <span style="display:flex;justify-content:flex-end;min-width:0">
                         <sc-if value="{{ it.canStart }}"><button onClick="{{ it.start }}" title="Start intervention" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:3px;padding:0 10px 0 6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 12px 'IBM Plex Sans',sans-serif;color:#A30014;cursor:pointer;white-space:nowrap" style-hover="border-color:#C00018"><span style="font:17px/1 'Material Symbols Outlined'">play_arrow</span>Start</button></sc-if>
                         <sc-if value="{{ it.canResume }}"><button onClick="{{ it.resume }}" title="Resume intervention" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:3px;padding:0 10px 0 6px;background:#C00018;border:0;border-radius:6px;font:600 12px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer;white-space:nowrap" style-hover="background:#A30014"><span style="font:17px/1 'Material Symbols Outlined'">play_arrow</span>Resume</button></sc-if>
-                        <sc-if value="{{ it.canAsk }}"><button onClick="{{ it.ask }}" title="Ask in the work order chat" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 9px 0 6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:15px/1 'Material Symbols Outlined'">chat_bubble</span>Ask</button></sc-if>
+                        <sc-if value="{{ it.canAsk }}"><button onClick="{{ it.ask }}" title="Ask in the intervention chat" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 9px 0 6px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap"><span style="font:15px/1 'Material Symbols Outlined'">chat_bubble</span>Ask</button></sc-if>
                         <sc-if value="{{ it.isDone }}"><span title="{{ it.doneTip }}" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;color:#0B6B4A;font:20px/1 'Material Symbols Outlined';font-variation-settings:'FILL' 1">check_circle</span></sc-if>
                         <sc-if value="{{ it.isWaiting }}"><span title="Waiting for spare parts — Start becomes available when they arrive" style="width:100px;height:30px;display:flex;align-items:center;justify-content:center;gap:4px;border:1px dashed #D0D5DD;border-radius:6px;font:500 12px 'IBM Plex Sans',sans-serif;color:#98A2B3;cursor:not-allowed;white-space:nowrap"><span style="font:16px/1 'Material Symbols Outlined'">hourglass_top</span>Waiting</span></sc-if>
                       </span>
@@ -214,7 +219,7 @@
                 <span style="font-size:12px;color:#667085">MTBF 146 h · slowest repairs on Tempering Line (4 h 10).</span>
               </div>
               <div style="flex:0 0 100%;height:192px;padding:6px 16px 0;display:flex;flex-direction:column;gap:10px">
-                <div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:30px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums">46</span><span style="color:#667085">open work orders in backlog</span><span style="margin-left:auto;height:22px;display:inline-flex;align-items:center;gap:2px;padding:0 8px 0 5px;border-radius:11px;background:#FEF3E2;color:#B54708;font-size:11.5px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">north</span>6 this week</span></div>
+                <div style="display:flex;align-items:baseline;gap:10px"><span style="font-size:30px;line-height:36px;font-weight:600;font-variant-numeric:tabular-nums">46</span><span style="color:#667085">open interventions in backlog</span><span style="margin-left:auto;height:22px;display:inline-flex;align-items:center;gap:2px;padding:0 8px 0 5px;border-radius:11px;background:#FEF3E2;color:#B54708;font-size:11.5px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">north</span>6 this week</span></div>
                 <div style="flex:1;display:grid;grid-template-columns:repeat(6,1fr);gap:12px;align-items:end">
                   <sc-for list="{{ backlog }}" as="b"><span style="display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end"><span style="display:flex;align-items:flex-end;gap:3px;height:100%"><span style="width:11px;height:{{ b.c }};border-radius:2px 2px 0 0;background:#C4CAD4"></span><span style="width:11px;height:{{ b.d }};border-radius:2px 2px 0 0;background:#2456B8"></span></span><span style="font:10.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ b.label }}</span></span></sc-for>
                 </div>
@@ -266,7 +271,7 @@
 
           <sc-if value="{{ isChatList }}">
             <div style="flex:none;position:relative;display:flex;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #F2F4F7">
-              <label style="flex:1;min-width:0;height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px"><span style="font:17px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ chatQ }}" onInput="{{ setChatQ }}" placeholder="Search people, teams, work orders…" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font:13px 'IBM Plex Sans',sans-serif" /></label>
+              <label style="flex:1;min-width:0;height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px"><span style="font:17px/1 'Material Symbols Outlined';color:#98A2B3">search</span><input value="{{ chatQ }}" onInput="{{ setChatQ }}" placeholder="Search people, teams, interventions…" style="flex:1;min-width:0;border:0;outline:none;background:transparent;font:13px 'IBM Plex Sans',sans-serif" /></label>
               <button onClick="{{ toggleUnreadOnly }}" title="Show unread conversations only" style="flex:none;height:32px;display:flex;align-items:center;gap:4px;padding:0 10px;background:{{ unreadBg }};border:1px solid {{ unreadBorder }};border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:{{ unreadFg }};cursor:pointer;white-space:nowrap">Unread<sc-if value="{{ hasChatUnread }}"><span style="min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#C00018;color:#fff;font:600 11px/18px 'IBM Plex Sans',sans-serif;text-align:center">{{ chatUnread }}</span></sc-if></button>
               <button onClick="{{ toggleDmPick }}" title="New direct message" aria-label="New direct message" style="flex:none;width:32px;height:32px;display:grid;place-items:center;padding:0;background:#fff;border:1px solid #D0D5DD;border-radius:6px;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">edit_square</span></button>
               <sc-if value="{{ dmPick }}">
@@ -333,7 +338,7 @@
                     </sc-for>
                   </div>
                 </sc-for>
-                <sc-if value="{{ dmNoShared }}"><div style="margin:auto;padding:24px;text-align:center;color:#98A2B3;max-width:260px">No other conversations with {{ th.first }} in your teams, site channel or work orders.</div></sc-if>
+                <sc-if value="{{ dmNoShared }}"><div style="margin:auto;padding:24px;text-align:center;color:#98A2B3;max-width:260px">No other conversations with {{ th.first }} in your teams, site channel or interventions.</div></sc-if>
               </div>
             </sc-if>
           </sc-if>
@@ -366,21 +371,15 @@
         <span style="display:flex;align-items:center;gap:8px;min-width:0"><span data-person="{{ rq.by }}" style="flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:{{ rq.avBg }};color:{{ rq.avFg }};font:600 9px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ rq.by }}</span><span style="font-weight:500">{{ rq.byName }}</span><span style="color:#98A2B3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rq.byRole }}</span></span>
         <span style="color:#667085">Notified</span>
         <span style="display:flex;flex-wrap:wrap;gap:4px"><sc-for list="{{ rq.notified }}" as="n"><span style="height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 9px 0 6px;border-radius:12px;background:#F2F4F7;color:#344054;font-size:12px;font-weight:500"><span style="font:14px/1 'Material Symbols Outlined';color:#667085">{{ n.icon }}</span>{{ n.label }}</span></sc-for><sc-if value="{{ rq.noNotified }}"><span style="color:#98A2B3">Nobody</span></sc-if></span>
-        <sc-if value="{{ rq.hasWo }}"><span style="color:#667085">Work order</span><a href="{{ rq.woHref }}" style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rq.woLabel }}</a></sc-if>
+        <sc-if value="{{ rq.hasWo }}"><span style="color:#667085">Intervention</span><a href="{{ rq.woHref }}" style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ rq.woLabel }}</a></sc-if>
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px;padding-top:2px">
-        <span style="font-size:13px;font-weight:600;color:#344054">Decision</span>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-          <sc-for list="{{ rq.decisions }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.pick }}" style="height:38px;display:flex;align-items:center;justify-content:center;gap:6px;background:{{ d.bg }};border:{{ d.border }};border-radius:8px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:{{ d.color }};cursor:pointer"><span style="font:17px/1 'Material Symbols Outlined'">{{ d.icon }}</span>{{ d.label }}</button></sc-for>
-        </div>
-        <sc-if value="{{ rq.isRejected }}"><input value="{{ rq.note }}" onInput="{{ setReqNote }}" onBlur="{{ saveReqNote }}" placeholder="Reason (optional) — shared with the reporter" aria-label="Reason" style="height:38px;padding:0 10px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></sc-if>
-      </div>
+      <sc-if value="{{ rq.isRejected }}"><div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#344054">Reason</span><input value="{{ rq.note }}" onInput="{{ setReqNote }}" onBlur="{{ saveReqNote }}" placeholder="Reason (optional) — shared with the reporter" aria-label="Reason" style="height:38px;padding:0 10px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></div></sc-if>
     </div>
     <div style="flex:none;display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid #EEF0F3;background:#FBFBFC">
       <span style="flex:1;min-width:0;font-size:12px;color:#667085">{{ rq.footNote }}</span>
       <button onClick="{{ closeReq }}" style="height:36px;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer">Close</button>
-      <sc-if value="{{ rq.canCreate }}"><button onClick="{{ rq.createWo }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:18px/1 'Material Symbols Outlined'">add_task</span>Create work order</button></sc-if>
-      <sc-if value="{{ rq.hasWo }}"><a href="{{ rq.woHref }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#1E2430;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff"><span style="font:18px/1 'Material Symbols Outlined'">open_in_new</span>Open work order</a></sc-if>
+      <sc-if value="{{ rq.canCreate }}"><button onClick="{{ rq.reject }}" style="height:36px;display:flex;align-items:center;gap:5px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer" style-hover="border-color:#B42318;background:#FEF6F6"><span style="font:17px/1 'Material Symbols Outlined'">block</span>Reject</button><button onClick="{{ rq.accept }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:18px/1 'Material Symbols Outlined'">check</span>Accept…</button></sc-if>
+      <sc-if value="{{ rq.hasWo }}"><a href="{{ rq.woHref }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#1E2430;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff"><span style="font:18px/1 'Material Symbols Outlined'">open_in_new</span>Open intervention</a></sc-if>
     </div>
   </div>
 </sc-if>
@@ -448,11 +447,11 @@ const ACT = [
   ['play_arrow', 'Intervention started', 'Cooling Tower — Water treatment check', 'Julie Martin', '6 min', '#E6F4EE', '#0B6B4A', 'WorkOrders.dc.html'],
   ['check_circle', 'Intervention completed', 'Conveyor Line 3 — Sensor check', 'Sophie Martin · 1 h 12', '10 min', '#E6F4EE', '#0B6B4A', 'WorkOrders.dc.html'],
   ['campaign', 'Intervention request', 'Conveyor Line 3 — Belt slipping at the drive end', 'Lucas Bernard → Mechanical team', '12 min', '#FEF3E2', '#B54708', 'Main.dc.html?req=R-1048'],
-  ['swap_horiz', 'Work order reassigned', 'Hydraulic Press — Oil leak', 'Pierre Leroy → Marc Dupont', '18 min', '#EAF1FD', '#2456B8', 'WorkOrders.dc.html'],
+  ['swap_horiz', 'Intervention reassigned', 'Hydraulic Press — Oil leak', 'Pierre Leroy → Marc Dupont', '18 min', '#EAF1FD', '#2456B8', 'WorkOrders.dc.html'],
   ['chat', 'Comment on intervention', 'Compressor C-01 — Filter replacement', '“Filter housing cracked, photo attached”', '52 min', '#EEF1F4', '#475467', 'WorkOrders.dc.html'],
   ['inventory_2', 'Stock alert', 'Drive belt BPU280', '2 left · minimum 5', '1 h', '#FEF3E2', '#B54708', 'SpareParts.dc.html'],
   ['precision_manufacturing', 'Equipment status changed', 'Palletizing Robot', 'Out of service → In service', '2 h', '#E6F4EE', '#0B6B4A', 'AssetDetail.dc.html'],
-  ['add_circle', 'Work order created', 'Fan V-08 — Noisy bearing', 'Float Line · from request R-1045', '2 h', '#EEF1F4', '#475467', 'WorkOrders.dc.html'],
+  ['add_circle', 'Intervention created', 'Fan V-08 — Noisy bearing', 'Float Line · from request R-1045', '2 h', '#EEF1F4', '#475467', 'WorkOrders.dc.html'],
 ];
 // Scheduling targets: [key, tab label, date label, iso, short day, group key]
 const DAYS = [['today', 'Today', 'Tue 29', '2026-09-29', 'Tue', 'today'], ['tomorrow', 'Tomorrow', 'Wed 30', '2026-09-30', 'Wed', 'tomorrow'], ['thu', 'Thursday', 'Oct 1', '2026-10-01', 'Thu', 'week'], ['fri', 'Friday', 'Oct 2', '2026-10-02', 'Fri', 'week']];
@@ -483,7 +482,7 @@ class Component extends DCLogic {
     this._iv = setInterval(() => { if ((this.props.autoRotate ?? true) && !this.state.anaHidden && !this.state.hover && Date.now() - (this._nav || 0) > 4500) this.setState(s => ({ slide: (s.slide + 1) % SLIDES.length })); }, 5000);
     this._wo = e => { const r = e.detail || {}, C = this.state.C;
       if (r.fromRequest && C) C.updateRequest(r.fromRequest, { status: 'accepted', wo: r.key, woTask: r.title, woPrio: r.prio, decidedBy: C.ME });
-      this.setState(s => ({ act: [['add_circle', 'Work order created', r.title, 'by you · ' + (r.date ? 'scheduled' : 'not scheduled') + (r.fromRequest ? ' · from request ' + r.fromRequest : ''), 'now', '#EEF1F4', '#475467', 'WorkOrders.dc.html'], ...s.act],
+      this.setState(s => ({ act: [['add_circle', 'Intervention created', r.title, 'by you · ' + (r.date ? 'scheduled' : 'not scheduled') + (r.fromRequest ? ' · from request ' + r.fromRequest : ''), 'now', '#EEF1F4', '#475467', 'WorkOrders.dc.html'], ...s.act],
         created: r.date ? s.created : [[`n${Date.now()}`, `${r.assetName || r.asset} — ${r.title}`, '', r.type || 'Corrective', r.prio || 'Medium', 'GD', r.fromRequest ? `From request ${r.fromRequest}` : 'Created just now', r.key], ...s.created] })); };
     window.addEventListener('cmms-wo-created', this._wo);
     this._sent = e => { const r = e.detail || {}; this.setState(s => ({ reqView: 'open', act: [['campaign', 'Intervention request sent', `${r.asset} — ${shortTitle(r.text)}`, 'by you', 'now', '#FEF3E2', '#B54708', 'Main.dc.html?req=' + r.id], ...s.act] })); };
@@ -549,24 +548,23 @@ class Component extends DCLogic {
     const look = r => C.REQ_STATUS[r.status] || C.REQ_STATUS.pending;
     const notifLabel = r => { const n = (r.notify || []); if (!n.length) return 'nobody notified'; const mine = n.includes(C.ME); const rest = n.filter(k => k !== C.ME).map(k => C.notifyName(k)); return [mine ? 'you' : null, ...rest].filter(Boolean).slice(0, 2).join(', ') + (n.length > 2 ? ` +${n.length - 2}` : ''); };
     const reqs = list.map(r => { const [label, fg] = look(r), p = C.person(r.by), mine = r.by === C.ME;
-      const meta = r.status === 'accepted' ? `Accepted${r.wo ? ' · ' + C.displayId(r.wo) : ''}` : r.status === 'rejected' ? `Not retained${r.note ? ' · ' + r.note : ''}` : `${mine ? 'You' : shortName(p.name)} → ${notifLabel(r)}`;
+      const meta = r.status === 'accepted' ? `Accepted${r.wo ? ' · ' + C.displayId(r.wo) : ''}` : r.status === 'rejected' ? `Rejected${r.note ? ' · ' + r.note : ''}` : `${mine ? 'You' : shortName(p.name)} → ${notifLabel(r)}`;
       return { asset: r.asset, text: r.text, ago: r.ago, photo: !!r.photo, dot: fg, statusLabel: label, by: r.by, avBg: p.avBg, avFg: p.avFg, meta, metaColor: r.status === 'pending' ? '#667085' : fg,
         tip: `${r.asset} — ${r.text}`, bg: r.ago === 'now' ? '#FFFCF5' : '#fff', border: r.ago === 'now' ? '#F5D9A8' : '#E4E7EC', op: r.status === 'pending' ? 1 : 0.8, open: () => this.setState({ reqOpen: r.id, reqNote: null }) }; });
     const r = s.reqOpen ? C.getRequest(s.reqOpen) : null;
     let rq = null;
     if (r) {
       const [label, fg, bg] = look(r), p = C.person(r.by);
-      const woW = r.wo ? { task: r.woTask || shortTitle(r.text), asset: r.asset, loc: r.loc, type: 'Corrective', prio: r.woPrio || 'Medium', status: 'Requested' } : null;
+      const woW = r.wo ? { task: r.woTask || shortTitle(r.text), asset: r.asset, loc: r.loc, type: 'Corrective', prio: r.woPrio || 'Medium', status: (C.getWo(r.wo) || {}).status || 'Not scheduled' } : null;
       rq = { id: r.id, asset: r.asset, loc: r.loc, at: r.at, text: r.text, statusLabel: label, sFg: fg, sBg: bg, by: r.by, byName: p.name, byRole: `· ${p.role}`, avBg: p.avBg, avFg: p.avFg,
         hasPhotoUrl: !!r.photoUrl, photoUrl: r.photoUrl || '', photoPlaceholder: !!r.photo && !r.photoUrl,
         notified: (r.notify || []).map(k => ({ label: k === C.ME ? 'You' : C.notifyName(k), icon: C.CHANNELS[k] ? 'groups' : 'person' })), noNotified: !(r.notify || []).length,
         hasWo: !!r.wo, woHref: r.wo ? C.woHref(r.wo, woW) : '#', woLabel: r.wo ? `${C.displayId(r.wo)} · ${r.asset} — ${woW.task}` : '',
         isRejected: r.status === 'rejected', note: s.reqNote != null ? s.reqNote : (r.note || ''),
         canCreate: !r.wo && r.status !== 'rejected',
-        footNote: r.wo ? 'A work order was created from this request.' : r.status === 'rejected' ? 'Not retained — no work order will be created.' : 'Create a work order — asset and description are reused.',
-        decisions: Object.keys(C.REQ_STATUS).map(k => { const [l, f2, b2, icon] = C.REQ_STATUS[k], on = r.status === k; return { label: l, icon, bg: on ? b2 : '#fff', border: on ? `2px solid ${f2}` : '1px solid #D0D5DD', color: on ? f2 : '#344054',
-          pick: () => { if (on) return; C.updateRequest(r.id, { status: k, decidedBy: C.ME }); this.flash(`${r.id} · ${l}`); } }; }),
-        createWo: () => { this.setState({ reqOpen: null }); const fol = [...new Set([C.ME, r.by])]; if (window.CMMSCreateWO) window.CMMSCreateWO({ asset: r.assetCode || r.asset, title: shortTitle(r.text), desc: `${r.text}\n\nFrom intervention request ${r.id} · reported by ${p.name}.`, type: 'Corrective', followers: fol, fromRequest: r.id }); } };
+        footNote: r.wo ? 'Accepted — the intervention is in ' + ((C.getWo(r.wo) || {}).status || 'Not scheduled') + '.' : r.status === 'rejected' ? 'Rejected — no intervention will be created.' : 'Accept to create the intervention (Not scheduled, or Scheduled if you pick a date).',
+        accept: () => { this.setState({ reqOpen: null }); window.RelixAccept && window.RelixAccept({ id: r.id, title: `${r.asset} — ${shortTitle(r.text)}`, text: r.text, mode: 'later', onDone: x => this.flash(`${r.id} accepted · ${x.status}`) }); },
+        reject: () => { this.setState({ reqOpen: null }); window.RelixAccept && window.RelixAccept({ id: r.id, title: `${r.asset} — ${shortTitle(r.text)}`, text: r.text, mode: 'reject', onDone: () => this.flash(`${r.id} rejected`) }); } };
     }
     return { reqs, hasReqs: pend.length > 0, rq, reqSummary: pend.length ? `${pend.length} to review` : 'all reviewed',
       reqViews: [['open', 'To review'], ['all', 'All']].map(([k, label]) => { const on = s.reqView === k; return { label, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.12)' : 'none', font: on ? sbold : sreg, color: on ? '#1E2430' : '#667085', select: () => this.setState({ reqView: k }) }; }),
@@ -595,7 +593,7 @@ class Component extends DCLogic {
         isPaused: !!pz && !d, pct: pz ? Math.round(pz[0] / pz[1] * 100) + '%' : '0%', progress: pz ? `${pz[0]} of ${pz[1]} steps` : '', hasMeta: false, meta: '',
         canResume: !!pz && !d && mine, canAsk: !!pz && !d && !mine, resume: e => { e.stopPropagation(); window.location.href = 'Intervention.dc.html?' + qs; }, ask: e => { e.stopPropagation(); this.openWoThread(wo); },
         hasChat: chatN(wo) > 0, chat: chatN(wo), openThread: e => { e.preventDefault(); this.openWoThread(wo); },
-        woHref: 'WorkOrder.dc.html?' + qs, isDone: d, doneTip: `Completed${x.doneAt ? ' at ' + x.doneAt : ''} — open the work order to see the report`, isWaiting: isMy && !d && waiting,
+        woHref: 'WorkOrder.dc.html?' + qs, isDone: d, doneTip: `Completed${x.doneAt ? ' at ' + x.doneAt : ''} — open the intervention to see the report`, isWaiting: isMy && !d && waiting,
         canStart: isMy && !d && !pz && !waiting, showWho: !isMy, initials: p.initials, person: who === '--' ? '' : who, whoName: p.name, avBg: p.avBg, avFg: p.avFg,
         start: e => { e.stopPropagation(); window.location.href = 'Intervention.dc.html?' + qs; }, canSchedule: false, menuOpen: false, options: [],
         edge: over && !d ? '#C00018' : 'transparent', bg: s.flashId === id ? '#F5F8FE' : over && !d ? '#FEF6F6' : '#fff', border: over && !d ? '#FBD5D5' : '#E4E7EC', hoverBg: over && !d ? '#FDEFEF' : '#F9FAFB',
@@ -605,7 +603,7 @@ class Component extends DCLogic {
       const p = person(who), u = { id, title, who }, urgent = prio === 'Critical' || prio === 'High';
       return { title, type, typeFg: (TYPE[type] || TYPE.Corrective)[1], line: line || 'Thourotte Plant', meta, prio, urgent, normal: !urgent, pbg: prio === 'Critical' ? '#C00018' : '#FDECEC', pfg: prio === 'Critical' ? '#fff' : '#B42318',
         showWho: !isMy, initials: p.initials, person: who === '--' ? '' : who, whoName: who === '--' ? 'Unassigned' : p.name, avBg: p.avBg, avFg: p.avFg, bg: s.flashId === id ? '#F5F8FE' : '#fff',
-        woHref: 'WorkOrder.dc.html?' + wq(key || 'home-' + id, title, line, type, prio, 'Requested'), schedule: e => { e.stopPropagation(); this.openSlots(u, 'today'); } };
+        woHref: 'WorkOrder.dc.html?' + wq(key || 'home-' + id, title, line, type, prio, 'Not scheduled'), schedule: e => { e.stopPropagation(); this.openSlots(u, 'today'); } };
     });
     const sched = data.groups.map(g => ({ ...g, items: [...g.items, ...movedItems(g.key)].sort((a, b) => sortKey(g.key, a[1]) - sortKey(g.key, b[1])) })).filter(g => g.items.some(i => typeOk(i[4]))).map(g => {
       const over = g.key === 'over', items = g.items.filter(i => typeOk(i[4])).map(i => row(g.key, over, i));
@@ -690,7 +688,7 @@ class Component extends DCLogic {
       prevSlide: () => this.go(s.slide - 1), nextSlide: () => this.go(s.slide + 1),
       dots: SLIDES.map(([t], i) => ({ title: t, w: i === s.slide ? '18px' : '6px', bg: i === s.slide ? '#C00018' : '#D0D5DD', go: () => this.go(i) })),
       hoverOn: () => this.setState({ hover: true }), hoverOff: () => this.setState({ hover: false }),
-      quick: () => window.CMMSQuickIntervention && window.CMMSQuickIntervention({}),
+      quick: () => { this.setState({ qTip: false }); window.CMMSQuickIntervention && window.CMMSQuickIntervention({}); }, qTip: !!s.qTip, qTipOn: () => this.setState({ qTip: true }), qTipOff: () => this.setState({ qTip: false }),
       hubTabs: [['activity', 'Activity', 'bolt'], ['chat', 'Chat', 'forum']].map(([k, label, icon]) => { const on = hub === k, un = k === 'chat' ? chatUnread : 0;
         return { label, icon, live: k === 'activity', hasUnread: un > 0 && !on, unread: un, font: on ? bold : reg, color: on ? '#1E2430' : '#667085', bar: on ? '#C00018' : 'transparent', select: () => this.openHub(k) }; }),
       isActivity: hub === 'activity',

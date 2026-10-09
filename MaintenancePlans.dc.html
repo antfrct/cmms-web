@@ -22,7 +22,7 @@
       <dc-import name="BackButton" fallback="Main.dc.html" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Maintenance plans</h1>
-        <p style="margin:2px 0 0;color:#667085;font-size:13px">Preventive rules that generate work orders automatically</p>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px">Preventive rules that generate interventions automatically</p>
       </div>
       <sc-if value="{{ adv }}"><button data-feature="prev.ai" onClick="{{ advPlan }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">event_repeat</span>Generate from manufacturer manual<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New plan</button>
@@ -46,7 +46,7 @@
       </div>
       <div style="flex:1;min-height:0;overflow:auto">
       <div style="position:sticky;top:0;z-index:3;display:grid;grid-template-columns:minmax(240px,2fr) minmax(150px,1.2fr) 130px minmax(150px,1.1fr) 90px 120px 96px 48px;align-items:center;height:36px;padding-left:16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
-        <span>Plan</span><span>Assets</span><span>Frequency</span><span>Checklist</span><span>Duration</span><span>Next work order</span><span>Active</span><span></span>
+        <span>Plan</span><span>Assets</span><span>Frequency</span><span>Checklist</span><span>Duration</span><span>Next intervention</span><span>Active</span><span></span>
       </div>
       <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
         <div onClick="{{ r.open }}" style="display:grid;grid-template-columns:minmax(240px,2fr) minmax(150px,1.2fr) 130px minmax(150px,1.1fr) 90px 120px 96px 48px;align-items:center;min-height:56px;padding-left:16px;border-bottom:1px solid #F2F4F7;cursor:pointer;opacity:{{ r.op }}" style-hover="background:#F9FAFB">
@@ -65,7 +65,7 @@
             <sc-if value="{{ r.menuOpen }}">
               <div style="position:absolute;right:6px;top:{{ r.menuTop }};z-index:40;width:230px;background:#fff;border:1px solid #E4E7EC;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.14);padding:6px;cursor:default">
                 <button onClick="{{ r.open }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit plan</button>
-                <button onClick="{{ r.generate }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bolt</span>Generate work order now</button>
+                <button onClick="{{ r.generate }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;text-align:left" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">bolt</span>Generate intervention now</button>
                 <a href="Planning.dc.html" style="height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:6px;font-weight:500;color:#1E2430" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">calendar_month</span>View in planning</a>
                 <div style="height:1px;background:#EEF0F3;margin:6px 4px"></div>
                 <button onClick="{{ r.del }}" style="width:100%;height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;background:transparent;border:0;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#B42318;cursor:pointer;text-align:left" style-hover="background:#FEF3F2"><span style="font:18px/1 'Material Symbols Outlined'">delete</span>Delete plan</button>
@@ -176,7 +176,7 @@
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-          <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500;color:#344054">Work order type</span>
+          <div style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500;color:#344054">Intervention type</span>
             <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px"><sc-for list="{{ typeOpts }}" as="o"><button onClick="{{ o.select }}" style="flex:1;height:32px;background:{{ o.bg }};border:0;border-radius:5px;box-shadow:{{ o.shadow }};font:{{ o.font }};color:{{ o.color }};cursor:pointer">{{ o.label }}</button></sc-for></div>
           </div>
           <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500;color:#344054">Generate &amp; remind before due</span><span style="position:relative;display:flex"><input type="number" min="0" max="60" value="{{ f.lead }}" onInput="{{ on.lead }}" style="width:100%;height:36px;padding:0 44px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><span style="position:absolute;right:10px;top:9px;color:#667085">days</span></span></label>
@@ -220,7 +220,7 @@ class Component extends DCLogic {
     const row = { ...f, every: +f.every, lead: Math.max(0, +f.lead || 0), lastAt: f.trig === 'meter' ? (+f.lastAt || (M ? M.value : 0)) : 0, last: id ? (P.get(id) || {}).last || P.TODAY : P.TODAY, desc: f.desc || name(this.state.PL, f.assets[0]), ic: id ? (P.get(id) || {}).ic || 0 : f.type === 'Inspection' ? 6 : 0 };
     if (id) row.id = id; const nid = P.save(row); this.setState({ drawer: null });
     const gen = f.active ? P.runDue() : [];
-    this.flash(`Plan "${f.name}" ${id ? 'updated' : 'created'}${gen.length ? ` · ${gen.length} work order${gen.length > 1 ? 's' : ''} generated` : f.active ? ' · work orders will be generated automatically' : ''}`);
+    this.flash(`Plan "${f.name}" ${id ? 'updated' : 'created'}${gen.length ? ` · ${gen.length} intervention${gen.length > 1 ? 's' : ''} generated` : f.active ? ' · interventions will be generated automatically' : ''}`);
   }
   advVals() {
     if (!this._advL) { this._advL = () => this.forceUpdate(); window.addEventListener('cmms-advanced', this._advL); }
@@ -242,19 +242,19 @@ class Component extends DCLogic {
       assetsLabel: r.assets.length > 1 ? `${r.assets.length} assets` : name(PL, r.assets[0]),
       freq: P.freqLabel(r), trigIcon: r.trig === 'meter' ? 'speed' : 'event_repeat',
       next: nd.label, nextSub: nd.sub, nextColor: nd.overdue ? '#B42318' : '#1E2430', subColor: nd.overdue ? '#B42318' : '#98A2B3',
-      hasGen: gens.length > 0, genLabel: `${gens.length} work order${gens.length > 1 ? 's' : ''} generated`, genHref: 'WorkOrders.dc.html?view=list&q=' + encodeURIComponent(r.name), stop: e => e.stopPropagation(),
+      hasGen: gens.length > 0, genLabel: `${gens.length} intervention${gens.length > 1 ? 's' : ''} generated`, genHref: 'WorkOrders.dc.html?view=list&q=' + encodeURIComponent(r.name), stop: e => e.stopPropagation(),
       track: t.track, knob: t.knob, toggleTitle: r.active ? 'Deactivate' : 'Activate',
-      toggle: e => { e.stopPropagation(); P.setActive(r.id, !r.active); const g = !r.active ? P.runDue() : []; this.flash(`${r.name} ${r.active ? 'deactivated' : 'activated'}${g.length ? ` · ${g.length} work order${g.length > 1 ? 's' : ''} generated` : ''}`); },
+      toggle: e => { e.stopPropagation(); P.setActive(r.id, !r.active); const g = !r.active ? P.runDue() : []; this.flash(`${r.name} ${r.active ? 'deactivated' : 'activated'}${g.length ? ` · ${g.length} intervention${g.length > 1 ? 's' : ''} generated` : ''}`); },
       open: e => { e.stopPropagation(); this.open(r); }, menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > page.length - 3 && page.length > 4 ? '-160px' : '34px',
       menu: e => { e.stopPropagation(); this.setState({ menu: mo ? null : r.id }); },
-      generate: e => { e.stopPropagation(); this.setState({ menu: null }); const keys = P.generate(r.id, { manual: true }); const C = window.RelixCollab; this.flash(`${keys.length} work order${keys.length > 1 ? 's' : ''} generated from "${r.name}" · visible in Work orders and Planning`, C && keys[0] ? C.woHref(keys[0]) : ''); },
+      generate: e => { e.stopPropagation(); this.setState({ menu: null }); const keys = P.generate(r.id, { manual: true }); const C = window.RelixCollab; this.flash(`${keys.length} intervention${keys.length > 1 ? 's' : ''} generated from "${r.name}" · visible in Interventions and Planning`, C && keys[0] ? C.woHref(keys[0]) : ''); },
       del: e => { e.stopPropagation(); P.remove(r.id); this.setState({ menu: null }); this.flash(`"${r.name}" deleted`); } }; });
     const count = k => all.filter(r => k === 'all' || (k === 'active') === r.active).length;
     const E = k => s.errors[k] ? '#F04438' : '#D0D5DD';
     const every = +f.every || 0, M = f.trig === 'meter' && f.assets.length ? PL.meterOf(f.assets.find(a => PL.meterOf(a)) || f.assets[0]) : null;
     const freqSummary = f.trig === 'meter'
-      ? `A work order is generated each time the asset meter passes the next threshold (${every || '…'} ${f.unit} after the last service), ${+f.lead || 0} day${+f.lead === 1 ? '' : 's'} ahead based on the asset's average usage.`
-      : `A work order is generated every ${every || '…'} ${every === 1 ? f.unit.replace(/s$/, '') : f.unit} for each selected asset, ${+f.lead || 0} day${+f.lead === 1 ? '' : 's'} before it is due, then appears in Planning.`;
+      ? `An intervention is generated each time the asset meter passes the next threshold (${every || '…'} ${f.unit} after the last service), ${+f.lead || 0} day${+f.lead === 1 ? '' : 's'} ahead based on the asset's average usage.`
+      : `An intervention is generated every ${every || '…'} ${every === 1 ? f.unit.replace(/s$/, '') : f.unit} for each selected asset, ${+f.lead || 0} day${+f.lead === 1 ? '' : 's'} before it is due, then appears in Planning.`;
     const a = sw(f.active);
     return {
       ...this.advVals(),
@@ -274,7 +274,7 @@ class Component extends DCLogic {
       meterNow: M ? `${M.value.toLocaleString('en-US')} ${PL.meterShort(M.unit)} · read ${P.fmt(M.at)}` : f.assets.length ? 'No meter on this asset — add a reading on its sheet' : 'Select an asset',
       typeOpts: ['Preventive', 'Inspection'].map(k => { const on = (f.type || 'Preventive') === k; return { label: k, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setF('type', k) }; }),
       toggleActive: () => this.setF('active', !f.active), activeTrack: a.track, activeKnob: a.knob,
-      activeLabel: f.active ? 'Active' : 'Inactive', activeSub: f.active ? 'Work orders are generated automatically at each due date.' : 'No work orders are generated until you activate the plan.',
+      activeLabel: f.active ? 'Active' : 'Inactive', activeSub: f.active ? 'Interventions are generated automatically at each due date.' : 'No interventions are generated until you activate the plan.',
       hasErrors: Object.values(s.errors).some(Boolean), save: () => this.save(), toast: s.toast, toastHref: s.toastHref || '', hasToastHref: !!s.toastHref,
     };
   }

@@ -38,7 +38,7 @@
       <div style="flex:none;display:flex;gap:8px;white-space:nowrap">
         <button onClick="{{ edit }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">edit</span>Edit</button>
         <button onClick="{{ toggleQr }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">qr_code_2</span>QR code</button>
-        <button onClick="{{ newWo }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer;white-space:nowrap" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</button>
+        <button onClick="{{ newWo }}" style="height:36px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer;white-space:nowrap" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New intervention</button>
       </div>
     </header>
 
@@ -66,7 +66,7 @@
               <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding-bottom:10px">
                 <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">Reservations this week</h2><span style="margin-left:8px;min-width:0;font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ resSummary }}</span><button onClick="{{ goRes }}" style="margin-left:auto;background:none;border:0;padding:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">View all</button></div>
                 <sc-for list="{{ resRows }}" as="r"><div style="display:flex;align-items:center;gap:10px;padding:7px 16px"><span style="width:62px;font:500 12px 'IBM Plex Mono',monospace;color:#475467">{{ r.day }}</span><span style="width:96px;font:500 12px 'IBM Plex Mono',monospace">{{ r.time }}</span><span style="flex:1;min-width:0;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.wo }}</span><span data-person="{{ r.who }}" style="width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:{{ r.avBg }};color:{{ r.avFg }};font:600 9px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ r.who }}</span></div></sc-for>
-                <sc-if value="{{ noRes }}"><div style="padding:0 16px 6px;color:#98A2B3">Not reserved this week — available for any work order.</div></sc-if>
+                <sc-if value="{{ noRes }}"><div style="padding:0 16px 6px;color:#98A2B3">Not reserved this week — available for any intervention.</div></sc-if>
               </section>
             </sc-if>
             <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
@@ -77,7 +77,7 @@
               </div>
             </section>
             <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
-              <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">Recent work orders</h2><button onClick="{{ goWo }}" style="margin-left:auto;background:none;border:0;padding:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">View all</button></div>
+              <div style="display:flex;align-items:center;padding:14px 16px 8px"><h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">Recent interventions</h2><button onClick="{{ goWo }}" style="margin-left:auto;background:none;border:0;padding:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#C00018;cursor:pointer">View all</button></div>
               <sc-for list="{{ wos }}" as="w"><a href="{{ w.href }}" style="display:grid;grid-template-columns:minmax(0,1fr) 110px 130px 120px;align-items:center;gap:10px;padding:9px 16px;border-top:1px solid #F2F4F7;color:#1E2430" style-hover="background:#F9FAFB"><span style="min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ w.title }}</span><span style="font:500 11.5px 'IBM Plex Mono',monospace;color:#98A2B3">{{ w.id }}</span></span><span style="color:#475467">{{ w.type }}</span><span style="color:#475467">{{ w.who }}</span><span><span style="display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:11px;font-size:12px;font-weight:600;background:{{ w.bg }};color:{{ w.fg }}"><span style="width:6px;height:6px;border-radius:50%;background:currentColor"></span>{{ w.status }}</span></span></a></sc-for>
             </section>
           </div>
@@ -104,7 +104,7 @@
 
       <sc-if value="{{ isRes }}">
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;align-items:center;gap:10px"><h2 style="margin:0;font-size:14px;font-weight:600">Week of Sep 28</h2><span style="font-size:12px;color:#667085">Reserved automatically when a scheduled work order needs this asset</span><a href="Planning.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">Open planning</a></div>
+          <div style="display:flex;align-items:center;gap:10px"><h2 style="margin:0;font-size:14px;font-weight:600">Week of Sep 28</h2><span style="font-size:12px;color:#667085">Reserved automatically when a scheduled intervention needs this asset</span><a href="Planning.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">Open planning</a></div>
           <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:0;font:500 11px 'IBM Plex Mono',monospace;color:#98A2B3"><span></span><span style="display:flex;justify-content:space-between"><sc-for list="{{ hourTicks }}" as="h"><span>{{ h }}</span></sc-for></span></div>
           <sc-for list="{{ week }}" as="d">
             <div style="display:grid;grid-template-columns:64px minmax(0,1fr);align-items:center">
@@ -171,7 +171,7 @@ class Component extends DCLogic {
     return {
       a, icon: PM.typeIcon(a.type), zfg, zbg, mobile, sbg, sfg, statusLabel: now ? `Reserved until ${hm(now.to)}` : a.status, critColor: PM.CRIT[a.crit], locIcon: zi,
       crumbs: PM.chain(a.loc).map((n, i, arr) => ({ name: n.name, level: ['Zone', 'Line', 'Step'][i], href: 'Assets.dc.html?loc=' + n.id, color: i === arr.length - 1 ? '#1E2430' : '#475467', weight: i === arr.length - 1 ? 600 : 400 })),
-      tabs: [['overview', 'Overview'], ['wo', 'Work orders', 3], ['docs', 'Documents', a.docs.length], ...(mobile ? [['res', 'Reservations', res.length]] : [])].map(([k, label, count]) => ({ label, count, hasCount: count != null, font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: s.tab === k ? '#1E2430' : '#667085', bar: s.tab === k ? '#C00018' : 'transparent', select: () => this.setState({ tab: k }) })),
+      tabs: [['overview', 'Overview'], ['wo', 'Interventions', 3], ['docs', 'Documents', a.docs.length], ...(mobile ? [['res', 'Reservations', res.length]] : [])].map(([k, label, count]) => ({ label, count, hasCount: count != null, font: s.tab === k ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: s.tab === k ? '#1E2430' : '#667085', bar: s.tab === k ? '#C00018' : 'transparent', select: () => this.setState({ tab: k }) })),
       isOverview: s.tab === 'overview', isDocs: s.tab === 'docs', isRes: s.tab === 'res', isWo: s.tab === 'wo',
       details: [['Type', a.type], ['Class', mobile ? 'Mobile asset · reservable' : 'Fixed equipment'], [mobile ? 'Home location' : 'Location', PM.pathOf(a.loc)], ['Manufacturer', a.manufacturer], ['Model', a.model], ['Serial number', a.serial], ['Year installed', a.year], ['Owner', p.name], ['Criticality', a.crit]]
         .map(([k, v]) => ({ k, v: v || 'Not set', color: v ? '#1E2430' : '#98A2B3' })),

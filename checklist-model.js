@@ -1,4 +1,4 @@
-// Shared checklist model — used by Checklist Editor (both views), StepEditor, Intervention, Work Order.
+// Shared checklist model — used by Checklist Editor (both views), StepEditor, Intervention, Intervention.
 const KEY = 'cmms.checklists.v1';
 const PREVIEW_KEY = 'cmms.checklists.preview';
 
@@ -54,11 +54,11 @@ export const SEEDS = {
     ],
   },
   standard: {
-    id: 'standard', name: 'Standard intervention', desc: 'Default checklist for corrective work orders.', status: 'published', est: 60, updated: '2026-09-18T14:30', updatedBy: 'C. Moreau',
+    id: 'standard', name: 'Standard intervention', desc: 'Default checklist for corrective interventions.', status: 'published', est: 60, updated: '2026-09-18T14:30', updatedBy: 'C. Moreau',
     steps: [
       base('t1', 'Secure the equipment', 'confirm', { skills: ['ELE'], minutes: 15, required: true, options: ['Equipment stopped', 'Lockout / tagout applied'], media: [{ kind: 'pdf', name: 'Lockout procedure.pdf' }] }),
       base('t2', 'Is the equipment in normal condition?', 'yesno', { skills: ['ELE'], minutes: 15, required: true, flagWhen: 'no', rules: [{ when: 'no', action: 'require', need: 'photo' }] }),
-      base('t3', 'Carry out the work', 'instruction', { skills: ['MEC'], minutes: 20, desc: 'Follow the work order description\nReplace worn parts if needed\nReassemble and check all fixings' }),
+      base('t3', 'Carry out the work', 'instruction', { skills: ['MEC'], minutes: 20, desc: 'Follow the intervention description\nReplace worn parts if needed\nReassemble and check all fixings' }),
       base('t4', 'Spare parts used', 'parts', { skills: ['MEC'], minutes: 2 }),
       base('t5', 'Does it run normally after restart?', 'yesno', { skills: ['MEC'], minutes: 5, required: true, flagWhen: 'no', rules: [{ when: 'no', action: 'require', need: 'comment' }] }),
       base('t6', 'Clean up and hand over', 'confirm', { skills: ['MEC'], minutes: 3, required: true, options: ['Tools removed', 'Area cleaned', 'Operator informed'] }),

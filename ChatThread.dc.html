@@ -49,7 +49,7 @@
     </sc-if>
     <div style="display:flex;align-items:center;gap:4px;height:{{ inputH }};padding:0 4px;border:1px solid {{ inputBorder }};border-radius:8px;background:#fff">
       <button onClick="{{ addPhoto }}" title="Add a photo" style="flex:none;width:{{ btnW }};height:{{ btnW }};display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">photo_camera</span></button>
-      <sc-if value="{{ canLink }}"><button onClick="{{ toggleLink }}" title="Link equipment, work order or part" style="flex:none;width:{{ btnW }};height:{{ btnW }};display:grid;place-items:center;background:{{ linkBg }};border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">add_link</span></button></sc-if>
+      <sc-if value="{{ canLink }}"><button onClick="{{ toggleLink }}" title="Link equipment, intervention or part" style="flex:none;width:{{ btnW }};height:{{ btnW }};display:grid;place-items:center;background:{{ linkBg }};border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:20px/1 'Material Symbols Outlined'">add_link</span></button></sc-if>
       <input ref="{{ inputRef }}" value="{{ draft }}" onInput="{{ setDraft }}" onKeyDown="{{ onKey }}" onFocus="{{ onFocus }}" onBlur="{{ onBlur }}" placeholder="{{ placeholder }}" style="flex:1;min-width:0;border:0;outline:none;font:{{ inputFont }};color:#1E2430;background:transparent" />
       <button onClick="{{ send }}" title="Send" style="flex:none;width:{{ btnW }};height:{{ btnW }};display:grid;place-items:center;background:{{ sendBg }};border:0;border-radius:6px;color:#fff;cursor:pointer"><span style="font:18px/1 'Material Symbols Outlined'">send</span></button>
     </div>
@@ -82,7 +82,7 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:420,&quot;height&quot;:560},&quot;channel&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;team&quot;,&quot;site&quot;,&quot;WO-1339859&quot;,&quot;WO-1339850&quot;],&quot;default&quot;:&quot;WO-1339859&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;highlight&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;md&quot;,&quot;lg&quot;],&quot;default&quot;:&quot;md&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;placeholder&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;intents&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;},&quot;onSent&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;}}">
-const KIND = { Equipment: ['precision_manufacturing', '#475467', '#EEF1F4'], 'Work order': ['build', '#A30014', '#FBE7EA'], Intervention: ['play_circle', '#2456B8', '#EAF1FD'], 'Spare part': ['inventory_2', '#B54708', '#FEF3E2'] };
+const KIND = { Equipment: ['precision_manufacturing', '#475467', '#EEF1F4'], Intervention: ['build', '#A30014', '#FBE7EA'], 'Spare part': ['inventory_2', '#B54708', '#FEF3E2'] };
 const TAGS = { Help: ['#FDECEC', '#B42318', 'support'], Handover: ['#EAF1FD', '#2456B8', 'swap_horiz'], Reassignment: ['#FEF3E2', '#B54708', 'person_alert'], 'Missing part': ['#FEF3E2', '#B54708', 'inventory_2'], Progress: ['#E6F4EE', '#0B6B4A', 'trending_up'] };
 const INTENTS = {
   wo: [['Help', 'Need help', 'support', 'Need help: '], ['Reassignment', 'Can someone take over?', 'person_alert', "I can't continue — can someone take over this intervention?"], ['Missing part', 'Missing part', 'inventory_2', 'Missing part: '], ['Handover', 'Handover note', 'swap_horiz', 'Handover: ']],
@@ -132,7 +132,7 @@ class Component extends DCLogic {
     const canSend = !!(s.draft.trim() || s.photo || s.ref);
     const [tgb, tgf] = TAGS[s.tag] || [];
     return {
-      msgs, empty: !msgs.length, emptyText: this.props.emptyText || (info.kind === 'dm' ? `No messages with ${info.title} yet. Say hello — only the two of you see this conversation.` : info.kind === 'wo' ? 'No messages yet. Discuss availability, parts or progress — everyone on this work order sees it.' : 'No messages yet.'),
+      msgs, empty: !msgs.length, emptyText: this.props.emptyText || (info.kind === 'dm' ? `No messages with ${info.title} yet. Say hello — only the two of you see this conversation.` : info.kind === 'wo' ? 'No messages yet. Discuss availability, parts or progress — everyone on this intervention sees it.' : 'No messages yet.'),
       fontSize: big ? '14px' : '13px', listRef: this.listRef, inputRef: this.inputRef,
       hasIntents: ints.length > 0, chipH: big ? '34px' : '28px',
       intents: ints.map(([tag, label, icon, pre]) => { const on = s.tag === tag; return { label, icon, bg: on ? TAGS[tag][0] : '#fff', border: on ? TAGS[tag][1] : '#E4E7EC', color: on ? TAGS[tag][1] : '#344054', pick: () => { this.setState({ tag: on ? '' : tag, draft: on ? s.draft : (s.draft.trim() ? s.draft : pre) }); setTimeout(() => this.inputRef.current && this.inputRef.current.focus(), 0); } }; }),
@@ -154,7 +154,7 @@ class Component extends DCLogic {
       },
       send: () => this.send(), sendBg: canSend ? '#C00018' : '#D0D5DD', inputBorder: s.focus ? '#98A2B3' : '#D0D5DD',
       inputH: big ? '52px' : '42px', btnW: big ? '42px' : '32px', inputFont: big ? "15px 'IBM Plex Sans',sans-serif" : "13px 'IBM Plex Sans',sans-serif",
-      placeholder: this.props.placeholder || (info.kind === 'wo' ? 'Message everyone on this work order · @ to mention' : info.kind === 'dm' ? `Message ${info.title.split(' ')[0]} directly` : `Message ${info.title} · @ to mention`),
+      placeholder: this.props.placeholder || (info.kind === 'wo' ? 'Message everyone on this intervention · @ to mention' : info.kind === 'dm' ? `Message ${info.title.split(' ')[0]} directly` : `Message ${info.title} · @ to mention`),
     };
   }
 }

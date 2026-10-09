@@ -1,5 +1,5 @@
 // Relix maintenance plans — shared model (storage cmms.plans.v1, event cmms-plans). window.RelixPlans.
-// Active plans generate preventive work orders into the WO store (collab-model) when they fall due within their lead time.
+// Active plans generate preventive interventions into the WO store (collab-model) when they fall due within their lead time.
 // Calendar plans: next = last + every unit. Meter plans: next threshold = lastAt + every, ETA from the asset meter (plant-model meterOf).
 import * as C from './collab-model.js';
 import * as PL from './plant-model.js';
@@ -54,7 +54,7 @@ export const nextDue = p => {
 };
 
 const assetRow = id => { const a = PL.asset(id); return a ? { id: a.id, name: a.name, line: (PL.lineOf(a.loc) || {}).name || '' } : { id, name: id, line: '' }; };
-// Creates one preventive work order per asset for the given due date and advances the plan.
+// Creates one preventive intervention per asset for the given due date and advances the plan.
 export const generate = (id, { manual = false } = {}) => {
   const p = get(id); if (!p) return [];
   const nd = nextDue(p), due = manual && (!nd.iso || nd.days > 1) ? addDays(TODAY, 1) : (nd.iso || addDays(TODAY, 1));

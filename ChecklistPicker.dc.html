@@ -91,7 +91,7 @@ class Component extends DCLogic {
         stats: [['Steps', c.steps.length], ['Est. duration', `${c.est || 30} min`], ['Branches', c.steps.filter(x => x.conditional).length || '—']].map(([k, v]) => ({ k, v })),
         needs: [[photos, 'photo_camera', `${photos} photo${photos > 1 ? 's' : ''}`], [values, 'speed', `${values} measured value${values > 1 ? 's' : ''}`], [files, 'attach_file', `${files} attachment${files > 1 ? 's' : ''}`], [parts, 'inventory_2', 'Parts usage']].filter(x => x[0]).map(([, icon, label]) => ({ icon, label })),
         steps: c.steps.map((st, i) => { const lg = M.logicSummary(c, st); return { n: i + 1, title: st.title, kind: M.TYPES[st.type].label, icon: M.TYPES[st.type].icon, required: !!st.required, hasLogic: !!lg || st.conditional, logic: lg || 'Shown only on a branch', indent: st.conditional ? '34px' : '14px' }; }),
-        btnLabel: on ? 'Remove from work order' : 'Add to work order', btnIcon: on ? 'remove' : 'add', btnBg: on ? '#fff' : '#C00018', btnBorder: on ? '#D0D5DD' : '#C00018', btnColor: on ? '#B42318' : '#fff',
+        btnLabel: on ? 'Remove from intervention' : 'Add to intervention', btnIcon: on ? 'remove' : 'add', btnBg: on ? '#fff' : '#C00018', btnBorder: on ? '#D0D5DD' : '#C00018', btnColor: on ? '#B42318' : '#fff',
         toggle: () => { toggle(c.id); this.setState({ pv: null }); } };
       pv.hasNeeds = pv.needs.length > 0;
     }

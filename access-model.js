@@ -8,19 +8,19 @@ const emit = d => { try { window.dispatchEvent(new CustomEvent('cmms-access', { 
 export const SIGNED_IN = 'GD';
 
 // ---------- Modules & levels ----------
-export const MODULES = [['assets', 'Assets'], ['workorders', 'Work orders'], ['plans', 'Maintenance plans & checklists'], ['planning', 'Planning'], ['parts', 'Spare parts'], ['suppliers', 'Suppliers'], ['documents', 'Documents'], ['teams', 'Teams & users'], ['admin', 'Site configuration']];
+export const MODULES = [['assets', 'Assets'], ['workorders', 'Interventions'], ['plans', 'Maintenance plans & checklists'], ['planning', 'Planning'], ['parts', 'Spare parts'], ['suppliers', 'Suppliers'], ['documents', 'Documents'], ['teams', 'Teams & users'], ['admin', 'Site configuration']];
 export const LEVEL = { F: ['check_circle', '#0B6B4A', 'Full', '#E6F4EE', 'Create, edit, delete, configure'], E: ['edit', '#2456B8', 'Edit', '#EAF1FD', 'Create and edit, no delete'], V: ['visibility', '#475467', 'View', '#F2F4F7', 'Read only'], '-': ['block', '#98A2B3', 'None', '#fff', 'Module hidden'] };
 export const CODES = ['F', 'E', 'V', '-'];
 const RANK = { F: 3, E: 2, V: 1, '-': 0 };
 // Which module a page belongs to (used by the TopBar guard and the Sidebar).
-export const PAGE_MODULE = [[/Asset/i, 'assets'], [/WorkOrder|Work Order/i, 'workorders'], [/MaintenancePlans|Maintenance Plans|Checklist/i, 'plans'], [/Planning/i, 'planning'], [/SpareParts|Spare Parts/i, 'parts'], [/Suppliers/i, 'suppliers'], [/Documents/i, 'documents'], [/TeamsUsers|Teams and Users/i, 'teams'], [/Administration/i, 'admin'], [/SuperAdmin/i, 'superadmin']];
+export const PAGE_MODULE = [[/Asset/i, 'assets'], [/WorkOrder|Intervention/i, 'workorders'], [/MaintenancePlans|Maintenance Plans|Checklist/i, 'plans'], [/Planning/i, 'planning'], [/SpareParts|Spare Parts/i, 'parts'], [/Suppliers/i, 'suppliers'], [/Documents/i, 'documents'], [/TeamsUsers|Teams and Users/i, 'teams'], [/Administration/i, 'admin'], [/SuperAdmin/i, 'superadmin']];
 export const moduleOfPath = p => { const f = decodeURIComponent((p || '').split('/').pop() || ''); const m = PAGE_MODULE.find(([re]) => re.test(f)); return m ? m[1] : null; };
 
 // ---------- Roles ----------
 const SEED_ROLES = [
   { id: 'admin', name: 'Administrator', desc: 'Full access to the site, including configuration and users', locked: true },
   { id: 'manager', name: 'Maintenance manager', desc: 'Manages work, plans, stock and teams' },
-  { id: 'planner', name: 'Planner', desc: 'Schedules work orders and preventive plans' },
+  { id: 'planner', name: 'Planner', desc: 'Schedules interventions and preventive plans' },
   { id: 'tech', name: 'Technician', desc: 'Executes assigned work, consumes parts' },
   { id: 'req', name: 'Requester', desc: 'Submits intervention requests and follows them' },
 ];
@@ -75,7 +75,7 @@ export const can = (mod, need = 'V', uid = me()) => { if (mod === 'superadmin') 
 // Financial is cumulative: it adds access to sensitive money values on top of any operational role.
 export const canFinance = (uid = me()) => !!(user(uid) || {}).financial;
 export const MASK = '•••';
-// Hourly labor rate set per user in Teams & users (used by Work order / Intervention costs).
+// Hourly labor rate set per user in Teams & users (used by intervention costs).
 export const rateOf = key => { const u = users().find(x => x.key === key || x.id === key); return u && +u.rate ? +u.rate : null; };
 
 // ---------- Teams ----------

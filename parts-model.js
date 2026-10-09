@@ -104,8 +104,8 @@ export const savePart = (ref, data) => { const all = parts(); const i = ref ? al
 export const deletePart = ref => { wr(PK, parts().filter(p => p.ref !== ref)); wr(PK + '.removed', [...rd(PK + '.removed', []), ref]); emit('cmms-parts', { ref, deleted: true }); };
 // delta in stock units (may be fractional for consumables). label overrides the movement text (e.g. "−35% of a roll").
 export const adjust = (ref, delta, reason, sub, label) => { const p = part(ref); if (!p) return; const qty = Math.max(0, r3(p.qty + delta)); savePart(ref, { qty, moves: [[delta < 0 ? 'remove' : 'add', reason, sub || 'Manual entry · G. Durand', label || ((delta < 0 ? '−' : '+') + num(Math.abs(delta)) + (isConsumable(p) ? ' ' + p.unit : '')), 'Just now', delta < 0 ? '#B42318' : '#0B6B4A'], ...(p.moves || [])].slice(0, 30) }); };
-// Record actual usage from an intervention / work order: amount in the item's usage unit → stock movement.
-export const consume = (ref, amount, wo, sub) => { const p = part(ref); if (!p || !(+amount > 0)) return; adjust(ref, -toStock(p, amount), 'Consumed on work order' + (wo ? ' · ' + wo : ''), sub || 'Intervention', '−' + (isConsumable(p) ? fmtUse(p, amount).replace(/^×/, '') : num(amount))); };
+// Record actual usage from an intervention: amount in the item's usage unit → stock movement.
+export const consume = (ref, amount, wo, sub) => { const p = part(ref); if (!p || !(+amount > 0)) return; adjust(ref, -toStock(p, amount), 'Consumed on intervention' + (wo ? ' · ' + wo : ''), sub || 'Intervention', '−' + (isConsumable(p) ? fmtUse(p, amount).replace(/^×/, '') : num(amount))); };
 export const partsOfSupplier = id => parts().filter(p => p.supplier === id);
 export const partsOfAsset = id => parts().filter(p => (p.assets || []).includes(id));
 export const status = p => p.qty <= 0 ? ['Out of stock', '#FDECEC', '#B42318', '#D92D20'] : p.qty < p.min ? ['Low stock', '#FEF3E2', '#B54708', '#F79009'] : ['In stock', '#E6F4EE', '#0B6B4A', '#12A06E'];

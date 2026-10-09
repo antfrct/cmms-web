@@ -1,5 +1,5 @@
-// Relix shared collaboration model — work order store, participants, chat (WO / team / site), chat notifications.
-// Used by WorkOrderPanel, QuickIntervention, Work Orders, Work Order, Intervention, Home, TopBar, ChatThread.
+// Relix shared collaboration model — intervention store, participants, chat (WO / team / site), chat notifications.
+// Used by WorkOrderPanel, QuickIntervention, Interventions, Intervention, Intervention, Home, TopBar, ChatThread.
 import * as AC from './access-model.js';
 const WKEY = 'cmms.wo.store.v1', CKEY = 'cmms.chat.v2', NKEY = 'cmms.notif.chat.v1';
 export const ME = 'GD';
@@ -28,7 +28,7 @@ const emit = (n, d) => { try { window.dispatchEvent(new CustomEvent(n, { detail:
 const pad = n => String(n).padStart(2, '0');
 export const clock = () => { const d = new Date(); return `${pad(d.getHours())}:${pad(d.getMinutes())}`; };
 
-// ---------- Work orders ----------
+// ---------- Interventions ----------
 const SEED_WO = {
   'WO-1339859': { task: 'Seal replacement', asset: 'Pump P-101', loc: 'Tempering Line', type: 'Corrective', prio: 'Critical', status: 'Scheduled', assignee: 'SM', assignments: [{ key: 'SM', skills: ['ELE'], minutes: 15, offset: 0, label: 'Step 1' }, { key: 'PL', skills: ['MEC'], minutes: 50, offset: 15, label: 'Steps 2–6' }, { key: 'SM', skills: ['ELE'], minutes: 10, offset: 65, label: 'Step 7' }, { key: 'PL', skills: ['MEC'], minutes: 20, offset: 75, label: 'Steps 8–11' }], participants: [['GD', 'Maintenance manager'], ['SL', 'Specialist'], ['LB', 'Follower']], checklists: ['pump-seal'] },
   'WO-1339850': { task: 'Abnormal fan noise', asset: 'Fan V-12', loc: 'Float Line', type: 'Corrective', prio: 'High', status: 'In progress', assignee: 'AM', participants: [['GD', 'Maintenance manager'], ['MD', 'Additional technician']], checklists: ['standard'] },
@@ -54,31 +54,45 @@ export const createWo = w => { const key = w.key || nextKey(); saveWo(key, { ...
 export const assigneesOf = w => [...new Set([...(w.assignments || []).map(a => a.key), w.assignee].filter(Boolean))];
 export const participantsOf = key => { const w = getWo(key); if (!w) return []; const out = []; assigneesOf(w).forEach(k => out.push([k, 'Assigned to'])); (w.participants || []).forEach(p => { if (!out.some(o => o[0] === p[0])) out.push(p); }); return out; };
 
-// ---------- Work order workflow: Requested → Scheduled → In progress → Completed. "Waiting" is a flag that can coexist with any open status. ----------
-export const FLOW = ['Requested', 'Scheduled', 'In progress', 'Completed'];
-export const STATUS_LOOK = { Requested: ['#F3EEFC', '#6941C6', '#7F56D9'], Scheduled: ['#EAF1FD', '#2456B8', '#2E6BE6'], 'In progress': ['#E6F4EE', '#0B6B4A', '#12A06E'], Completed: ['#EEF1F4', '#475467', '#98A2B3'], Overdue: ['#FDECEC', '#B42318', '#D92D20'] };
+// ---------- Intervention workflow: Requested → Not scheduled → Scheduled → In progress → Completed. "Waiting" is a flag that can coexist with any open status.
+// Requested = a request not accepted yet (accept or reject). Not scheduled = accepted, no date. Scheduled = accepted with a date.
+export const FLOW = ['Requested', 'Not scheduled', 'Scheduled', 'In progress', 'Completed'];
+export const STATUS_LOOK = { Requested: ['#F3EEFC', '#6941C6', '#7F56D9'], 'Not scheduled': ['#F0F4F8', '#3E5470', '#7A8CA5'], Scheduled: ['#EAF1FD', '#2456B8', '#2E6BE6'], 'In progress': ['#E6F4EE', '#0B6B4A', '#12A06E'], Completed: ['#EEF1F4', '#475467', '#98A2B3'], Rejected: ['#EEF1F4', '#667085', '#C4CAD4'], Overdue: ['#FDECEC', '#B42318', '#D92D20'] };
 export const WAIT = { parts: ['Waiting for spare parts', 'inventory_2'], paused: ['Intervention paused', 'pause_circle'], dependency: ['Waiting for another job', 'link'], access: ['Waiting for equipment access', 'lock_clock'], approval: ['Waiting for approval', 'approval'], supplier: ['Waiting for external provider', 'handshake'] };
 export const WAIT_LOOK = ['#FEF3E2', '#B54708'];
 // Normalises legacy values ("Waiting for parts", "Overdue") into { status, waiting, overdue }.
 export const norm = (status, waiting, date) => { let st = status || 'Requested', w = waiting || '', overdue = false;
-  if (st === 'Waiting for parts') { st = date ? 'Scheduled' : 'Requested'; w = w || 'parts'; }
+  if (st === 'Waiting for parts') { st = date ? 'Scheduled' : 'Not scheduled'; w = w || 'parts'; }
   if (st === 'Paused') { st = 'In progress'; w = w || 'paused'; }
   if (st === 'Overdue') { st = 'Scheduled'; overdue = true; }
   return { status: st, waiting: w, overdue }; };
 export const waitLabel = w => (WAIT[w] || [w ? 'Waiting' : ''])[0];
 // Drag & drop / manual status changes must follow the real operational workflow.
+// ok:false + action 'accept' | 'schedule' → the caller opens the accept / schedule dialog (window.RelixAccept).
 export const moveCheck = (from, to) => {
   if (from === to) return { ok: false, silent: true };
-  if (from === 'Completed') return { ok: false, reason: 'A completed work order cannot be moved. Reopen it from the work order if more work is needed.' };
-  if (to === 'In progress') return { ok: false, reason: 'A work order becomes In progress only when its intervention is started.', action: 'start', actionLabel: from === 'Requested' ? 'Approve & start intervention' : 'Start intervention' };
-  if (to === 'Completed') return from === 'In progress' ? { ok: false, reason: 'A work order is completed only when its intervention is closed (Review & close).', action: 'resume', actionLabel: 'Resume intervention' } : { ok: false, reason: 'The intervention has not started yet — it cannot be completed.', action: 'start', actionLabel: 'Start intervention' };
-  if (from === 'In progress') return { ok: false, reason: 'The intervention has already started. To stop working on it, pause the intervention — it stays In progress and is flagged Waiting.', action: 'wait', actionLabel: 'Mark as waiting' };
-  if (from === 'Requested' && to === 'Scheduled') return { ok: true, note: 'Approved and scheduled — set the date in Planning.' };
-  if (from === 'Scheduled' && to === 'Requested') return { ok: true, note: 'Moved back to Requested — removed from the plan.' };
+  if (from === 'Completed') return { ok: false, reason: 'A completed intervention cannot be moved. Reopen it from the intervention if more work is needed.' };
+  if (to === 'Requested') return { ok: false, reason: from === 'In progress' ? 'The intervention has already started.' : 'This intervention has already been accepted — it cannot go back to Requested. Reject or cancel it instead.' };
+  if (from === 'Requested' && (to === 'Not scheduled' || to === 'Scheduled')) return { ok: false, dialog: true, action: 'accept', mode: to === 'Scheduled' ? 'schedule' : 'later' };
+  if (to === 'In progress') return from === 'Requested' ? { ok: false, reason: 'A request must be accepted before work starts.', action: 'accept', actionLabel: 'Accept request' } : { ok: false, reason: 'An intervention becomes In progress only when it is started.', action: 'start', actionLabel: 'Start intervention' };
+  if (to === 'Completed') return from === 'In progress' ? { ok: false, reason: 'An intervention is completed only when it is closed (Review & close).', action: 'resume', actionLabel: 'Resume intervention' } : from === 'Requested' ? { ok: false, reason: 'A request must be accepted before it can be completed.', action: 'accept', actionLabel: 'Accept request' } : { ok: false, reason: 'The intervention has not started yet — it cannot be completed.', action: 'start', actionLabel: 'Start intervention' };
+  if (from === 'In progress') return { ok: false, reason: 'The intervention has already started. To stop working on it, pause it — it stays In progress and is flagged Waiting.', action: 'wait', actionLabel: 'Mark as waiting' };
+  if (from === 'Not scheduled' && to === 'Scheduled') return { ok: false, dialog: true, action: 'schedule', mode: 'schedule' };
+  if (from === 'Scheduled' && to === 'Not scheduled') return { ok: true, patch: { due: '' }, note: 'Date removed — back in Not scheduled.' };
   return { ok: true };
 };
+// Accept a request (an R- intervention request or an intervention in Requested): no date → Not scheduled, date → Scheduled.
+export const acceptRequest = (id, o = {}) => { const date = o.date || '', status = date ? 'Scheduled' : 'Not scheduled';
+  if (/^R-/.test(id)) { const r = getRequest(id); if (!r) return null; const title = o.title || r.problem || shortReq(r.text);
+    const key = createWo({ task: title, asset: r.asset, assetCode: r.assetCode, loc: r.loc, type: 'Corrective', prio: o.prio || 'Medium', status, due: date, desc: r.text, problem: r.problem || '', fromRequest: id, createdBy: ME, assignee: o.assignee || '', participants: [[r.by, 'Follow-up']] });
+    updateRequest(id, { status: 'accepted', wo: key, woTask: title, woPrio: o.prio || 'Medium', decidedBy: ME });
+    emit('cmms-wo-created', { key, title: `${r.asset} — ${title}`, asset: r.assetCode || r.asset, type: 'Corrective', prio: o.prio || 'Medium', status, date, fromRequest: id }); return { key, status }; }
+  saveWo(id, { status, due: date, ...(o.prio ? { prio: o.prio } : {}), ...(o.assignee ? { assignee: o.assignee } : {}), acceptedBy: ME }); return { key: id, status }; };
+export const scheduleWo = (key, date) => saveWo(key, { status: date ? 'Scheduled' : 'Not scheduled', due: date || '' });
+export const rejectRequest = (id, note = '') => { if (/^R-/.test(id)) return updateRequest(id, { status: 'rejected', note, decidedBy: ME }); return saveWo(id, { status: 'Rejected', rejectNote: note }); };
+const shortReq = t => { const s = String(t || '').split(/[.—–\-]/)[0].trim(); return s.length > 48 ? s.slice(0, 46) + '…' : s || 'Intervention request'; };
 export const setWaiting = (key, waiting, note) => saveWo(key, { waiting: waiting || '', waitNote: note || '' });
-export const missingInfo = w => { if (!w) return []; const m = []; if (!w.prio) m.push('Priority'); if (!w.assignee) m.push('Assigned to'); if (!w.desc && w.quick) m.push('Description'); if (w.quick && !w.cat) m.push('Failure category'); return m; };
+export const missingInfo = w => { if (!w) return []; const m = []; if (!w.prio) m.push('Priority'); if (!w.assignee) m.push('Assigned to'); if (!w.desc && w.quick) m.push('Description'); if (w.quick && !w.cat) m.push('Failure origin'); return m; };
 
 // ---------- Chat ----------
 export const CHANNELS = {
@@ -98,8 +112,8 @@ export const myTeams = (me = ME) => Object.keys(CHANNELS).filter(k => CHANNELS[k
 export const REFS = [
   ['Equipment', 'Pump P-101', 'Tempering Line', 'AssetDetail.dc.html'],
   ['Equipment', 'Conveyor Line 3', 'Float Line', 'AssetDetail.dc.html'],
-  ['Work order', 'Pump P-101 — Seal replacement', 'WO-1339859', woHref('WO-1339859', SEED_WO['WO-1339859'])],
-  ['Work order', 'Fan V-12 — Abnormal fan noise', 'WO-1339850', woHref('WO-1339850', SEED_WO['WO-1339850'])],
+  ['Intervention', 'Pump P-101 — Seal replacement', 'WO-1339859', woHref('WO-1339859', SEED_WO['WO-1339859'])],
+  ['Intervention', 'Fan V-12 — Abnormal fan noise', 'WO-1339850', woHref('WO-1339850', SEED_WO['WO-1339850'])],
   ['Intervention', 'Fan V-12 — Abnormal vibration', 'Paused · 3 of 7', woHref('home-p1', SEED_WO['home-p1'])],
   ['Spare part', 'Drive belt BPU280', '2 in stock', 'SpareParts.dc.html?q=BLT-BPU280'],
   ['Spare part', 'Mechanical seal 45 mm', '3 in stock', 'SpareParts.dc.html?q=SEAL-M45'],
@@ -118,7 +132,7 @@ const SEED_CHAT = {
   'team-leads': [
     S('l1', 'HP', '07:45', 'Backlog review moved to 15:00 today. I added the Tin Bath roller replacement — needs a decision on overtime.', { ref: R('Pump P-101 — Seal replacement') }),
     S('l2', 'CM', '08:20', 'Vibration trend on Fan V-12 keeps climbing. Suggest we switch it to predictive monitoring weekly.', { ref: R('Fan V-12 — Abnormal vibration') }),
-    S('l3', 'SL', '08:52', 'Supplier confirms ATV320 drive delivery Oct 6. I will reserve it on the Conveyor 3 work order.'),
+    S('l3', 'SL', '08:52', 'Supplier confirms ATV320 drive delivery Oct 6. I will reserve it on the Conveyor 3 intervention.'),
   ],
   'team-elec': [S('e1', 'SM', '08:10', 'Thermography on cabinet E-4 moved to 16:00.')],
   'dm-MD': [
@@ -132,7 +146,7 @@ const SEED_CHAT = {
   ],
   'dm-SL': [
     S('d6', 'SL', '08:47', 'Supplier says the ATV320 drive ships Oct 6. Do you want me to reserve it for Conveyor 3 straight away?'),
-    S('d7', 'GD', '08:51', 'Yes please, and flag it on the work order.'),
+    S('d7', 'GD', '08:51', 'Yes please, and flag it on the intervention.'),
     S('d8', 'SL', '09:15', 'Done. Also: only 2 BPU280 belts left — I raised a reorder.', { ref: R('Drive belt BPU280') }),
   ],
   'dm-HP': [S('d9', 'HP', 'Yesterday', 'Can you review next week\'s plan before Thursday? Two preventive jobs overlap on the Float Line.')],
@@ -140,12 +154,12 @@ const SEED_CHAT = {
   site: [
     S('s1', 'LB', '07:30', 'Float Line speed reduced to 80% from 14:00 for the glass thickness change.', { ref: R('Conveyor Line 3') }),
     S('s2', 'ER', '08:05', 'Reminder: hot work permits required in the Tempering zone all week.'),
-    S('s3', 'HP', '08:50', 'Planned shutdown of Line 2 on Oct 8. Please submit work orders for it by Friday.'),
+    S('s3', 'HP', '08:50', 'Planned shutdown of Line 2 on Oct 8. Please submit interventions for it by Friday.'),
   ],
   'WO-1339859': [
-    S('w1', 'sys', '07:31', 'Work order created by L. Petit · night shift'),
+    S('w1', 'sys', '07:31', 'Intervention created by L. Petit · night shift'),
     S('w2', 'PL', '07:40', 'Seal is weeping again on the drive side. @Sarah can you check whether we have the 45 mm seal in stock?', { tag: 'Missing part' }),
-    S('w3', 'SL', '07:52', '3 in stock, store A-07. I reserved one on this work order.', { ref: R('Mechanical seal 45 mm') }),
+    S('w3', 'SL', '07:52', '3 in stock, store A-07. I reserved one on this intervention.', { ref: R('Mechanical seal 45 mm') }),
     S('w4', 'GD', '08:05', 'Thanks. @Pierre start as soon as Conveyor 3 is done — production wants the backup line freed by noon.'),
     S('w5', 'PL', '08:10', 'OK. Lockout planned for 09:30.'),
   ],
@@ -195,7 +209,7 @@ const linkTo = (ch, id) => { const info = channelInfo(ch); return info.kind === 
 const SEED_NOTIF = [
   { id: 'c-t3', type: 'mention', lvl: 'imp', icon: 'alternate_email', kind: 'Pierre Leroy mentioned you', title: '“Can someone check this pump after the current intervention?”', sub: 'Mechanical team · Pump P-101', ago: '45 min', ch: 'team', msg: 't3' },
   { id: 'c-f3', type: 'reassign', lvl: 'imp', icon: 'swap_horiz', kind: 'Reassignment requested', title: 'Fan V-12 — Abnormal fan noise', sub: 'Alex Martin: “Can someone take this intervention?”', ago: '20 min', ch: 'WO-1339850', msg: 'f3' },
-  { id: 'c-h2', type: 'wo-message', lvl: 'info', icon: 'forum', kind: 'New message in your work order', title: 'Fan V-12 — Abnormal vibration', sub: 'Marc Dupont: “Puller is on the cart next to the press…”', ago: '1 h', ch: 'home-p1', msg: 'h2' },
+  { id: 'c-h2', type: 'wo-message', lvl: 'info', icon: 'forum', kind: 'New message in your intervention', title: 'Fan V-12 — Abnormal vibration', sub: 'Marc Dupont: “Puller is on the cart next to the press…”', ago: '1 h', ch: 'home-p1', msg: 'h2' },
   { id: 'c-r1048', type: 'wo-request', lvl: 'imp', icon: 'campaign', kind: 'Intervention request', title: 'Conveyor Line 3 — Belt slipping at the drive end', sub: 'Lucas Bernard → Mechanical team', ago: '12 min', href: 'Main.dc.html?req=R-1048' },
   { id: 'c-r1047', type: 'wo-request', lvl: 'imp', icon: 'campaign', kind: 'Intervention request', title: 'Hydraulic Press PH-030 — Small oil drip under the main cylinder', sub: 'Emma Roux (HSE) → you', ago: '1 h', href: 'Main.dc.html?req=R-1047' },
 ];
@@ -203,9 +217,9 @@ export const notifications = () => read(NKEY, null) || SEED_NOTIF.map(n => ({ ..
 export const notifHref = n => n.href || linkTo(n.ch, n.msg);
 
 // ---------- Intervention requests: a lightweight report (asset, short description, optional photo, people/teams to notify).
-// Not a work order yet: Report issue → Notify → Review (Pending / Accepted / Not retained) → Create work order if needed.
+// Shown in the Requested column: Report issue → Notify → Accept (Not scheduled / Scheduled) or Reject.
 const RKEY = 'cmms.requests.v1';
-export const REQ_STATUS = { pending: ['Pending', '#B54708', '#FEF3E2', 'schedule'], accepted: ['Accepted', '#0B6B4A', '#E6F4EE', 'check_circle'], rejected: ['Not retained', '#475467', '#EEF1F4', 'do_not_disturb_on'] };
+export const REQ_STATUS = { pending: ['Requested', '#B54708', '#FEF3E2', 'schedule'], accepted: ['Accepted', '#0B6B4A', '#E6F4EE', 'check_circle'], rejected: ['Rejected', '#475467', '#EEF1F4', 'do_not_disturb_on'] };
 const SEED_REQ = [
   { id: 'R-1048', asset: 'Conveyor Line 3', assetCode: 'CV-L3', loc: 'Float Line', text: 'Belt slipping at the drive end — squealing noise when the line speeds up.', by: 'LB', at: 'Today 09:38', ago: '12 min', notify: ['team'], photo: true, status: 'pending' },
   { id: 'R-1047', asset: 'Hydraulic Press PH-030', assetCode: 'PH-030', loc: 'Workshop', text: 'Small oil drip under the main cylinder. Absorbent placed around the press.', by: 'ER', at: 'Today 08:52', ago: '1 h', notify: ['GD'], photo: false, status: 'pending' },
@@ -249,12 +263,12 @@ export const post = (ch, who, text, x = {}) => {
     if (info.kind === 'dm') pushNotif({ type: 'dm', lvl: 'imp', icon: 'chat', kind: `Message from ${p.name}`, title: `“${text.length > 80 ? text.slice(0, 78) + '…' : text}”`, sub: 'Direct message', ch, msg: msg.id });
     else if (mentioned.includes(ME)) pushNotif({ type: 'mention', lvl: 'imp', icon: 'alternate_email', kind: `${p.name} mentioned you`, title: `“${text.length > 80 ? text.slice(0, 78) + '…' : text}”`, sub: where, ch, msg: msg.id });
     else if (x.tag === 'Reassignment') pushNotif({ type: 'reassign', lvl: 'imp', icon: 'swap_horiz', kind: 'Reassignment requested', title: where, sub: `${p.name}: “${text.slice(0, 60)}…”`, ch, msg: msg.id });
-    else if (info.kind === 'wo' && participantsOf(ch).some(q => q[0] === ME) && (x.tag || x.photo)) pushNotif({ type: 'wo-message', lvl: 'info', icon: 'forum', kind: 'New message in your work order', title: where, sub: `${p.name}: “${text.slice(0, 60)}”`, ch, msg: msg.id });
+    else if (info.kind === 'wo' && participantsOf(ch).some(q => q[0] === ME) && (x.tag || x.photo)) pushNotif({ type: 'wo-message', lvl: 'info', icon: 'forum', kind: 'New message in your intervention', title: where, sub: `${p.name}: “${text.slice(0, 60)}”`, ch, msg: msg.id });
   }
   emit('cmms-chat', { ch, id: msg.id });
   // Demo: people you @mention answer back a moment later.
   if (who === ME && info.kind === 'dm') { clearTimeout(post._dm); post._dm = setTimeout(() => post(ch, info.other, ['OK, noted.', 'Thanks — I\'ll take a look shortly.', 'Got it, I\'ll come back to you.'][Math.floor(Math.random() * 3)]), 3000); }
-  if (who === ME && info.kind !== 'dm') mentioned.filter(k => k !== ME).slice(0, 1).forEach(k => setTimeout(() => post(ch, k, k === 'SL' ? '@Gaudéric checking the store now — I\'ll reserve it on this work order if we have it.' : '@Gaudéric seen — I\'ll get back to you here in a few minutes.'), 2600));
+  if (who === ME && info.kind !== 'dm') mentioned.filter(k => k !== ME).slice(0, 1).forEach(k => setTimeout(() => post(ch, k, k === 'SL' ? '@Gaudéric checking the store now — I\'ll reserve it on this intervention if we have it.' : '@Gaudéric seen — I\'ll get back to you here in a few minutes.'), 2600));
   return msg;
 };
 

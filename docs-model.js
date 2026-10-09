@@ -1,4 +1,4 @@
-// Relix documents library — one document can be linked to many assets, work orders and checklist steps.
+// Relix documents library — one document can be linked to many assets, interventions and checklist steps.
 // Storage cmms.docs.v1 ({ rows: [...] } full library once edited). Event cmms-docs. window.RelixDocs.
 const KEY = 'cmms.docs.v1';
 const rd = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) || d; } catch (e) { return d; } };
@@ -8,7 +8,7 @@ const emit = d => { try { window.dispatchEvent(new CustomEvent('cmms-docs', { de
 export const CATS = { Plan: ['#EAF1FD', '#2456B8', 'architecture'], Manual: ['#F3EEFC', '#6941C6', 'menu_book'], Procedure: ['#E6F4EE', '#0B6B4A', 'checklist'], Datasheet: ['#E3F4F7', '#0E7490', 'description'], Certificate: ['#FEF3E2', '#B54708', 'verified'], Photo: ['#FEF0E6', '#C4320A', 'image'], Report: ['#FDECEC', '#B42318', 'analytics'], Other: ['#EEF1F4', '#475467', 'draft'] };
 export const FT = { PDF: ['#FDECEC', '#B42318'], DOCX: ['#EAF1FD', '#2456B8'], XLSX: ['#E6F4EE', '#0B6B4A'], JPG: ['#FEF3E2', '#B54708'], PNG: ['#FEF3E2', '#B54708'], DWG: ['#F3EEFC', '#6941C6'], MP4: ['#E3F4F7', '#0E7490'] };
 export const DISCIPLINES = ['Mechanical', 'Electrical', 'Hydraulic', 'Pneumatic', 'Automation', 'Safety', 'Condition monitoring', 'Maintenance'];
-// Known work orders a document can be linked to (seed + created ones from collab-model when available).
+// Known interventions a document can be linked to (seed + created ones from collab-model when available).
 const SEED_WOS = [['WO-1339859', 'Pump P-101 — Seal replacement'], ['WO-1339850', 'Fan V-12 — Abnormal fan noise'], ['home-p1', 'Fan V-12 — Abnormal vibration'], ['home-p2', 'Compressor C-01 — Filter replacement'], ['WO-1339851', 'Tempering Furnace 2 — Temperature check'], ['WO-1339846', 'Conveyor Line 3 — Sensor check'], ['WO-1339840', 'Hydraulic Press PH-030 — Oil leak']];
 export const knownWos = () => { const C = typeof window !== 'undefined' && window.RelixCollab; const extra = C && C.createdWos ? C.createdWos().map(w => [w.key, `${w.asset} — ${w.task}`]) : []; return [...extra, ...SEED_WOS].filter((x, i, a) => a.findIndex(y => y[0] === x[0]) === i); };
 export const woTitle = k => (knownWos().find(w => w[0] === k) || [k, k])[1];
@@ -37,7 +37,7 @@ const SEED = [
   S('d16', 'Annual lifting inspection — Crane 5 t', 'Certificate', 1, 'Jun 2, 2026', 'PDF', '280 KB', 'Safety', { a: ['MC-01'] }),
   S('d17', 'Electrical cabinet A1 photo', 'Photo', 1, 'Aug 28, 2026', 'JPG', '2.4 MB', 'Electrical', {}),
   S('d18', 'Robot gripper setup photo', 'Photo', 1, 'Aug 8, 2026', 'JPG', '1.9 MB', 'Automation', { a: ['RP-01'] }),
-  S('d19', '2026 work order history', 'Report', 1, 'Aug 25, 2026', 'XLSX', '540 KB', 'Maintenance', {}),
+  S('d19', '2026 intervention history', 'Report', 1, 'Aug 25, 2026', 'XLSX', '540 KB', 'Maintenance', {}),
   S('d20', 'Tin bath roller manual (2011 edition)', 'Manual', 1, 'Mar 3, 2021', 'PDF', '11.0 MB', 'Mechanical', { a: ['TB-01'] }, { archived: true, desc: 'Superseded by the 2024 retrofit manual.' }),
   S('d21', 'Old lockout procedure (2019)', 'Procedure', 1, 'Feb 1, 2019', 'PDF', '620 KB', 'Safety', {}, { archived: true }),
 ];

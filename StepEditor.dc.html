@@ -38,10 +38,10 @@
       <sc-for list="{{ outcomes }}" as="o">
         <div style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid {{ o.border }};border-radius:8px;background:#fff">
           <span style="align-self:flex-start;height:26px;display:inline-flex;align-items:center;gap:6px;padding:0 10px;border-radius:13px;background:{{ o.bg }};color:{{ o.fg }};font-weight:600"><span style="font:16px/1 'Material Symbols Outlined'">{{ o.icon }}</span>{{ o.label }}</span>
-          <label style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#667085">Then</span>
+          <label data-feature="cl.workflow" style="display:flex;flex-direction:column;gap:4px"><span style="font-size:12px;font-weight:600;color:#667085">Then</span>
             <span style="position:relative;display:flex"><select value="{{ o.next }}" onChange="{{ o.setNext }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 28px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none;cursor:pointer"><option value="next">{{ nextLabel }}</option><option value="goto">Go to another step…</option><option value="finish">Finish the checklist</option></select><span style="position:absolute;right:6px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </label>
-          <sc-if value="{{ o.isGoto }}"><span style="position:relative;display:flex;margin-top:-4px"><select value="{{ o.target }}" onChange="{{ o.setTarget }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 28px 0 10px;border:1px solid {{ o.targetBorder }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none;cursor:pointer"><option value="">Choose a step…</option><sc-for list="{{ targets }}" as="t"><option value="{{ t.v }}">{{ t.l }}</option></sc-for></select><span style="position:absolute;right:6px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></sc-if>
+          <sc-if value="{{ o.isGoto }}"><span data-feature="cl.workflow" style="position:relative;display:flex;margin-top:-4px"><select value="{{ o.target }}" onChange="{{ o.setTarget }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 28px 0 10px;border:1px solid {{ o.targetBorder }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none;cursor:pointer"><option value="">Choose a step…</option><sc-for list="{{ targets }}" as="t"><option value="{{ t.v }}">{{ t.l }}</option></sc-for></select><span style="position:absolute;right:6px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></sc-if>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             <sc-for list="{{ o.toggles }}" as="t"><button onClick="{{ t.toggle }}" title="{{ t.tip }}" style="height:30px;display:flex;align-items:center;gap:5px;padding:0 10px 0 7px;background:{{ t.bg }};border:1px solid {{ t.border }};border-radius:15px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:{{ t.color }};cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">{{ t.icon }}</span>{{ t.label }}</button></sc-for>
           </div>
@@ -116,27 +116,12 @@
     </div>
   </sc-if>
 
-  <div style="display:flex;flex-direction:column;border-top:1px solid #F2F4F7;padding-top:8px">
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
-      <button onClick="{{ toggleMore }}" style="height:32px;display:flex;align-items:center;gap:4px;padding:0 10px 0 4px;background:transparent;border:0;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined'">{{ moreChev }}</span>More options</button>
-      <sc-for list="{{ setChips }}" as="c"><span title="{{ c.tip }}" style="height:24px;display:inline-flex;align-items:center;gap:4px;padding:0 8px 0 6px;border-radius:12px;background:#F2F4F7;color:#475467;font-size:12px;font-weight:500;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ c.icon }}</span>{{ c.label }}</span></sc-for>
-      <span style="flex:1"></span>
-      <button onClick="{{ duplicate }}" title="Duplicate step" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined'">content_copy</span></button>
-      <button onClick="{{ remove }}" title="Delete step" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#FEF3F2;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">delete</span></button>
-    </div>
-
-    <sc-if value="{{ moreOpen }}">
-      <div style="display:flex;flex-direction:column;gap:16px;padding:10px 0 4px 4px">
-        <sc-if value="{{ notInstruction }}">
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">Help text for the technician</span>
+  <div style="display:flex;flex-direction:column;gap:14px;border-top:1px solid #F2F4F7;padding-top:10px">
+    <sc-if value="{{ show.help }}"><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">Help text for the technician</span>
             <textarea value="{{ desc }}" onInput="{{ setDesc }}" rows="2" placeholder="What should the technician look at or be careful about?" style="padding:8px 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px/1.5 'IBM Plex Sans',sans-serif;color:#1E2430;outline:none;resize:vertical"></textarea>
-          </label>
-        </sc-if>
-        <sc-if value="{{ canExpected }}">
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">Expected result</span><input value="{{ expected }}" onInput="{{ setExpected }}" placeholder="e.g. No visible leak" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label>
-        </sc-if>
-
-        <div data-feature="cl.media" style="display:flex;flex-direction:column;gap:8px">
+          </label></sc-if>
+    <sc-if value="{{ show.expected }}"><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">Expected result</span><input value="{{ expected }}" onInput="{{ setExpected }}" placeholder="e.g. No visible leak" style="height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label></sc-if>
+    <sc-if value="{{ show.media }}"><div data-feature="cl.media" style="display:flex;flex-direction:column;gap:8px">
           <span style="font-size:12px;font-weight:600;color:#667085">Photos, videos &amp; documents</span>
           <sc-for list="{{ media }}" as="m">
             <div style="display:flex;align-items:center;gap:8px;height:36px;padding:0 4px 0 8px;border:1px solid #E4E7EC;border-radius:6px">
@@ -149,9 +134,8 @@
             <sc-for list="{{ mediaKinds }}" as="k"><label style="height:32px;display:flex;align-items:center;gap:5px;padding:0 10px 0 8px;border:1px dashed #C4CAD4;border-radius:6px;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer" style-hover="border-color:#6941C6;color:#6941C6"><span style="font:16px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.label }}<input type="file" accept="{{ k.accept }}" onChange="{{ k.add }}" style="display:none" /></label></sc-for>
           </div>
           <sc-if value="{{ hasDocRef }}"><div data-feature="docs.links" style="display:contents"><dc-import name="DocLinks" kind="step" target="{{ docRef }}" title="From the document library" bare="{{ true }}" empty-text="Link a procedure or drawing from the library — it is shared, so updates reach every step using it." hint-size="100%,80px"></dc-import></div></sc-if>
-        </div>
-
-        <div data-feature="cl.skills" style="display:flex;flex-direction:column;gap:8px">
+        </div></sc-if>
+    <sc-if value="{{ show.skills }}"><div data-feature="cl.skills" style="display:flex;flex-direction:column;gap:8px">
           <span style="font-size:12px;font-weight:600;color:#667085">Who and how long <span style="font-weight:400;color:#98A2B3">· used to suggest people and plan the work</span></span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ stepSkills }}" as="k"><span style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 3px 0 8px;border-radius:14px;background:{{ k.bg }};color:{{ k.fg }};font-size:12px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}<button onClick="{{ k.remove }}" title="Remove skill" style="width:22px;height:22px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:11px;color:inherit;cursor:pointer;opacity:.7"><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></span></sc-for>
@@ -159,46 +143,49 @@
             <sc-if value="{{ hasSameAsPrev }}"><button onClick="{{ sameAsPrev }}" style="height:28px;padding:0 8px;background:transparent;border:0;font:600 12px 'IBM Plex Sans',sans-serif;color:#2456B8;cursor:pointer;white-space:nowrap">Same as previous step</button></sc-if>
             <span style="display:flex;align-items:center;height:30px;margin-left:6px;border:1px solid #D0D5DD;border-radius:6px;background:#fff"><span style="padding:0 2px 0 8px;font:16px/1 'Material Symbols Outlined';color:#98A2B3">timer</span><input type="number" min="0" step="5" value="{{ minutes }}" onInput="{{ setMinutes }}" placeholder="—" style="width:50px;height:28px;padding:0 4px;border:0;outline:none;font:600 13px 'IBM Plex Mono',monospace;text-align:right;background:transparent" /><span style="padding:0 8px 0 2px;font-size:12px;color:#667085">min</span></span>
           </div>
-        </div>
-
-        <div data-feature="cl.tools" style="display:flex;flex-direction:column;gap:8px">
-          <span style="font-size:12px;font-weight:600;color:#667085">Mobile equipment needed <span style="font-weight:400;color:#98A2B3">· reserved in Planning when the work order is scheduled</span></span>
+        </div></sc-if>
+    <sc-if value="{{ show.tools }}"><div data-feature="cl.tools" style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:12px;font-weight:600;color:#667085">Mobile equipment needed <span style="font-weight:400;color:#98A2B3">· reserved in Planning when the intervention is scheduled</span></span>
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
             <sc-for list="{{ stepTools }}" as="k"><span style="height:28px;display:inline-flex;align-items:center;gap:4px;padding:0 3px 0 8px;border-radius:14px;background:#EAF1FD;color:#2456B8;font-size:12px;font-weight:600;white-space:nowrap"><span style="font:14px/1 'Material Symbols Outlined'">{{ k.icon }}</span>{{ k.name }}<button onClick="{{ k.remove }}" title="Remove" style="width:22px;height:22px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:11px;color:inherit;cursor:pointer;opacity:.7"><span style="font:14px/1 'Material Symbols Outlined'">close</span></button></span></sc-for>
             <span style="position:relative;display:flex"><select value="" onChange="{{ addTool }}" style="appearance:none;-webkit-appearance:none;height:28px;padding:0 24px 0 10px;border:1px dashed #C4CAD4;border-radius:14px;font:600 12px 'IBM Plex Sans',sans-serif;color:#344054;background:#fff;outline:none;cursor:pointer"><option value="">+ Add equipment</option><sc-for list="{{ toolChoices }}" as="c"><option value="{{ c.id }}">{{ c.name }}</option></sc-for></select><span style="position:absolute;right:4px;top:5px;pointer-events:none;font:16px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
           </div>
-        </div>
-
-        <sc-if value="{{ showAfter }}">
-          <label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">After this step</span>
+        </div></sc-if>
+    <sc-if value="{{ show.after }}"><div data-feature="cl.workflow" style="display:contents"><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:600;color:#667085">After this step</span>
             <span style="display:flex;gap:8px;flex-wrap:wrap">
               <span style="position:relative;display:flex"><select value="{{ after }}" onChange="{{ setAfter }}" style="appearance:none;-webkit-appearance:none;height:36px;padding:0 28px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none;cursor:pointer"><option value="next">{{ nextLabel }}</option><option value="goto">Go to another step…</option><option value="finish">Finish the checklist</option></select><span style="position:absolute;right:6px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
               <sc-if value="{{ afterIsGoto }}"><span style="position:relative;display:flex;flex:1;min-width:180px"><select value="{{ afterTarget }}" onChange="{{ setAfterTarget }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 28px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">Choose a step…</option><sc-for list="{{ targets }}" as="t"><option value="{{ t.v }}">{{ t.l }}</option></sc-for></select><span style="position:absolute;right:6px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></sc-if>
             </span>
-          </label>
-        </sc-if>
-
-        <button onClick="{{ toggleConditional }}" style="display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;text-align:left;cursor:pointer;font-family:inherit">
+          </label></div></sc-if>
+    <sc-if value="{{ show.branch }}"><div data-feature="cl.workflow" style="display:contents"><button onClick="{{ toggleConditional }}" style="display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;text-align:left;cursor:pointer;font-family:inherit">
           <span style="width:18px;height:18px;flex:none;border-radius:4px;border:1.5px solid {{ condBorder }};background:{{ condBg }};display:grid;place-items:center;color:#fff;font:14px/1 'Material Symbols Outlined'">{{ condIcon }}</span>
           <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:12.5px;font-weight:600;color:#1E2430">Only when an answer leads here</span><span style="font-size:12px;color:#667085">Skipped in the normal order — for branch steps like “Replace the belt”.</span></span>
-        </button>
-      </div>
-    </sc-if>
+        </button></div></sc-if>
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <sc-for list="{{ addChips }}" as="c"><button onClick="{{ c.add }}" title="{{ c.tip }}" style="height:28px;display:flex;align-items:center;gap:4px;padding:0 10px 0 6px;background:#fff;border:1px solid #E4E7EC;border-radius:14px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#344054;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3;background:#F9FAFB"><span style="font:16px/1 'Material Symbols Outlined';color:#667085">add</span>{{ c.label }}</button></sc-for>
+      <span style="flex:1"></span>
+      <button onClick="{{ duplicate }}" title="Duplicate step" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined'">content_copy</span></button>
+      <button onClick="{{ remove }}" title="Delete step" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#FEF3F2;color:#B42318"><span style="font:18px/1 'Material Symbols Outlined'">delete</span></button>
+    </div>
   </div>
 </div>
 </sc-if>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:640,&quot;height&quot;:560},&quot;step&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;},&quot;steps&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;checklistId&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;},&quot;onChange&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;(patch) =&gt; void&quot;},&quot;onRemove&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;onDuplicate&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;() =&gt; void&quot;},&quot;focus&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;},&quot;focusNonce&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;number&quot;}}">
 const HINT = { yesno: 'The technician taps Yes or No. Choose what happens for each answer.', single: 'The technician picks one answer. Each answer can lead somewhere different.', multi: 'The technician ticks one or more answers.', number: 'The technician types a measured value.', text: 'The technician types a short text (serial number, reference…).', comment: 'The technician writes a free comment.', instruction: 'The technician reads what to do and confirms it is done.', confirm: 'The technician ticks each item to confirm it.', photo: 'The technician takes one or more photos.', file: 'The technician attaches a file.', parts: 'The technician confirms the materials used — whole units for spare parts, actual amount for consumables. Stock is updated.', consumables: 'The technician records the amount of each consumable actually used — stock is reduced by that amount.' };
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
+const BASIC = ['yesno', 'number', 'comment', 'instruction', 'confirm', 'photo'];
+const openOf = (st, focus) => { const o = { help: !!(st.desc && st.type !== 'instruction'), expected: !!st.expected, media: !!(st.media || []).length, skills: !!((st.skills || []).length || +st.minutes), tools: !!(st.tools || []).length, after: st.after && st.after !== 'next', branch: !!st.conditional };
+  const F = { desc: 'help', media: 'media', skills: 'skills', tools: 'tools', expected: 'expected', logic: 'after' }; if (focus && F[focus]) o[F[focus]] = true; return o; };
 const TITLE_PH = { yesno: 'Question — e.g. Is a leak visible?', number: 'What to measure — e.g. Discharge pressure', instruction: 'Action — e.g. Replace the seal', confirm: 'e.g. Secure the equipment', photo: 'e.g. Photo after repair' };
 class Component extends DCLogic {
-  state = { more: false, typesOpen: false };
+  state = { open: openOf(this.props.step || {}, this.props.focus), typesOpen: false };
   componentDidUpdate(prev) {
-    if (this.props.focusNonce && this.props.focusNonce !== prev.focusNonce && this.props.focus && this.props.focus !== 'logic') this.setState({ more: true });
-    if (prev.step && this.props.step && prev.step.id !== this.props.step.id) this.setState({ more: !!(this.props.focus && this.props.focus !== 'logic'), typesOpen: false });
+    if (this.props.focusNonce && this.props.focusNonce !== prev.focusNonce && this.props.focus) this.setState({ open: { ...this.state.open, ...openOf({}, this.props.focus) } });
+    if (prev.step && this.props.step && prev.step.id !== this.props.step.id) this.setState({ open: openOf(this.props.step, this.props.focus), typesOpen: false });
   }
-  componentDidMount() { if (this.props.focus && this.props.focus !== 'logic') this.setState({ more: true }); import('./people-model.js').then(PM => this.setState({ PM })); import('./plant-model.js').then(PL => this.setState({ PL })); this._sk = () => this.forceUpdate(); window.addEventListener('cmms-skills', this._sk); }
-  componentWillUnmount() { window.removeEventListener('cmms-skills', this._sk); }
+  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._mat = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._mat); import('./people-model.js').then(PM => this.setState({ PM })); import('./plant-model.js').then(PL => this.setState({ PL })); this._sk = () => this.forceUpdate(); window.addEventListener('cmms-skills', this._sk); }
+  componentWillUnmount() { window.removeEventListener('cmms-skills', this._sk); window.removeEventListener('cmms-maturity', this._mat); }
   renderVals() {
     const M = window.CMMSChecklist, st = this.props.step;
     if (!M || !st) return { ready: false };
@@ -220,8 +207,8 @@ class Component extends DCLogic {
         setNext: e => setOutcome(w, e.target.value, r && r.target), setTarget: e => setOutcome(w, 'goto', e.target.value),
         toggles: extra.noToggles ? [] : [
           ...(extra.noFlag ? [] : [tog(st.flagWhen === w, 'flag', 'Anomaly', 'Flag an anomaly when this answer is given', () => ch({ flagWhen: st.flagWhen === w ? '' : w }), 'red')]),
-          tog(needs(w, 'photo'), 'photo_camera', 'Photo required', 'The technician must take a photo', () => toggleNeed(w, 'photo')),
-          tog(needs(w, 'comment'), 'chat', 'Comment required', 'The technician must write a comment', () => toggleNeed(w, 'comment'))],
+          ...(!FON('cl.types') && !needs(w, 'photo') && !needs(w, 'comment') ? [] : [tog(needs(w, 'photo'), 'photo_camera', 'Photo required', 'The technician must take a photo', () => toggleNeed(w, 'photo')),
+          tog(needs(w, 'comment'), 'chat', 'Comment required', 'The technician must write a comment', () => toggleNeed(w, 'comment'))])],
         hasRange: !!extra.range }; };
     let outcomes = [];
     if (st.type === 'yesno') outcomes = [card('yes', 'If Yes', 'check_circle', '#E6F4EE', '#0B6B4A'), card('no', 'If No', 'cancel', '#FDECEC', '#B42318')];
@@ -244,7 +231,7 @@ class Component extends DCLogic {
       ready: true, title: st.title, setTitle: e => ch({ title: e.target.value }), titlePh: TITLE_PH[st.type] || 'Step title', typeHint: HINT[st.type] || '',
       typeLabel: T.label, typeIcon: T.icon, typeBg: tbg, typeFg: tfg,
       typesOpen: this.state.typesOpen, toggleTypes: () => this.setState({ typesOpen: !this.state.typesOpen }), closeTypes: () => this.setState({ typesOpen: false }),
-      typeGroups: M.GROUPS.map(([g, keys]) => ({ label: g, items: keys.map(k => { const t = M.TYPES[k], [ibg, ifg] = M.GROUP_COLORS[t.group]; return { label: t.label, icon: t.icon, ibg, ifg, bg: k === st.type ? '#FBF1F2' : 'transparent',
+      typeGroups: M.GROUPS.map(([g, keys]) => [g, keys.filter(k => k === st.type || ((BASIC.includes(k) || FON('cl.types')) && (!['parts', 'consumables'].includes(k) || FON('parts.module')) && (k !== 'consumables' || FON('parts.consumables'))))]).filter(([, keys]) => keys.length).map(([g, keys]) => ({ label: g, items: keys.map(k => { const t = M.TYPES[k], [ibg, ifg] = M.GROUP_COLORS[t.group]; return { label: t.label, icon: t.icon, ibg, ifg, bg: k === st.type ? '#FBF1F2' : 'transparent',
         pick: () => { const p = { type: k }; if (['confirm', 'single', 'multi'].includes(k) && !st.options.length) p.options = M.defaultsFor(k).options; if (k !== st.type) { p.rules = []; p.flagWhen = ''; } this.setState({ typesOpen: false }); ch(p); } }; }) })),
       reqTrack: st.required ? '#C00018' : '#D0D5DD', reqKnob: st.required ? '16px' : '2px', toggleRequired: () => ch({ required: !st.required }),
       hasOutcomes: outcomes.length > 0, outcomes, targets, nextLabel,
@@ -252,7 +239,7 @@ class Component extends DCLogic {
       isNumber: st.type === 'number', unit: st.unit, min: st.min, max: st.max, setUnit: e => ch({ unit: e.target.value }), setMin: e => ch({ min: e.target.value }), setMax: e => ch({ max: e.target.value }),
       hasOptions: isOpt, optionsLabel: st.type === 'confirm' ? 'Items to tick' : st.type === 'single' ? 'Answers — and what happens next' : 'Answers', optRadius: st.type === 'single' ? '50%' : '4px', addOptionLabel: st.type === 'confirm' ? 'Add item' : 'Add answer',
       options: st.options.map((o, i) => { const r = flowRule(o), then = r ? (r.action === 'finish' ? 'finish' : r.target || 'next') : 'next', flagOn = st.flagWhen === o;
-        return { value: o, hasThen: st.type === 'single', then, thenBorder: then !== 'next' ? '#BCD0F5' : '#D0D5DD',
+        return { value: o, hasThen: st.type === 'single' && (FON('cl.workflow') || then !== 'next'), then, thenBorder: then !== 'next' ? '#BCD0F5' : '#D0D5DD',
           setThen: e => { const v = e.target.value; setOutcome(o, v === 'next' || v === 'finish' ? v : 'goto', v); },
           hasFlag: st.type !== 'confirm', flagBg: flagOn ? '#FDECEC' : '#fff', flagBorder: flagOn ? '#F5B5B5' : '#E4E7EC', flagColor: flagOn ? '#B42318' : '#98A2B3', toggleFlag: () => ch({ flagWhen: flagOn ? '' : o }),
           edit: e => { const v = e.target.value, a = [...st.options]; a[i] = v; ch({ options: a, rules: st.rules.map(x => x.when === o ? { ...x, when: v } : x), flagWhen: st.flagWhen === o ? v : st.flagWhen }); },
@@ -269,7 +256,11 @@ class Component extends DCLogic {
           setQty: q => ch({ parts: st.parts.map(x => x.ref === p.ref ? { ...x, qty: q } : x) }), remove: () => ch({ parts: st.parts.filter(x => x.ref !== p.ref) }) }; }),
       partGroups: [['Replacement parts', 'parts'], ['Consumables', 'consumables']].sort((a, b) => (b[1] === catKey) - (a[1] === catKey)).map(([label, k]) => ({ label, items: M.CATALOG[k].filter(c => !st.parts.some(p => p.ref === c[0])).map(c => ({ ref: c[0], name: `${c[1]} · ${c[0]}` })) })).filter(g => g.items.length),
       addPart: e => { const v = e.target.value; if (v) { const u = M.usageOf ? M.usageOf(v) : { def: 1 }; ch({ parts: [...st.parts, { ref: v, qty: u.def }] }); } e.target.value = ''; },
-      moreOpen: this.state.more, moreChev: this.state.more ? 'expand_more' : 'chevron_right', toggleMore: () => this.setState({ more: !this.state.more }), setChips: this.state.more ? [] : setChips,
+      ...(() => { const op = this.state.open || {}, avail = { help: st.type !== 'instruction', expected: st.type !== 'number', media: FON('cl.media'), skills: FON('cl.skills'), tools: FON('cl.tools'), after: !outcomes.length && FON('cl.workflow'), branch: FON('cl.workflow') };
+        const show = Object.fromEntries(Object.keys(avail).map(k => [k, !!op[k] && (avail[k] || k === 'help' || k === 'expected' || openOf(st)[k])]));
+        if (st.type === 'instruction') show.help = false; if (st.type === 'number') show.expected = false; if (outcomes.length) show.after = false;
+        const L = [['help', 'Help text', 'What to look at or be careful about'], ['expected', 'Expected result', 'What a good result looks like'], ['media', 'Photos & documents', 'Show the technician a picture, a video or a procedure'], ['skills', 'Skills & duration', 'Who can do it and how long it takes — used to suggest people and plan'], ['tools', 'Mobile equipment', 'Crane, lift… reserved in Planning'], ['after', 'Next step', 'Jump to another step or finish after this one'], ['branch', 'Branch only', 'Skip this step in the normal order — only reached from an answer']];
+        return { show, addChips: L.filter(([k]) => avail[k] && !show[k]).map(([k, label, tip]) => ({ label, tip, add: () => this.setState({ open: { ...op, [k]: true } }) })) }; })(),
       canExpected: st.type !== 'number', expected: st.expected, setExpected: e => ch({ expected: e.target.value }),
       media: st.media.map((m, i) => ({ name: m.name, icon: M.MEDIA[m.kind][1], rename: e => ch({ media: st.media.map((x, j) => j === i ? { ...x, name: e.target.value } : x) }), remove: () => ch({ media: st.media.filter((_, j) => j !== i) }) })),
       mediaKinds: [['image', 'image/*', 'Add photo'], ['video', 'video/*', 'Add video']].map(([k, accept, label]) => ({ label, icon: M.MEDIA[k][1], accept, add: e => { const f = e.target.files && e.target.files[0]; if (f) ch({ media: [...st.media, { kind: k, name: f.name }] }); e.target.value = ''; } })),

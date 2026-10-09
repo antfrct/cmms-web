@@ -139,7 +139,7 @@ export const BASE_DAY = new Date(2026, 8, 28);
 export const dayOf = iso => { if (!iso) return null; const d = new Date(iso.slice(0, 10) + 'T12:00'); return Math.round((d - new Date(2026, 8, 28, 12)) / 86400000); };
 export const isoOfDay = day => { const d = new Date(2026, 8, 28 + day); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 export const hourOf = iso => iso && iso.length > 11 ? +iso.slice(11, 13) + (+iso.slice(14, 16)) / 60 : null;
-// Conflicts of required mobile assets on a time window. ignore = work order key whose own reservations are skipped.
+// Conflicts of required mobile assets on a time window. ignore = intervention key whose own reservations are skipped.
 export const toolConflicts = (tools, day, from, to, ignore) => (tools || []).map(t => ({ tool: t, r: RESERVATIONS.find(r => r.tool === t && r.day === day && r.from < to && r.to > from && (!ignore || r.woKey !== ignore)) })).filter(x => x.r);
 export const nextFreeSlot = (tools, day, from, dur, ignore) => { for (let d = day; d < day + 7; d++) { const wd = new Date(2026, 8, 28 + d).getDay(); if (wd === 0 || wd === 6) continue; for (let h = d === day ? Math.max(7, from) : 7; h + dur <= 18; h += 0.25) if (!toolConflicts(tools, d, h, h + dur, ignore).length) return { day: d, from: h }; } return null; };
 export const reserve = (woKey, tools, day, from, to, label, who) => { const keep = rd(RKEY, []).filter(r => r.woKey !== woKey); const add = (tools || []).map(tool => ({ tool, day, from, to, wo: label, who: who || 'GD', woKey })); wr(RKEY, [...keep, ...add]);

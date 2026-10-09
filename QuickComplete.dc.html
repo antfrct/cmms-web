@@ -77,7 +77,7 @@
         </button>
         <sc-if value="{{ f.followUp }}">
           <input value="{{ f.fuTitle }}" onInput="{{ on.fuTitle }}" aria-label="Follow-up title" style="height:40px;padding:0 10px;border:1px solid #D0D5DD;border-radius:8px;font:13px 'IBM Plex Sans',sans-serif;outline:none" />
-          <span style="font-size:12px;color:#667085">A new work order is created in Requested for {{ wo.asset }}.</span>
+          <span style="font-size:12px;color:#667085">A new intervention is created in Not scheduled for {{ wo.asset }}.</span>
         </sc-if>
       </div>
     </div>
@@ -85,7 +85,7 @@
     <div style="flex:none;display:flex;align-items:center;gap:10px;padding:14px 20px;border-top:1px solid #EEF0F3">
       <button onClick="{{ close }}" style="height:40px;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer;white-space:nowrap" style-hover="border-color:#98A2B3">Cancel</button>
       <span style="flex:1;min-width:0;font-size:12.5px;color:{{ footColor }};text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ footNote }}</span>
-      <button onClick="{{ complete }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 18px 0 12px;background:{{ doneBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ doneColor }};cursor:pointer;white-space:nowrap"><span style="font:19px/1 'Material Symbols Outlined'">task_alt</span>Complete work order</button>
+      <button onClick="{{ complete }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 18px 0 12px;background:{{ doneBg }};border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:{{ doneColor }};cursor:pointer;white-space:nowrap"><span style="font:19px/1 'Material Symbols Outlined'">task_alt</span>Complete intervention</button>
     </div>
   </aside>
 </sc-if>
@@ -95,7 +95,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:820}}">
 const TECHS = ['GD', 'MD', 'PL', 'AM', 'SM', 'SB', 'JM'];
-const ST = { Requested: ['#F3EEFC', '#6941C6'], Scheduled: ['#EAF1FD', '#2456B8'], 'In progress': ['#E6F4EE', '#0B6B4A'], Completed: ['#EEF1F4', '#475467'] };
+const ST = { Requested: ['#F3EEFC', '#6941C6'], 'Not scheduled': ['#F0F4F8', '#3E5470'], Scheduled: ['#EAF1FD', '#2456B8'], 'In progress': ['#E6F4EE', '#0B6B4A'], Completed: ['#EEF1F4', '#475467'] };
 const RESULTS = [['completed', 'Completed', 'task_alt', '#0B6B4A', '#E6F4EE'], ['partial', 'Partially done', 'timelapse', '#B54708', '#FEF3E2'], ['unable', 'Not possible', 'block', '#B42318', '#FDECEC']];
 const CAUSES = ['Mechanical', 'Electrical', 'Hydraulic', 'Pneumatic', 'Instrumentation', 'Software / PLC'];
 const blank = () => ({ by: 'GD', date: '2026-09-29', time: '', h: '', m: '', result: 'completed', op: '', cause: '', report: '', followUp: false, fuTitle: '' });
@@ -110,8 +110,8 @@ class Component extends DCLogic {
     this._key = e => { if (e.key === 'Escape' && this.state.open) this.setState({ open: false }); };
     window.addEventListener('cmms-quick-complete', this._open); window.addEventListener('keydown', this._key);
     window.CMMSQuickComplete = d => window.dispatchEvent(new CustomEvent('cmms-quick-complete', { detail: d || {} }));
-    // Shown on its own (component artboard): open with a sample work order.
-    if (/QuickComplete\.dc\.html/.test(decodeURIComponent(location.pathname))) setTimeout(() => this._open({ detail: { key: 'WO-1339870', asset: 'Conveyor Line 2', task: 'Abnormal noise on belt', loc: 'Float Line', type: 'Corrective', prio: 'Medium', status: 'Requested', assignee: 'JM' } }), 400);
+    // Shown on its own (component artboard): open with a sample intervention.
+    if (/QuickComplete\.dc\.html/.test(decodeURIComponent(location.pathname))) setTimeout(() => this._open({ detail: { key: 'WO-1339870', asset: 'Conveyor Line 2', task: 'Abnormal noise on belt', loc: 'Float Line', type: 'Corrective', prio: 'Medium', status: 'Not scheduled', assignee: 'JM' } }), 400);
   }
   componentWillUnmount() { window.removeEventListener('cmms-quick-complete', this._open); window.removeEventListener('keydown', this._key); clearTimeout(this._t); }
   setF(k, v) { this.setState(s => ({ f: { ...s.f, [k]: v } })); }
@@ -121,7 +121,7 @@ class Component extends DCLogic {
     const s = this.state, C = s.C, f = s.f, w = s.wo; if (!C) return;
     if (this.missing().length) return this.setState({ tried: true });
     C.completeWithoutIntervention(w.key, { by: f.by, at: `${f.date}${f.time ? 'T' + f.time : ''}`, mins: this.mins(), result: f.result, operational: f.op, cause: f.cause, report: f.report.trim(), followUp: f.followUp ? f.fuTitle : '' });
-    if (f.followUp && f.fuTitle.trim()) { const [asset, ...rest] = f.fuTitle.split(' — '); C.createWo({ task: rest.join(' — ') || f.fuTitle, asset: rest.length ? asset : w.asset, loc: w.loc, type: 'Corrective', prio: 'Medium', status: 'Requested', createdBy: C.ME, desc: `Follow-up of ${C.displayId(w.key)} · ${w.title}` }); }
+    if (f.followUp && f.fuTitle.trim()) { const [asset, ...rest] = f.fuTitle.split(' — '); C.createWo({ task: rest.join(' — ') || f.fuTitle, asset: rest.length ? asset : w.asset, loc: w.loc, type: 'Corrective', prio: 'Medium', status: 'Not scheduled', createdBy: C.ME, desc: `Follow-up of ${C.displayId(w.key)} · ${w.title}` }); }
     this.setState({ open: false, toast: `${C.displayId(w.key)} completed · recorded after the fact${f.followUp ? ' · follow-up created' : ''}` });
     clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null }), 4000);
   }

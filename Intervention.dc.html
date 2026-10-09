@@ -18,7 +18,7 @@
   <header style="position:relative;flex:none;height:64px;margin-right:{{ chatPadNeg }};background:#34050D;color:#fff;display:flex;align-items:center;gap:14px;padding:0 20px">
     <button onClick="{{ exit }}" style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px 0 8px;background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:8px;color:#fff;font:500 14px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:rgba(255,255,255,.08)"><span style="font:20px/1 'Material Symbols Outlined'">arrow_back</span>{{ backLabel }}</button>
     <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px">
-      <span style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ task }}</span><sc-if value="{{ isPreview }}"><span style="flex:none;height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:10px;background:#F79009;color:#fff;font-size:11.5px;font-weight:600">Preview</span></sc-if><sc-if value="{{ isQuick }}"><a href="{{ woHref }}" title="Complete the work order later" style="flex:none;height:20px;display:inline-flex;align-items:center;gap:3px;padding:0 8px;border-radius:10px;background:rgba(247,144,9,.22);color:#FEC84B;font-size:11.5px;font-weight:600"><span style="font:13px/1 'Material Symbols Outlined'">edit_note</span>Information incomplete</a></sc-if></span>
+      <span style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;min-width:0"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ task }}</span><sc-if value="{{ isPreview }}"><span style="flex:none;height:20px;display:inline-flex;align-items:center;padding:0 8px;border-radius:10px;background:#F79009;color:#fff;font-size:11.5px;font-weight:600">Preview</span></sc-if><sc-if value="{{ isQuick }}"><a href="{{ woHref }}" title="Complete the intervention later" style="flex:none;height:20px;display:inline-flex;align-items:center;gap:3px;padding:0 8px;border-radius:10px;background:rgba(247,144,9,.22);color:#FEC84B;font-size:11.5px;font-weight:600"><span style="font:13px/1 'Material Symbols Outlined'">edit_note</span>Information incomplete</a></sc-if></span>
       <span style="font-size:12.5px;opacity:.72;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ subline }}</span>
     </div>
     <span style="display:flex;align-items:center;gap:8px;font-size:12.5px;opacity:.85;white-space:nowrap"><span style="width:8px;height:8px;border-radius:50%;background:{{ timerDot }}"></span>{{ stateLabel }}</span>
@@ -33,7 +33,7 @@
         <dl style="margin:0;display:grid;grid-template-columns:110px 1fr;row-gap:7px">
           <sc-for list="{{ details }}" as="d"><dt style="color:#667085">{{ d.k }}</dt><dd style="margin:0;font-weight:500">{{ d.v }}</dd></sc-for>
         </dl>
-        <a href="{{ woHref }}" style="font-weight:600;font-size:12.5px">Open the work order</a>
+        <a href="{{ woHref }}" style="font-weight:600;font-size:12.5px">Open the intervention</a>
       </div>
     </sc-if>
   </header>
@@ -310,7 +310,7 @@
                 <input value="{{ close.fuTitle }}" onInput="{{ setFuTitle }}" style="height:42px;padding:0 10px;border:1px solid #D0D5DD;border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;outline:none" />
                 <span style="position:relative;display:flex"><select value="{{ close.fuPrio }}" onChange="{{ setFuPrio }}" style="appearance:none;-webkit-appearance:none;width:100%;height:42px;padding:0 28px 0 10px;border:1px solid #D0D5DD;border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;background:#fff;outline:none"><option>Critical</option><option>High</option><option>Medium</option><option>Low</option></select><span style="position:absolute;right:6px;top:11px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
               </div>
-              <span style="font-size:12.5px;color:#667085;margin-top:-4px">A new work order will be created for {{ wo.asset }}.</span>
+              <span style="font-size:12.5px;color:#667085;margin-top:-4px">A new intervention will be created for {{ wo.asset }}.</span>
             </sc-if>
           </div>
           <div style="display:flex;align-items:center;gap:8px;font-size:13.5px;color:#475467">
@@ -348,7 +348,7 @@
     <aside style="position:fixed;top:64px;right:0;bottom:0;width:400px;z-index:45;background:#fff;border-left:1px solid #E4E7EC;display:flex;flex-direction:column">
       <div style="flex:none;display:flex;align-items:center;gap:10px;padding:12px 12px 12px 18px;border-bottom:1px solid #EEF0F3">
         <span style="font:20px/1 'Material Symbols Outlined';color:#475467">forum</span>
-        <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;font-size:15px">Work order chat</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chatSub }}</span></div>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-weight:600;font-size:15px">Intervention chat</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chatSub }}</span></div>
         <sc-if value="{{ chatUnread }}"><span style="min-width:22px;height:22px;padding:0 7px;border-radius:11px;background:#C00018;color:#fff;font:700 12px/22px 'IBM Plex Sans',sans-serif;text-align:center">{{ chatUnread }} new</span></sc-if>
       </div>
       <div style="position:relative;flex:1;min-height:0"><dc-import name="ChatThread" channel="{{ woKey }}" size="lg" style="position:absolute;inset:0" hint-size="100%,100%"></dc-import></div>
@@ -367,7 +367,7 @@
             <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ pauseReasons }}" as="r"><button onClick="{{ r.pick }}" style="height:36px;padding:0 12px;background:{{ r.bg }};border:1px solid {{ r.border }};border-radius:18px;font:500 13px 'IBM Plex Sans',sans-serif;color:{{ r.color }};cursor:pointer">{{ r.label }}</button></sc-for></div>
             <div style="display:flex;gap:6px"><input value="{{ handover }}" onInput="{{ setHandover }}" placeholder="Why it's paused, what's left to do…" style="flex:1;min-width:0;height:44px;padding:0 12px;border:1px solid #D0D5DD;border-radius:8px;font:14px 'IBM Plex Sans',sans-serif;outline:none;background:#fff" /><button onClick="{{ postHandover }}" style="height:44px;padding:0 14px;background:{{ postBg }};border:0;border-radius:8px;font:600 14px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Post</button></div>
           </sc-if>
-          <sc-if value="{{ notePosted }}"><span style="display:flex;align-items:center;gap:6px;font-size:13px;color:#0B6B4A;font-weight:600"><span style="font:17px/1 'Material Symbols Outlined'">check_circle</span>Posted to the work order chat</span></sc-if>
+          <sc-if value="{{ notePosted }}"><span style="display:flex;align-items:center;gap:6px;font-size:13px;color:#0B6B4A;font-weight:600"><span style="font:17px/1 'Material Symbols Outlined'">check_circle</span>Posted to the intervention chat</span></sc-if>
         </div>
         <button onClick="{{ resume }}" style="align-self:stretch;margin-top:8px;height:56px;display:flex;align-items:center;justify-content:center;gap:8px;background:#C00018;border:0;border-radius:12px;font:600 16px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer"><span style="font:22px/1 'Material Symbols Outlined'">play_arrow</span>Resume intervention</button>
         <a href="{{ woHref }}" style="font-weight:600;font-size:14px;color:#475467;padding:8px">Leave and resume later</a>
@@ -633,7 +633,7 @@ class Component extends DCLogic {
         askComplete: () => { if (!c.operational || !String(c.report || '').trim()) return this.setState({ closeTried: true }); this.setState({ confirm: true }); },
         confirmOpen: s.confirm, cancelComplete: () => this.setState({ confirm: false }),
         confirmLines: [['Result', RESULTS[c.status][0], RESULTS[c.status][2]], ['Equipment', c.operational === 'yes' ? 'Operational' : 'Stopped', c.operational === 'yes' ? '#0B6B4A' : '#B42318'], ['Materials used', parts.length ? parts.map(p => { const PA = window.RelixParts, it = PA && PA.part(p.ref); return `${p.name} ${it ? PA.fmtUse(it, p.qty) : '×' + p.qty}`; }).join(', ') : 'None'], ['Follow-up', c.followUp ? c.fuTitle : 'None'], ['Time spent', `${c.mins || 0} min`]].map(([k, v, color]) => ({ k, v, color: color || '#1E2430' })),
-        confirmNote: PREVIEW ? 'Preview only — nothing will be saved.' : 'The work order will be closed and parts deducted from stock.',
+        confirmNote: PREVIEW ? 'Preview only — nothing will be saved.' : 'The intervention will be closed and parts deducted from stock.',
         complete: () => (this.C && !PREVIEW && this.C.saveWo(WO0.key, { status: 'Completed', waiting: '', actualMs: this.elapsed(), used: parts.map(p => ({ ref: p.ref, name: p.name, qty: p.qty })), costs: (() => { const w0 = this.C.getWo(WO0.key) || {}; const PA = window.RelixParts; if (PA && !w0.stockDone) parts.forEach(p => PA.consume(p.ref, p.qty, WO0.key, 'Intervention · ' + (WO.asset || ''))); return { consumables: [], services: [], rentals: [], ...(w0.costs || {}) }; })(), stockDone: true }), this.setState({ confirm: false, mode: 'done', acc: this.elapsed(), since: null, paused: false, result: { status: c.status, at: Date.now(), mins: +c.mins || 0, operational: c.operational, parts: parts.length, followUp: c.followUp ? { title: c.fuTitle, prio: c.fuPrio } : null, anomalies: an.length } })),
         pauseWhere: 'the review page',
       };
@@ -645,8 +645,8 @@ class Component extends DCLogic {
     if (r.followUp) lines.push(['add_task', `Follow-up created: ${r.followUp.title} · ${r.followUp.prio}`, '#C00018']);
     return { ...base, isDone: true,
       result: { title: PREVIEW ? 'Preview finished' : `Intervention ${rl.toLowerCase()}`, icon: ri, fg: rf, bg: rb, sub: `${WO.asset} — ${WO.task} · ${r.mins} min`, lines: lines.map(([icon, text, color]) => ({ icon, text, color })) },
-      doneSecondary: PREVIEW ? 'Restart preview' : 'View work order', doneSecondaryHref: PREVIEW ? 'Intervention.dc.html?preview=1' : woHref,
-      donePrimary: PREVIEW ? 'Back to the checklist' : 'Back to work orders', donePrimaryHref: PREVIEW ? woHref : 'WorkOrders.dc.html',
+      doneSecondary: PREVIEW ? 'Restart preview' : 'View intervention', doneSecondaryHref: PREVIEW ? 'Intervention.dc.html?preview=1' : woHref,
+      donePrimary: PREVIEW ? 'Back to the checklist' : 'Back to interventions', donePrimaryHref: PREVIEW ? woHref : 'WorkOrders.dc.html',
       resetLabel: PREVIEW ? '' : 'Reset this demo intervention',
       resetDemo: () => { try { localStorage.removeItem(KEY); } catch (e) {} this._last = null; window.location.reload(); },
     };

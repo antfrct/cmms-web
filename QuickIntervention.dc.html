@@ -75,7 +75,7 @@
         <button onClick="{{ toggleStop }}" style="align-self:flex-start;height:40px;display:flex;align-items:center;gap:10px;padding:0;background:transparent;border:0;cursor:pointer;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430">
           <span style="position:relative;width:40px;height:22px;border-radius:11px;background:{{ stopTrack }};transition:background .15s"><span style="position:absolute;top:2px;left:{{ stopKnob }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:left .15s"></span></span>Production is stopped
         </button>
-        <div style="display:flex;gap:10px;padding:12px 14px;background:#F6F7F9;border-radius:8px;color:#475467;font-size:12.5px;line-height:1.5"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">info</span><span>You are assigned and the intervention starts right away. Priority, checklists and details can be completed later — the work order is marked <b style="color:#B54708">Information incomplete</b>.</span></div>
+        <div style="display:flex;gap:10px;padding:12px 14px;background:#F6F7F9;border-radius:8px;color:#475467;font-size:12.5px;line-height:1.5"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">info</span><span>You are assigned and the intervention starts right away. Priority, checklists and details can be completed later — the intervention is marked <b style="color:#B54708">Information incomplete</b>.</span></div>
       </sc-if>
     </div>
 
@@ -91,7 +91,7 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1000,&quot;height&quot;:760}}">
 const FALLBACK = [['CV-L3', 'Conveyor Line 3', 'Float Line'], ['P-101', 'Pump P-101', 'Tempering Line'], ['TB-01', 'Tin Bath', 'Float Line'], ['V-12', 'Fan V-12', 'Float Line'], ['PH-030', 'Hydraulic Press PH-030', 'Maintenance Workshop'], ['C-01', 'Compressor C-01', 'Compressed Air']];
 const RECENT = ['CV-L3', 'P-101', 'TB-01', 'V-12', 'FT2-FR-001', 'PH-030'];
-const NOTES = { 'CV-L3': ['Nearby', '#EAF1FD', '#2456B8'], 'P-101': ['Open WO', '#FEF3E2', '#B54708'] };
+const NOTES = { 'CV-L3': ['Nearby', '#EAF1FD', '#2456B8'], 'P-101': ['Open intervention', '#FEF3E2', '#B54708'] };
 const SYM = [['Leak', 'water_drop'], ['Abnormal noise', 'graphic_eq'], ['Vibration', 'vibration'], ['Overheating', 'device_thermostat'], ["Won't start", 'power_off'], ['Electrical fault', 'bolt']];
 const TYPES = [['Corrective', 'build', '#B54708', '#FEF3E2'], ['Preventive', 'event_repeat', '#2456B8', '#EAF1FD'], ['Predictive', 'insights', '#6941C6', '#F3EEFC'], ['Inspection', 'visibility', '#0E7490', '#E3F4F7']];
 const bold = "600 13px 'IBM Plex Sans',sans-serif", reg = "500 13px 'IBM Plex Sans',sans-serif";
@@ -116,7 +116,7 @@ class Component extends DCLogic {
     const s = this.state, text = s.issue.trim() || s.sym; if (!text || !s.asset) return;
     const C = await import('./collab-model.js');
     const task = (s.sym && !s.issue.trim() ? s.sym : text.charAt(0).toUpperCase() + text.slice(1)).slice(0, 60);
-    const key = C.createWo({ quick: true, task, asset: s.asset.name, assetCode: s.asset.id, loc: s.asset.line, type: s.type, prio: '', status: 'In progress', assignee: C.ME, participants: [], desc: s.issue.trim(), stop: s.stop, checklists: ['standard'], createdBy: C.ME });
+    const key = C.createWo({ quick: true, task, asset: s.asset.name, assetCode: s.asset.id, loc: s.asset.line, type: s.type, prio: '', status: 'In progress', assignee: C.ME, participants: [], desc: s.issue.trim(), problem: s.sym || '', stop: s.stop, checklists: ['standard'], createdBy: C.ME });
     C.post(key, 'sys', 'Quick intervention started by Gaudéric Durand');
     const qs = new URLSearchParams({ wo: key, task, asset: s.asset.name, loc: s.asset.line, type: s.type, prio: s.stop ? 'Critical' : 'High', status: 'In progress', quick: '1' }).toString();
     window.location.href = 'Intervention.dc.html?' + qs;
@@ -128,7 +128,7 @@ class Component extends DCLogic {
     const note = a => a.status === 'Stopped' ? ['Stopped', '#FDECEC', '#B42318'] : NOTES[a.id];
     return {
       open: s.open, close: () => this.setState({ open: false }), isAsset: s.step === 0, isIssue: s.step === 1,
-      sub: `Step ${s.step + 1} of 2 · ${s.step ? 'Issue' : 'Equipment'} · the work order is created for you`,
+      sub: `Step ${s.step + 1} of 2 · ${s.step ? 'Issue' : 'Equipment'} · the intervention is created for you`,
       steps: [['Equipment', 'precision_manufacturing', hasA ? s.asset.name : 'Search or scan'], ['Issue', 'report', 'Then start']].map(([label, icon, hint], i) => { const reach = i === 0 || hasA;
         return { label, icon, hint, cursor: reach ? 'pointer' : 'not-allowed', bar: i === s.step ? '#C00018' : i < s.step ? '#1E2430' : '#E4E7EC', color: i === s.step ? '#1E2430' : reach ? '#667085' : '#98A2B3', weight: i === s.step ? 600 : 500, go: () => reach && this.setState({ step: i }) }; }),
       qRef: this.qRef, issueRef: this.issueRef, q: s.q, setQ: e => this.setState({ q: e.target.value }),
@@ -136,7 +136,7 @@ class Component extends DCLogic {
       listLabel: q ? `${list.length} match${list.length === 1 ? '' : 'es'}` : 'Nearby and recent',
       assets: list.map(a => { const n = note(a), on = s.asset && s.asset.id === a.id; return { ...a, hasNote: !!n, note: n && n[0], noteBg: n && n[1], noteFg: n && n[2], on, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : '#E4E7EC', pick: () => this.pick(a) }; }),
       asset: s.asset || {}, changeAsset: () => this.setState({ step: 0 }),
-      symptoms: SYM.map(([label, icon]) => { const on = s.sym === label; return { label, icon, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#A30014' : '#344054', font: on ? bold : reg, pick: () => this.setState({ sym: on ? '' : label }) }; }),
+      symptoms: (s.CFG && s.CFG.problems ? s.CFG.problems().map(p => [p.name, p.icon || 'report']) : SYM).map(([label, icon]) => { const on = s.sym === label; return { label, icon, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#A30014' : '#344054', font: on ? bold : reg, pick: () => this.setState({ sym: on ? '' : label }) }; }),
       issue: s.issue, setIssue: e => this.setState({ issue: e.target.value }),
       types: (s.CFG ? s.CFG.woTypes().map(t => [t.name, t.icon, t.fg, t.bg]) : TYPES).map(([t, icon, fg, bg]) => { const on = s.type === t; return { label: t, icon, bg: on ? bg : '#fff', border: on ? fg : '#D0D5DD', color: on ? fg : '#344054', font: on ? bold : reg, select: () => this.setState({ type: t }) }; }),
       toggleStop: () => this.setState({ stop: !s.stop }), stopTrack: s.stop ? '#C00018' : '#D0D5DD', stopKnob: s.stop ? '20px' : '2px',

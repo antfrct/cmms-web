@@ -1,5 +1,5 @@
 // Relix intervention costs (window.RelixCost) — Labor · Spare parts · Consumables · External services · Equipment & rental.
-// Manual lines live on the work order (collab-model saveWo): costs { consumables: [{ ref, qty }], services: [{ sup, rate, qty, note }], rentals: [{ sup, rate, qty, note }] }.
+// Manual lines live on the intervention (collab-model saveWo): costs { consumables: [{ ref, qty }], services: [{ sup, rate, qty, note }], rentals: [{ sup, rate, qty, note }] }.
 // rate = 'hourly' | 'travel' | rate id from the supplier. Internal mobile equipment (wo.tools) is costed automatically at an internal hourly rate.
 import * as PA from './parts-model.js';
 import * as AC from './access-model.js';

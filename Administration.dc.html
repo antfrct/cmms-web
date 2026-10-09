@@ -179,21 +179,23 @@
   <div style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1E2430;color:#fff;border-radius:8px;box-shadow:0 12px 32px rgba(16,24,40,.24);font:500 13px 'IBM Plex Sans',sans-serif"><span style="font:18px/1 'Material Symbols Outlined';color:#6CE9A6">check_circle</span>{{ toast }}</div>
 </sc-if>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;section&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;assetTypes&quot;,&quot;locations&quot;,&quot;crit&quot;,&quot;woTypes&quot;,&quot;failures&quot;,&quot;prio&quot;,&quot;status&quot;,&quot;partCats&quot;,&quot;costCenters&quot;,&quot;customFields&quot;,&quot;units&quot;,&quot;skills&quot;,&quot;sites&quot;,&quot;labels&quot;],&quot;default&quot;:&quot;assetTypes&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;section&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;assetTypes&quot;,&quot;locations&quot;,&quot;crit&quot;,&quot;woTypes&quot;,&quot;problems&quot;,&quot;failures&quot;,&quot;prio&quot;,&quot;status&quot;,&quot;partCats&quot;,&quot;consCats&quot;,&quot;costCenters&quot;,&quot;customFields&quot;,&quot;units&quot;,&quot;skills&quot;,&quot;sites&quot;,&quot;labels&quot;],&quot;default&quot;:&quot;assetTypes&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const SEC_FEAT = { skills: 'org.skills', costCenters: 'wo.costs', customFields: 'wo.fields', consCats: 'parts.consumables', labels: 'assets.qr', partCats: 'parts.module' };
+const secOn = k => !SEC_FEAT[k] || FON(SEC_FEAT[k]);
 const NAV = [
   ['Site profile', [['maturity', 'Maturity levels', 'military_tech']]],
   ['Assets', [['assetTypes', 'Asset types', 'category'], ['locations', 'Plant hierarchy', 'account_tree'], ['crit', 'Criticality levels', 'crisis_alert']]],
-  ['Work orders', [['woTypes', 'Work order types', 'build'], ['failures', 'Failure categories', 'report'], ['prio', 'Priorities', 'flag'], ['status', 'Statuses', 'swap_horiz']]],
-  ['Spare parts & costs', [['partCats', 'Part categories', 'inventory_2'], ['costCenters', 'Cost centers', 'account_balance']]],
+  ['Interventions', [['woTypes', 'Intervention types', 'build'], ['problems', 'Intervention problems', 'campaign'], ['failures', 'Failure origins', 'report'], ['prio', 'Priorities', 'flag'], ['status', 'Statuses', 'swap_horiz']]],
+  ['Spare parts & costs', [['partCats', 'Replacement parts', 'settings'], ['consCats', 'Consumables', 'water_drop'], ['costCenters', 'Cost centers', 'account_balance']]],
   ['Data & units', [['customFields', 'Custom fields', 'dataset'], ['units', 'Units of measure', 'straighten']]],
   ['People', [['skills', 'Skills', 'engineering']]],
   ['Printing', [['labels', 'QR label formats', 'qr_code_2']]],
 ];
 const ICONS = ['build', 'event_repeat', 'insights', 'visibility', 'trending_up', 'construction', 'precision_manufacturing', 'conveyor_belt', 'water_pump', 'mode_fan', 'compress', 'heat', 'content_cut', 'blender', 'scale', 'water', 'package_2', 'electrical_services', 'local_fire_department', 'forklift', 'elevator', 'speed', 'home_repair_service', 'settings', 'filter_alt', 'sensors', 'radio_button_unchecked', 'water_drop', 'bolt', 'memory', 'air', 'oil_barrel', 'vibration', 'device_thermostat', 'verified_user', 'height', 'handyman', 'science', 'shield', 'recycling'];
 const BASE_WO = { Corrective: 1840, Preventive: 2210, Predictive: 96, Inspection: 540, Improvement: 0 }, BASE_FAIL = { Mechanical: 612, Electrical: 388, Hydraulic: 144, Pneumatic: 92, Instrumentation: 118, 'Software / PLC': 41, 'Operator error': 27 };
-const BASE_PRIO = { Critical: 3, High: 21, Medium: 24, Low: 9 }, BASE_STATUS = { Requested: 12, Scheduled: 18, Overdue: 8, 'In progress': 18, 'Waiting (flag on open work orders)': 7, Completed: 1204 };
+const BASE_PRIO = { Critical: 3, High: 21, Medium: 24, Low: 9 }, BASE_STATUS = { Requested: 12, 'Not scheduled': 9, Scheduled: 18, Overdue: 8, 'In progress': 18, 'Waiting (flag on open interventions)': 7, Completed: 1204 };
 const BADGE = { prio: { Critical: ['#C00018', '#fff'], High: ['#FDECEC', '#B42318'], Medium: ['#FEF3E2', '#B54708'], Low: ['#EEF1F4', '#475467'] },
-  status: { Requested: ['#F3EEFC', '#6941C6'], Scheduled: ['#EAF1FD', '#2456B8'], Overdue: ['#FDECEC', '#B42318'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting (flag on open work orders)': ['#FEF3E2', '#B54708'], Completed: ['#EEF1F4', '#475467'] } };
+  status: { Requested: ['#F3EEFC', '#6941C6'], 'Not scheduled': ['#F0F4F8', '#3E5470'], Scheduled: ['#EAF1FD', '#2456B8'], Overdue: ['#FDECEC', '#B42318'], 'In progress': ['#E6F4EE', '#0B6B4A'], 'Waiting (flag on open interventions)': ['#FEF3E2', '#B54708'], Completed: ['#EEF1F4', '#475467'] } };
 const CRITC = { Critical: '#C00018', High: '#E0591B', Medium: '#E3A008', Low: '#98A2B3' };
 const TZ = ['Europe/Paris', 'Europe/Madrid', 'Europe/Berlin', 'Europe/London', 'Europe/Lisbon', 'Europe/Warsaw', 'America/New_York', 'Asia/Shanghai'];
 const LVL = { plant: ['factory', 'Plant'], zone: ['grid_view', 'Zone'], line: ['conveyor_belt', 'Line'], step: ['subdirectory_arrow_right', 'Step'] };
@@ -227,33 +229,37 @@ class Component extends DCLogic {
         note: 'Types in use cannot be deleted — deactivate them to hide them from new assets. Renaming updates existing assets.', heads: ['Class', 'Default criticality'],
         cells: r => [{ text: r.cls, icon: r.cls === 'Mobile asset' ? 'swap_horiz' : 'precision_manufacturing' }, { text: r.crit, dot: CRITC[r.crit] }],
         form: [F('name', 'Name', 'text', { req: 1, span: 1 }), F('code', 'Code', 'code', { req: 1 }), F('cls', 'Class', 'seg', { options: [['Equipment', 'precision_manufacturing'], ['Mobile asset', 'swap_horiz']] }), F('crit', 'Default criticality', 'select', { options: CFG.names('crit') }), F('icon', 'Icon', 'icon')] },
-      locations: { add: 'Add zone', icon: 'account_tree', desc: 'Saint-Gobain convention: Plant › Zone › Line › Step. Equipment, mobile assets and storage areas are located on a step. Storage steps are the stock locations of Spare parts.', where: 'Assets (list + plant map) · Asset wizard · Spare parts storage · Work orders',
+      locations: { add: 'Add zone', icon: 'account_tree', desc: 'Saint-Gobain convention: Plant › Zone › Line › Step. Equipment, mobile assets and storage areas are located on a step. Storage steps are the stock locations of Spare parts.', where: 'Assets (list + plant map) · Asset wizard · Spare parts storage · Interventions',
         note: 'A location can only be deleted when it has no sub-locations and no assets. Codes are permanent once created.', heads: ['Level', 'Path'], noSearch: false },
-      crit: { icon: 'crisis_alert', desc: 'Criticality reflects the impact of a failure on production and safety. It sets the default priority of new work orders.', where: 'Asset wizard · Asset list · Work order defaults', note: 'The four levels are fixed — only the response target can be edited.', heads: ['Response target'], system: true,
+      crit: { icon: 'crisis_alert', desc: 'Criticality reflects the impact of a failure on production and safety. It sets the default priority of new interventions.', where: 'Asset wizard · Asset list · Intervention defaults', note: 'The four levels are fixed — only the response target can be edited.', heads: ['Response target'], system: true,
         cells: r => [{ text: r.response }], form: [F('name', 'Name', 'text', { disabled: 1 }), F('code', 'Code', 'code', { disabled: 1 }), F('response', 'Response target', 'text', { req: 1, ph: 'e.g. < 8 h' })] },
-      woTypes: { add: 'Add type', icon: 'build', desc: 'Types describe the purpose of a work order. Active types appear in the creation wizard, quick intervention and work order editing.', where: 'New work order · Quick intervention · Work order edit · Filters',
+      woTypes: { add: 'Add type', icon: 'build', desc: 'Types describe the purpose of an intervention. Active types appear in the creation wizard, quick intervention and intervention editing.', where: 'New intervention · Quick intervention · Intervention edit · Filters',
         note: 'Improvement (continuous improvement) is active by default — deactivate a type to hide it from the creation wizard.', heads: ['Strategy', 'Color'],
         cells: r => [{ text: r.strategy || '—' }, { text: r.color, dot: (CFG.PALETTE[r.color] || [])[0] }],
         form: [F('name', 'Name', 'text', { req: 1 }), F('code', 'Code', 'code', { req: 1 }), F('strategy', 'Maintenance strategy', 'text', { span: 2, ph: 'e.g. Systematic / condition-based' }), F('color', 'Color', 'color'), F('icon', 'Icon', 'icon')] },
-      failures: { add: 'Add category', icon: 'report', desc: 'Used to analyze recurring failures and the equipment with the most breakdowns.', where: 'New work order (Details) · Work order edit · Reports', note: 'Keep categories short so technicians can pick one quickly.', heads: ['Description'],
+      problems: { add: 'Add problem', icon: 'campaign', desc: 'What the person reporting sees: the problem tiles of an intervention request and of a quick intervention. Keep the list short and concrete.', where: 'Request intervention · Quick intervention (Issue) · Intervention detail', note: 'Deactivate a problem to hide it from new requests — existing interventions keep it. Renaming updates them.', heads: ['Code'],
+        cells: r => [{ text: r.code, ff: "'IBM Plex Mono',monospace" }], form: [F('name', 'Name', 'text', { req: 1 }), F('code', 'Code', 'code', { req: 1 }), F('icon', 'Icon', 'icon')] },
+      failures: { add: 'Add origin', icon: 'report', desc: 'Failure origin is set by the technician when closing a corrective intervention. Used to analyze recurring failures and the equipment with the most breakdowns.', where: 'New intervention (Details) · Intervention edit · Close intervention · Reports', note: 'Keep origins short so technicians can pick one quickly.', heads: ['Description'],
         cells: r => [{ text: r.desc || '—' }], form: [F('name', 'Name', 'text', { req: 1 }), F('code', 'Code', 'code', { req: 1 }), F('desc', 'Description', 'textarea', { span: 2 })] },
-      prio: { icon: 'flag', desc: 'Priorities order the work order list and the planning.', where: 'Work orders · Planning · Home to-do', note: 'Priorities are system values; colors are fixed for consistency. Only the target can be changed.', heads: ['Due within'], system: true, badge: 'prio',
+      prio: { icon: 'flag', desc: 'Priorities order the intervention list and the planning.', where: 'Interventions · Planning · Home to-do', note: 'Priorities are system values; colors are fixed for consistency. Only the target can be changed.', heads: ['Due within'], system: true, badge: 'prio',
         cells: r => [{ text: r.due }], form: [F('name', 'Name', 'text', { disabled: 1 }), F('code', 'Code', 'code', { disabled: 1 }), F('due', 'Due within', 'text', { req: 1, ph: 'e.g. 24 h' })] },
-      status: { icon: 'swap_horiz', desc: 'Statuses drive the work order lifecycle and board columns.', where: 'Work orders · Home · Planning', note: 'Statuses are locked system values. Overdue is computed from the scheduled date.', heads: ['Stage'], system: true, readonly: true, badge: 'status',
+      status: { icon: 'swap_horiz', desc: 'Statuses drive the intervention lifecycle and board columns.', where: 'Interventions · Home · Planning', note: 'Requested = a request not accepted yet · Not scheduled = accepted, no date · Scheduled = accepted with a date. Statuses are locked system values; Overdue is computed from the scheduled date.', heads: ['Stage'], system: true, readonly: true, badge: 'status',
         cells: r => [{ text: r.stage }], form: [F('name', 'Name', 'text', { disabled: 1 }), F('code', 'Code', 'code', { disabled: 1 }), F('stage', 'Stage', 'text', { disabled: 1 })] },
-      partCats: { add: 'Add category', icon: 'inventory_2', desc: 'Categories group spare parts in the catalog, filters and reports. The default unit is proposed when a part is created.', where: 'Spare parts (catalog, filters, part form)', note: 'Renaming a category updates the parts that use it.', heads: ['Default unit'],
+      partCats: { add: 'Add category', icon: 'settings', desc: 'Categories of replacement parts — whole units fitted on equipment (bearings, belts, sensors…). They group parts in the catalog, filters and reports.', where: 'Spare parts › Replacement parts (catalog, filters, item form)', note: 'Only offered when the item type is Replacement part. Renaming a category updates the parts that use it.', heads: ['Default unit'],
         cells: r => [{ text: r.unit }], form: [F('name', 'Name', 'text', { req: 1 }), F('code', 'Code', 'code', { req: 1 }), F('unit', 'Default unit', 'select', { options: CFG.PART_UNITS }), F('icon', 'Icon', 'icon')] },
-      costCenters: { add: 'Add cost center', icon: 'account_balance', desc: 'Cost centers allocate maintenance spending. They can be linked to spare parts, assets and work orders — consumption is charged to the cost center of the part, or of the work order when set.', where: 'Spare parts · Asset wizard (Identity) · New work order (Details) · Work order edit',
+      consCats: { add: 'Add category', icon: 'water_drop', desc: 'Categories of consumables — partially used items (lubricants, oils, cleaning products…). Usage is recorded as an amount or a percentage of a unit.', where: 'Spare parts › Consumables (catalog, filters, item form)', note: 'Only offered when the item type is Consumable. Renaming a category updates the items that use it.', heads: ['Stock unit'],
+        cells: r => [{ text: r.unit }], form: [F('name', 'Name', 'text', { req: 1 }), F('code', 'Code', 'code', { req: 1 }), F('unit', 'Stock unit', 'select', { options: CFG.PART_UNITS }), F('icon', 'Icon', 'icon')] },
+      costCenters: { add: 'Add cost center', icon: 'account_balance', desc: 'Cost centers allocate maintenance spending. They can be linked to spare parts, assets and interventions — consumption is charged to the cost center of the part, or of the intervention when set.', where: 'Spare parts · Asset wizard (Identity) · New intervention (Details) · Intervention edit',
         note: 'Cost centers in use cannot be deleted — deactivate them to stop new allocations.', heads: ['Owner', 'Plant zone', 'Annual budget'],
         cells: r => { const z = r.zone && PL.node(r.zone); return [{ text: r.owner ? C.person(r.owner).name : '—' }, { text: z ? z.name : 'Whole site', dot: z ? (PL.ZONE_LOOK[z.id] || [])[1] : '' }, { text: CFG.fmtBudget(r.budget), ff: "'IBM Plex Mono',monospace" }]; },
         form: [F('name', 'Name', 'text', { req: 1, span: 2 }), F('code', 'Code', 'code', { req: 1, ph: 'CC-XXX-000' }), ...(window.RelixAccess && !window.RelixAccess.canFinance() ? [] : [F('budget', 'Annual budget (€)', 'number', { ph: '0' })]), F('owner', 'Owner', 'select', { options: [{ v: '', l: 'No owner' }, ...people] }),
           F('zone', 'Plant zone', 'select', { options: [{ v: '', l: 'Whole site' }, ...PL.zones().map(z => ({ v: z.id, l: z.name }))] }), F('desc', 'Description', 'textarea', { span: 2 })] },
-      customFields: { add: 'Add field', icon: 'dataset', desc: 'Add your own fields to assets, work orders and spare parts. Numeric fields take their unit from the site — each site chooses its units in Units of measure.', where: 'Asset wizard & detail · New work order & detail · Spare part form & detail',
+      customFields: { add: 'Add field', icon: 'dataset', desc: 'Add your own fields to assets, interventions and spare parts. Numeric fields take their unit from the site — each site chooses its units in Units of measure.', where: 'Asset wizard & detail · New intervention & detail · Spare part form & detail',
         note: 'The key is used in exports and integrations; it cannot change once data has been entered.', heads: ['Applies to', 'Type', 'Unit (this site)'],
-        cells: r => { const t = CFG.FIELD_TYPES[r.type] || ['', 'help']; return [{ text: r.entity + ((r.types || []).length ? ` · ${r.types.length} type${r.types.length > 1 ? 's' : ''}` : ''), icon: { Asset: 'precision_manufacturing', 'Work order': 'build', 'Spare part': 'inventory_2' }[r.entity] }, { text: t[0], icon: t[1] }, { text: CFG.fieldUnit(r) || '—', ff: "'IBM Plex Mono',monospace" }]; },
+        cells: r => { const t = CFG.FIELD_TYPES[r.type] || ['', 'help']; return [{ text: r.entity + ((r.types || []).length ? ` · ${r.types.length} type${r.types.length > 1 ? 's' : ''}` : ''), icon: { Asset: 'precision_manufacturing', 'Intervention': 'build', 'Spare part': 'inventory_2' }[r.entity] }, { text: t[0], icon: t[1] }, { text: CFG.fieldUnit(r) || '—', ff: "'IBM Plex Mono',monospace" }]; },
         form: (f) => { const num = f.type === 'decimal' || f.type === 'integer';
           return [F('name', 'Label', 'text', { req: 1, ph: 'e.g. Operating temperature' }), F('code', 'Key', 'code', { req: 1, lower: 1, ph: 'op_temp' }),
-            F('entity', 'Applies to', 'seg', { options: [['Asset', 'precision_manufacturing'], ['Work order', 'build'], ['Spare part', 'inventory_2']] }),
+            F('entity', 'Applies to', 'seg', { options: [['Asset', 'precision_manufacturing'], ['Intervention', 'build'], ['Spare part', 'inventory_2']] }),
             F('type', 'Input type', 'seg', { options: Object.entries(CFG.FIELD_TYPES).map(([k, [l, i]]) => [k, i, l]) }),
             ...(num ? [F('quantity', 'Quantity', 'select', { hint: 'unit comes from each site', options: [{ v: '', l: 'No quantity (fixed unit)' }, ...Object.entries(qs).map(([k, [n, us]]) => ({ v: k, l: `${n} · ${us.join(', ')}` }))] }),
               ...(!f.quantity ? [F('unit', 'Fixed unit', 'text', { ph: 'e.g. months, cycles' })] : [F('_unit', 'Unit on this site', 'text', { disabled: 1, value: CFG.unitFor(f.quantity) })]),
@@ -261,7 +267,7 @@ class Component extends DCLogic {
             ...(f.type === 'choice' ? [F('options', 'Choices', 'lines', { req: 1, span: 2, ph: 'One choice per line' })] : []),
             ...(f.entity === 'Asset' ? [F('types', 'Only for asset types', 'chips', { span: 2, hint: 'none selected = all types', options: CFG.list('assetTypes', { active: true }).map(t => [t.name, t.icon]) })] : []),
             F('required', 'Required', 'toggle', { span: 2, toggleLabel: 'Users must fill in this field' })]; } },
-      units: { add: 'Add quantity', icon: 'straighten', desc: 'Each site chooses the unit it works with for every physical quantity. Custom fields and readings display and convert to the unit of the current site.', where: 'Custom fields (assets, work orders, spare parts)',
+      units: { add: 'Add quantity', icon: 'straighten', desc: 'Each site chooses the unit it works with for every physical quantity. Custom fields and readings display and convert to the unit of the current site.', where: 'Custom fields (assets, interventions, spare parts)',
         note: 'Changing a site unit only changes how values are labelled on that site — enter values in the unit shown.', heads: [] },
       skills: { add: 'Add skill', icon: 'engineering', desc: 'Skills are held by users and required by checklist steps. They drive assignment suggestions and greyed-out slots in Planning.', where: 'User profiles · Checklist steps · Assignment suggestions · Planning',
         note: 'Skills held by someone cannot be deleted — deactivate them instead.', heads: ['Category', 'Required by'],
@@ -292,15 +298,17 @@ class Component extends DCLogic {
     switch (sec) {
       case 'assetTypes': { const n = assets.filter(a => a.type === r.name).length; return { n, label: n ? plural(n, 'asset') : 'Not used', href: n ? 'Assets.dc.html?q=' + encodeURIComponent(r.name) : '' }; }
       case 'crit': { const n = assets.filter(a => a.crit === r.name).length; return { n, label: n ? plural(n, 'asset') : 'Not used', href: '', locked: true }; }
-      case 'woTypes': { const n = (BASE_WO[r.name] || 0) + created.filter(w => w.type === r.name).length; return { n, label: n ? plural(n, 'work order') : 'Not used', href: n ? 'WorkOrders.dc.html' : '' }; }
-      case 'failures': { const n = (BASE_FAIL[r.name] || 0) + created.filter(w => w.cat === r.name).length; return { n, label: n ? plural(n, 'work order') : 'Not used' }; }
-      case 'prio': return { n: 1, label: plural((BASE_PRIO[r.name] || 0) + created.filter(w => w.prio === r.name).length, 'open work order'), locked: true };
-      case 'status': return { n: 1, label: plural(BASE_STATUS[r.name] || 0, 'work order'), locked: true };
+      case 'woTypes': { const n = (BASE_WO[r.name] || 0) + created.filter(w => w.type === r.name).length; return { n, label: n ? plural(n, 'intervention') : 'Not used', href: n ? 'WorkOrders.dc.html' : '' }; }
+      case 'failures': { const n = (BASE_FAIL[r.name] || 0) + created.filter(w => w.cat === r.name).length; return { n, label: n ? plural(n, 'intervention') : 'Not used' }; }
+      case 'prio': return { n: 1, label: plural((BASE_PRIO[r.name] || 0) + created.filter(w => w.prio === r.name).length, 'open intervention'), locked: true };
+      case 'status': return { n: 1, label: plural(BASE_STATUS[r.name] || 0, 'intervention'), locked: true };
+      case 'problems': { const n = created.filter(w => w.problem === r.name || w.issue === r.name).length; return { n, label: n ? plural(n, 'intervention') : 'Not used yet' }; }
+      case 'consCats':
       case 'partCats': { const n = parts.filter(p => p.cat === r.name).length; return { n, label: n ? plural(n, 'part') : 'Not used', href: n ? 'SpareParts.dc.html?cat=' + encodeURIComponent(r.name) : '' }; }
       case 'costCenters': { const p = parts.filter(x => x.costCenter === r.code).length, a = assets.filter(x => x.costCenter === r.code).length, w = created.filter(x => x.costCenter === r.code).length, n = p + a + w;
         return { n, label: n ? [p && plural(p, 'part'), a && plural(a, 'asset'), w && plural(w, 'WO')].filter(Boolean).join(' · ') : 'Not used', href: p ? 'SpareParts.dc.html?cc=' + encodeURIComponent(r.code) : '' }; }
       case 'customFields': { const has = o => o && o.custom && o.custom[r.code] !== undefined && o.custom[r.code] !== ''; const n = r.entity === 'Asset' ? assets.filter(has).length : r.entity === 'Spare part' ? parts.filter(has).length : created.filter(has).length;
-        return { n, label: n ? `${plural(n, r.entity === 'Work order' ? 'work order' : r.entity === 'Asset' ? 'asset' : 'part')} filled` : 'No data yet' }; }
+        return { n, label: n ? `${plural(n, r.entity === 'Intervention' ? 'intervention' : r.entity === 'Asset' ? 'asset' : 'part')} filled` : 'No data yet' }; }
       case 'skills': { const n = PM.TECHS.filter(t => PM.skillLevel(t, r.code) > 0).length; return { n, label: n ? plural(n, 'person') .replace('persons', 'people') : 'Nobody yet', href: '' }; }
       case 'locations': { const n = r.kind === 'plant' ? assets.length : assets.filter(a => a.loc === r.id || PL.chain(a.loc).some(x => x.id === r.id)).length; const kids = r.kind === 'plant' ? PL.zones().length : PL.children(r.id).length;
         return { n: n + kids, assets: n, kids, label: n ? plural(n, 'asset') : r.storage ? 'Storage area' : 'Empty', href: n ? 'Assets.dc.html?loc=' + r.id : '' }; }
@@ -318,6 +326,8 @@ class Component extends DCLogic {
       if (sec === 'assetTypes') f = { ...f, cls: 'Equipment', crit: 'Medium', icon: 'precision_manufacturing' };
       if (sec === 'woTypes') f = { ...f, color: 'Grey', icon: 'build' };
       if (sec === 'partCats') f = { ...f, unit: 'pcs', icon: 'settings' };
+      if (sec === 'consCats') f = { ...f, unit: 'L', icon: 'water_drop' };
+      if (sec === 'problems') f = { ...f, icon: 'report' };
       if (sec === 'customFields') f = { ...f, entity: 'Asset', type: 'decimal', quantity: 'temperature', decimals: '1', options: [], types: [], required: false };
       if (sec === 'skills') f = { ...f, cat: 'Trade', color: 'Grey', icon: 'handyman' };
       if (sec === 'sites') f = { ...f, tz: 'Europe/Paris', business: 'fge' };
@@ -357,7 +367,7 @@ class Component extends DCLogic {
       const old = fm.orig && fm.orig.name;
       if (old && old !== row.name) {
         if (sec === 'assetTypes') { PL.assets().filter(a => a.type === old).forEach(a => PL.saveAsset(a.id, { type: row.name })); CFG.list('customFields').filter(c => (c.types || []).includes(old)).forEach(c => CFG.upsert('customFields', { ...c, types: c.types.map(t => t === old ? row.name : t) })); }
-        if (sec === 'partCats') PA.parts().filter(p => p.cat === old).forEach(p => PA.savePart(p.ref, { cat: row.name }));
+        if (sec === 'partCats' || sec === 'consCats') PA.parts().filter(p => p.cat === old).forEach(p => PA.savePart(p.ref, { cat: row.name }));
         if (sec === 'woTypes') C.createdWos().filter(w => w.type === old).forEach(w => C.saveWo(w.key, { type: row.name }));
         if (sec === 'failures') C.createdWos().filter(w => w.cat === old).forEach(w => C.saveWo(w.key, { cat: row.name }));
       }
@@ -403,17 +413,17 @@ class Component extends DCLogic {
   }
   renderVals() {
     const s = this.state, M = s.M;
-    const navBase = NAV.map(([label, items]) => [label, items.filter(([k]) => k !== 'skills' || FON('org.skills'))]).filter(g => g[1].length).map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === s.sec; return { label: l, icon, count: '', bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
+    const navBase = NAV.map(([label, items]) => [label, items.filter(([k]) => secOn(k))]).filter(g => g[1].length).map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === s.sec; return { label: l, icon, count: '', bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
     if (!M) return { nav: navBase, subtitle: 'Reference data used in forms, filters and reports across the application', cur: { label: '', desc: '' }, rows: [], heads: [], isTable: true, gridCols: '1fr', unitRows: [], unitSites: [], fields: [] };
     const { CFG, SI } = M, sec = s.sec, q = s.q.trim().toLowerCase(), site = SI.current();
     const MS = window.RelixMaturity ? window.RelixMaturity.score(site.id) : null;
-    const nav = NAV.map(([label, items]) => [label, items.filter(([k]) => k !== 'skills' || FON('org.skills'))]).filter(g => g[1].length).map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === sec; return { label: l, icon, count: k === 'maturity' ? (MS ? `${MS.earned}/${MS.max} ★` : '') : k === 'units' ? Object.keys(CFG.quantities()).length : this.items(k).length, bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
+    const nav = NAV.map(([label, items]) => [label, items.filter(([k]) => secOn(k))]).filter(g => g[1].length).map(([label, items]) => ({ label, items: items.map(([k, l, icon]) => { const on = k === sec; return { label: l, icon, count: k === 'maturity' ? (MS ? `${MS.earned}/${MS.max} ★` : '') : k === 'units' ? Object.keys(CFG.quantities()).length : this.items(k).length, bg: on ? '#FBF1F2' : 'transparent', font: on ? bold : reg, color: on ? '#A30014' : '#344054', iconColor: on ? '#C00018' : '#98A2B3', select: () => this.setState({ sec: k, q: '' }) }; }) }));
     if (sec === 'maturity') return { ...this.advVals(), nav, subtitle: `${site.name} · how your site works with Relix today, area by area`, q: '', hasSearch: false, cur: { label: 'Maturity levels', desc: 'Every site is different. Choose, for each area, the level that fits your team — from Essential (simple and quick to adopt) to Expert (every capability). Levels can be raised one step at a time.', hasWhere: false, canAdd: false, canReset: false }, isMaturity: true, isTable: false, isUnits: false, rows: [], heads: [], unitRows: [], unitSites: [], fields: [], toast: s.toast, formOpen: false, confirmOpen: false };
     const m = this.meta(sec);
     const curLabel = NAV.flatMap(g => g[1]).find(x => x[0] === sec)[1];
     const addLabel = sec === 'locations' ? 'Add zone' : m.add;
     const out = { ...this.advVals(), nav, subtitle: `${site.name} · reference data used in forms, filters and reports across the application`, q: s.q, setQ: e => this.setState({ q: e.target.value }), hasSearch: sec !== 'units',
-      cur: { label: curLabel, desc: m.desc, where: m.where, hasWhere: !!m.where, note: m.note, canAdd: !!m.add || sec === 'locations', addLabel, canReset: ['assetTypes', 'woTypes', 'failures', 'partCats', 'costCenters', 'customFields', 'labels', 'crit', 'prio'].includes(sec) },
+      cur: { label: curLabel, desc: m.desc, where: m.where, hasWhere: !!m.where, note: m.note, canAdd: !!m.add || sec === 'locations', addLabel, canReset: ['assetTypes', 'woTypes', 'problems', 'failures', 'partCats', 'consCats', 'costCenters', 'customFields', 'labels', 'crit', 'prio'].includes(sec) },
       startAdd: () => sec === 'units' ? this.setState({ form: { sec: 'quantities', isNew: true, f: { name: '', code: '', units: [] }, errors: {} } }) : this.openForm(sec, null),
       askReset: () => this.setState({ confirm: { icon: 'restart_alt', iconBg: '#EAF1FD', iconFg: '#2456B8', title: `Restore default ${curLabel.toLowerCase()}?`, text: 'Your additions and changes in this list will be replaced by the default values.', cancel: 'Cancel', hasOk: true, okLabel: 'Restore', ok: () => { CFG.resetSection(sec); this.setState({ confirm: null }); this.flash('Defaults restored'); }, hasAlt: false } }),
       isTable: sec !== 'units', isUnits: sec === 'units', toast: s.toast };
@@ -437,7 +447,7 @@ class Component extends DCLogic {
       out.rows = rows.map(r => {
         const u = this.usage(sec, r), bmap = m.badge && BADGE[m.badge], [bbg, bfg] = (bmap && bmap[r.name]) || [];
         let tile = null;
-        if (sec === 'assetTypes' || sec === 'partCats') tile = [r.icon, '#475467', '#EEF1F4'];
+        if (sec === 'assetTypes' || sec === 'partCats' || sec === 'consCats' || sec === 'problems') tile = [r.icon, '#475467', '#EEF1F4'];
         if (sec === 'woTypes') { const [fg, bg] = CFG.PALETTE[r.color] || CFG.PALETTE.Grey; tile = [r.icon, fg, bg]; }
         if (sec === 'skills') tile = [r.icon, r.fg, r.bg];
         if (sec === 'crit') tile = ['crisis_alert', CRITC[r.name], '#fff'];
@@ -500,7 +510,7 @@ class Component extends DCLogic {
         canDelete: canDel, del: () => this.askDelete(fs, fm.orig) };
       out.hasPreview = fs === 'customFields';
       if (fs === 'customFields') { const num = f.type === 'decimal' || f.type === 'integer', fake = { ...f, decimals: +f.decimals || 0 };
-        out.preview = { where: f.entity === 'Asset' ? 'asset wizard, Specifications' : f.entity === 'Work order' ? 'new work order, Details' : 'spare part form', label: f.name || 'Field label', req: !!f.required,
+        out.preview = { where: f.entity === 'Asset' ? 'asset wizard, Specifications' : f.entity === 'Intervention' ? 'new intervention, Details' : 'spare part form', label: f.name || 'Field label', req: !!f.required,
           ph: f.type === 'choice' ? ((f.options || []).filter(Boolean)[0] ? 'Select…' : 'Add choices') : f.type === 'date' ? 'mm/dd/yyyy' : f.type === 'boolean' ? 'Yes / No' : num ? (f.type === 'decimal' ? (0).toFixed(+f.decimals || 0) : '0') : 'Text',
           hasUnit: num && !!CFG.fieldUnit(fake, site.id), unit: CFG.fieldUnit(fake, site.id), isChoice: f.type === 'choice',
           hasSites: num && !!f.quantity, sites: SI.SITES.filter(x => !x.inactive).map(x => ({ code: x.id, unit: CFG.unitFor(f.quantity, x.id) })) }; }

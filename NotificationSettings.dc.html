@@ -16,236 +16,61 @@
 <div style="display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:56px minmax(0,1fr);height:100vh;min-width:1100px;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;color:#1E2430;background:#F6F7F9">
   <div style="grid-column:1/-1"><dc-import name="TopBar" hint-size="100%,56px"></dc-import></div>
   <div style="display:flex;min-height:0"><dc-import name="Sidebar" active="" style="height:100%" hint-size="232px,100%"></dc-import></div>
-
-  <main style="min-height:0;overflow:hidden;padding:20px 28px 0;display:flex;flex-direction:column;gap:14px" data-screen-label="Notification settings">
+  <main style="min-height:0;overflow:auto;padding:20px 28px 28px;display:flex;flex-direction:column;gap:16px" data-screen-label="Notification settings">
     <header style="flex:none;display:flex;align-items:center;gap:14px">
       <dc-import name="BackButton" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Notification settings</h1>
-        <p style="margin:2px 0 0;color:#667085;font-size:13px">Personal preferences · Gaudéric Durand · applies only to you</p>
-      </div>
-      <div style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
-        <sc-for list="{{ tabs }}" as="tb" hint-placeholder-count="2"><button onClick="{{ tb.select }}" style="height:30px;display:flex;align-items:center;gap:6px;padding:0 12px;background:{{ tb.bg }};border:0;border-radius:5px;box-shadow:{{ tb.shadow }};font:{{ tb.font }};color:{{ tb.color }};cursor:pointer"><span style="font:16px/1 'Material Symbols Outlined'">{{ tb.icon }}</span>{{ tb.label }}</button></sc-for>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px">Only what needs your attention · applies only to you</p>
       </div>
       <sc-if value="{{ saved }}"><span style="display:flex;align-items:center;gap:5px;color:#0B6B4A;font-weight:600"><span style="font:17px/1 'Material Symbols Outlined'">check_circle</span>Saved</span></sc-if>
-      <button onClick="{{ resetAll }}" style="height:34px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="background:#F9FAFB">Reset to defaults</button>
-      <button onClick="{{ test }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:18px/1 'Material Symbols Outlined'">notifications_active</span>Send test notification</button>
     </header>
-
-    <sc-if value="{{ isRules }}">
-      <section style="flex:1;min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px 8px 0 0;border-bottom:0;overflow:hidden">
-        <div style="flex:none;display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #EEF0F3">
-          <div style="flex:1;min-width:0"><h2 style="margin:0;font-size:14px;font-weight:600">Alert rules</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">Trigger × asset scope × recipients — evaluated continuously; recipients get an “Alert rule” notification</p></div>
-          <button onClick="{{ newRule }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer" style-hover="background:#A30014"><span style="font:18px/1 'Material Symbols Outlined'">add</span>New rule</button>
+    <div style="width:100%;max-width:720px;display:flex;flex-direction:column;gap:16px">
+      <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+        <div style="display:flex;align-items:center;gap:8px;padding:14px 16px">
+          <h2 style="margin:0;font-size:14px;font-weight:600">Notify me when</h2>
+          <span style="margin-left:auto;font-size:12px;color:#667085">{{ onLabel }}</span>
         </div>
-        <div style="flex:none;display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(200px,1.2fr) minmax(160px,1fr) 150px minmax(180px,1.2fr) 60px 76px;align-items:center;gap:12px;height:36px;padding:0 16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
-          <span>Rule</span><span>Trigger</span><span>Assets</span><span>Recipients</span><span>Matching now</span><span>Active</span><span></span>
-        </div>
-        <div style="flex:1;min-height:0;overflow:auto">
-          <sc-for list="{{ ruleRows }}" as="r" hint-placeholder-count="4">
-            <div style="display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(200px,1.2fr) minmax(160px,1fr) 150px minmax(180px,1.2fr) 60px 76px;align-items:center;gap:12px;min-height:60px;padding:8px 16px;border-bottom:1px solid #F2F4F7;opacity:{{ r.op }}">
-              <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="flex:none;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:#FEF3E2;color:#B54708;font:17px/1 'Material Symbols Outlined'">{{ r.icon }}</span><span style="font-weight:600">{{ r.name }}</span></span>
-              <span style="font-size:12.5px;color:#344054;line-height:1.4">{{ r.trig }}</span>
-              <span style="font-size:12.5px;color:#344054;line-height:1.4">{{ r.scope }}</span>
-              <span style="display:flex;align-items:center"><sc-for list="{{ r.people }}" as="p"><span data-person="{{ p.dp }}" title="{{ p.name }}" style="width:26px;height:26px;margin-right:-6px;border-radius:50%;border:2px solid #fff;background:{{ p.avBg }};color:{{ p.avFg }};display:grid;place-items:center;font:600 10px 'IBM Plex Sans',sans-serif;cursor:pointer">{{ p.ini }}</span></sc-for></span>
-              <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-weight:600;color:{{ r.mColor }}">{{ r.mLabel }}</span><sc-for list="{{ r.mList }}" as="m"><a href="{{ m.href }}" style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.asset }} · {{ m.detail }}</a></sc-for></span>
-              <span><button onClick="{{ r.toggle }}" style="position:relative;width:36px;height:20px;padding:0;border:0;border-radius:10px;background:{{ r.track }};cursor:pointer"><span style="position:absolute;top:2px;left:{{ r.knob }};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></button></span>
-              <span style="display:flex;gap:2px;justify-content:flex-end">
-                <button onClick="{{ r.edit }}" title="Edit rule" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer" style-hover="background:#F2F4F7"><span style="font:18px/1 'Material Symbols Outlined'">edit</span></button>
-                <button onClick="{{ r.del }}" title="Delete rule" style="width:30px;height:30px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#B42318;cursor:pointer" style-hover="background:#FEF3F2"><span style="font:18px/1 'Material Symbols Outlined'">delete</span></button>
-              </span>
-            </div>
-          </sc-for>
-        </div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid #F2F4F7">
+            <span style="flex:none;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:{{ r.tileBg }};color:{{ r.tileFg }};font:18px/1 'Material Symbols Outlined'">{{ r.icon }}</span>
+            <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+              <span style="display:flex;align-items:center;gap:6px"><span style="font-weight:600">{{ r.label }}</span><sc-if value="{{ r.urgent }}"><span title="Stays on screen until you dismiss it" style="height:18px;display:inline-flex;align-items:center;padding:0 6px;border-radius:9px;background:#FDECEC;color:#B42318;font-size:11px;font-weight:600">Urgent</span></sc-if></span>
+              <span style="font-size:12.5px;color:#667085">{{ r.desc }}</span>
+            </span>
+            <button onClick="{{ r.toggle }}" role="switch" aria-checked="{{ r.aria }}" aria-label="{{ r.label }}" style="flex:none;position:relative;width:40px;height:22px;padding:0;border:0;border-radius:11px;background:{{ r.track }};cursor:pointer;transition:background .15s"><span style="position:absolute;top:2px;left:{{ r.knob }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.2);transition:left .15s"></span></button>
+          </div>
+        </sc-for>
       </section>
-    </sc-if>
-    <sc-if value="{{ rf }}">
-      <div onClick="{{ closeRule }}" style="position:fixed;inset:56px 0 0 0;background:rgba(16,24,40,.28);z-index:50"></div>
-      <aside style="position:fixed;top:56px;right:0;bottom:0;width:500px;z-index:51;background:#fff;box-shadow:-12px 0 32px rgba(16,24,40,.14);display:flex;flex-direction:column">
-        <div style="display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid #EEF0F3"><div style="flex:1"><h2 style="margin:0;font-size:16px;font-weight:600">{{ rfTitle }}</h2><p style="margin:2px 0 0;font-size:12.5px;color:#667085">Fields marked * are required</p></div><button onClick="{{ closeRule }}" style="width:32px;height:32px;display:grid;place-items:center;background:transparent;border:0;border-radius:6px;color:#475467;cursor:pointer"><span style="font:20px/1 'Material Symbols Outlined'">close</span></button></div>
-        <div style="flex:1;overflow:auto;padding:16px 20px;display:flex;flex-direction:column;gap:16px">
-          <label style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12.5px;font-weight:500;color:#344054">Rule name<span style="color:#C00018"> *</span></span><input value="{{ rf.name }}" onInput="{{ rfOn.name }}" placeholder="e.g. Recurring failures on critical assets" style="height:36px;padding:0 10px;border:1px solid {{ rfErr.name }};border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /></label>
-          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#344054">Trigger<span style="color:#C00018"> *</span></span>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><sc-for list="{{ trigOpts }}" as="o"><button onClick="{{ o.select }}" style="display:flex;align-items:flex-start;gap:8px;padding:10px;background:{{ o.bg }};border:1px solid {{ o.border }};border-radius:8px;text-align:left;cursor:pointer;font-family:inherit"><span style="font:19px/1 'Material Symbols Outlined';color:{{ o.color }}">{{ o.icon }}</span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-weight:600;font-size:13px;color:#1E2430">{{ o.label }}</span><span style="font-size:11.5px;color:#667085;line-height:1.35">{{ o.sub }}</span></span></button></sc-for></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span style="font-size:12.5px;font-weight:500;color:#344054">{{ nLabel }}<span style="color:#C00018"> *</span></span><input type="number" min="0" value="{{ rf.n }}" onInput="{{ rfOn.n }}" style="width:80px;height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><span style="color:#667085">{{ nUnit }}</span><sc-if value="{{ hasDays }}"><span style="color:#344054">within</span><input type="number" min="1" value="{{ rf.days }}" onInput="{{ rfOn.days }}" style="width:80px;height:36px;padding:0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;outline:none" /><span style="color:#667085">days</span></sc-if></div>
-          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#344054">Assets in scope<span style="color:#C00018"> *</span></span>
-            <span style="position:relative;display:flex"><select value="{{ rf.scope }}" onChange="{{ rfOn.scope }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><sc-for list="{{ scopeOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
-            <sc-if value="{{ needValues }}"><div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px;border:1px solid {{ rfErr.values }};border-radius:6px;min-height:40px"><sc-for list="{{ valChips }}" as="c"><span style="height:26px;display:inline-flex;align-items:center;gap:4px;padding:0 4px 0 8px;background:#F2F4F7;border-radius:4px;font-weight:500">{{ c.label }}<button onClick="{{ c.remove }}" style="width:18px;height:18px;padding:0;display:grid;place-items:center;background:transparent;border:0;color:#667085;cursor:pointer;font:15px/1 'Material Symbols Outlined'">close</button></span></sc-for><span style="flex:1;min-width:160px"><span style="position:relative;display:flex"><select value="{{ blank }}" onChange="{{ addValue }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">+ Add…</option><sc-for list="{{ valOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></span></div></sc-if>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:500;color:#344054">Recipients<span style="color:#C00018"> *</span></span>
-            <div style="display:flex;flex-wrap:wrap;gap:6px;padding:6px;border:1px solid {{ rfErr.recipients }};border-radius:6px;min-height:40px"><sc-for list="{{ recChips }}" as="c"><span style="height:26px;display:inline-flex;align-items:center;gap:6px;padding:0 4px 0 4px;background:#F2F4F7;border-radius:13px;font-weight:500"><span style="width:20px;height:20px;border-radius:50%;background:{{ c.avBg }};color:{{ c.avFg }};display:grid;place-items:center;font:600 9px 'IBM Plex Sans',sans-serif">{{ c.ini }}</span>{{ c.label }}<button onClick="{{ c.remove }}" style="width:18px;height:18px;padding:0;display:grid;place-items:center;background:transparent;border:0;color:#667085;cursor:pointer;font:15px/1 'Material Symbols Outlined'">close</button></span></sc-for><span style="flex:1;min-width:160px"><span style="position:relative;display:flex"><select value="{{ blank }}" onChange="{{ addRecipient }}" style="appearance:none;-webkit-appearance:none;width:100%;height:36px;padding:0 30px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:13px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="">+ Add a person…</option><sc-for list="{{ recOpts }}" as="o"><option value="{{ o.v }}">{{ o.l }}</option></sc-for></select><span style="position:absolute;right:8px;top:9px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span></span></div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#F6F7F9;border-radius:8px;font-size:12.5px;color:#475467"><span style="font-weight:600;color:#1E2430">{{ previewLabel }}</span><sc-for list="{{ previewList }}" as="m"><span>{{ m.asset }} · {{ m.detail }}</span></sc-for></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;padding:14px 20px;border-top:1px solid #EEF0F3"><sc-if value="{{ rfHasErr }}"><span style="font-size:12.5px;color:#B42318">Check required fields</span></sc-if><button onClick="{{ closeRule }}" style="margin-left:auto;height:34px;padding:0 14px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;cursor:pointer">Cancel</button><button onClick="{{ saveRule }}" style="height:34px;padding:0 16px;background:#C00018;border:0;border-radius:6px;font:600 13px 'IBM Plex Sans',sans-serif;color:#fff;cursor:pointer">Save rule</button></div>
-      </aside>
-    </sc-if>
-    <sc-if value="{{ isPrefs }}" hint-placeholder-val="{{ true }}">
-    <div style="flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr);gap:16px">
-      <aside style="min-height:0;overflow:auto;display:flex;flex-direction:column;gap:14px;padding-bottom:24px">
-        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
-          <h2 style="margin:0;font-size:14px;font-weight:600">Delivery levels</h2>
-          <sc-for list="{{ legend }}" as="l" hint-placeholder-count="3">
-            <div style="display:grid;grid-template-columns:32px minmax(0,1fr);gap:10px;align-items:start">
-              <span style="width:32px;height:32px;border-radius:8px;display:grid;place-items:center;background:{{ l.bg }};color:{{ l.fg }};font:18px/1 'Material Symbols Outlined'">{{ l.icon }}</span>
-              <span style="display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ l.label }}</span><span style="font-size:12px;color:#667085;line-height:1.4">{{ l.desc }}</span></span>
-            </div>
-          </sc-for>
-        </section>
-
-        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
-          <h2 style="margin:0 0 6px;font-size:14px;font-weight:600">Other channels</h2>
-          <sc-for list="{{ channels }}" as="c" hint-placeholder-count="2">
-            <button onClick="{{ c.toggle }}" style="display:grid;grid-template-columns:28px minmax(0,1fr) 40px;gap:10px;align-items:center;padding:8px 0;background:transparent;border:0;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430">
-              <span style="font:20px/1 'Material Symbols Outlined';color:#475467">{{ c.icon }}</span>
-              <span style="min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ c.label }}</span><span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.sub }}</span></span>
-              <span style="position:relative;width:36px;height:20px;border-radius:10px;background:{{ c.track }}"><span style="position:absolute;top:2px;left:{{ c.knob }};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></span>
-            </button>
-          </sc-for>
-        </section>
-
-        <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:4px">
-          <h2 style="margin:0 0 6px;font-size:14px;font-weight:600">Rules</h2>
-          <sc-for list="{{ rules }}" as="c" hint-placeholder-count="2">
-            <button onClick="{{ c.toggle }}" style="display:grid;grid-template-columns:28px minmax(0,1fr) 40px;gap:10px;align-items:center;padding:8px 0;background:transparent;border:0;cursor:pointer;text-align:left;font-family:inherit;color:#1E2430">
-              <span style="font:20px/1 'Material Symbols Outlined';color:#475467">{{ c.icon }}</span>
-              <span style="min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-weight:600">{{ c.label }}</span><span style="font-size:12px;color:#667085;line-height:1.4">{{ c.sub }}</span></span>
-              <span style="position:relative;width:36px;height:20px;border-radius:10px;background:{{ c.track }}"><span style="position:absolute;top:2px;left:{{ c.knob }};width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)"></span></span>
-            </button>
-          </sc-for>
-        </section>
-      </aside>
-
-      <section style="min-height:0;display:flex;flex-direction:column;background:#fff;border:1px solid #E4E7EC;border-radius:8px 8px 0 0;border-bottom:0;overflow:hidden">
-        <div style="flex:none;display:grid;grid-template-columns:minmax(260px,1fr) 300px 64px 64px 40px;align-items:center;gap:12px;height:40px;padding:0 16px;background:#F9FAFB;border-bottom:1px solid #EEF0F3;font-size:12px;font-weight:600;color:#667085">
-          <span>Notification</span><span>Delivery in Relix</span><span style="text-align:center">Email</span><span style="text-align:center">Mobile</span><span></span>
-        </div>
-        <div style="flex:1;min-height:0;overflow:auto;padding-bottom:16px">
-          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
-            <div style="position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:10px;padding:12px 16px 8px;background:#fff;border-bottom:1px solid #F2F4F7">
-              <span style="width:26px;height:26px;border-radius:6px;display:grid;place-items:center;background:{{ c.bg }};color:{{ c.fg }};font:16px/1 'Material Symbols Outlined'">{{ c.icon }}</span>
-              <span style="font-size:13.5px;font-weight:600">{{ c.label }}</span>
-              <span style="margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:#667085">For
-                <span style="position:relative;display:flex"><select value="{{ c.scope }}" onChange="{{ c.setScope }}" style="appearance:none;-webkit-appearance:none;height:30px;padding:0 28px 0 10px;border:1px solid #D0D5DD;border-radius:6px;font:500 12.5px 'IBM Plex Sans',sans-serif;color:#1E2430;background:#fff;outline:none"><option value="involved">Work I'm involved in</option><option value="team">My teams</option><option value="site">Whole site</option></select><span style="position:absolute;right:6px;top:6px;pointer-events:none;font:18px/1 'Material Symbols Outlined';color:#98A2B3">expand_more</span></span>
-              </span>
-            </div>
-            <sc-for list="{{ c.rows }}" as="r">
-              <div style="display:grid;grid-template-columns:minmax(260px,1fr) 300px 64px 64px 40px;align-items:center;gap:12px;min-height:58px;padding:6px 16px;border-bottom:1px solid #F2F4F7;background:{{ r.bg }}">
-                <span style="min-width:0;display:flex;align-items:center;gap:10px">
-                  <span style="flex:none;width:30px;height:30px;border-radius:7px;display:grid;place-items:center;background:{{ r.tileBg }};color:{{ r.tileFg }};font:17px/1 'Material Symbols Outlined'">{{ r.icon }}</span>
-                  <span style="min-width:0;display:flex;flex-direction:column;gap:1px">
-                    <span style="display:flex;align-items:center;gap:6px"><span style="font-weight:600">{{ r.label }}</span><span style="height:18px;display:inline-flex;align-items:center;padding:0 6px;border-radius:4px;background:{{ r.impBg }};color:{{ r.impFg }};font-size:11px;font-weight:600;white-space:nowrap">{{ r.impLabel }}</span></span>
-                    <span style="font-size:12px;color:#667085;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.desc }}</span>
-                  </span>
-                </span>
-                <span style="display:flex;padding:2px;background:#EEF0F3;border-radius:7px">
-                  <sc-for list="{{ r.levels }}" as="l">
-                    <button onClick="{{ l.pick }}" title="{{ l.tip }}" style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;gap:5px;padding:0 6px;background:{{ l.bg }};border:0;border-radius:5px;box-shadow:{{ l.shadow }};font:{{ l.font }};color:{{ l.color }};cursor:{{ l.cursor }};white-space:nowrap;opacity:{{ l.op }}"><span style="font:15px/1 'Material Symbols Outlined'">{{ l.icon }}</span>{{ l.label }}</button>
-                  </sc-for>
-                </span>
-                <span style="display:grid;place-items:center"><button onClick="{{ r.toggleEmail }}" title="{{ r.emailTip }}" style="width:22px;height:22px;padding:0;border-radius:5px;border:1.5px solid {{ r.emailBorder }};background:{{ r.emailBg }};display:grid;place-items:center;color:#fff;cursor:{{ r.emailCursor }};opacity:{{ r.emailOp }}"><span style="font:15px/1 'Material Symbols Outlined'">{{ r.emailIcon }}</span></button></span>
-                <span style="display:grid;place-items:center"><button onClick="{{ r.togglePush }}" title="{{ r.pushTip }}" style="width:22px;height:22px;padding:0;border-radius:5px;border:1.5px solid {{ r.pushBorder }};background:{{ r.pushBg }};display:grid;place-items:center;color:#fff;cursor:{{ r.pushCursor }};opacity:{{ r.pushOp }}"><span style="font:15px/1 'Material Symbols Outlined'">{{ r.pushIcon }}</span></button></span>
-                <button onClick="{{ r.preview }}" title="Preview this notification" style="width:32px;height:32px;display:grid;place-items:center;padding:0;background:transparent;border:0;border-radius:6px;color:#667085;cursor:pointer" style-hover="background:#F2F4F7;color:#1E2430"><span style="font:18px/1 'Material Symbols Outlined'">visibility</span></button>
-              </div>
-            </sc-for>
-          </sc-for>
-        </div>
+      <section style="display:flex;align-items:center;gap:12px;padding:14px 16px;background:#fff;border:1px solid #E4E7EC;border-radius:8px">
+        <span style="flex:none;width:34px;height:34px;border-radius:8px;display:grid;place-items:center;background:#F2F4F7;color:#344054;font:18px/1 'Material Symbols Outlined'">mail</span>
+        <span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-weight:600">Also email me urgent notifications</span><span style="font-size:12.5px;color:#667085">Late interventions and equipment breakdowns, sent to gauderic.durand@saint-gobain.com</span></span>
+        <button onClick="{{ toggleEmail }}" role="switch" aria-checked="{{ emailAria }}" aria-label="Email urgent notifications" style="flex:none;position:relative;width:40px;height:22px;padding:0;border:0;border-radius:11px;background:{{ emailTrack }};cursor:pointer;transition:background .15s"><span style="position:absolute;top:2px;left:{{ emailKnob }};width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.2);transition:left .15s"></span></button>
       </section>
+      <div style="display:flex;align-items:flex-start;gap:8px;color:#667085;font-size:12.5px;line-height:1.5">
+        <span style="font:16px/1 'Material Symbols Outlined';margin-top:1px">info</span>
+        <span style="flex:1;text-wrap:pretty">Notifications appear in the bell and as a short pop-up at the top right. Urgent ones stay until you dismiss them. Everything else stays in Home › Activity.</span>
+        <button onClick="{{ reset }}" style="flex:none;padding:0;background:transparent;border:0;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#667085;cursor:pointer">Restore defaults</button>
+      </div>
     </div>
-    </sc-if>
   </main>
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
-const SAMPLES = {
-  'wo-assigned': ['Fan V-08 — Noisy bearing', 'High priority · assigned by Hugo Petit', 'WorkOrders.dc.html'],
-  'wo-priority': ['Conveyor Line 3 — Sensor check', 'Medium → High · by Hugo Petit', 'WorkOrders.dc.html'],
-  'wo-created': ['Air Dryer AD-2 — Condensate drain', 'Mechanical team · by operator', 'WorkOrders.dc.html'],
-  'wo-followup': ['Conveyor Line 3 — Belt replacement', 'From the completed sensor check', 'WorkOrders.dc.html'],
-  'int-overdue': ['Pump P-101 — Seal replacement', '3 days late · assigned to you', 'WorkOrders.dc.html'],
-  'int-paused': ['Compressor C-01 — Filter replacement', 'Sophie Martin · 4 of 6 steps · waiting for a part', 'WorkOrders.dc.html'],
-  'int-completed': ['Conveyor Line 3 — Sensor check', 'Sophie Martin · 1 h 12', 'WorkOrders.dc.html'],
-  'eq-critical': ['Tin Bath — roller stopped', 'Float Line · production impacted', 'AssetDetail.dc.html'],
-  'eq-status': ['Palletizing Robot 1', 'Out of service → In service', 'AssetDetail.dc.html'],
-  'part-unavailable': ['Hydraulic filter HX-10 is out of stock', 'Blocks Hydraulic Press — Oil leak', 'SpareParts.dc.html'],
-  'part-low': ['Drive belt BPU280 — 2 left', 'Minimum 5 · used on 3 assets', 'SpareParts.dc.html'],
-  'plan-change': ['Palletizing Robot — Lubrication', 'Moved to Wed 30, 10:00', 'Planning.dc.html'],
-  'mention': ['“@Gaudéric can you check whether we have this bearing in stock?”', 'Mechanical team · Pierre Leroy', 'Main.dc.html?chat=team'],
-  'reassign': ['Fan V-12 — Abnormal fan noise', 'Alex Martin: “Can someone take this intervention?”', 'Main.dc.html?chat=WO-1339850'],
-  'wo-message': ['Pump P-101 — Seal replacement', 'Sarah Lambert: “3 in stock, store A-07.”', 'Main.dc.html?chat=WO-1339859'],
-  'team-message': ['Mechanical team', 'Marc Dupont: “Oil on the floor around the press”', 'Main.dc.html?chat=team'],
-};
-const LV_ICON = { activity: 'bolt', bell: 'notifications', toast: 'web_asset' };
-const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
 class Component extends DCLogic {
-  state = { N: null, p: null, saved: false, tab: /tab=rules/.test(location.search) ? 'rules' : 'prefs', rf: null, rfErr: {} };
-  componentDidMount() { import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU);  import('./notif-model.js').then(N => this.setState({ N, p: N.prefs() })); Promise.all([import('./alerts-model.js'), import('./plant-model.js'), import('./collab-model.js')]).then(([A, PL, C]) => this.setState({ A, PL, C })); this._ar = () => this.forceUpdate(); window.addEventListener('cmms-alert-rules', this._ar); }
-  rulesVals() {
-    const s = this.state, A = s.A, PL = s.PL, C = s.C, tabs = [['prefs', 'My preferences', 'tune'], ['rules', 'Alert rules', 'rule']].filter(([k]) => k !== 'rules' || FON('notif.rules')).map(([k, label, icon]) => { const on = s.tab === k; return { label, icon, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: on ? "600 13px 'IBM Plex Sans',sans-serif" : "500 13px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', select: () => this.setState({ tab: k }) }; });
-    if (!A || !PL || !C) return { tabs, isRules: (s.tab === 'rules' && FON('notif.rules')), isPrefs: !(s.tab === 'rules' && FON('notif.rules')), ruleRows: [], rf: null };
-    const valLabel = (scope, v) => scope === 'asset' ? (PL.asset(v) || { name: v }).name : scope === 'owner' ? C.person(v).name : scope === 'zone' ? (PL.node(v) || { name: v }).name : v;
-    const scopeText = r => r.scope === 'all' ? 'All assets' : `${A.SCOPES[r.scope]}: ${(r.values || []).map(v => valLabel(r.scope, v)).join(', ') || '—'}`;
-    const trigText = r => r.trigger === 'recurring' ? `≥ ${r.n} corrective WOs on the same asset within ${r.days} days` : r.trigger === 'overdue' ? `Open work order more than ${r.n} d late` : r.trigger === 'control' ? `Control or calibration due within ${r.n} days` : 'Asset stopped or out of service';
-    const ruleRows = A.all().map(r => { const m = A.matches(r); return { name: r.name, icon: A.TRIGGERS[r.trigger][1], trig: trigText(r), scope: scopeText(r), op: r.active ? 1 : 0.6, track: r.active ? '#0B6B4A' : '#D0D5DD', knob: r.active ? '18px' : '2px',
-      people: (r.recipients || []).map(k => { const p = C.person(k); return { dp: `${k}|${p.name}`, name: p.name, ini: p.initials, avBg: p.avBg, avFg: p.avFg }; }),
-      mLabel: m.length ? `${m.length} asset${m.length > 1 ? 's' : ''}` : 'Nothing right now', mColor: m.length ? '#B54708' : '#667085', mList: m.slice(0, 2),
-      toggle: () => A.save({ ...r, active: !r.active }), edit: () => this.setState({ rf: { ...r, values: [...(r.values || [])], recipients: [...(r.recipients || [])] }, rfErr: {} }), del: () => { A.remove(r.id); } }; });
-    const f = s.rf, base = { tabs, isRules: (s.tab === 'rules' && FON('notif.rules')), isPrefs: !(s.tab === 'rules' && FON('notif.rules')), ruleRows, rf: f, newRule: () => this.setState({ rf: { name: '', trigger: 'recurring', n: 3, days: 30, scope: 'all', values: [], recipients: [C.ME], active: true }, rfErr: {} }), closeRule: () => this.setState({ rf: null }) };
-    if (!f) return base;
-    const setF = (k, v) => this.setState(st => ({ rf: { ...st.rf, [k]: v }, rfErr: { ...st.rfErr, [k]: 0 } })), E = k => s.rfErr[k] ? '#F04438' : '#D0D5DD';
-    const opts = f.scope === 'asset' ? PL.assets().map(a => ({ v: a.id, l: a.name })) : f.scope === 'owner' ? Object.keys(C.PEOPLE).map(k => ({ v: k, l: C.person(k).name })) : f.scope === 'zone' ? PL.zones().map(z => ({ v: z.id, l: z.name })) : f.scope === 'crit' ? Object.keys(PL.CRIT).map(v => ({ v, l: v })) : [];
-    const pv = A.matches(f);
-    return { ...base, rfTitle: f.id ? 'Edit alert rule' : 'New alert rule', rfErr: { name: E('name'), values: E('values'), recipients: E('recipients') }, rfHasErr: Object.values(s.rfErr).some(Boolean), blank: '',
-      rfOn: { name: e => setF('name', e.target.value), n: e => setF('n', +e.target.value), days: e => setF('days', +e.target.value), scope: e => this.setState(st => ({ rf: { ...st.rf, scope: e.target.value, values: [] } })) },
-      trigOpts: Object.keys(A.TRIGGERS).map(k => { const [label, icon, sub] = A.TRIGGERS[k], on = f.trigger === k; return { label, icon, sub, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#C00018' : '#667085', select: () => this.setState(st => ({ rf: { ...st.rf, trigger: k, n: { recurring: 3, overdue: 1, control: 14, stopped: 0 }[k], days: k === 'recurring' ? 30 : 0 } })) }; }),
-      nLabel: { recurring: 'At least', overdue: 'Late by more than', control: 'Due within', stopped: 'Delay before alerting' }[f.trigger], nUnit: { recurring: 'corrective work orders', overdue: 'days', control: 'days', stopped: 'minutes' }[f.trigger], hasDays: f.trigger === 'recurring',
-      scopeOpts: Object.keys(A.SCOPES).map(v => ({ v, l: A.SCOPES[v] })), needValues: f.scope !== 'all',
-      valChips: f.values.map(v => ({ label: valLabel(f.scope, v), remove: () => setF('values', f.values.filter(x => x !== v)) })), valOpts: opts.filter(o => !f.values.includes(o.v)), addValue: e => { const v = e.target.value; e.target.value = ''; if (v) setF('values', [...f.values, v]); },
-      recChips: f.recipients.map(k => { const p = C.person(k); return { label: p.name, ini: p.initials, avBg: p.avBg, avFg: p.avFg, remove: () => setF('recipients', f.recipients.filter(x => x !== k)) }; }), recOpts: Object.keys(C.PEOPLE).filter(k => !f.recipients.includes(k)).map(k => ({ v: k, l: `${C.person(k).name} · ${C.person(k).role}` })), addRecipient: e => { const v = e.target.value; e.target.value = ''; if (v) setF('recipients', [...f.recipients, v]); },
-      previewLabel: pv.length ? `Would alert now on ${pv.length} asset${pv.length > 1 ? 's' : ''}` : 'No asset matches this rule right now', previewList: pv.slice(0, 4),
-      saveRule: () => { const er = {}; if (!f.name.trim()) er.name = 1; if (!f.recipients.length) er.recipients = 1; if (f.scope !== 'all' && !f.values.length) er.values = 1; if (Object.keys(er).length) return this.setState({ rfErr: er }); A.save(f); this.setState({ rf: null, saved: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ saved: false }), 1600); } };
-  }
-  componentWillUnmount() { clearTimeout(this._t); window.removeEventListener('cmms-alert-rules', this._ar); }
-  upd(fn) { const p = JSON.parse(JSON.stringify(this.state.p)); fn(p); this.state.N.save(p); this.setState({ p, saved: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ saved: false }), 1600); }
-  fire(k, force) {
-    const N = this.state.N, t = N.typeOf(k), [title, sub, href] = SAMPLES[k] || ['Test notification', '', '#'];
-    const d = { id: 'test-' + k + '-' + Date.now(), type: k, kind: t.label, title, sub, href, icon: t.icon };
-    if (force && N.levelOf(k) !== 'toast') { const p = N.prefs(); const o = { ...(p.types[k] || {}) }; p.types[k] = { ...o, level: 'toast' }; localStorage.setItem('cmms.notif.prefs.v1', JSON.stringify(p)); window.dispatchEvent(new CustomEvent('cmms-notif', { detail: d })); localStorage.setItem('cmms.notif.prefs.v1', JSON.stringify(this.state.p)); return; }
-    window.dispatchEvent(new CustomEvent('cmms-notif', { detail: d }));
-  }
+  state = { N: null, saved: false };
+  componentDidMount() { import('./notif-model.js').then(N => this.setState({ N })); this._p = () => this.forceUpdate(); window.addEventListener('cmms-notif-prefs', this._p); }
+  componentWillUnmount() { window.removeEventListener('cmms-notif-prefs', this._p); clearTimeout(this._t); }
+  ok() { this.setState({ saved: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ saved: false }), 1600); }
   renderVals() {
-    const s = this.state, N = s.N, p = s.p;
-    const tog = (on) => ({ track: on ? '#C00018' : '#D0D5DD', knob: on ? '18px' : '2px' });
-    if (!N || !p) return { ...this.rulesVals(), legend: [], channels: [], rules: [], cats: [], saved: false };
-    const cats = Object.keys(N.CATS).map(ck => { const c = N.CATS[ck];
-      return { ...c, scope: p.scope[ck], setScope: e => { const v = e.target.value; this.upd(q => { q.scope[ck] = v; }); },
-        rows: Object.values(N.TYPES).filter(t => t.cat === ck).map(t => {
-          const st = N.setting(t.key, p), L = N.look(t.key), I = N.IMP[t.imp], crit = t.imp === 'crit';
-          const ch = (k, on) => { const avail = p.channels[k];
-            return { [k + 'Bg']: on && avail ? '#C00018' : '#fff', [k + 'Border']: on && avail ? '#C00018' : '#C4CAD4', [k + 'Icon']: on && avail ? 'check' : '', [k + 'Op']: avail ? 1 : 0.4, [k + 'Cursor']: avail ? 'pointer' : 'not-allowed',
-              [k + 'Tip']: avail ? (on ? 'On' : 'Off') : `${k === 'email' ? 'Email' : 'Mobile push'} is turned off in Other channels`,
-              ['toggle' + (k === 'email' ? 'Email' : 'Push')]: () => { if (!avail) return; this.upd(q => { q.types[t.key] = { ...(q.types[t.key] || {}), [k]: !on }; }); } }; };
-          return { label: t.label, desc: t.desc, icon: t.icon, tileBg: L.tileBg, tileFg: L.tileFg, impLabel: I.label, impBg: I.bg, impFg: I.fg, bg: '#fff',
-            ...ch('email', st.email), ...ch('push', st.push),
-            preview: () => this.fire(t.key, true),
-            levels: N.LEVELS.map(([lk, label, tip]) => { const on = st.level === lk, locked = crit && lk === 'activity';
-              return { label, icon: LV_ICON[lk], tip: locked ? "Critical alerts can't be limited to Activity" : tip, bg: on ? '#fff' : 'transparent', shadow: on ? '0 1px 2px rgba(16,24,40,.12)' : 'none',
-                font: on ? "600 12px 'IBM Plex Sans',sans-serif" : "500 12px 'IBM Plex Sans',sans-serif", color: on ? '#1E2430' : '#667085', cursor: locked ? 'not-allowed' : 'pointer', op: locked ? 0.4 : 1,
-                pick: () => { if (locked) return; this.upd(q => { q.types[t.key] = { ...(q.types[t.key] || {}), level: lk }; }); } }; }) };
-        }) };
-    });
-    return {
-      ...this.rulesVals(),
-      saved: s.saved,
-      legend: [['bolt', 'Activity only', 'Recorded in Home › Live activity. No badge, no interruption.', '#EEF1F4', '#475467'], ['notifications', 'Notification', 'Adds a badge on the bell and an entry in the notification centre.', '#EAF1FD', '#2456B8'], ['web_asset', 'Pop-up', 'Notification plus a short pop-up on screen. Critical pop-ups stay until dismissed.', '#FBE7EA', '#A30014']]
-        .map(([icon, label, desc, bg, fg]) => ({ icon, label, desc, bg, fg })),
-      channels: [['email', 'mail', 'Email', 'g.durand@thourotte-plant.com'], ['push', 'smartphone', 'Mobile app push', 'Relix mobile · Pixel 7']].map(([k, icon, label, sub]) => ({ icon, label, sub, ...tog(p.channels[k]), toggle: () => this.upd(q => { q.channels[k] = !q.channels[k]; }) })),
-      rules: [['quiet', 'bedtime', 'Quiet outside my shift', 'Shift 06:00–14:00. Outside it, only critical alerts reach you.'], ['digest', 'summarize', 'Daily email summary', 'One email at 07:00 with everything from Activity.']].map(([k, icon, label, sub]) => ({ icon, label, sub, ...tog(p[k]), toggle: () => this.upd(q => { q[k] = !q[k]; }) })),
-      cats,
-      resetAll: () => { N.reset(); this.setState({ p: N.prefs(), saved: true }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ saved: false }), 1600); },
-      test: () => this.fire('mention', true),
-    };
+    const N = this.state.N; if (!N) return { rows: [], onLabel: '' };
+    const p = N.prefs(), sw = on => ({ track: on ? '#0B6B4A' : '#D0D5DD', knob: on ? '20px' : '2px', aria: String(on) });
+    const rows = N.ORDER.map(k => { const t = N.TYPES[k], on = !p.off[k], L = N.look(k);
+      return { ...t, ...sw(on), tileBg: t.urgent ? '#FDECEC' : '#F2F4F7', tileFg: t.urgent ? '#B42318' : '#344054', toggle: () => { N.setOn(k, !on); this.ok(); } }; });
+    const nOn = rows.filter(r => r.aria === 'true').length, em = sw(!!p.email);
+    return { rows, saved: this.state.saved, onLabel: `${nOn} of ${rows.length} on`,
+      emailTrack: em.track, emailKnob: em.knob, emailAria: em.aria, toggleEmail: () => { N.save({ ...p, email: !p.email }); this.ok(); },
+      reset: () => { N.reset(); this.ok(); } };
   }
 }
 </script>

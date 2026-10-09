@@ -22,7 +22,7 @@
       <dc-import name="BackButton" fallback="Main.dc.html" hint-size="34px,34px"></dc-import>
       <div style="flex:1;min-width:0">
         <h1 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">Checklists</h1>
-        <p style="margin:2px 0 0;color:#667085;font-size:13px">Reusable task lists attached to maintenance plans and work orders</p>
+        <p style="margin:2px 0 0;color:#667085;font-size:13px">Reusable task lists attached to maintenance plans and interventions</p>
       </div>
       <sc-if value="{{ adv }}"><button data-feature="cl.ai" onClick="{{ advChecklist }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">playlist_add_check</span>Generate from document<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New checklist</button>
@@ -150,7 +150,7 @@ const LIB = ['Check general condition of the equipment', 'Check fixings and tigh
 const ICONS = [['build', '#E6F4EE', '#0B6B4A'], ['oil_barrel', '#F3EEFC', '#6941C6'], ['bolt', '#FEF3E2', '#B54708'], ['health_and_safety', '#FDECEC', '#B42318'], ['water_drop', '#EAF1FD', '#2456B8'], ['cleaning_services', '#EEF1F4', '#475467']];
 const SEED = [
   ['Pump seal replacement', 'Mechanical seal replacement with pressure and leak test', 1, 11, 2, 'Sep 20', 'Sep 29', 'pump-seal'],
-  ['Standard intervention', 'Default checklist for corrective work orders', 0, 6, 4, 'Sep 2', 'Sep 18', 'standard'],
+  ['Standard intervention', 'Default checklist for corrective interventions', 0, 6, 4, 'Sep 2', 'Sep 18', 'standard'],
   ['Conveyor maintenance', 'Standard checklist for conveyor maintenance', 0, 8, 3, 'Sep 12', 'Sep 22'],
   ['Hydraulic press service', 'Preventive service of the hydraulic press', 1, 10, 1, 'Sep 10', 'Sep 21'],
   ['Electrical check', 'Inspection of electrical equipment and cabinets', 2, 12, 2, 'Sep 5', 'Sep 18'],
@@ -208,7 +208,7 @@ class Component extends DCLogic {
       countLabel: `${list.length} checklists`, pager: { total: list.length, page: Math.min(s.pg || 1, Math.max(1, Math.ceil(list.length / (s.ps || 25)))), size: s.ps || 25, onPage: p => this.setState({ pg: p }), onSize: n => this.setState({ ps: n, pg: 1 }) },
       menuOpen: !!s.menu, closeMenus: () => this.setState({ menu: null }), openNew: () => this.open(null),
       drawerOpen: !!s.drawer, closeDrawer: () => this.setState({ drawer: null }),
-      drawerTitle: s.drawer && s.drawer.id ? 'Edit checklist' : 'New checklist', drawerSub: s.drawer && s.drawer.id ? 'Changes apply to future work orders only' : 'Fields marked * are required',
+      drawerTitle: s.drawer && s.drawer.id ? 'Edit checklist' : 'New checklist', drawerSub: s.drawer && s.drawer.id ? 'Changes apply to future interventions only' : 'Fields marked * are required',
       name: s.name, setName: e => this.setState({ name: e.target.value, errors: { ...s.errors, name: 0 } }), nameErr: !!s.errors.name, nameBorder: s.errors.name ? '#F04438' : '#D0D5DD',
       desc: s.desc, setDesc: e => this.setState({ desc: e.target.value }), descCount: s.desc.length,
       addModes: [['manual', 'Add manually'], ['library', 'From existing']].map(([k, label]) => ({ label, bg: s.mode === k ? '#fff' : 'transparent', shadow: s.mode === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.mode === k ? "600 12.5px 'IBM Plex Sans',sans-serif" : "500 12.5px 'IBM Plex Sans',sans-serif", color: s.mode === k ? '#1E2430' : '#667085', select: () => this.setState({ mode: k }) })),

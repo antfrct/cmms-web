@@ -75,7 +75,7 @@ class Component extends DCLogic {
     const { CL, PM } = this.state; if (!CL || !PM) return [];
     const cls = (this.props.checklists || []).map(id => CL.load(id) || (EXTRA[id] ? CL.fromName(id, EXTRA[id]) : null)).filter(Boolean);
     let sg = PM.segmentsOf(cls).filter(g => g.minutes > 0);
-    if (!sg.length) sg = [{ skills: PM.TYPE_SKILL[this.props.type] || [], minutes: Math.round((+this.props.dur || 1) * 60), offset: 0, label: 'Whole work order', titles: [] }];
+    if (!sg.length) sg = [{ skills: PM.TYPE_SKILL[this.props.type] || [], minutes: Math.round((+this.props.dur || 1) * 60), offset: 0, label: 'Whole intervention', titles: [] }];
     return sg;
   }
   ctx() { const d = this.props.date || ''; const [ymd, t] = d.split('T'); return { date: ymd || this.state.PM.dayIso(1), from: t ? +t.slice(0, 2) + (+t.slice(3, 5)) / 60 : null }; }
@@ -86,7 +86,7 @@ class Component extends DCLogic {
     const { C, PM } = this.state;
     if (!C || !PM) return { bar: [], segs: [], team: [], hasTeam: false, headTitle: 'Required skills', headSub: '', total: '', ctxLabel: '' };
     const sg = this.segs(), keys = this.keys(), ctx = this.ctx(), tot = sg.reduce((a, g) => a + g.minutes, 0);
-    const fromCl = (this.props.checklists || []).length > 0 && sg[0].label !== 'Whole work order';
+    const fromCl = (this.props.checklists || []).length > 0 && sg[0].label !== 'Whole intervention';
     const win = g => ctx.from != null ? `${PM.hm(ctx.from + g.offset / 60)}–${PM.hm(ctx.from + (g.offset + g.minutes) / 60)}` : `+${PM.hm(g.offset / 60)} → +${PM.hm((g.offset + g.minutes) / 60)}`;
     const [, mo, dd] = ctx.date.split('-');
     const assignedTeam = [...new Set(keys.filter(Boolean))];

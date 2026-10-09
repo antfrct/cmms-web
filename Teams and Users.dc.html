@@ -227,7 +227,7 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;users&quot;,&quot;teams&quot;,&quot;roles&quot;],&quot;default&quot;:&quot;users&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
-const ROLES = [['Administrator', 'Full access, including configuration and users'], ['Maintenance manager', 'Manages work, plans, stock and teams'], ['Planner', 'Schedules work orders and preventive plans'], ['Technician', 'Executes assigned work, consumes parts'], ['Requester', 'Submits work requests and follows them']];
+const ROLES = [['Administrator', 'Full access, including configuration and users'], ['Maintenance manager', 'Manages work, plans, stock and teams'], ['Planner', 'Schedules interventions and preventive plans'], ['Technician', 'Executes assigned work, consumes parts'], ['Requester', 'Submits work requests and follows them']];
 const TEAMS = [['Mechanical team', 'Mechanics, hydraulics, lubrication', 'build', '#E6F4EE', '#0B6B4A', 'Marc Dupont', 23, 3, '86%'], ['Electrical team', 'Electrical, automation, instrumentation', 'bolt', '#FEF3E2', '#B54708', 'Sophie Martin', 18, 2, '94%'], ['Float Line team', 'Dedicated line maintenance', 'conveyor_belt', '#EAF1FD', '#2456B8', 'Julie Martin', 16, 3, '78%']];
 const AV = [['#E8EEF9', '#2456B8'], ['#F3EEFC', '#6941C6'], ['#E6F4EE', '#0B6B4A'], ['#FEF3E2', '#B54708'], ['#FDECEC', '#B42318'], ['#EEF1F4', '#475467']];
 const SEED = [
@@ -243,7 +243,7 @@ const SEED = [
   ['Nadia Haddad', 'Technician', 'Electrical team', 'Saultain', 'Deactivated', 'Jul 3'],
 ].map(([name, role, team, sites, status, last], i) => ({ id: 'u' + i, name, role, team, sites, status, last, email: name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(' ', '.') + '@cmms-plant.com' }));
 const ST = { Active: ['#E6F4EE', '#0B6B4A'], Invited: ['#EAF1FD', '#2456B8'], Deactivated: ['#EEF1F4', '#475467'] };
-const MODS = ['Assets', 'Work orders', 'Maintenance plans & checklists', 'Planning', 'Spare parts', 'Documents', 'Teams & users', 'Administration'];
+const MODS = ['Assets', 'Interventions', 'Maintenance plans & checklists', 'Planning', 'Spare parts', 'Documents', 'Teams & users', 'Administration'];
 const MX = [['F', 'F', 'V', 'V', 'V'], ['F', 'F', 'F', 'E', 'E'], ['F', 'F', 'E', 'V', '-'], ['F', 'F', 'F', 'V', '-'], ['F', 'F', 'V', 'E', '-'], ['F', 'F', 'E', 'E', 'V'], ['F', 'E', 'V', '-', '-'], ['F', '-', '-', '-', '-']];
 const CELL = { F: ['check_circle', '#0B6B4A', 'Full', '#E6F4EE', 'Create, edit, delete, configure'], E: ['edit', '#2456B8', 'Edit', '#EAF1FD', 'Create and edit, no delete'], V: ['visibility', '#475467', 'View', '#F2F4F7', 'Read only'], '-': ['block', '#98A2B3', 'None', '#fff', 'Module hidden'] };
 const CODES = ['F', 'E', 'V', '-'];
@@ -299,7 +299,7 @@ class Component extends DCLogic {
       const actions = [act('person', 'View profile', () => { this.setState({ menu: null }); window.RelixProfile && pk && window.RelixProfile(pk); }), act('edit', 'Edit skills & availability', () => { this.setState({ menu: null }); window.RelixProfile && pk && window.RelixProfile(pk, { tab: 'skills', edit: true }); })];
       if (u.status === 'Invited') actions.push(act('forward_to_inbox', 'Resend invitation', () => { this.setState({ menu: null }); this.flash(`Invitation resent to ${u.email}`); }));
       if (u.status === 'Deactivated') actions.push(act('person_check', 'Reactivate', () => setStatus(u.id, 'Active', `${u.name} reactivated`)));
-      else actions.push(act('person_off', 'Deactivate', () => setStatus(u.id, 'Deactivated', `${u.name} deactivated · open work orders need reassignment`), true));
+      else actions.push(act('person_off', 'Deactivate', () => setStatus(u.id, 'Deactivated', `${u.name} deactivated · open interventions need reassignment`), true));
       return { ...skillsV,  ...u, ini: ini(u.name), avBg, avFg, sbg, sfg, team: u.team || '—', op: u.status === 'Deactivated' ? 0.6 : 1, menuOpen: mo, menuBg: mo ? '#EEF0F3' : 'transparent', menuTop: i > list.length - 3 && list.length > 4 ? '-90px' : '34px',
         menu: e => { e.stopPropagation(); this.setState({ menu: mo ? null : u.id }); }, actions }; });
     const sel = (k, ph, opts) => ({ value: s[k], border: s[k] ? '#C00018' : '#D0D5DD', bg: s[k] ? '#FBF7F7' : '#fff', options: [{ v: '', l: ph }, ...opts.map(o => ({ v: o, l: o }))], onChange: e => this.setState({ [k]: e.target.value }) });

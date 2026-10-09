@@ -128,7 +128,7 @@ class Component extends DCLogic {
   qRef = React.createRef(); textRef = React.createRef();
   componentDidMount() {
     Promise.all([import('./plant-model.js'), import('./collab-model.js')]).then(([PL, C]) => this.setState({ PL, C }));
-    import('./parts-model.js').then(PA => { this.PA = PA; });
+    import('./parts-model.js').then(PA => { this.PA = PA; }); import('./config-model.js').then(CFG => this.setState({ CFG }));
     this._open = e => { const d = (e && e.detail) || {}; const a = d.asset ? this.find(d.asset) : null;
       this.setState({ open: true, asset: a, q: '', text: d.text || '', sym: '', photo: null, notify: d.notify || [], extra: [], picking: false, pq: '', scanning: false }, () => setTimeout(() => { const r = a ? this.textRef : this.qRef; r.current && r.current.focus(); }, 60)); };
     this._key = e => { if (e.key === 'Escape' && this.state.open) this.setState({ open: false }); };
@@ -151,7 +151,7 @@ class Component extends DCLogic {
   }
   send() {
     const s = this.state, C = s.C, text = (s.text.trim() || s.sym).trim(); if (!s.asset || !text || !C) return;
-    const r = C.createRequest({ asset: s.asset.name, assetCode: s.asset.id, loc: s.asset.line, text: text.charAt(0).toUpperCase() + text.slice(1), photo: !!s.photo, photoUrl: s.photo ? s.photo.url : '', notify: s.notify });
+    const r = C.createRequest({ asset: s.asset.name, assetCode: s.asset.id, loc: s.asset.line, text: text.charAt(0).toUpperCase() + text.slice(1), photo: !!s.photo, photoUrl: s.photo ? s.photo.url : '', notify: s.notify, problem: s.sym || '' });
     const who = s.notify.map(k => C.notifyName(k)), n = C.notifyPeople(r).length;
     this.setState({ open: false });
     this.flash(`${r.id} sent${who.length ? ` · ${who.slice(0, 2).join(', ')}${who.length > 2 ? ' +' + (who.length - 2) : ''} notified (${n} ${n === 1 ? 'person' : 'people'})` : ' · visible on your Home'}`);
@@ -181,7 +181,7 @@ class Component extends DCLogic {
       scanning: s.scanning, scan: () => { this.setState({ scanning: true }); clearTimeout(this._sc); this._sc = setTimeout(() => this.pick(all.find(a => a.id === 'CV-L3') || all[0]), 1400); },
       listLabel: q ? `${list.length} match${list.length === 1 ? '' : 'es'}` : 'Nearby and recent',
       assets: list.map(a => ({ ...a, pick: () => this.pick(a) })),
-      symptoms: SYM.map(([label, icon]) => { const on = s.sym === label; return { label, icon, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#A30014' : '#344054', pick: () => this.setState({ sym: on ? '' : label }) }; }),
+      symptoms: (s.CFG && s.CFG.problems ? s.CFG.problems().map(p => [p.name, p.icon || 'report']) : SYM).map(([label, icon]) => { const on = s.sym === label; return { label, icon, bg: on ? '#FBF1F2' : '#fff', border: on ? '#C00018' : '#D0D5DD', color: on ? '#A30014' : '#344054', pick: () => this.setState({ sym: on ? '' : label }) }; }),
       text: s.text, setText: e => this.setState({ text: e.target.value }),
       noPhoto: !s.photo, hasPhoto: !!s.photo, photoUrl: s.photo ? s.photo.url : '', photoName: s.photo ? s.photo.name : '', onPhoto: e => this.onPhoto(e), removePhoto: () => this.setState({ photo: null }),
       notifyChips, picking: s.picking, togglePick: () => this.setState({ picking: !s.picking, pq: '' }), pq: s.pq, setPq: e => this.setState({ pq: e.target.value }), pickList,

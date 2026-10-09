@@ -30,7 +30,7 @@
         </div>
         <span style="font-size:13px;color:#667085;white-space:nowrap">{{ site.city }}, {{ site.country }} · {{ localTime }} local time · {{ assetsLabel }} assets</span>
       </div>
-      <a href="WorkOrders.dc.html?new=1" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;white-space:nowrap"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New work order</a>
+      <a href="WorkOrders.dc.html?new=1" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;white-space:nowrap"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New intervention</a>
     </header>
 
     <div style="flex:none;display:flex;gap:4px;border-bottom:1px solid #E4E7EC;margin-top:-6px">
@@ -95,7 +95,7 @@
     <sc-if value="{{ isWo }}">
       <div style="flex:none;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px">
         <section style="background:#fff;border:1px solid #E4E7EC;border-radius:8px;padding:14px 16px 16px;display:flex;flex-direction:column;gap:14px">
-          <div style="display:flex;align-items:baseline;gap:8px"><h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">Open work orders</h2><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:4px">{{ openTotal }}</span><a href="WorkOrders.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">View all</a></div>
+          <div style="display:flex;align-items:baseline;gap:8px"><h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">Open interventions</h2><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;margin-left:4px">{{ openTotal }}</span><a href="WorkOrders.dc.html" style="margin-left:auto;font-weight:600;font-size:12.5px">View all</a></div>
           <div style="display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px">
             <sc-for list="{{ statusBar }}" as="b"><a href="WorkOrders.dc.html" title="{{ b.label }}: {{ b.n }}" style="flex:{{ b.n }};background:{{ b.color }}"></a></sc-for>
           </div>
@@ -272,7 +272,7 @@ class Component extends DCLogic {
     const T = (key, label, badge) => ({ label, badge, hasBadge: !!badge, font: `${s.tab === key ? 600 : 500} 13px 'IBM Plex Sans',sans-serif`, color: s.tab === key ? '#1E2430' : '#667085', bar: s.tab === key ? '#C00018' : 'transparent', select: () => this.setState({ tab: key }) });
     const go = t => () => this.setState({ tab: t });
     const kpis = [
-      ['Overdue work orders', k.overdue, k.overdueCrit ? `${k.overdueCrit} critical` : 'none critical', k.overdue ? '#C00018' : '#12A06E', k.overdue ? '#B42318' : '#1E2430', 'wo'],
+      ['Overdue interventions', k.overdue, k.overdueCrit ? `${k.overdueCrit} critical` : 'none critical', k.overdue ? '#C00018' : '#12A06E', k.overdue ? '#B42318' : '#1E2430', 'wo'],
       ['Equipment stopped', k.stopped, k.stopped ? `${k.stoppedCrit} critical` : 'all running', k.stopped ? '#D92D20' : '#12A06E', k.stopped ? '#B42318' : '#1E2430', 'eq'],
       ['Preventive on time', k.pm + '%', 'target 95%', k.pm >= 95 ? '#12A06E' : k.pm >= 90 ? '#F79009' : '#D92D20', k.pm >= 95 ? '#0B6B4A' : k.pm >= 90 ? '#B54708' : '#B42318', 'wo'],
       ['Parts out of stock', k.out, `${k.low} below minimum`, k.out ? '#D92D20' : k.low ? '#F79009' : '#12A06E', k.out ? '#B42318' : '#1E2430', 'parts'],
@@ -283,10 +283,10 @@ class Component extends DCLogic {
       att.push({ w: 100 + late, icon: 'build', ibg: '#FDECEC', ifg: '#B42318', title: `${asset} — ${task}`, sub: `Critical · ${late} d late · ${who}`, subColor: '#B42318', edge: '#C00018', bg: '#FEF6F6',
         href: woHref(task, asset, loc, type, prio, 'Overdue', wo), action: 'Start', actionIcon: 'play_arrow', actionHref: runHref(task, asset, loc, type, prio, wo), actionBorder: '#F3A3AC', actionColor: '#A30014' }));
     stopped.filter(e => e[3] && !e[4]).slice(0, 2).forEach(([name, loc, since]) =>
-      att.push({ w: 95, icon: 'precision_manufacturing', ibg: '#FDECEC', ifg: '#B42318', title: name, sub: `Critical equipment stopped ${since} · no work order yet`, subColor: '#B42318', edge: '#C00018', bg: '#FEF6F6',
-        href: 'AssetDetail.dc.html', action: 'Create work order', actionIcon: 'add', actionHref: 'WorkOrders.dc.html?new=1&asset=' + encodeURIComponent(name), actionBorder: '#F3A3AC', actionColor: '#A30014' }));
+      att.push({ w: 95, icon: 'precision_manufacturing', ibg: '#FDECEC', ifg: '#B42318', title: name, sub: `Critical equipment stopped ${since} · no intervention yet`, subColor: '#B42318', edge: '#C00018', bg: '#FEF6F6',
+        href: 'AssetDetail.dc.html', action: 'Create intervention', actionIcon: 'add', actionHref: 'WorkOrders.dc.html?new=1&asset=' + encodeURIComponent(name), actionBorder: '#F3A3AC', actionColor: '#A30014' }));
     outParts.filter(p => p[2] > 0).slice(0, 1).forEach(([name, ref, blocks]) =>
-      att.push({ w: 80, icon: 'inventory_2', ibg: '#FEF3E2', ifg: '#B54708', title: name, sub: `Out of stock · blocks ${blocks} work order${blocks > 1 ? 's' : ''}`, subColor: '#B54708', edge: 'transparent', bg: '#fff',
+      att.push({ w: 80, icon: 'inventory_2', ibg: '#FEF3E2', ifg: '#B54708', title: name, sub: `Out of stock · blocks ${blocks} intervention${blocks > 1 ? 's' : ''}`, subColor: '#B54708', edge: 'transparent', bg: '#fff',
         href: 'SpareParts.dc.html?q=' + ref, action: 'Reorder', actionIcon: 'shopping_cart', actionHref: 'SpareParts.dc.html?q=' + ref, actionBorder: '#D0D5DD', actionColor: '#1E2430' }));
     if (k.pm < 95) att.push({ w: 70, icon: 'event_repeat', ibg: '#FEF3E2', ifg: '#B54708', title: 'Safety inspection — 12 assets', sub: `Preventive · 3 d late · compliance ${k.pm}% (target 95%)`, subColor: '#B54708', edge: 'transparent', bg: '#fff',
       href: 'MaintenancePlans.dc.html', action: 'Schedule', actionIcon: 'event', actionHref: 'Planning.dc.html', actionBorder: '#D0D5DD', actionColor: '#1E2430' });
@@ -301,8 +301,8 @@ class Component extends DCLogic {
     const tr = TREND[site.id] || TREND.THO, mx = Math.max(...tr.flat());
     const bars = tr.map(([c, d], i) => { const x = 14 + i * 48, h1 = c / mx * 86, h2 = d / mx * 86; return { x1: x, x2: x + 16, y1: 92 - h1, y2: 92 - h2, h1, h2, tx: x + 15, label: 'W' + (33 + i) }; });
     const delta = tr.reduce((a, [c, d]) => a + c - d, 0);
-    const open = { Requested: Math.round(k.overdue * 1.6) + 4, Scheduled: 18 + k.overdue, 'In progress': Math.max(3, k.today - k.todayDone - 2), Overdue: k.overdue };
-    const SC = { Requested: '#9E77ED', Scheduled: '#2E6BE6', 'In progress': '#12A06E', Overdue: '#D92D20' };
+    const open = { Requested: Math.round(k.overdue * 1.6) + 4, 'Not scheduled': 7 + k.overdue, Scheduled: 18 + k.overdue, 'In progress': Math.max(3, k.today - k.todayDone - 2), Overdue: k.overdue };
+    const SC = { Requested: '#9E77ED', 'Not scheduled': '#7A8CA5', Scheduled: '#2E6BE6', 'In progress': '#12A06E', Overdue: '#D92D20' };
     const openTotal = Object.values(open).reduce((a, b) => a + b, 0);
     const eqStop = k.stopped, eqOos = Math.round(site.assets * 0.03), eqRun = site.assets - eqStop - eqOos;
     const avail = site.id === 'HZR' ? 99.2 : site.id === 'SAU' ? 98.1 : site.id === 'AVI' ? 93.8 : 96.4;
@@ -311,7 +311,7 @@ class Component extends DCLogic {
     return {
       path: S.businessPath(site), site, localTime: S.localTime(site), assetsLabel: fmtN(site.assets),
       openSwitcher: () => window.dispatchEvent(new CustomEvent('cmms-site-open')),
-      tabs: [T('overview', 'Overview'), T('wo', 'Work orders', k.overdue), T('eq', 'Equipment', k.stopped), T('parts', 'Spare parts', k.out)],
+      tabs: [T('overview', 'Overview'), T('wo', 'Interventions', k.overdue), T('eq', 'Equipment', k.stopped), T('parts', 'Spare parts', k.out)],
       isOverview: s.tab === 'overview', isWo: s.tab === 'wo', isEq: s.tab === 'eq', isParts: s.tab === 'parts',
       kpis, attention: att.slice(0, 6), allClear: !att.length,
       todayDone: doneN, todayTotal: k.today, todayPct: Math.round(doneN / k.today * 100) + '%', today: today.slice(0, 6),
@@ -325,13 +325,13 @@ class Component extends DCLogic {
       eqRun, eqStop: Math.max(eqStop, 0.0001), eqOos, eqRunL: fmtN(eqRun), eqStopL: eqStop, eqOosL: eqOos,
       stoppedN: stopped.length, noStopped: !stopped.length,
       stopped: stopped.map(([name, loc, since, crit, wo]) => ({ name, loc, since, crit,
-        action: wo ? wo : 'Create work order', actionIcon: wo ? 'build' : 'add', actionHref: wo ? woHref(wo, name, loc, 'Corrective', crit ? 'Critical' : 'High', 'In progress') : 'WorkOrders.dc.html?new=1&asset=' + encodeURIComponent(name),
+        action: wo ? wo : 'Create intervention', actionIcon: wo ? 'build' : 'add', actionHref: wo ? woHref(wo, name, loc, 'Corrective', crit ? 'Critical' : 'High', 'In progress') : 'WorkOrders.dc.html?new=1&asset=' + encodeURIComponent(name),
         actionBorder: wo ? '#D0D5DD' : '#F3A3AC', actionColor: wo ? '#1E2430' : '#A30014' })),
       failures: FAIL.slice(0, failN).map(([name, line, count, sr, mtbf]) => { const mx2 = Math.max(...sr), mn = Math.min(...sr); return { name, line, count, mtbf, color: count >= 7 ? '#C00018' : count >= 5 ? '#D97706' : '#0B6B4A', pts: sr.map((v, i) => `${(i * 62 / (sr.length - 1) + 1).toFixed(1)},${(20 - (v - mn) / (mx2 - mn || 1) * 18).toFixed(1)}`).join(' ') }; }),
-      partStats: [['Out of stock', k.out, k.out ? '#B42318' : '#1E2430'], ['Below minimum', k.low, k.low ? '#B54708' : '#1E2430'], ['Work orders blocked', outParts.reduce((a, p) => a + p[2], 0), '#1E2430'], ['Reserved this week', 14, '#1E2430']].map(([label, value, color]) => ({ label, value, color })),
+      partStats: [['Out of stock', k.out, k.out ? '#B42318' : '#1E2430'], ['Below minimum', k.low, k.low ? '#B54708' : '#1E2430'], ['Interventions blocked', outParts.reduce((a, p) => a + p[2], 0), '#1E2430'], ['Reserved this week', 14, '#1E2430']].map(([label, value, color]) => ({ label, value, color })),
       outN: outParts.length, noOut: !outParts.length,
       outParts: outParts.map(([name, ref, blocks, lead]) => { const done = !!s.ordered[ref]; return { name, href: 'SpareParts.dc.html?q=' + ref,
-        sub: done ? `Reorder requested · lead time ${lead}` : blocks ? `Blocks ${blocks} work order${blocks > 1 ? 's' : ''} · lead time ${lead}` : `Lead time ${lead}`, subColor: done ? '#0B6B4A' : blocks ? '#B42318' : '#667085',
+        sub: done ? `Reorder requested · lead time ${lead}` : blocks ? `Blocks ${blocks} intervention${blocks > 1 ? 's' : ''} · lead time ${lead}` : `Lead time ${lead}`, subColor: done ? '#0B6B4A' : blocks ? '#B42318' : '#667085',
         btnLabel: done ? 'Requested' : 'Reorder', btnIcon: done ? 'check' : 'shopping_cart', btnBg: done ? '#E6F4EE' : '#fff', btnBorder: done ? '#A6DDC4' : '#D0D5DD', btnColor: done ? '#0B6B4A' : '#1E2430',
         reorder: () => { if (done) return; this.setState(z => ({ ordered: { ...z.ordered, [ref]: true } })); this.flash(`Reorder requested · ${name}`); } }; }),
       lowN: k.low, lowParts: LOW.slice(0, Math.min(6, k.low)).map(([name, ref, qty, min]) => ({ name, ref, qty, min, pct: Math.round(qty / min * 100) + '%', href: 'SpareParts.dc.html?q=' + ref })),

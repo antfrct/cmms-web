@@ -25,7 +25,7 @@
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ summary }}</p>
       </div>
       <sc-if value="{{ adv }}"><sc-if value="{{ isMaint }}"><button data-feature="plan.optimize" onClick="{{ advOptimize }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">auto_fix_high</span>Optimize planning<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if></sc-if>
-      <sc-if value="{{ isMaint }}" hint-placeholder-val="{{ true }}"><button onClick="{{ createWo }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>Create work order</button></sc-if>
+      <sc-if value="{{ isMaint }}" hint-placeholder-val="{{ true }}"><button onClick="{{ createWo }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>Create intervention</button></sc-if>
     </header>
 
     <div style="flex:none;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -294,7 +294,7 @@
           </div>
         </sc-if>
         <sc-if value="{{ panelClosed }}">
-          <button onClick="{{ togglePanel }}" title="Show not scheduled work orders" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;background:transparent;border:0;cursor:pointer;color:#475467">
+          <button onClick="{{ togglePanel }}" title="Show not scheduled interventions" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;background:transparent;border:0;cursor:pointer;color:#475467">
             <span style="font:19px/1 'Material Symbols Outlined'">right_panel_open</span>
             <span style="height:20px;min-width:22px;display:grid;place-items:center;padding:0 6px;border-radius:10px;background:#FEF3E2;color:#B54708;font:600 11.5px 'IBM Plex Sans',sans-serif">{{ backlogCount }}</span>
             <span style="writing-mode:vertical-rl;font:600 12.5px 'IBM Plex Sans',sans-serif;color:#344054">Not scheduled</span>
@@ -405,7 +405,7 @@ const BACKLOG = [
   ['Mixer 02', 'Vibration trend review', 'Predictive', 'Low', [[['VIB'], 0.5, 'SB']], 'Electrical team', 'Requested 5 d ago'],
 ].map(([asset, task, type, prio, segs, team, age, soon]) => ({ id: 'u' + seq++, tools: ({ 'Tin Bath': ['MC-01'], 'Fan V-08': ['LA-01', 'SL-01'], 'Conveyor Line 2': ['TC-01'], 'Mixer 02': ['VA-02'] })[asset] || [], asset, task, type, prio, segs: segs.map(([skills, h, who]) => ({ skills, h, who: who || '' })), dur: segs.reduce((a, x) => a + x[1], 0), team, age, soon: !!soon }));
 const PORD = { Critical: 0, High: 1, Medium: 2, Low: 3 };
-// All-day work orders (no specific time)
+// All-day interventions (no specific time)
 const SEED_ALL = [[2, 'Fire Pumps', 'Monthly test', 'JM', 'Inspection', 'High'], [4, 'Annealing Lehr', 'Line walk-down audit', 'MD', 'Inspection', 'Low'], [3, 'Float Line', 'Safety guard audit', 'GD', 'Inspection', 'Medium'], [10, 'Conveyor Line 2', 'Line 2 shutdown preparation', 'PL', 'Preventive', 'High']]
   .map(([day, asset, task, who, type, prio]) => ({ id: 'a' + seq++, day, asset, task, who, type, prio, allDay: true, skills: [], tools: [] }));
 const statusOf = e => e.status || (e.day < TODAY || (e.day === TODAY && e.start + e.dur <= NOW) ? 'Completed' : e.day === TODAY && e.start <= NOW ? 'In progress' : 'Scheduled');
@@ -599,7 +599,7 @@ class Component extends DCLogic {
     const kEv = inRange.filter(e => match(e)), kUniq = new Set(kEv.map(e => e.wo || e.id)).size, kOver = kEv.filter(e => e.day < TODAY && e.status && e.status !== 'Completed').length, kCrit = kEv.filter(e => e.prio === 'Critical' && statusOf(e) !== 'Completed').length, kH = kEv.reduce((a, e) => a + e.dur, 0);
     let kDays = 0; for (let d = -400; d < 400; d++) if (range({ day: d })) { const wd = dateOf(d).getDay(); if (wd && wd !== 6) kDays++; }
     const kCap = kDays * CAP * PEOPLE.length, kRate = kCap ? Math.round(kH / kCap * 100) : 0, kPer = s.mode === 'day' ? 'this day' : s.mode === 'month' ? 'this month' : 'this week';
-    const kpis = [['Planned interventions', kUniq, kPer, '#1E2430', 'Distinct work orders scheduled in the visible period'], ['Overdue', kOver, 'past date, not completed', kOver ? '#B42318' : '#1E2430', 'Scheduled before today and still open'], ['Critical', kCrit, 'open, critical priority', kCrit ? '#C00018' : '#1E2430', 'Critical-priority work still to do'], ['Planned load', fmtH(Math.round(kH * 2) / 2), `of ${fmtH(kCap)} capacity`, '#1E2430', `Hours planned vs. team capacity (${CAP} h × technicians × working days)`], ['Average load rate', kRate + ' %', kRate > 100 ? 'over capacity' : kRate >= 85 ? 'near capacity' : 'room to plan', kRate > 100 ? '#B42318' : kRate >= 85 ? '#B54708' : '#0B6B4A', 'Planned load / capacity']].map(([label, value, sub, color, tip]) => ({ label, value, sub, color, tip }));
+    const kpis = [['Planned interventions', kUniq, kPer, '#1E2430', 'Distinct interventions scheduled in the visible period'], ['Overdue', kOver, 'past date, not completed', kOver ? '#B42318' : '#1E2430', 'Scheduled before today and still open'], ['Critical', kCrit, 'open, critical priority', kCrit ? '#C00018' : '#1E2430', 'Critical-priority work still to do'], ['Planned load', fmtH(Math.round(kH * 2) / 2), `of ${fmtH(kCap)} capacity`, '#1E2430', `Hours planned vs. team capacity (${CAP} h × technicians × working days)`], ['Average load rate', kRate + ' %', kRate > 100 ? 'over capacity' : kRate >= 85 ? 'near capacity' : 'room to plan', kRate > 100 ? '#B42318' : kRate >= 85 ? '#B54708' : '#0B6B4A', 'Planned load / capacity']].map(([label, value, sub, color, tip]) => ({ label, value, sub, color, tip }));
     const BL = s.backlog.map(u => ({ ...u, backlog: true }));
     const cnt = (k, v) => k === 'who' ? inRange.filter(e => match(e, k) && e.who === v).length : inRange.filter(e => match(e, k) && (k === 'asset' ? e.asset === v || LINE[e.asset] === v : k === 'status' && v === 'Waiting' ? !!e.waiting : e[k] === v)).length + (k !== 'status' ? BL.filter(u => match(u, k) && (k === 'asset' ? u.asset === v || LINE[u.asset] === v : u[k] === v)).length : 0);
 
@@ -662,7 +662,7 @@ class Component extends DCLogic {
       slots: Array.from({ length: (H1 - H0) * 2 }, (_, i) => { const t = H0 + i / 2, f = drag ? this.feas(drag, day, t, who) : null, ok = !f || f.ok;
         const past = day < TODAY || (day === TODAY && t < NOW);
         return { line: i % 2 ? '#F8F9FA' : '#EEF0F3', bg: ok ? 'transparent' : f.tool ? TOOLSTRIPE : STRIPE, cursor: drag ? 'default' : past ? 'not-allowed' : 'cell', hoverBg: drag || past ? 'transparent' : '#F0F4FC',
-          tip: drag || past ? '' : `Create a work order ${dayName(day)} ${hm(t)}${who ? ' for ' + P[who][1] : ''}`, click: () => this.slotClick(day, t, who),
+          tip: drag || past ? '' : `Create an intervention ${dayName(day)} ${hm(t)}${who ? ' for ' + P[who][1] : ''}`, click: () => this.slotClick(day, t, who),
           over: ev => { if (ok) ev.preventDefault(); if (!s.over || s.over.ci !== ci || s.over.t !== t) this.setState({ over: { ci, t } }); },
           drop: ev => { ev.preventDefault(); if (ok) this.drop(day, t, who); } }; }),
       hasPreview: !!pv, pvTop: s.over ? (s.over.t - H0) * ROW + 1 + 'px' : '0px', pvH: drag ? Math.max(1, drag.dur) * ROW - 2 + 'px' : '0px',
@@ -682,7 +682,7 @@ class Component extends DCLogic {
         const loads = ppl.map(p => { const lh = EV.filter(e => e.who === p[0] && e.day === day).reduce((a, e) => a + e.dur, 0), cap = PMl ? PMl.hoursOn(p[0], dIso) : (wk ? 0 : CAP), pct = cap ? lh / cap : 0;
           return { h: cap ? Math.min(100, Math.max(lh ? 8 : 0, pct * 100)) + '%' : '0%', color: pct > 1 ? '#D92D20' : pct >= 0.85 ? '#F79009' : '#12A06E', track: cap ? '#EEF0F3' : 'repeating-linear-gradient(0deg,#E4E7EC 0 2px,#F2F4F7 2px 4px)',
             tip: `${p[1]} — ${cap ? `${fmtH(lh)} / ${fmtH(cap)} (${Math.round(pct * 100)} %)` : lh ? fmtH(lh) + ' · not on shift' : 'Not working'}\nClick to open the day`, open: ev => { ev.stopPropagation(); this.setState({ mode: 'day', dayIdx: day }); } }; });
-        return { allDay: allDayOf(day, ppl.map(p => p[0]), true), allDayTip: `Create an all-day work order on ${dn} ${d.getDate()}`, allDayClick: () => { if (day < TODAY) return this.flash('That day has already passed', false); this._slotCtx = { day, allDay: true }; if (window.CMMSCreateWO) window.CMMSCreateWO({ due: isoOf(day) + 'T07:00', followers: ['GD'] }); },
+        return { allDay: allDayOf(day, ppl.map(p => p[0]), true), allDayTip: `Create an all-day intervention on ${dn} ${d.getDate()}`, allDayClick: () => { if (day < TODAY) return this.flash('That day has already passed', false); this._slotCtx = { day, allDay: true }; if (window.CMMSCreateWO) window.CMMSCreateWO({ due: isoOf(day) + 'T07:00', followers: ['GD'] }); },
           showLoad: false, loads, stop: ev => ev.stopPropagation(), isDay: true, openDay: () => this.setState({ mode: 'day', dayIdx: day }), dayTip: `Open ${dn} ${d.getDate()} in Day view`, headCursor: 'pointer', headHover: '#F2F4F7', top: dn, main: d.getDate(), meta: evs.length ? (wk ? `${evs.length}` : `${evs.length} · ${fmtH(h)}`) : '', isToday: today, subColor: today ? '#C00018' : '#667085', mainColor: today ? '#C00018' : '#1E2430',
           headBg: today ? '#FFF8F8' : '#fff', bodyBg: wk ? '#FAFAFB' : today ? '#FFFCFC' : '#fff', ...mkCol(i, day), events: evs.map(e => evView(e, lay, false)) }; });
       gridCols = '52px ' + tracks.join(' ');
@@ -748,7 +748,7 @@ class Component extends DCLogic {
     const hot = drag && drag.kind === 'e';
     return {
       ...this.advVals(),
-      summary: s.track === 'auto' ? 'Routine rounds run by production operators — separate from the maintenance schedule' : 'Plan and balance the maintenance team\'s work · click a free slot to create a work order',
+      summary: s.track === 'auto' ? 'Routine rounds run by production operators — separate from the maintenance schedule' : 'Plan and balance the maintenance team\'s work · click a free slot to create an intervention',
       moreGroups, moreCount, moreOpen: s.dd === 'more', toggleMore: () => this.setState({ dd: s.dd === 'more' ? null : 'more' }), clearMore: () => this.setState(st => ({ F: { ...st.F, type: [], prio: [], status: [], team: [] } })),
       moreBg: moreCount ? '#FBF7F7' : '#fff', moreBorder: moreCount || s.dd === 'more' ? '#98A2B3' : '#D0D5DD',
       showWl: s.track === 'maint' && s.mode !== 'month', openWl: () => this.setState({ wl: true }), closeWl: () => this.setState({ wl: false }), wlOpen: s.wl,
@@ -759,7 +759,7 @@ class Component extends DCLogic {
         return { ini: p[0], dot: pc[0], hasFlag: away || over, flag: over ? 'warning' : 'event_busy', tip: `${p[1]} · ${p[2]} — today ${cap ? `${fmtH(lh)} planned of ${fmtH(cap)}` : ab ? ab.label : sh && sh.site !== 'THO' ? 'at ' + PM.SITES[sh.site] : 'not working'}. Click to show only ${p[1].split(' ')[0]}.`,
           bg: on ? pc[0] : pc[1], border: on ? pc[0] : pc[2], color: on ? '#fff' : pc[0], op: any && !on ? 0.45 : 1, flagColor: over ? '#D92D20' : '#F79009', toggle: () => this.setState(st => ({ F: { ...st.F, who: on ? st.F.who.filter(x => x !== p[0]) : [...st.F.who, p[0]] } })) }; }) : [],
       ...(() => { const autoN = autoCount(), mk = (k, label, icon, count, tip) => ({ label, icon, count, tip, bg: s.track === k ? '#fff' : 'transparent', shadow: s.track === k ? '0 1px 2px rgba(16,24,40,.1)' : 'none', font: s.track === k ? bold : reg, color: s.track === k ? '#1E2430' : '#667085', iconColor: s.track === k ? '#C00018' : '#98A2B3', select: () => { try { localStorage.setItem('cmms.planning.track', k); } catch (e) {} this.setState({ track: k, dd: null, mode: k === 'auto' ? 'week' : s.mode }); } });
-        return { tracks: [mk('maint', 'Maintenance team', 'engineering', weekEv.length, 'Work orders scheduled for maintenance technicians'), ...(FON('plan.auto') ? [mk('auto', 'Autonomous maintenance', 'cleaning_services', autoN, 'Routine standards run by production operators')] : [])] }; })(),
+        return { tracks: [mk('maint', 'Maintenance team', 'engineering', weekEv.length, 'Interventions scheduled for maintenance technicians'), ...(FON('plan.auto') ? [mk('auto', 'Autonomous maintenance', 'cleaning_services', autoN, 'Routine standards run by production operators')] : [])] }; })(),
       isMaint: s.track === 'maint', isAuto: s.track === 'auto', isWeekMaint: s.track === 'maint' && s.mode === 'week', showLoadLegend: s.track === 'maint' && s.mode === 'week' && s.load,
       toggleLoad: () => this.setState({ load: !s.load }), loadBtnBg: s.load ? '#FBF7F7' : '#fff', loadBtnBorder: s.load ? '#C00018' : '#D0D5DD',
       ...(() => { if (s.track !== 'auto') return { autoRows: [], autoHead: [], autoKpis: [] };
