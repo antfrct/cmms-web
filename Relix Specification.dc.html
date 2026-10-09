@@ -683,6 +683,7 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 <tr><td>site_unit</td><td>quantity code, unit</td><td>One unit per quantity per site.</td></tr>
 <tr><td>label_format</td><td>size string (e.g. “50 × 50 mm”), is_default</td><td>QR label printing; exactly one default.</td></tr>
 <tr><td>maturity_level</td><td>concept enum (10 concepts), level int 1–3</td><td>§7.21. PK (site_id, concept).</td></tr>
+<tr><td>maturity_override</td><td>feature id, on bool</td><td>Custom mode (§7.21). PK (site_id, feature).</td></tr>
 <tr><td>maturity_log</td><td>concept, from, to, by, at</td><td>History of maturity changes.</td></tr>
 <tr><td>site_setting</td><td>advanced_features bool (default true), other site flags</td><td>Feature flags.</td></tr>
 </tbody></table>
@@ -951,7 +952,7 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 <h3>7.19 Site configuration</h3>
 <ul>
 <li>Schema-driven CRUD per section: list with search, usage count, activate/deactivate toggle, drawer form, delete confirmation with usage check (“used by N assets…”), “Restore defaults” for seeded sections.</li>
-<li>Sections: <b>Site profile</b> (Maturity levels) · <b>Assets</b> (Asset types, Plant hierarchy, Criticality levels) · <b>Work orders</b> (Work order types, Failure categories, Priorities, Statuses) · <b>Spare parts</b> (Part categories, Cost centers) · <b>Data &amp; units</b> (Custom fields, Units of measure) · <b>People</b> (Skills) · <b>Printing</b> (QR label formats).</li>
+<li>Sections: <b>Site profile</b> (Maturity levels) · <b>Assets</b> (Asset types, Plant hierarchy, Criticality levels) · <b>Work orders</b> (Work order types, Failure origins, Priorities, Statuses) · <b>Spare parts</b> (Part categories, Cost centers) · <b>Data &amp; units</b> (Custom fields, Units of measure) · <b>People</b> (Skills) · <b>Printing</b> (QR label formats).</li>
 <li>System values (criticality, priorities, statuses) can be renamed but not deleted or deactivated.</li>
 <li>Units of measure: one column per site in the organization only for display; a site edits its own units.</li>
 <li>Header switch “Advanced features” (site setting): shows or hides features in development (§7.22).</li>
@@ -977,8 +978,31 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 <li>Each site chooses, for 10 concepts (Work orders, Checklists, Planning, Preventive maintenance, Assets, Spare parts, Maintenance organization, Documents, Notifications, Performance), a level 1 <b>Essential</b> ★, 2 <b>Advanced</b> ★★ or 3 <b>Expert</b> ★★★, each with a short non-technical description and “what you can do”.</li>
 <li>Global score = Σ levels / (10 × 3) (e.g. 18 / 30 ★) with a journey stage: Getting started (&lt; 50 %), Building up (≥ 50 %), Well established (≥ 70 %), Expert site (≥ 90 %). Level 1 is a valid way of running maintenance, not a deficiency.</li>
 <li>Changes are logged (concept, from, to, by, at). New sites start at level 1 everywhere.</li>
-<li>Configuration only in this version: other modules do not read maturity yet. Target: progressively hide or simplify features above the site’s level.</li>
+<li>Custom mode: on top of the levels, each catalogued feature can be switched on or off individually (override). Picking a level for a concept resets that concept's overrides. Features may require another feature (e.g. mobile equipment per step requires mobile equipment) and AI features also require the Advanced features switch.</li>
 </ul>
+<h4>7.21.1 Principles</h4>
+<ul>
+<li><b>Levels change complexity, never the availability of fundamentals.</b> At level 1 a site can report an issue, create an intervention, attach and run a simple checklist, assign someone and close the work.</li>
+<li><b>Gating hides interface, never data.</b> Switching a level down never deletes anything. A field that already holds a value stays visible and editable; an existing checklist runs completely in Intervention, whatever its step types (authoring is gated, execution is not).</li>
+<li><b>Progressive disclosure.</b> Optional fields are not displayed by default; they are offered as small “+ Label” chips that add one field at a time. Only chips for features that are on are offered.</li>
+<li><b>Consistency.</b> A feature switched on is usable everywhere it applies (creation wizard, intervention detail and edit, Planning, Intervention); a feature switched off disappears everywhere, including its Site configuration section.</li>
+<li>No artificial third level: where nothing meaningful differs between two levels, the feature is available from the lower one.</li>
+</ul>
+<h4>7.21.2 Rules per concept</h4>
+<table><thead><tr><th style="width:16%">Concept</th><th>Level 1 — Essential</th><th>Level 2 — Advanced</th><th>Level 3 — Expert</th></tr></thead><tbody>
+<tr><td>Interventions</td><td>Essentials only: asset, what to do, type, priority, production stop. Checklists, People and Details steps; “Create now” after Essentials. Details offers chips: Description, Estimated duration, Spare parts, Documents, Request date. Discussion, quick intervention.</td><td>“Include in follow-up”; chips Failure origin and Additional information (custom fields); change history.</td><td>Complete data entry: description, request date and failure origin shown by default, description required. Costs: cost card, cost center, external services &amp; rentals. Root cause analysis.</td></tr>
+<tr><td>Checklists</td><td>Linear checklists with basic steps: instruction, checkbox list, yes / no, measurement, comment, photo. Per step: required switch, then “+ Help text” and “+ Expected result” chips. Anomaly flag per answer.</td><td>All step types (single / multiple choice, short text, attachment, spare parts, consumables). “Photo / comment required” per answer. Chips: Photos &amp; documents, Skills &amp; duration, Mobile equipment.</td><td>Branching: “Then go to…” per answer, “+ Next step” (jump / finish), “+ Branch only”; Workflow view; generation from a document (AI).</td></tr>
+<tr><td>Planning</td><td>Calendar, drag &amp; drop scheduling. Drops are checked only against time rules.</td><td>Workload per technician. Skill, availability and mobile-equipment checks on drop apply when Skills, Shifts &amp; absences and Mobile equipment are on.</td><td>Autonomous maintenance track, schedule optimization (AI).</td></tr>
+<tr><td>Preventive</td><td>Calendar maintenance plans; Home “Reminders” slide.</td><td>Meters and per-asset preventive tab.</td><td>Plans from manufacturer manuals (AI).</td></tr>
+<tr><td>Assets</td><td>List and sheet, location, QR labels, import from Excel / CSV.</td><td>Hierarchy and plant-layout views; mobile assets (wizard class, reservations, required equipment on interventions); asset history.</td><td>Life-cycle, risk and live monitoring.</td></tr>
+<tr><td>Spare parts</td><td>List and stock; parts on interventions and checklists. Item form without item type, supplier or storeroom (single storage area used by default).</td><td>Consumables (item type, usage rules, consumables categories, consumables step type); storerooms; picture catalog; suppliers.</td><td>Stock forecast (AI).</td></tr>
+<tr><td>Organization</td><td>Users, teams, roles.</td><td>Skills (catalogue, profiles, suggestions); shifts and absences.</td><td>Multi-team / multi-site organization.</td></tr>
+<tr><td>Documents</td><td>Shared library.</td><td>Documents linked to assets, interventions and checklist steps.</td><td>Controlled documentation (planned).</td></tr>
+<tr><td>Notifications</td><td>Bell, badge and the six notification types.</td><td>Personal preferences and email for urgent notifications.</td><td>Site-wide alert rules (planned).</td></tr>
+<tr><td>Performance</td><td>Home indicators; Home analytics limited to Reminders and Most failures.</td><td>Site dashboard; all Home analytics slides (MTTR, preventive vs corrective, backlog, downtime).</td><td>Full cost control (with Interventions level 3).</td></tr>
+</tbody></table>
+<h4>7.21.3 Site configuration sections</h4>
+<p>Cost centers need Costs per intervention; Custom fields need Analysis fields; Consumables categories need Consumables; QR label formats need QR labels; Skills need Skills. Other sections are always available.</p>
 
 <h3>7.22 Advanced features (in development)</h3>
 <p>Shown only when the site setting “Advanced features” is on (default on in the prototype, recommended off in production until released): planning optimisation, spare parts forecast, checklist generation from a document (saved as draft), maintenance plan generation from a manufacturer manual, asset diagnosis on live data, fleet lifecycle &amp; obsolescence risk, contracts, live monitoring (PLC/EMS/CMS feed). AI-based actions are labeled as such. These features never change data without user confirmation.</p>
@@ -1024,7 +1048,7 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 <tr><td>Spare parts ↔ Plant</td><td>Storage areas are plant Steps flagged storage; a storage area holding parts cannot be deleted or un-flagged.</td></tr>
 <tr><td>Spare parts ↔ Checklists</td><td>The checklist part catalogue is a live view of Spare parts (no duplicate item list).</td></tr>
 <tr><td>Suppliers ↔ Costs / Parts</td><td>Service and rental lines use provider rates; parts reference their preferred supplier.</td></tr>
-<tr><td>Configuration → All</td><td>Types, priorities, criticality, failure categories, part categories, cost centers, custom fields and units are read from the current site configuration. Deactivated values are no longer proposed but remain displayed on existing records.</td></tr>
+<tr><td>Configuration → All</td><td>Types, priorities, criticality, failure origins, part categories, cost centers, custom fields and units are read from the current site configuration. Deactivated values are no longer proposed but remain displayed on existing records.</td></tr>
 <tr><td>Access → All</td><td>Menu entries, pages, create buttons, wizards and costs follow the user’s module levels and Financial permission (§9). The site switcher follows site access and super-user scopes.</td></tr>
 <tr><td>Notifications ← All</td><td>Events from all modules produce typed notifications filtered by the recipient’s preferences and scope.</td></tr>
 </tbody></table>
@@ -1135,7 +1159,7 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 <tr><td>Priorities (system)</td><td>Critical · P1 · 4 h · High · P2 · 24 h · Medium · P3 · 7 days · Low · P4 · 30 days.</td></tr>
 <tr><td>Criticality (system)</td><td>Critical · C1 · &lt; 2 h · High · C2 · &lt; 8 h · Medium · C3 · &lt; 3 days · Low · C4 · &lt; 2 weeks.</td></tr>
 <tr><td>Statuses (system labels)</td><td>Requested REQ · Scheduled SCH · Overdue OVD (computed) · In progress INP · Waiting WAI (flag) · Completed CMP.</td></tr>
-<tr><td>Failure categories</td><td>Mechanical MEC · Electrical ELE · Hydraulic HYD · Pneumatic PNE · Instrumentation INS · Software / PLC PLC · Operator error OPE.</td></tr>
+<tr><td>Failure origins</td><td>Mechanical MEC · Electrical ELE · Hydraulic HYD · Pneumatic PNE · Instrumentation INS · Software / PLC PLC · Operator error OPE.</td></tr>
 <tr><td>Asset types — Equipment</td><td>Furnace FUR (Critical) · Conveyor CNV (High) · Pump PMP (High) · Fan FAN (Medium) · Compressor CMP (High) · Robot ROB (High) · Press PRS (High) · Dryer DRY (Medium) · Cutter CUT (Medium) · Mixer MIX (Medium) · Scale SCL (Low) · Cooling tower CTW (High) · Wrapper WRP (Low) · Electrical cabinet ELC (Medium). Default criticality in brackets.</td></tr>
 <tr><td>Asset types — Mobile</td><td>Crane CRN (High) · Lift LFT · Forklift FLK · Measuring instrument MSR · Tool kit TLK (Medium).</td></tr>
 <tr><td>Part categories</td><td>Bearings BRG (pcs) · Belts BLT (pcs) · Filters FLT (pcs) · Sensors SEN (pcs) · Seals &amp; gaskets SEAL (pcs) · Lubricants LUB (cartridge) · Electrical ELE (pcs) · Drives DRV (pcs) · Cleaning CLN (roll) · Adhesives &amp; sealants ADH (tube) · Safety SAF (pair). Lubricants, Cleaning, Adhesives and Safety default to Consumable.</td></tr>
@@ -1156,7 +1180,7 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 
 <h3>10.3 What each site can customize later</h3>
 <table><thead><tr><th style="width:30%">Customizable by the site</th><th style="width:35%">Restricted</th><th>Not customizable by sites</th></tr></thead><tbody>
-<tr><td>Asset types, failure categories, part categories, cost centers, custom fields, custom quantities, units, label formats, skills, plant hierarchy, teams, alert rules, maturity levels, advanced features switch, work order types (add/deactivate).</td><td>Priorities, criticality and status <b>labels</b> (codes fixed, no delete); Improvement and other seeded work order types can be deactivated, not deleted while used.</td><td>Workflow and transitions, step types, notification catalogue, permission modules and levels, roles matrix (organization-level, edited by Administrators), organization structure and sites (Super Admin).</td></tr>
+<tr><td>Asset types, failure origins, part categories, cost centers, custom fields, custom quantities, units, label formats, skills, plant hierarchy, teams, alert rules, maturity levels, advanced features switch, work order types (add/deactivate).</td><td>Priorities, criticality and status <b>labels</b> (codes fixed, no delete); Improvement and other seeded work order types can be deactivated, not deleted while used.</td><td>Workflow and transitions, step types, notification catalogue, permission modules and levels, roles matrix (organization-level, edited by Administrators), organization structure and sites (Super Admin).</td></tr>
 </tbody></table>
 <p>Personal settings (per user): language, collapsed menu, notification preferences, Home view preferences (analytics collapsed, period, filters), Assets view, current site.</p>
 
@@ -1164,7 +1188,7 @@ doc-page blockquote{margin:6pt 0 10pt;padding:6pt 10pt;border-left:3px solid #C0
 <table><thead><tr><th style="width:28%">Topic</th><th>Status</th></tr></thead><tbody>
 <tr><td>Autonomous maintenance</td><td>Specified (§7.20); the <code>maintenance_mode</code> switch and request auto-creation from autonomous anomalies are not yet in the prototype.</td></tr>
 <tr><td>Delete restrictions by level</td><td>View hides create actions; delete buttons are not yet systematically restricted to Full in every page of the prototype.</td></tr>
-<tr><td>Maturity-driven feature gating</td><td>Maturity is configuration only; gating rules to be defined per concept and level.</td></tr>
+<tr><td>Maturity-driven feature gating</td><td>Implemented per §7.21. Still to adapt: Documents page and Teams &amp; users at level 1.</td></tr>
 <tr><td>Reopen a completed work order</td><td>Rule defined (Full access, history entry); UI not yet designed.</td></tr>
 <tr><td>Document versioning UI</td><td>v1 open point still open: version list and replace action to design.</td></tr>
 <tr><td>Skill validation workflow</td><td>Whether self-declared skills require manager validation is a site option to confirm.</td></tr>

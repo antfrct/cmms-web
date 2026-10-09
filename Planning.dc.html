@@ -472,34 +472,35 @@ class Component extends DCLogic {
   plan(d, day, t, col) {
     const PM = this.PM, s = this.state; if (!PM || !d) return { ok: true, parts: [] };
     const date = PM.dayIso(day), nm = k => P[k] ? P[k][1].split(' ')[0] : k;
+    const hasSk = (k, sk) => !FON('org.skills') || PM.hasSkills(k, sk), avOf = (k, dt, f, to) => FON('org.avail') ? PM.availability(k, dt, f, to) : { ok: true };
     if (day < TODAY || (day === TODAY && t < NOW)) return { ok: false, reason: 'In the past' };
     if (d.kind === 'e') {
       const e = s.events.find(x => x.id === d.id); if (!e) return { ok: false, reason: '' };
       const who = col || e.who;
       if (t + e.dur > H1) return { ok: false, reason: 'Ends after 18:00' };
-      const tb = this.toolBusy(e.tools, day, t, t + e.dur, e.wo || e.id, `${e.asset} — ${e.task}`); if (tb) return { ok: false, reason: tb, tool: true };
-      if (!PM.hasSkills(who, e.skills)) return { ok: false, reason: `${nm(who)} lacks ${PM.skillNames(e.skills)}` };
-      const av = PM.availability(who, date, t, t + e.dur); if (!av.ok) return { ok: false, reason: `${nm(who)}: ${av.reason}` };
+      const tb = FON('assets.mobile') && this.toolBusy(e.tools, day, t, t + e.dur, e.wo || e.id, `${e.asset} — ${e.task}`); if (tb) return { ok: false, reason: tb, tool: true };
+      if (!hasSk(who, e.skills)) return { ok: false, reason: `${nm(who)} lacks ${PM.skillNames(e.skills)}` };
+      const av = avOf(who, date, t, t + e.dur); if (!av.ok) return { ok: false, reason: `${nm(who)}: ${av.reason}` };
       return { ok: true, parts: [{ key: who, start: t, dur: e.dur, skills: e.skills }], overlap: this.busyAt(who, day, t, t + e.dur, e.id) };
     }
     const u = s.backlog.find(x => x.id === d.id); if (!u) return { ok: false, reason: '' };
     const segs = u.segs || [{ skills: [], h: u.dur, who: '' }];
     if (t + u.dur > H1) return { ok: false, reason: 'Ends after 18:00' };
-    const tb = this.toolBusy(u.tools, day, t, t + u.dur, null, `${u.asset} — ${u.task}`); if (tb) return { ok: false, reason: tb, tool: true };
+    const tb = FON('assets.mobile') && this.toolBusy(u.tools, day, t, t + u.dur, null, `${u.asset} — ${u.task}`); if (tb) return { ok: false, reason: tb, tool: true };
     let cur = t, prev = null, overlap = false; const parts = [];
     for (const g of segs) {
       const a = cur, b = cur + g.h;
-      let pool = g.who ? [g.who] : PEOPLE.map(p => p[0]).filter(k => PM.hasSkills(k, g.skills));
+      let pool = g.who ? [g.who] : PEOPLE.map(p => p[0]).filter(k => hasSk(k, g.skills));
       if (!pool.length) return { ok: false, reason: `Nobody has ${PM.skillNames(g.skills)}` };
       if (col && !g.who && pool.includes(col)) pool = [col];
-      const okP = pool.filter(k => PM.availability(k, date, a, b).ok);
-      if (!okP.length) { const k0 = pool[0], av = PM.availability(k0, date, a, b); return { ok: false, reason: g.who || pool.length === 1 ? `${nm(k0)}: ${av.reason}` : `No ${PM.skillNames(g.skills)} available ${hm(a)}–${hm(b)}` }; }
+      const okP = pool.filter(k => avOf(k, date, a, b).ok);
+      if (!okP.length) { const k0 = pool[0], av = avOf(k0, date, a, b); return { ok: false, reason: g.who || pool.length === 1 ? `${nm(k0)}: ${av.reason}` : `No ${PM.skillNames(g.skills)} available ${hm(a)}–${hm(b)}` }; }
       const free = okP.filter(k => !this.busyAt(k, day, a, b));
       const cand = free.length ? free : okP; if (!free.length) overlap = true;
       const pick = cand.includes(prev) ? prev : cand.slice().sort((x, y) => this.loadOf(x, day) - this.loadOf(y, day))[0];
       parts.push({ key: pick, start: a, dur: g.h, skills: g.skills }); prev = pick; cur = b;
     }
-    if (col && !parts.some(p => p.key === col)) return { ok: false, reason: `${nm(col)} lacks ${segs.map(g => PM.skillNames(g.skills)).join(' / ')}` };
+    if (col && FON('org.skills') && !parts.some(p => p.key === col)) return { ok: false, reason: `${nm(col)} lacks ${segs.map(g => PM.skillNames(g.skills)).join(' / ')}` };
     return { ok: true, parts, overlap };
   }
   feas(d, day, t, col) { const k = [d.kind, d.id, day, t, col || ''].join('|'); if (!this._feas || this._feas.d !== d) this._feas = { d, m: {} }; return this._feas.m[k] || (this._feas.m[k] = this.plan(d, day, t, col)); }
@@ -537,6 +538,7 @@ class Component extends DCLogic {
   }
   slotClick(day, t, who) {
     if (this._drag || this.state.drag) return;
+    const hasSk = (k, sk) => !FON('org.skills') || PM.hasSkills(k, sk), avOf = (k, dt, f, to) => FON('org.avail') ? PM.availability(k, dt, f, to) : { ok: true };
     if (day < TODAY || (day === TODAY && t < NOW)) return this.flash('That time has already passed — pick a later slot', false);
     const PM = this.PM;
     if (who && PM) { const av = PM.availability(who, PM.dayIso(day), t, Math.min(H1, t + 1)); if (!av.ok) return this.flash(`${P[who][1].split(' ')[0]} is not available — ${av.reason}`, false); }
@@ -650,7 +652,7 @@ class Component extends DCLogic {
       s.allday.filter(a => a.day === day && keys.includes(a.who) && match({ ...a, team: teamOf(a.who), status: day < TODAY ? 'Completed' : 'Scheduled' })).forEach(a => { const pc = PCOL[a.who] || PCOL.GD;
         const qs = new URLSearchParams({ wo: 'plan-' + a.id, task: a.task, asset: a.asset, loc: LINE[a.asset] || '', type: a.type, prio: a.prio, status: 'Scheduled' }).toString();
         out.push({ isEvent: true, isAbs: false, crit: a.prio === 'Critical', label: `${a.asset} — ${a.task}`, tip: `${a.asset} — ${a.task}\nAll day · ${P[a.who][1]} · ${a.type} · ${a.prio} priority`, bg: pc[1], border: pc[2], open: ev => { ev.stopPropagation(); window.location.href = 'WorkOrder.dc.html?' + qs; } }); });
-      if (PM && withAbs) keys.forEach(k => { const iso = PM.dayIso(day), ab = PM.absenceOn(k, iso), sh = PM.shiftOn(k, iso), nm = P[k][1].split(' ')[0];
+      if (PM && withAbs && FON('org.avail')) keys.forEach(k => { const iso = PM.dayIso(day), ab = PM.absenceOn(k, iso), sh = PM.shiftOn(k, iso), nm = P[k][1].split(' ')[0];
         if (ab) out.push({ isEvent: false, isAbs: true, dot: PCOL[k][0], label: `${nm} · ${ab.label}${PM.partDay(ab) ? ' ' + hm(ab.from) + '–' + hm(ab.to) : ''}`, tip: `${P[k][1]} — ${ab.label}${PM.partDay(ab) ? ` (${hm(ab.from)}–${hm(ab.to)})` : ' (all day)'}` });
         else if (sh && sh.site !== 'THO') out.push({ isEvent: false, isAbs: true, dot: PCOL[k][0], label: `${nm} · ${PM.SITES[sh.site] || sh.site}`, tip: `${P[k][1]} works at ${PM.SITES[sh.site] || sh.site} that day` }); });
       return out;
@@ -719,7 +721,7 @@ class Component extends DCLogic {
     const blShown = BL.filter(u => match(u)).sort((a, b) => (b.fresh ? 1 : 0) - (a.fresh ? 1 : 0) || PORD[a.prio] - PORD[b.prio]);
     const backlog = blShown.map(u => { const [icon, fg, bg] = TYPE[u.type], urgent = u.prio === 'Critical' || u.prio === 'High', [pbg, pfg] = PRIO[u.prio];
       const PM = this.PM, sg = u.segs || [{ skills: [], h: u.dur, who: '' }], pre = sg.filter(g => g.who);
-      const qual = PM ? sg.map(g => PEOPLE.filter(p => PM.hasSkills(p[0], g.skills)).length) : [];
+      const qual = PM && FON('org.skills') ? sg.map(g => PEOPLE.filter(p => PM.hasSkills(p[0], g.skills)).length) : [];
       const segsV = sg.map(g => { const k = PM && g.skills[0] ? PM.skill(g.skills[0]) : { icon: 'person', fg: '#475467', bg: '#EEF1F4' }; return { icon: k.icon, fg: k.fg, bg: k.bg, flex: g.h, text: `${PM ? PM.skillNames(g.skills) : ''} ${fmtH(g.h)}`, tip: `${PM ? PM.skillNames(g.skills) : ''} · ${fmtH(g.h)}${g.who ? ' · assigned to ' + P[g.who][1] : ''}`, hasWho: !!g.who, who: g.who, avBg: g.who ? P[g.who][3] : '', avFg: g.who ? P[g.who][4] : '' }; });
       const whoNote = pre.length ? `Assigned · ${[...new Set(pre.map(g => P[g.who][1]))].join(', ')}` : PM ? (Math.min(...qual) === 0 ? 'No qualified person on site' : sg.length > 1 ? `${sg.length} parts · split between people on drop` : `${qual[0]} qualified people`) : '';
       const PL = this.PL, toolsV = PL ? (u.tools || []).map(id => { const x = PL.asset(id) || { name: id, type: '' }; return { name: x.name, icon: PL.typeIcon(x.type) }; }) : [];

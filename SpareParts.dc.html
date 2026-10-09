@@ -25,7 +25,7 @@
         <p style="margin:2px 0 0;color:#667085;font-size:13px">{{ subtitle }}</p>
       </div>
       <sc-if value="{{ adv }}"><button data-feature="parts.forecast" onClick="{{ advForecast }}" style="height:34px;display:flex;align-items:center;gap:7px;padding:0 10px;background:#800080;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer;white-space:nowrap" style-hover="background:#660066"><span style="font:18px/1 'Material Symbols Outlined'">query_stats</span>Forecast &amp; optimize stock<span style="height:16px;display:inline-flex;align-items:center;padding:0 4px;border-radius:4px;background:#fff;color:#800080;font:700 10px/1 'IBM Plex Sans',sans-serif;letter-spacing:.03em">AI</span></button></sc-if>
-      <a href="Suppliers.dc.html" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">local_shipping</span>Suppliers</a>
+      <a data-feature="parts.suppliers" href="Suppliers.dc.html" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">local_shipping</span>Suppliers</a>
       <button onClick="{{ doExport }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;background:#fff;border:1px solid #D0D5DD;border-radius:6px;font:500 13px 'IBM Plex Sans',sans-serif;color:#1E2430;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined';color:#667085">download</span>Export CSV</button>
       <button onClick="{{ openNew }}" style="height:34px;display:flex;align-items:center;gap:6px;padding:0 14px 0 10px;background:#C00018;border:0;border-radius:6px;color:#fff;font:600 13px 'IBM Plex Sans',sans-serif;cursor:pointer" style-hover="background:#A30014"><span style="font:20px/1 'Material Symbols Outlined'">add</span>New item</button>
     </header>
@@ -220,7 +220,7 @@
           <input ref="{{ fileRef }}" type="file" accept="image/*" onChange="{{ onFile }}" style="display:none" />
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:10px">
+      <sc-if value="{{ showKind }}"><div style="display:flex;flex-direction:column;gap:10px">
         <span style="font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#667085">Item type</span>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <sc-for list="{{ kindOpts }}" as="o" hint-placeholder-count="2">
@@ -243,7 +243,7 @@
             <span style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#0E7490"><span style="font:15px/1 'Material Symbols Outlined'">info</span>{{ usageExample }}</span>
           </div>
         </sc-if>
-      </div>
+      </div></sc-if>
       <sc-for list="{{ groups }}" as="g">
         <div style="display:flex;flex-direction:column;gap:12px">
           <span style="display:flex;align-items:baseline;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#667085">{{ g.title }}</span><span style="font-size:11.5px;color:#98A2B3">{{ g.hint }}</span></span>
@@ -380,7 +380,10 @@ class Component extends DCLogic {
         edit: () => this.edit(dp), del: () => this.askDelete(dp), reorder: () => this.flash(`Reorder requested · ${Math.max(1, dp.max - dp.qty)} × ${dp.ref}${sp ? ' from ' + sp.name : ''}`) }; }
     const fm = s.form, f = fm ? fm.f : {};
     const setF = (k, v) => this.setState(z => ({ form: { ...z.form, f: { ...z.form.f, [k]: v }, errors: { ...z.form.errors, [k]: '' }, error: '' } }));
-    const fld = (key, label, kind, x = {}) => { const err = fm && fm.errors[key], val = f[key] ?? '';
+    const has = k => { const v = f[k]; return v !== '' && v != null; };
+    const OFF = { supplier: !FON('parts.suppliers'), supplierRef: !FON('parts.suppliers'), costCenter: !FON('wo.costs'), store: !FON('parts.stores') && stores.length <= 1, bin: !FON('parts.stores') };
+    const fld = (key, ...rest) => OFF[key] && !(has(key) && key !== 'store') ? null : fld0(key, ...rest);
+    const fld0 = (key, label, kind, x = {}) => { const err = fm && fm.errors[key], val = f[key] ?? '';
       let note = x.note || '', noteColor = '#98A2B3', noteIcon = 'info';
       if (key === 'gtin' && val) { const ok = PA.gtinValid(val), len = String(val).replace(/\s/g, '').length; note = ok ? `Valid ${PA.gtinKind(val)}` : [7, 11, 12, 13].includes(len) && /^\d+$/.test(String(val).replace(/\s/g, '')) ? `Check digit should be ${PA.gtinCheckDigit(String(val).replace(/\s/g, '').slice(0, -1))}` : 'EAN-8, UPC-A, EAN-13 or GTIN-14'; noteColor = ok ? '#0B6B4A' : '#B54708'; noteIcon = ok ? 'verified' : 'barcode'; }
       if (err) { note = err; noteColor = '#B42318'; noteIcon = 'error'; }
@@ -443,7 +446,8 @@ class Component extends DCLogic {
         { title: 'Storage', hint: 'storage areas come from the plant hierarchy', fields: [fld('store', 'Storage area', 'select', { req: 1, options: stores.map(n => ({ v: n.id, l: `${n.name} · ${PL.zoneOf(n.id).name}` })) }), fld('bin', 'Bin location', 'code', { ph: 'e.g. A-03-2' }),
           fld('min', 'Minimum stock', 'number', { req: 1, ph: '0', suffix: f.kind === 'consumable' ? f.unit : '' }), fld('max', 'Maximum stock', 'number', { ph: '0', suffix: f.kind === 'consumable' ? f.unit : '' }), ...(f.kind === 'consumable' ? [] : [fld('unit', 'Unit', 'select', { options: CFG.PART_UNITS })]), ...(fm.ref ? [] : [fld('qty', 'Initial stock', 'number', { ph: '0', suffix: f.kind === 'consumable' ? f.unit : '' })])] },
         ...(cfs.length ? [{ title: 'Additional information', hint: 'custom fields · Site configuration', fields: cfs.map(cfField) }] : []),
-      ] : [],
+      ].map(g => ({ ...g, fields: g.fields.filter(Boolean) })).filter(g => g.fields.length).map(g => g.title === 'Supplier & cost' && !FON('parts.suppliers') ? { ...g, title: 'Cost', hint: '' } : g) : [],
+      showKind: !!fm && (FON('parts.consumables') || f.kind === 'consumable'),
       linked: (f.assets || []).map(id => { const a = PL.asset(id) || { name: id, type: '', loc: '' }; const z = a.loc && PL.zoneOf(a.loc); return { name: a.name, icon: PL.typeIcon(a.type), fg: z ? (PL.ZONE_LOOK[z.id] || [])[1] : '#475467', remove: () => setF('assets', f.assets.filter(x => x !== id)) }; }), noLinked: !(f.assets || []).length,
       aq: s.aq, setAq: e => this.setState({ aq: e.target.value }),
       assetOpts: fm ? PL.assets().filter(a => !(f.assets || []).includes(a.id) && (!aq || [a.name, a.id, a.type, PL.pathOf(a.loc)].join(' ').toLowerCase().includes(aq))).slice(0, 30).map(a => { const z = PL.zoneOf(a.loc); return { id: a.id, name: a.name, path: PL.pathOf(a.loc), icon: PL.typeIcon(a.type), fg: (PL.ZONE_LOOK[z.id] || [])[1], add: () => setF('assets', [...(f.assets || []), a.id]) }; }) : [],

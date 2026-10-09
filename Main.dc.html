@@ -178,7 +178,7 @@
             <h2 style="margin:0;font-size:14px;font-weight:600;white-space:nowrap">{{ slideTitle }}</h2>
             <span style="color:#98A2B3;font-size:12px;white-space:nowrap">{{ slidePeriod }}</span>
             <div style="margin-left:auto;display:flex;gap:4px">
-              <sc-if value="{{ anaShown }}" hint-placeholder-val="{{ true }}">
+              <sc-if value="{{ showArrows }}" hint-placeholder-val="{{ true }}">
               <button onClick="{{ prevSlide }}" title="Previous" style="width:28px;height:28px;display:grid;place-items:center;background:#fff;border:1px solid #E4E7EC;border-radius:6px;color:#475467;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">chevron_left</span></button>
               <button onClick="{{ nextSlide }}" title="Next" style="width:28px;height:28px;display:grid;place-items:center;background:#fff;border:1px solid #E4E7EC;border-radius:6px;color:#475467;cursor:pointer" style-hover="border-color:#98A2B3"><span style="font:18px/1 'Material Symbols Outlined'">chevron_right</span></button>
               </sc-if>
@@ -441,6 +441,10 @@ const D = {
 const EST = { u1: 1.5, u2: 1, u3: 0.5, u4: 2, tu1: 4, tu2: 1, tu3: 1, tu4: 1 };
 const FAIL = [['Tempering Furnace 2', 'Tempering Line', 9, [2, 4, 3, 6, 5, 8, 9]], ['Conveyor Line 3', 'Float Line', 7, [3, 5, 4, 4, 6, 5, 7]], ['Hydraulic Press', 'Workshop', 6, [5, 3, 6, 4, 5, 7, 6]], ['Palletizing Robot', 'Packaging', 4, [7, 6, 5, 5, 4, 5, 4]]];
 const SLIDES = [['Reminders', 'Controls & calibrations due'], ['Most failures', 'Last 30 days'], ['Preventive vs corrective', 'Last 30 days'], ['Mean time to repair', 'Last 8 weeks'], ['Created vs completed', 'Last 6 weeks'], ['Downtime by equipment', 'Last 30 days']];
+const FON = id => !window.RelixMaturity || window.RelixMaturity.on(id);
+// Home analytics carousel: Reminders need maintenance plans; dashboard-grade indicators need the Site dashboard level.
+const slideOn = i => i === 0 ? FON('prev.module') : i === 1 ? true : FON('perf.dashboard');
+const slidesOn = () => SLIDES.map((_, i) => i).filter(slideOn);
 const wq = (wo, title, loc, type, prio, status) => { const [asset, task] = title.split(' — '); return new URLSearchParams({ wo, task: task || title, asset, loc, type, prio, status }).toString(); };
 const ACT = [
   ['priority_high', 'Critical issue reported', 'Tin Bath — Roller stopped', 'Float Line · reported by operator', '2 min', '#FDECEC', '#B42318', 'WorkOrders.dc.html'],
@@ -471,6 +475,7 @@ class Component extends DCLogic {
     hub: 'activity', woOpen: null, chatHl: '', act: ACT, created: [], C: null, PM: null, reqView: 'open', reqOpen: null, reqNote: null, sched: null,
     anaHidden: (() => { try { return localStorage.getItem('cmms.home.analytics') === 'hidden'; } catch (e) { return false; } })() };
   componentDidMount() {
+    import('./maturity-model.js').then(() => this.forceUpdate()); this._matU = () => this.forceUpdate(); window.addEventListener('cmms-maturity', this._matU);
     const qs = new URLSearchParams(window.location.search), ch = qs.get('chat');
     if (ch) this.setState(ch === 'dm' || ch === '1' ? { hub: 'chat' } : { hub: 'chat', chatCh: ch, dmView: 'direct', chatHl: qs.get('msg') || '' });
     if (qs.get('req')) this.setState({ reqOpen: qs.get('req'), reqView: 'all' });
@@ -479,7 +484,7 @@ class Component extends DCLogic {
     import('./people-model.js').then(PM => this.setState({ PM }));
     Promise.all([import('./plans-model.js'), import('./plant-model.js')]).then(([PN, PL]) => this.setState({ PN, PL })); this._pn = () => this.setState(st => ({ cv: (st.cv || 0) + 1 })); window.addEventListener('cmms-plans', this._pn);
     this._chat = () => this.setState(st => ({ cv: (st.cv || 0) + 1 })); window.addEventListener('cmms-chat', this._chat); window.addEventListener('cmms-request', this._chat); window.addEventListener('cmms-wo', this._chat);
-    this._iv = setInterval(() => { if ((this.props.autoRotate ?? true) && !this.state.anaHidden && !this.state.hover && Date.now() - (this._nav || 0) > 4500) this.setState(s => ({ slide: (s.slide + 1) % SLIDES.length })); }, 5000);
+    this._iv = setInterval(() => { if ((this.props.autoRotate ?? true) && !this.state.anaHidden && !this.state.hover && Date.now() - (this._nav || 0) > 4500) this.step(1); }, 5000);
     this._wo = e => { const r = e.detail || {}, C = this.state.C;
       if (r.fromRequest && C) C.updateRequest(r.fromRequest, { status: 'accepted', wo: r.key, woTask: r.title, woPrio: r.prio, decidedBy: C.ME });
       this.setState(s => ({ act: [['add_circle', 'Intervention created', r.title, 'by you · ' + (r.date ? 'scheduled' : 'not scheduled') + (r.fromRequest ? ' · from request ' + r.fromRequest : ''), 'now', '#EEF1F4', '#475467', 'WorkOrders.dc.html'], ...s.act],
@@ -490,7 +495,8 @@ class Component extends DCLogic {
   }
   componentWillUnmount() { clearInterval(this._iv); clearTimeout(this._t); window.removeEventListener('cmms-wo-created', this._wo); window.removeEventListener('cmms-plans', this._pn); window.removeEventListener('cmms-chat', this._chat); window.removeEventListener('cmms-request', this._chat); window.removeEventListener('cmms-wo', this._chat); window.removeEventListener('cmms-dm-open', this._dmOpen); window.removeEventListener('cmms-request-sent', this._sent); }
   flash(t) { this.setState({ toast: t }); clearTimeout(this._t); this._t = setTimeout(() => this.setState({ toast: null, flashId: null }), 3200); }
-  go(i) { this._nav = Date.now(); this.setState({ slide: (i + SLIDES.length) % SLIDES.length }); }
+  go(i) { this._nav = Date.now(); this.setState({ slide: i }); }
+  step(d) { const on = slidesOn(), p = Math.max(0, on.indexOf(this.state.slide)); this.go(on[(p + d + on.length) % on.length]); }
   openHub(k) { this.setState({ hub: k, chatCh: null, chatHl: '' }); }
   openChannel(ch) { this.setState({ hub: 'chat', chatCh: ch, dmView: 'direct', chatHl: '' }); }
   openWoThread(key) { this.openChannel(key); }
@@ -684,9 +690,9 @@ class Component extends DCLogic {
       ...(() => { const PN = s.PN, PL = s.PL, zoneOk = id => { if (!(s.fz || []).length || !PL || !id) return true; const a = PL.asset(id); return a && (s.fz || []).includes((PL.zoneOf(a.loc) || {}).id); };
         const list = PN ? PN.reminders(60).filter(r => zoneOk(r.assetId)).slice(0, 4) : [];
         return { noReminders: !list.length, reminders: list.map(r => ({ title: r.title, asset: r.asset, kind: r.kind, due: PN.fmt(r.due), icon: r.kind === 'Calibration' ? 'straighten' : 'verified', bg: r.days < 0 ? '#FDECEC' : r.days <= 14 ? '#FEF3E2' : '#EAF1FD', fg: r.days < 0 ? '#B42318' : r.days <= 14 ? '#B54708' : '#2456B8', left: r.days < 0 ? `${-r.days} d overdue` : r.days === 0 ? 'Today' : `in ${r.days} d`, pillBg: r.days < 0 ? '#FDECEC' : r.days <= 14 ? '#FEF3E2' : '#EEF1F4', pillFg: r.days < 0 ? '#B42318' : r.days <= 14 ? '#B54708' : '#475467', href: r.href })) }; })(),
-      slideTitle: s.anaHidden ? 'Analytics' : SLIDES[s.slide][0], slidePeriod: s.anaHidden ? '' : SLIDES[s.slide][1], trackX: `translateX(-${s.slide * 100}%)`,
-      prevSlide: () => this.go(s.slide - 1), nextSlide: () => this.go(s.slide + 1),
-      dots: SLIDES.map(([t], i) => ({ title: t, w: i === s.slide ? '18px' : '6px', bg: i === s.slide ? '#C00018' : '#D0D5DD', go: () => this.go(i) })),
+      ...(() => { const on = slidesOn(), cur = on.includes(s.slide) ? s.slide : on[0]; return { slideTitle: s.anaHidden ? 'Analytics' : SLIDES[cur][0], slidePeriod: s.anaHidden ? '' : SLIDES[cur][1], trackX: `translateX(-${cur * 100}%)`,
+      prevSlide: () => this.step(-1), nextSlide: () => this.step(1), showArrows: !s.anaHidden && on.length > 1,
+      dots: on.length > 1 ? on.map(i => ({ title: SLIDES[i][0], w: i === cur ? '18px' : '6px', bg: i === cur ? '#C00018' : '#D0D5DD', go: () => this.go(i) })) : [] }; })(),
       hoverOn: () => this.setState({ hover: true }), hoverOff: () => this.setState({ hover: false }),
       quick: () => { this.setState({ qTip: false }); window.CMMSQuickIntervention && window.CMMSQuickIntervention({}); }, qTip: !!s.qTip, qTipOn: () => this.setState({ qTip: true }), qTipOff: () => this.setState({ qTip: false }),
       hubTabs: [['activity', 'Activity', 'bolt'], ['chat', 'Chat', 'forum']].map(([k, label, icon]) => { const on = hub === k, un = k === 'chat' ? chatUnread : 0;

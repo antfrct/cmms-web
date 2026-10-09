@@ -208,6 +208,7 @@ class Component extends DCLogic {
         hint: i === 0 ? (f.type || 'Required') : i === 1 ? (n ? n.name : 'Required') : i === 2 ? (f.name || 'Required') : i === 3 ? (f.specs.length ? `${f.specs.length} specs` : 'Optional') : (f.docs.length ? `${f.docs.length} files` : 'Optional'), go: () => this.setState({ step: i }) })),
       isType: step === 0, isLoc: step === 1, isIdentity: step === 2, isSpecs: step === 3, isDocs: step === 4,
       classes: [['fixed', 'Equipment', 'precision_manufacturing', 'Installed at a fixed place on a line — furnace, pump, conveyor…'], ['mobile', 'Mobile asset', 'forklift', 'Moved between jobs — crane, lift, instrument. Reserved when an intervention needs it.']]
+        .filter(([k]) => k !== 'mobile' || f.cls === 'mobile' || !window.RelixMaturity || window.RelixMaturity.on('assets.mobile'))
         .map(([k, label, icon, desc]) => { const on = f.cls === k; return { label, icon, desc, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : '#E4E7EC', tileBg: on ? '#C00018' : '#F2F4F7', tileFg: on ? '#fff' : '#475467', pick: () => this.setF({ cls: k, type: '' }) }; }),
       types: (s.CFG ? s.CFG.assetTypes(f.cls).map(t => [t.name, t.icon]) : PM.TYPES[f.cls]).map(([t, icon]) => { const on = f.type === t; return { label: t, icon, bg: on ? '#FBF7F7' : '#fff', border: on ? '#C00018' : okErr(0) ? '#F8C98B' : '#E4E7EC', color: on ? '#A30014' : '#344054', font: on ? bold : reg, pick: () => this.setF({ type: t }) }; }),
       locTitle: mobile ? 'Home location — where it is kept when not in use' : 'Where is it installed?',
